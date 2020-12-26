@@ -1015,7 +1015,8 @@ public final class Physics extends IntaveCheck {
         motionY = 0.30000001192092896D;
       }
     } else if (!elytraFlying) {
-      if (PlayerMovementHelper.isOnLadder(user, positionX, positionY, positionZ) && collidedHorizontally) {
+      boolean climbing = Math.abs(movementData.motionY() - (0.2 - 0.08) * 0.98f) < 1e-5;
+      if (PlayerMovementHelper.isOnLadder(user, positionX, positionY, positionZ) && (climbing || collidedHorizontally)) {
         motionY = 0.2;
       }
 
