@@ -808,9 +808,9 @@ public final class Physics extends IntaveCheck {
   private double resolveRiptideDeviation(UserMetaMovementData movementData) {
     double riptideTolerance;
     if (movementData.onGround) {
-      riptideTolerance = movementData.pastRiptideSpin == 0 ? RIPTIDE_TOLERANCE : RIPTIDE_TOLERANCE_2;
-    } else {
       riptideTolerance = movementData.pastRiptideSpin == 0 ? RIPTIDE_TOLERANCE : RIPTIDE_GROUND_TOLERANCE_2;
+    } else {
+      riptideTolerance = movementData.pastRiptideSpin == 0 ? RIPTIDE_TOLERANCE : RIPTIDE_TOLERANCE_2;
     }
     return riptideTolerance;
   }
