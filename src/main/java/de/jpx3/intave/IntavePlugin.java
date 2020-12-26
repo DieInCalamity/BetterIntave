@@ -1,11 +1,14 @@
 package de.jpx3.intave;
 
+import de.jpx3.intave.adapter.ComponentLoader;
 import de.jpx3.intave.adapter.ViaVersionAdapter;
 import de.jpx3.intave.detect.CheckService;
 import de.jpx3.intave.event.service.RetributionService;
 import de.jpx3.intave.event.EventService;
 import de.jpx3.intave.event.bukkit.BukkitEventLinker;
 import de.jpx3.intave.event.packet.PacketSubscriptionLinker;
+import de.jpx3.intave.logging.IntaveLogger;
+import de.jpx3.intave.tools.annotate.Natify;
 import de.jpx3.intave.tools.client.SinusCache;
 import de.jpx3.intave.tools.inventory.InventoryUseItemHelper;
 import de.jpx3.intave.world.BlockAccessor;
@@ -15,6 +18,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class IntavePlugin extends JavaPlugin {
   private static IntavePlugin singletonInstance;
 
+  private IntaveLogger logger;
+  private ComponentLoader componentLoader;
   private BukkitEventLinker eventLinker;
   private PacketSubscriptionLinker packetSubscriptionLinker;
   private EventService eventService;
@@ -25,28 +30,41 @@ public final class IntavePlugin extends JavaPlugin {
     // stage 1
 
 
+    // minecraft injection patches
   }
 
   public IntavePlugin() {
-    singletonInstance = this;
     // stage 2
+    singletonInstance = this;
+    this.logger = new IntaveLogger(this);
   }
 
+  @Natify
   @Override
   public void onLoad() {
     // stage 3
+
+    // event links must be available throughout the onEnable call
+    eventLinker = new BukkitEventLinker(this);
+
   }
 
+  @Natify
   @Override
   public void onEnable() {
+    logger.info("Please stand by..");
     // stage 4
 
-    eventLinker = new BukkitEventLinker(this);
-    packetSubscriptionLinker = new PacketSubscriptionLinker(this);
+    componentLoader = new ComponentLoader(this);
+    componentLoader.loadComponents();
 
-    checkService = new CheckService(this);
+    // version mambo jumbo
 
     // stage 5
+
+    packetSubscriptionLinker = new PacketSubscriptionLinker(this);
+
+    // stage 6
 
     SinusCache.setup();
     BlockAccessor.setup();
@@ -54,26 +72,31 @@ public final class IntavePlugin extends JavaPlugin {
     InventoryUseItemHelper.setup();
     CollisionEngine.setup();
 
+    try {
+      // stage 7
 
-    // stage 6
+      checkService = new CheckService(this);
+      retributionService = new RetributionService();
+      eventService = new EventService(this);
 
+      // stage 8
 
-    // stage 7
+      checkService.setup();
+      eventService.setup();
+    } catch (Exception exception) {
+      logger.error("Unable to boot");
+      exception.printStackTrace();
+    }
+  }
 
-    checkService = new CheckService(this);
-    retributionService = new RetributionService();
-    eventService = new EventService(this);
-
-
-    // stage 8
-
-    checkService.setup();
-    eventService.setup();
+  @Natify
+  @Override
+  public void onDisable() {
 
   }
 
-  @Override
-  public void onDisable() {
+  public IntaveLogger logger() {
+    return logger;
   }
 
   public CheckService checkService() {
