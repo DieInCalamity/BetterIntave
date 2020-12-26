@@ -303,7 +303,7 @@ public final class Physics extends IntaveCheck {
     boolean isOnLadder = PlayerMovementHelper.isOnLadder(user, positionX, positionY, positionZ);
     boolean handActive = inventoryData.handActive();
     boolean attackReduce = movementData.pastPlayerAttackPhysics == 0;
-    boolean jumped = movementData.jumpUpwardsMotion() == movementData.motionY();
+    boolean jumped = movementData.jumpUpwardsMotion() == movementData.motionY() && movementData.onGround;
 
     context.reset(movementData.physicsLastMotionX, movementData.physicsLastMotionY, movementData.physicsLastMotionZ);
     physicsCalculate(
