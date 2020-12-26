@@ -2,6 +2,7 @@ package de.jpx3.intave.config;
 
 import com.google.common.hash.Hashing;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.security.SSLConnectionVerifier;
 import de.jpx3.intave.tools.annotate.Natify;
 import de.jpx3.intave.tools.annotate.Nullable;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -12,6 +13,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
@@ -57,8 +59,7 @@ public final class ConfigurationLoader {
       byte[] cipherBytes = new byte[byteBuffer.remaining()];
       byteBuffer.get(cipherBytes);
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-      GCMParameterSpec parameterSpec = new GCMParameterSpec(128, iv);
-      cipher.init(Cipher.DECRYPT_MODE, secretKey, parameterSpec);
+      cipher.init(Cipher.DECRYPT_MODE, secretKey, new GCMParameterSpec(128, iv));
       byte[] output = cipher.doFinal(cipherBytes);
       //noinspection UnstableApiUsage
       return Hashing.sha256().hashBytes(output).toString();
@@ -114,6 +115,7 @@ public final class ConfigurationLoader {
     try {
       URL url = new URL("https://intave.de/api/configuration-download.php");
       URLConnection urlConnection = url.openConnection();
+      SSLConnectionVerifier.verifyURLConnection((HttpsURLConnection) urlConnection);
       urlConnection.addRequestProperty("User-Agent", "Intave/"+IntavePlugin.VERSION);
       urlConnection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
       urlConnection.setUseCaches(false);
@@ -153,8 +155,7 @@ public final class ConfigurationLoader {
       byte[] cipherBytes = new byte[byteBuffer.remaining()];
       byteBuffer.get(cipherBytes);
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-      GCMParameterSpec parameterSpec = new GCMParameterSpec(128, iv);
-      cipher.init(Cipher.DECRYPT_MODE, secretKey, parameterSpec);
+      cipher.init(Cipher.DECRYPT_MODE, secretKey, new GCMParameterSpec(128, iv));
       byte[] output = cipher.doFinal(cipherBytes);
       return YamlConfiguration.loadConfiguration(new InputStreamReader(new ByteArrayInputStream(output)));
     } catch (Exception exception) {
