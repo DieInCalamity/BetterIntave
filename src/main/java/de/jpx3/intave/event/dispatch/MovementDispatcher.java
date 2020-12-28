@@ -7,18 +7,18 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.EventProcessor;
-import de.jpx3.intave.event.bukkit.BukkitEventSubscriber;
+import de.jpx3.intave.detect.checks.movement.Physics;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
+import de.jpx3.intave.event.packet.PacketDescriptor;
+import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.event.packet.PacketSubscriptionLinker;
+import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.tools.client.PlayerMovementLocaleHelper;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
-import de.jpx3.intave.detect.checks.movement.Physics;
-import de.jpx3.intave.event.packet.*;
 import de.jpx3.intave.user.*;
 import de.jpx3.intave.world.collision.CollisionFactory;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
 public final class MovementDispatcher implements EventProcessor {
@@ -277,9 +277,9 @@ public final class MovementDispatcher implements EventProcessor {
     User.UserMeta meta = user.meta();
     UserMetaInventoryData inventoryData = meta.inventoryData();
     UserMetaMovementData movementData = meta.movementData();
-    if (movementData.sneaking && !user.meta().clientData().sprintWhenSneaking()) {
-      return false;
-    }
+//    if (movementData.sneaking && !user.meta().clientData().sprintWhenSneaking()) {
+//      return false;
+//    }
     return !inventoryData.inventoryOpen();
   }
 }

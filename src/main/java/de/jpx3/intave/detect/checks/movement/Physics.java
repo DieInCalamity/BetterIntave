@@ -19,10 +19,7 @@ import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.*;
 import de.jpx3.intave.world.BlockAccessor;
 import de.jpx3.intave.world.collision.CollisionFactory;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -37,7 +34,7 @@ import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_AQUATIC_UP
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_VILLAGE_UPDATE;
 
 public final class Physics extends IntaveCheck {
-  private final static boolean DEBUG_MOVEMENT = true;
+  private final static boolean DEBUG_MOVEMENT = false;
   private final static boolean DEBUG_PERFORMANCE = false; // Disable DEBUG_MOVEMENT
   private final static boolean MOVEMENT_EMULATION = true;
   private final static float STEP_HEIGHT = 0.6f;
@@ -484,7 +481,6 @@ public final class Physics extends IntaveCheck {
     physicsCalculateFlying(user, context);
   }
 
-
   private void physicsCalculateFlying(User user, PhysicsProcessorContext context) {
     Player player = user.bukkitPlayer();
     UserMetaMovementData movementData = user.meta().movementData();
@@ -499,12 +495,12 @@ public final class Physics extends IntaveCheck {
     double resetMotion = movementData.resetMotion();
     double jumpUpwardsMotion = movementData.jumpUpwardsMotion();
 
-    double i = 0;
+    double interpolations = 0;
     double interpolateX = context.motionX;
     double interpolateY = context.motionY;
     double interpolateZ = context.motionZ;
 
-    for (i++; i <= 1; i++) {
+    for (; interpolations <= 2; interpolations++) {
       CollisionHelper.CollisionResult collisionResult = CollisionHelper.resolveQuickCollisions(
         player, positionX, positionY, positionZ,
         interpolateX, interpolateY, interpolateZ
@@ -517,32 +513,38 @@ public final class Physics extends IntaveCheck {
       double diffX = positionX - movementData.verifiedPositionX;
       double diffY = positionY - movementData.verifiedPositionY;
       double diffZ = positionZ - movementData.verifiedPositionZ;
-
       onGround = collisionResult.onGround();
 
-      if (flyingPacket(diffX, diffY, diffZ)) {
-        if (Math.abs(diffX) < resetMotion) {
-          diffX = 0;
-        }
-        if (Math.abs(diffY) < resetMotion) {
-          diffY = 0;
-        }
-        if (Math.abs(diffZ) < resetMotion) {
-          diffZ = 0;
-        }
+      boolean jumpLessThanExpected = collisionResult.motionY() < jumpUpwardsMotion;
+      boolean jump = onGround && Math.abs(((collisionResult.motionY()) + jumpUpwardsMotion) - movementData.motionY()) < 1e-5 && jumpLessThanExpected;
 
-        movementData.pastFlyingPacketAccurate = 0;
-        double nextPredictedX = diffX * slipperiness;
-        double nextPredictedY = (diffY - 0.08) * 0.98f;
-        double nextPredictedZ = diffZ * slipperiness;
+      if (!flyingPacket(diffX, diffY, diffZ) && !jump) {
+        break;
+      } else if (jump && flyingPacket(diffX, 0.0, diffZ)) {
+        context.motionY = jumpUpwardsMotion;
+        break;
+      } else {
+        double nextPredictedX = interpolateX * slipperiness;
+        double nextPredictedY = (interpolateY - 0.08) * 0.98f;
+        double nextPredictedZ = interpolateZ * slipperiness;
+
+        if (Math.abs(interpolateX) < resetMotion) {
+          interpolateX = 0;
+        }
+        if (Math.abs(interpolateY) < resetMotion) {
+          interpolateY = 0;
+        }
+        if (Math.abs(interpolateZ) < resetMotion) {
+          interpolateZ = 0;
+        }
 
         applyCollidedMotionsToContext(
           player, context,
           positionX, positionY, positionZ,
           nextPredictedX, nextPredictedY, nextPredictedZ
         );
-        break;
       }
+
       interpolateX *= slipperiness;
       interpolateY -= movementData.gravity;
       interpolateY *= 0.98f;
@@ -556,6 +558,9 @@ public final class Physics extends IntaveCheck {
       if (Math.abs(interpolateZ) < resetMotion) {
         interpolateZ = 0;
       }
+    }
+    if (interpolations != 0) {
+      movementData.pastFlyingPacketAccurate = 0;
     }
   }
 
@@ -670,7 +675,7 @@ public final class Physics extends IntaveCheck {
     violationLevelData.physicsVL = Math.min(100, violationLevelData.physicsVL);
 
     if (DEBUG_MOVEMENT) {
-      ChatColor chatColor = violationLevelIncrease == 0 ? ChatColor.GRAY : ChatColor.DARK_GRAY;
+      ChatColor chatColor = violationLevelIncrease == 0 ? ChatColor.GRAY : ChatColor.YELLOW;
       String position = MathHelper.formatPositionAsInt(receivedPositionX, receivedPositionY, receivedPositionZ);
       String displayPhysicsVL = formatDouble(violationLevelData.physicsVL, 4);
       String displayHorizontalVL = formatDouble(horizontalViolationIncrease, 3);
@@ -694,9 +699,11 @@ public final class Physics extends IntaveCheck {
 //      debug += "handActive=" + inventoryData.handActive();
 //      debug += inventoryData.heldItem().getType().name();
 //      debug += " flying:" + movementData.pastFlyingPacketAccurate;
-
+      if (violationLevelIncrease > 0) {
+        debug += " dist=" + formatDouble(distance, 10);
+      }
       debug += " " + (violationLevelData.isInActiveTeleportBundle ? "+" : "-");
-      player.sendMessage(player.getName() + "| " + debug + " dist=" + formatDouble(distance, 10));
+      player.sendMessage(player.getName() + "| " + debug);
 
 //      player.sendMessage(debug + " dist=" + formatDouble(distance, 10));
     }
@@ -751,8 +758,12 @@ public final class Physics extends IntaveCheck {
       legitimateDeviation = resolveRiptideDeviation(movementData);
     }
 
+    if (movementData.pastFlyingPacketAccurate <= 3) {
+      legitimateDeviation = 0.03;
+    }
+
     double abuseVertically = Math.max(0, differenceY - legitimateDeviation);
-    double multiplier = abuseVertically > 1e-5 ? 45.0 : 25.0;
+    double multiplier = abuseVertically > 1e-5 ? 105.0 : 25.0;
 
     if (movementData.pastWaterMovement < 5 || movementData.inLava()) {
       multiplier *= 0.4;
@@ -806,8 +817,10 @@ public final class Physics extends IntaveCheck {
     double distance = MathHelper.resolveHorizontalDistance(predictedX, predictedZ, motionX, motionZ);
     double abuseHorizontally = Math.max(0, distance - legitimateDeviation);
     boolean movedTooQuickly = distanceMoved > predictedDistanceMoved * 1.005;
-    if (movedTooQuickly && distanceMoved > 0.2 && abuseHorizontally > 0) {
-      return Math.max(abuseHorizontally, 0.05) * 60.0;
+    if (movedTooQuickly && distanceMoved > 0.05 && abuseHorizontally > 0) {
+//      double v = Math.max(abuseHorizontally, 0.3) * 100.0;
+//      Bukkit.broadcastMessage(user.bukkitPlayer().getName() + " moved too quickly: vl+" + v);
+      return Math.max(abuseHorizontally, 0.3) * 100.0;
     }
     return abuseHorizontally * ((abuseHorizontally > 0.1) ? 20.0 : 10.0);
   }
