@@ -20,10 +20,10 @@ public final class BlockRaytracer {
     final WrappedVector eyeVector = resolvePositionEyes(location, prevLocation, eyeHeight, partialTicks);
     final WrappedVector vec4 = resolveLookVector(location, prevLocation, partialTicks);
     final WrappedVector targetVector = eyeVector.addVector(vec4.xCoord * blockReachDistance, vec4.yCoord * blockReachDistance, vec4.zCoord * blockReachDistance);
-    return legacyRayTraceBlocks(location.getWorld(), eyeVector, targetVector, false, false, false);
+    return legacyRayTraceBlocks(location.getWorld(), eyeVector, targetVector, false, false);
   }
 
-  private static WrappedMovingObjectPosition legacyRayTraceBlocks(World world, WrappedVector eyeVector, WrappedVector targetVector, boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox, boolean returnLastUncollidableBlock) {
+  private static WrappedMovingObjectPosition legacyRayTraceBlocks(World world, WrappedVector eyeVector, WrappedVector targetVector, boolean stopOnLiquid, boolean returnLastUncollidableBlock) {
     int i = WrappedMathHelper.floor(targetVector.xCoord);
     int j = WrappedMathHelper.floor(targetVector.yCoord);
     int k = WrappedMathHelper.floor(targetVector.zCoord);
@@ -33,16 +33,20 @@ public final class BlockRaytracer {
     Location loc = new Location(world, l, i2, j2);
     Object nativeBlock = BlockAccessHelper.resolveNativeBlock(loc);
     Object nativeWorld = BlockAccessHelper.resolveNativeWorld(world);
-//    Object blockState = BlockAccessHelper.resolveBlockData(world, byCache);
+    Object blockState = BlockAccessHelper.resolveBlockData(loc);
     if (nativeBlock == null) {
       return null;
     }
-//    if ((!ignoreBlockWithoutBoundingBox || nativeBlock.a(nativeWorld, byCache, blockState) != null) && nativeBlock.a(blockState, stopOnLiquid)) {
-//      final MovingObjectPosition movingobjectposition = nativeBlock.a(nativeWorld, byCache, WrappedVector.convertToNMS(eyeVector), WrappedVector.convertToNMS(targetVector));
-//      if (movingobjectposition != null) {
-//        return movingobjectposition;
-//      }
-//    }
+    if (BlockAccessHelper.liquidCheck(nativeBlock, blockState, stopOnLiquid)) {
+//      final MovingObjectPosition movingobjectposition = nativeBlock.a(nativeWorld, block, WrappedVector.convertToNMS(eyeVector), WrappedVector.convertToNMS(targetVector));
+      WrappedMovingObjectPosition movingobjectposition3 = BlockAccessHelper.blockRaytrace(nativeBlock, nativeWorld, BlockAccessHelper.generateBlockPosition(loc), eyeVector.convertToNativeVec3(), targetVector.convertToNativeVec3());
+      if (movingobjectposition3 != null) {
+        return movingobjectposition3;
+      }/*
+      if (movingobjectposition != null) {
+        return movingobjectposition;
+      }*/
+    }
     WrappedMovingObjectPosition movingobjectposition2 = null;
     int k2 = 20;
     while (k2-- >= 0) {
@@ -134,10 +138,13 @@ public final class BlockRaytracer {
 //      if (ignoreBlockWithoutBoundingBox && block1.a(nativeWorld, byCache, iblockstate1) == null) {
 //        continue;
 //      }
+//      Bukkit.broadcastMessage(block1.getClass().getSimpleName() + " " + eyeVector);
       if (BlockAccessHelper.liquidCheck(block1, iblockstate1, stopOnLiquid)) {
-        WrappedMovingObjectPosition movingobjectposition3 = BlockAccessHelper.blockRaytrace(nativeBlock, nativeWorld, BlockAccessHelper.generateBlockPosition(byCache), eyeVector.convertToNativeVec3(), targetVector.convertToNativeVec3());//block1.a(nativeWorld, BlockAccessHelper.generateBlockPosition(byCache), eyeVector.convertToNativeVec3(), targetVector.convertToNativeVec3());
+        WrappedMovingObjectPosition movingobjectposition3 = BlockAccessHelper.blockRaytrace(block1/*nativeBlock*/, nativeWorld, BlockAccessHelper.generateBlockPosition(byCache), eyeVector.convertToNativeVec3(), targetVector.convertToNativeVec3());//block1.a(nativeWorld, BlockAccessHelper.generateBlockPosition(byCache), eyeVector.convertToNativeVec3(), targetVector.convertToNativeVec3());
         if (movingobjectposition3 != null) {
           return movingobjectposition3;
+        } else {
+          movingobjectposition2 = new WrappedMovingObjectPosition(WrappedMovingObjectPosition.MovingObjectType.MISS, eyeVector, enumfacing, new WrappedBlockPosition(byCache));
         }
       }
       else {

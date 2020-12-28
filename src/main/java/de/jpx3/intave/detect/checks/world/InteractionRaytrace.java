@@ -12,6 +12,7 @@ import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;
+import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.wrapper.WrappedBlockPosition;
 import de.jpx3.intave.tools.wrapper.WrappedEnumDirection;
 import de.jpx3.intave.tools.wrapper.WrappedMovingObjectPosition;
@@ -66,29 +67,37 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     WrappedBlockPosition raycastVector = hitMiss ? WrappedBlockPosition.ORIGIN : raycastResult.getBlockPos();
     Location raycastLocation = raycastVector.toLocation(world);
 
-    if(hitMiss) {
-      player.updateInventory();
-      refreshBlock(player, targetLocation);
-      for (int i = 0; i < 6; i++) {
-        Location placedBlock = targetLocation.clone().add(WrappedEnumDirection.getFront(i).getDirectionVec().convertToBukkitVec());
-        refreshBlock(player, placedBlock);
-      }
-      player.sendMessage("Unable to resolve trace");
-      event.setCancelled(true);
-    } else if(raycastLocation.distance(targetLocation) > 0 || enumDirection != raycastResult.sideHit.getIndex()) {
-      BlockPosition blockPosition1 = new BlockPosition(
-        raycastLocation.getBlockX(),
-        raycastLocation.getBlockY(),
-        raycastLocation.getBlockZ()
-      );
-      packet.getIntegers().write(0, raycastResult.sideHit.getIndex());
-      packet.getBlockPositionModifier().write(0, blockPosition1);
-      player.sendMessage("Updated block position " + blockPosition + " to " + blockPosition1 + " and " + enumDirection + " to " + raycastResult.sideHit.getIndex());
+    boolean hasPlaceableBlockInHand = player.getItemInHand().getType().isBlock();
 
-      refreshBlock(player, targetLocation);
-      for (int i = 0; i < 6; i++) {
-        Location placedBlock = targetLocation.clone().add(WrappedEnumDirection.getFront(i).getDirectionVec().convertToBukkitVec());
-        refreshBlock(player, placedBlock);
+    double vlChange = hasPlaceableBlockInHand ? Math.min(hitMiss ? 2 : enumDirection != raycastResult.sideHit.getIndex() ? 1.5 : raycastLocation.distance(targetLocation) - 0.5, 2) : 0;
+    double vl =
+      metaOf(player).localVL =
+        MathHelper.minmax(
+          0,
+          metaOf(player).localVL + vlChange,
+          30
+        );
+
+//    player.sendMessage(vl + " " + (vlChange > 0 ? "+" : "") + vlChange);
+
+    if(vl >= 10 || !hasPlaceableBlockInHand) {
+      if(hitMiss) {
+        player.updateInventory();
+        refreshBlock(player, targetLocation);
+        for (WrappedEnumDirection direction : WrappedEnumDirection.values()) {
+          Location placedBlock = targetLocation.clone().add(direction.getDirectionVec().convertToBukkitVec());
+          refreshBlock(player, placedBlock);
+        }
+        event.setCancelled(true);
+      } else if(raycastLocation.distance(targetLocation) > 0 || enumDirection != raycastResult.sideHit.getIndex()) {
+        BlockPosition blockPosition1 = new BlockPosition(raycastLocation.getBlockX(), raycastLocation.getBlockY(), raycastLocation.getBlockZ());
+        packet.getIntegers().write(0, raycastResult.sideHit.getIndex());
+        packet.getBlockPositionModifier().write(0, blockPosition1);
+        refreshBlock(player, targetLocation);
+        for (WrappedEnumDirection direction : WrappedEnumDirection.values()) {
+          Location placedBlock = targetLocation.clone().add(direction.getDirectionVec().convertToBukkitVec());
+          refreshBlock(player, placedBlock);
+        }
       }
     }
   }
@@ -129,6 +138,6 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
   }
 
   public static class InteractionMeta extends UserCustomCheckMeta {
-
+    double localVL; // please conv me into general vl for check
   }
 }

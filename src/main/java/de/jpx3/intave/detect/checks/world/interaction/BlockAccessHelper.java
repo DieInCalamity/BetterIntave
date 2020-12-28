@@ -4,6 +4,7 @@ import de.jpx3.intave.access.IntaveException;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.reflect.Reflection;
 import de.jpx3.intave.tools.wrapper.WrappedMovingObjectPosition;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -118,14 +119,15 @@ public final class BlockAccessHelper {
   //block1.a(nativeWorld, BlockAccessHelper.generateBlockPosition(byCache), vec31.convertToNativeVec3(), vec32.convertToNativeVec3());
   public static WrappedMovingObjectPosition blockRaytrace(Object nmsBlock, Object nmsWorld, Object blockPosition, Object nativeEyeVector, Object nativeTargetVector) {
     try {
-      Method raytrace = nmsBlock.getClass().getMethod(
+      Method raytraceMethod = nmsBlock.getClass().getMethod(
         "a",
         lookupServerClass("World"),
         lookupServerClass("BlockPosition"),
         lookupServerClass("Vec3D"),
         lookupServerClass("Vec3D")
       );
-      Object movingObjectPosition = raytrace.invoke(nmsBlock, nmsWorld, blockPosition, nativeEyeVector, nativeTargetVector);
+//      Bukkit.broadcastMessage(String.valueOf(raytraceMethod));
+      Object movingObjectPosition = raytraceMethod.invoke(nmsBlock, nmsWorld, blockPosition, nativeEyeVector, nativeTargetVector);
       return movingObjectPosition == null ? null : WrappedMovingObjectPosition.fromNativeMovingObjectPosition(movingObjectPosition);
     } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
       throw new IntaveInternalException(exception);

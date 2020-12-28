@@ -44,7 +44,7 @@ public final class User {
     UserCustomCheckMeta userCustomCheckMeta = customMetaPool.get(classTarget);
     if (userCustomCheckMeta == null) {
       try {
-        customMetaPool.put(classTarget, classTarget.newInstance());
+        customMetaPool.put(classTarget, userCustomCheckMeta = classTarget.newInstance());
       } catch (InstantiationException | IllegalAccessException e) {
         e.printStackTrace();
       }
