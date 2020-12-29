@@ -19,10 +19,7 @@ import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.*;
 import de.jpx3.intave.world.BlockAccessor;
 import de.jpx3.intave.world.collision.CollisionFactory;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -37,7 +34,7 @@ import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_AQUATIC_UP
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_VILLAGE_UPDATE;
 
 public final class Physics extends IntaveCheck {
-  private final static boolean DEBUG_MOVEMENT = true;
+  private final static boolean DEBUG_MOVEMENT = false;
   private final static boolean DEBUG_PERFORMANCE = false; // Disable DEBUG_MOVEMENT
   private final static boolean MOVEMENT_EMULATION = true;
   private final static float STEP_HEIGHT = 0.6f;
@@ -629,7 +626,7 @@ public final class Physics extends IntaveCheck {
       violationLevelIncrease = 0;
     }
 
-    if (movementData.pastVelocity < 10 && inventoryData.pastItemUsageTransition > 1) {
+    if (movementData.pastVelocity < 10 && inventoryData.pastItemUsageTransition > 7) {
       if (violationLevelIncrease > 0) {
         violationLevelIncrease = Math.max(violationLevelIncrease, 1.0);
       }
@@ -663,7 +660,7 @@ public final class Physics extends IntaveCheck {
       movementData.invalidMovement = true;
       String received = formatPosition(receivedMotionX, receivedMotionY, receivedMotionZ);
       String expected = formatPosition(predictedX, predictedY, predictedZ);
-      String message = "sent unexpected position: (" + received + ") but expected (" + expected + ") " + onLadder;
+      String message = "sent unexpected position: (" + received + ") but expected (" + expected + ")";
 
       plugin.retributionService().markPlayer(player, (int) violationLevelIncrease, "Physics", message);
 
@@ -782,6 +779,7 @@ public final class Physics extends IntaveCheck {
   ) {
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
+    UserMetaInventoryData inventoryData = meta.inventoryData();
     double motionX = movementData.motionX();
     double motionZ = movementData.motionZ();
     double distanceMoved = MathHelper.resolveHorizontalDistance(
@@ -831,10 +829,11 @@ public final class Physics extends IntaveCheck {
 
     double distance = MathHelper.resolveHorizontalDistance(predictedX, predictedZ, motionX, motionZ);
     double abuseHorizontally = Math.max(0, distance - legitimateDeviation);
-    boolean movedTooQuickly = distanceMoved > predictedDistanceMoved * 1.005;
+    boolean movedTooQuickly = distanceMoved > predictedDistanceMoved * 1.005
+        && inventoryData.pastItemUsageTransition > 10;
     if (movedTooQuickly && distanceMoved > 0.2 && abuseHorizontally > 0 && !recentlySentFlying && !recentlyVelocity) {
 //      double v = Math.max(abuseHorizontally, 0.3) * 100.0;
-//      Bukkit.broadcastMessage(user.bukkitPlayer().getName() + " moved too quickly: vl+" + v);
+//      Bukkit.broadcastMessage(user.bukkitPlayer().getName() + " moved too quickly: vl+" + v + " -" + inventoryData.pastItemUsageTransition);
       return Math.max(abuseHorizontally, 0.3) * 100.0;
     }
     return abuseHorizontally * ((abuseHorizontally > 0.1) ? 20.0 : 10.0);
