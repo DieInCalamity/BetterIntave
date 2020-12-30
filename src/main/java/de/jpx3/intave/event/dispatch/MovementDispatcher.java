@@ -14,6 +14,7 @@ import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.PacketSubscriptionLinker;
 import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.tools.client.PlayerMovementLocaleHelper;
+import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.user.*;
 import de.jpx3.intave.world.collision.CollisionFactory;
@@ -46,6 +47,27 @@ public final class MovementDispatcher implements EventProcessor {
     User user = UserRepository.userOf(player);
     UserMetaMovementData movementData = user.meta().movementData();
     movementData.updateWorld();
+  }
+
+  @PacketSubscription(
+    priority = ListenerPriority.HIGH,
+    packets = {
+      @PacketDescriptor(sender = Sender.SERVER, packetName = "RESPAWN")
+    }
+  )
+  public void sentRespawn(PacketEvent event) {
+    Player player = event.getPlayer();
+    Synchronizer.synchronizeDelayed(() -> synchronizeRespawn(player), 1);
+  }
+
+  private void synchronizeRespawn(Player player) {
+    User user = UserRepository.userOf(player);
+    plugin.eventService()
+      .transactionFeedbackService()
+      .requestPong(player, user.meta().movementData(), (p, movementData) -> {
+        movementData.sneaking = false;
+        movementData.sprinting = false;
+      });
   }
 
   @PacketSubscription(
@@ -109,7 +131,7 @@ public final class MovementDispatcher implements EventProcessor {
     teleportPositionObserver.receiveMovement(event);
 
     if (movementData.awaitTeleport) {
-//      event.setCancelled(true);
+      event.setCancelled(true);
       return;
     }
 
@@ -130,7 +152,6 @@ public final class MovementDispatcher implements EventProcessor {
     // flag -> remove packet
     if (movementData.invalidMovement) {
       event.setCancelled(true);
-      return;
     }
 
     movementData.invalidMovement = false;

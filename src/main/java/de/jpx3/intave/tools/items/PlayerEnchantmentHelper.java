@@ -44,6 +44,9 @@ public final class PlayerEnchantmentHelper {
     }
     int depthStriderLevel = 0;
     for (ItemStack itemstack : stacks) {
+      if (itemstack == null) {
+        continue;
+      }
       int level = itemstack.getEnchantmentLevel(enchantment);
       if (level > depthStriderLevel) {
         depthStriderLevel = level;

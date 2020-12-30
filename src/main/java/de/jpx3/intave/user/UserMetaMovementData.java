@@ -45,8 +45,8 @@ public final class UserMetaMovementData {
   private float aiMoveSpeed, jumpMovementFactor;
   public boolean inWater, eyesInWater;
   public boolean inWeb;
-  public int pastPushedByWaterFlow;
-  public int pastElytraFlying, pastVelocity = 100;
+  public int pastPushedByWaterFlow = 100;
+  public int pastElytraFlying = 100, pastVelocity = 100;
   public boolean onLadderLast;
 
   public boolean invalidMovement;
