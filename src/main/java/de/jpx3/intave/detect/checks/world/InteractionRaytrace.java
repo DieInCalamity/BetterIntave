@@ -58,7 +58,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     World world = player.getWorld();
     Location targetLocation = blockPosition.toLocation(world);
 
-    Location playerLocation = UserRepository.userOf(player).meta().movementData().verifiedLocation.clone();
+    Location playerLocation = UserRepository.userOf(player).meta().movementData().verifiedLocation().clone();
     playerLocation.setYaw(userMetaMovementData.rotationYaw);
     playerLocation.setPitch(userMetaMovementData.rotationPitch);
     WrappedMovingObjectPosition raycastResult = BlockRaytracer.resolveBlockInLineOfSight(player, playerLocation);

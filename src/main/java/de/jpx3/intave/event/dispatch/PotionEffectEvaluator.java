@@ -151,6 +151,3 @@ public final class PotionEffectEvaluator implements PacketEventSubscriber {
     }
   }
 }
-
-
-

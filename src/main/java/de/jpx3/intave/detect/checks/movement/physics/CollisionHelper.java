@@ -19,7 +19,7 @@ public final class CollisionHelper {
   private final static float PLAYER_HEIGHT = 1.8f;
   private final static double HALF_WIDTH = 0.3;
 
-  public static WrappedAxisAlignedBB entityBoundingBoxOf(
+  public static WrappedAxisAlignedBB boundingBoxOf(
     User user,
     double positionX, double positionY, double positionZ
   ) {
@@ -32,15 +32,20 @@ public final class CollisionHelper {
     );
   }
 
-  public static WrappedAxisAlignedBB entityBoundingBoxOf(Location center) {
-    return entityBoundingBoxOf(center.getX(), center.getY(), center.getZ());
+  public static WrappedAxisAlignedBB boundingBoxOf(User user, Location location) {
+    return boundingBoxOf(user, location.getX(), location.getY(), location.getZ());
   }
 
-  public static WrappedAxisAlignedBB entityBoundingBoxOf(WrappedBlockPosition position) {
-    return entityBoundingBoxOf(position.xCoord, position.yCoord, position.zCoord);
+  public static WrappedAxisAlignedBB boundingBoxOf(Location center) {
+    return boundingBoxOf(center.getX(), center.getY(), center.getZ());
   }
 
-  public static WrappedAxisAlignedBB entityBoundingBoxOf(
+  public static WrappedAxisAlignedBB boundingBoxOf(WrappedBlockPosition position) {
+    return boundingBoxOf(position.xCoord, position.yCoord, position.zCoord);
+  }
+
+  @Deprecated
+  public static WrappedAxisAlignedBB boundingBoxOf(
     double positionX, double positionY, double positionZ
   ) {
     return new WrappedAxisAlignedBB(
@@ -54,7 +59,7 @@ public final class CollisionHelper {
     double positionX, double positionY, double positionZ,
     double motionX, double motionY, double motionZ
   ) {
-    WrappedAxisAlignedBB boundingBox = CollisionHelper.entityBoundingBoxOf(positionX, positionY, positionZ);
+    WrappedAxisAlignedBB boundingBox = CollisionHelper.boundingBoxOf(positionX, positionY, positionZ);
     List<WrappedAxisAlignedBB> collisionBoxes = CollisionFactory.getCollisionBoxes(
       player,
       boundingBox.addCoord(motionX, motionY, motionZ)
@@ -75,44 +80,6 @@ public final class CollisionHelper {
     return new CollisionResult(motionX, motionY, motionZ, onGround, startMotionY != motionY);
   }
 
-  public static Vector resolvePushVector(Player player, double positionX, double positionY, double positionZ) {
-    WrappedBlockPosition blockPosition = new WrappedBlockPosition(positionX, positionY, positionZ);
-    double d0 = positionX - blockPosition.xCoord;
-    double d1 = positionZ - blockPosition.zCoord;
-    Vector vector = new Vector();
-    int i = -1;
-    double d2 = 9999.0D;
-    if (isOpenBlockSpace(player, blockPosition.west()) && d0 < d2) {
-      d2 = d0;
-      i = 0;
-    }
-    if (isOpenBlockSpace(player, blockPosition.east()) && 1.0D - d0 < d2) {
-      d2 = 1.0D - d0;
-      i = 1;
-    }
-    if (isOpenBlockSpace(player, blockPosition.north()) && d1 < d2) {
-      d2 = d1;
-      i = 4;
-    }
-    if (isOpenBlockSpace(player, blockPosition.south()) && 1.0D - d1 < d2) {
-      i = 5;
-    }
-    float f = 0.1F;
-    if (i == 0) {
-      vector.setX(-f);
-    }
-    if (i == 1) {
-      vector.setX(f);
-    }
-    if (i == 4) {
-      vector.setZ(-f);
-    }
-    if (i == 5) {
-      vector.setZ(f);
-    }
-    return vector;
-  }
-
   public static boolean checkBoundingBoxIntersection(User user, WrappedAxisAlignedBB boundingBox) {
     Player player = user.player();
     World world = player.getWorld();
@@ -128,14 +95,6 @@ public final class CollisionHelper {
       }
     }
     return false;
-  }
-
-  public static boolean isOpenBlockSpace(Player player, WrappedBlockPosition pos) {
-    return hasEmptyCollisionBox(player, pos) && hasEmptyCollisionBox(player, pos.up());
-  }
-
-  private static boolean hasEmptyCollisionBox(Player player, WrappedBlockPosition blockPosition) {
-    return CollisionFactory.getCollisionBoxes(player, CollisionHelper.entityBoundingBoxOf(blockPosition)).isEmpty();
   }
 
   public static class CollisionResult {
