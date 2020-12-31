@@ -12,6 +12,7 @@ import de.jpx3.intave.tools.client.PlayerRotationHelper;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.world.BlockLiquidHelper;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -60,7 +61,7 @@ public final class UserMetaMovementData {
   public int teleportId;
   public volatile boolean awaitTeleport = false;
   public Location teleportLocation = null;
-  public Location verifiedLocation;
+  private volatile Location verifiedLocation;
   public int teleportResendCountdown = 10;
 
   public UserMetaMovementData(Player player, User user) {
@@ -113,7 +114,7 @@ public final class UserMetaMovementData {
       this.resetMotion = clientData.protocolVersion() <= 47 ? 0.005 : 0.003;
 
       Location location = player.getLocation();
-      boundingBox = CollisionHelper.entityBoundingBoxOf(user, location.getX(), location.getY(), location.getZ());
+      boundingBox = CollisionHelper.boundingBoxOf(user, location.getX(), location.getY(), location.getZ());
     }
 
     jumpUpwardsMotion = PlayerMovementHelper.jumpMotionFor(player);
@@ -199,6 +200,10 @@ public final class UserMetaMovementData {
     return nmsWorld;
   }
 
+  public Location verifiedLocation() {
+    return verifiedLocation;
+  }
+
   public double motionX() {
     return positionX - verifiedPositionX;
   }
@@ -233,5 +238,13 @@ public final class UserMetaMovementData {
 
   public void setBoundingBox(WrappedAxisAlignedBB entityBoundingBox) {
     this.boundingBox = entityBoundingBox;
+  }
+
+  public void setVerifiedLocation(Location verifiedLocation, @SuppressWarnings("unused") String reason) {
+    /*boolean boundingBoxIntersection = CollisionHelper.checkBoundingBoxIntersection(user, CollisionHelper.boundingBoxOf(user, verifiedLocation));
+    if (boundingBoxIntersection) {
+      Bukkit.broadcastMessage(ChatColor.DARK_RED + "Position was set into a block: " + reason);
+    }*/
+    this.verifiedLocation = verifiedLocation;
   }
 }

@@ -4,7 +4,6 @@ import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
-import com.comphenix.protocol.utility.MinecraftVersion;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.adapter.ProtocolLibAdapter;
@@ -127,8 +126,9 @@ public final class TeleportPositionObserver implements PacketEventSubscriber {
     Float rotationYaw = floats.read(0);
     Float rotationPitch = floats.read(1);
 
-    movementData.teleportLocation = new Location(player.getWorld(), positionX, positionY, positionZ, rotationYaw, rotationPitch);
-    movementData.verifiedLocation = new Location(player.getWorld(), positionX, positionY, positionZ, rotationYaw, rotationPitch);
+    Location teleportLocation = new Location(player.getWorld(), positionX, positionY, positionZ, rotationYaw, rotationPitch);
+    movementData.teleportLocation = teleportLocation;
+    movementData.setVerifiedLocation(teleportLocation.clone(), "Teleportation (legacy)");
     movementData.teleport = true;
 
 //    player.sendMessage("Requested teleportation on ");
@@ -184,8 +184,9 @@ public final class TeleportPositionObserver implements PacketEventSubscriber {
     }
 
     Integer teleportId = packet.getIntegers().read(0);
-    movementData.teleportLocation = new Location(player.getWorld(), positionX, positionY, positionZ);
-    movementData.verifiedLocation = new Location(player.getWorld(), positionX, positionY, positionZ);
+    Location teleportLocation = new Location(player.getWorld(), positionX, positionY, positionZ);
+    movementData.teleportLocation = teleportLocation;
+    movementData.setVerifiedLocation(teleportLocation.clone(), "Teleportation (new)");
     movementData.teleportId = teleportId;
     awaitTeleport(player);
   }
@@ -224,7 +225,7 @@ public final class TeleportPositionObserver implements PacketEventSubscriber {
     double teleportLocationX = teleportLocation.getX();
     double teleportLocationY = teleportLocation.getY();
     double teleportLocationZ = teleportLocation.getZ();
-    WrappedAxisAlignedBB boundingBox = CollisionHelper.entityBoundingBoxOf(user, teleportLocationX, teleportLocationY, teleportLocationZ);
+    WrappedAxisAlignedBB boundingBox = CollisionHelper.boundingBoxOf(user, teleportLocationX, teleportLocationY, teleportLocationZ);
     movementData.setBoundingBox(boundingBox);
   }
 }

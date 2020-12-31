@@ -2,16 +2,16 @@ package de.jpx3.intave.event.service;
 
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
+import de.jpx3.intave.detect.checks.movement.physics.CollisionHelper;
 import de.jpx3.intave.reflect.Reflection;
 import de.jpx3.intave.tools.MathHelper;
-import de.jpx3.intave.tools.client.PlayerMovementHelper;
-import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
-import de.jpx3.intave.detect.checks.movement.physics.CollisionHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
+import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
+import de.jpx3.intave.tools.wrapper.WrappedBlockPosition;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserMetaViolationLevelData;
+import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.world.collision.CollisionFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -29,19 +29,22 @@ import java.util.Set;
 public final class MovementEmulationEngine {
   private final IntavePlugin plugin;
   private final static boolean DEBUG_EMULATION = false;
+
   public MovementEmulationEngine(IntavePlugin plugin) {
     this.plugin = plugin;
   }
 
   public void emulationSetBack(Player player, Vector motion, int ticks) {
     User user = UserRepository.userOf(player);
-    UserMetaViolationLevelData violationLevelData = user.meta().violationLevelData();
+    User.UserMeta meta = user.meta();
+    UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
+    double jumpUpwardsMotion = meta.movementData().jumpUpwardsMotion();
 
-    if(violationLevelData.isInActiveTeleportBundle) {
+    if (violationLevelData.isInActiveTeleportBundle) {
       return;
     }
 
-    if (Math.abs(motion.getY() - PlayerMovementHelper.jumpMotionFor(player)) < 0.01) {
+    if (Math.abs(motion.getY() - jumpUpwardsMotion) < 0.01) {
       motion.setX(motion.getX() / 3);
       motion.setZ(motion.getZ() / 3);
     }
@@ -57,8 +60,70 @@ public final class MovementEmulationEngine {
     proceedEmulationTick(player, motion, ticks);
   }
 
-  public void proceedEmulationTick(Player player, Vector motion, int ticks) {
-    if(!Bukkit.isPrimaryThread()) {
+  public void emulationPushOutOfBlock(Player player) {
+    User user = UserRepository.userOf(player);
+    UserMetaViolationLevelData violationLevelData = user.meta().violationLevelData();
+
+    if (violationLevelData.isInActiveTeleportBundle) {
+      return;
+    }
+
+    violationLevelData.isInActiveTeleportBundle = true;
+
+    proceedPushOutOfBlockEmulationTick(player);
+  }
+
+  private void proceedPushOutOfBlockEmulationTick(Player player) {
+    if (!Bukkit.isPrimaryThread()) {
+      Synchronizer.synchronizeDelayed(() -> proceedPushOutOfBlockEmulationTick(player), 0);
+      return;
+    }
+
+    User user = UserRepository.userOf(player);
+    User.UserMeta meta = user.meta();
+    UserMetaMovementData movementData = meta.movementData();
+    UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
+    WrappedAxisAlignedBB boundingBox = movementData.boundingBox();
+
+    boolean boundingBoxIntersection = CollisionHelper.checkBoundingBoxIntersection(user, boundingBox);
+    if (boundingBoxIntersection) {
+      double positionX = (boundingBox.minX + boundingBox.maxX) / 2.0;
+      double positionY = (boundingBox.minY + boundingBox.maxY) / 2.0;
+      double positionZ = (boundingBox.minZ + boundingBox.maxZ) / 2.0;
+      Vector pushVector = resolvePushVector(player, positionX, positionY, positionZ);
+
+      if (isOpenBlockSpace(player, new WrappedBlockPosition(positionX, positionY, positionZ))) {
+        if (DEBUG_EMULATION) {
+          Bukkit.broadcastMessage("[E-] Push vector cannot be applied (no open block space)");
+        }
+        violationLevelData.isInActiveTeleportBundle = false;
+        return;
+      }
+
+      if (pushVector.length() > 1e-3) {
+        Location location = movementData.verifiedLocation().clone().add(pushVector);
+        teleport(player, location);
+
+        if (DEBUG_EMULATION) {
+          Bukkit.broadcastMessage("[E/] Push out of blocks emulation (? remaining) with " + MathHelper.formatMotion(pushVector));
+        }
+        Synchronizer.synchronizeDelayed(() -> proceedPushOutOfBlockEmulationTick(player), 1);
+      } else {
+        if (DEBUG_EMULATION) {
+          Bukkit.broadcastMessage("[E-] Push vector is too small");
+        }
+        violationLevelData.isInActiveTeleportBundle = false;
+      }
+    } else {
+      if (DEBUG_EMULATION) {
+        Bukkit.broadcastMessage("[E-] Player does no longer intersect with their bounding-box");
+      }
+      violationLevelData.isInActiveTeleportBundle = false;
+    }
+  }
+
+  private void proceedEmulationTick(Player player, Vector motion, int ticks) {
+    if (!Bukkit.isPrimaryThread()) {
       Vector finalMotion1 = motion;
       Synchronizer.synchronizeDelayed(() -> proceedEmulationTick(player, finalMotion1, ticks), 0);
       return;
@@ -70,8 +135,8 @@ public final class MovementEmulationEngine {
     UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
 
     // check motion status (velocity?)
-    Location futurePosition = movementData.verifiedLocation;
-    WrappedAxisAlignedBB boundingBox = CollisionHelper.entityBoundingBoxOf(futurePosition);
+    Location futurePosition = movementData.verifiedLocation();
+    WrappedAxisAlignedBB boundingBox = CollisionHelper.boundingBoxOf(user, futurePosition);
     motion = motionProceed(motion, player, boundingBox);
 
     futurePosition = futurePosition.clone().add(motion);
@@ -111,14 +176,6 @@ public final class MovementEmulationEngine {
   }
 
   private Vector motionProceed(Vector lastMotion, Player player, WrappedAxisAlignedBB boundingBox) {
-   /* User user = UserRepository.userOf(player);
-    boolean boundingBoxIntersection = CollisionHelper.checkBoundingBoxIntersection(user, user.meta().movementData().boundingBox());
-    if (boundingBoxIntersection) {
-      double positionX = (boundingBox.minX + boundingBox.maxX) / 2.0;
-      double positionY = (boundingBox.minY + boundingBox.maxY) / 2.0;
-      double positionZ = (boundingBox.minZ + boundingBox.maxZ) / 2.0;
-      return CollisionHelper.resolvePushVector(player, positionX, positionY, positionZ);
-    }*/
     double motionY = (lastMotion.getY() - 0.08) * 0.98f;
     Vector collisionVector = resolveCollisionVector(player, boundingBox, lastMotion.getX(), motionY, lastMotion.getZ());
     boolean onGround = motionY != collisionVector.getY() && motionY < 0.0;
@@ -136,11 +193,11 @@ public final class MovementEmulationEngine {
   private void teleport(Player player, Location teleportLocation) {
     User user = UserRepository.userOf(player);
     UserMetaMovementData movementData = user.meta().movementData();
-    WrappedAxisAlignedBB entityBoundingBox = CollisionHelper.entityBoundingBoxOf(
-      teleportLocation.getX(), teleportLocation.getY(), teleportLocation.getZ()
+    WrappedAxisAlignedBB entityBoundingBox = CollisionHelper.boundingBoxOf(
+      user, teleportLocation.getX(), teleportLocation.getY(), teleportLocation.getZ()
     );
     movementData.setBoundingBox(entityBoundingBox);
-    movementData.verifiedLocation = teleportLocation.clone();
+    movementData.setVerifiedLocation(teleportLocation.clone(), "Emulation-Setback");
 //    player.teleport(teleportLocation);
     rotationlessTeleport(player, teleportLocation);
   }
@@ -150,16 +207,16 @@ public final class MovementEmulationEngine {
   private synchronized void rotationlessTeleport(Player player, Location to) {
     PlayerTeleportEvent event = new PlayerTeleportEvent(player, player.getLocation().clone(), to.clone(), PlayerTeleportEvent.TeleportCause.SPECTATE);
     IntavePlugin.singletonInstance().eventLinker().fireEvent(event);
-    if(player.isDead() || player.getHealth() <= 0 || player.getPassenger() != null || !player.isOnline() || !UserRepository.hasUser(player)) {
+    if (player.isDead() || player.getHealth() <= 0 || player.getPassenger() != null || !player.isOnline() || !UserRepository.hasUser(player)) {
       return;
     }
-    if(!event.isCancelled()) {
+    if (!event.isCancelled()) {
       try {
         Object playerHandle = UserRepository.userOf(player).playerHandle();
         Object playerConnection = playerHandle.getClass().getField("playerConnection").get(playerHandle);
         Class<?> playerConnectionClass = Reflection.lookupServerClass("PlayerConnection");
         Method internalTeleport = playerConnectionClass.getDeclaredMethod("internalTeleport", Double.TYPE, Double.TYPE, Double.TYPE, Float.TYPE, Float.TYPE, Set.class);
-        if(!internalTeleport.isAccessible()) {
+        if (!internalTeleport.isAccessible()) {
           internalTeleport.setAccessible(true);
         }
         Class<?> entityClass = Reflection.lookupServerClass("Entity");
@@ -169,7 +226,7 @@ public final class MovementEmulationEngine {
         float pitch = (float) pitchField.get(playerHandle);
         yawField.set(playerHandle, 0f);
         pitchField.set(playerHandle, 0f);
-        if(teleportFlags.isEmpty()) {
+        if (teleportFlags.isEmpty()) {
           Class<?> playerTeleportFlags = Reflection.lookupServerClass("PacketPlayOutPosition$EnumPlayerTeleportFlags");
           teleportFlags.add(playerTeleportFlags.getField("X_ROT").get(null));
           teleportFlags.add(playerTeleportFlags.getField("Y_ROT").get(null));
@@ -209,5 +266,51 @@ public final class MovementEmulationEngine {
     }
 
     return new Vector(motionX, motionY, motionZ);
+  }
+
+  private Vector resolvePushVector(Player player, double positionX, double positionY, double positionZ) {
+    WrappedBlockPosition blockPosition = new WrappedBlockPosition(positionX, positionY, positionZ);
+    double d0 = positionX - blockPosition.xCoord;
+    double d1 = positionZ - blockPosition.zCoord;
+    Vector vector = new Vector();
+    int i = -1;
+    double d2 = 9999.0D;
+    if (isOpenBlockSpace(player, blockPosition.west()) && d0 < d2) {
+      d2 = d0;
+      i = 0;
+    }
+    if (isOpenBlockSpace(player, blockPosition.east()) && 1.0D - d0 < d2) {
+      d2 = 1.0D - d0;
+      i = 1;
+    }
+    if (isOpenBlockSpace(player, blockPosition.north()) && d1 < d2) {
+      d2 = d1;
+      i = 4;
+    }
+    if (isOpenBlockSpace(player, blockPosition.south()) && 1.0D - d1 < d2) {
+      i = 5;
+    }
+    float f = 0.1F;
+    if (i == 0) {
+      vector.setX(-f);
+    }
+    if (i == 1) {
+      vector.setX(f);
+    }
+    if (i == 4) {
+      vector.setZ(-f);
+    }
+    if (i == 5) {
+      vector.setZ(f);
+    }
+    return vector;
+  }
+
+  private boolean isOpenBlockSpace(Player player, WrappedBlockPosition pos) {
+    return hasEmptyCollisionBox(player, pos) && hasEmptyCollisionBox(player, pos.up());
+  }
+
+  private boolean hasEmptyCollisionBox(Player player, WrappedBlockPosition blockPosition) {
+    return CollisionFactory.getCollisionBoxes(player, CollisionHelper.boundingBoxOf(blockPosition)).isEmpty();
   }
 }
