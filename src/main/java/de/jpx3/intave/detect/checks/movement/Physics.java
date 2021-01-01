@@ -35,7 +35,7 @@ import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_AQUATIC_UP
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_VILLAGE_UPDATE;
 
 public final class Physics extends IntaveCheck {
-  private final static boolean DEBUG_MOVEMENT = false;
+  private final static boolean DEBUG_MOVEMENT = true;
   private final static boolean DEBUG_PERFORMANCE = false; // Disable DEBUG_MOVEMENT
   private final static boolean MOVEMENT_EMULATION = true;
 
@@ -783,10 +783,13 @@ public final class Physics extends IntaveCheck {
     double abuseVertically = Math.max(0, differenceY - legitimateDeviation);
 
     // Jump out of water
-    if (movementData.inWater && abuseVertically > 1e-5 && receivedMotionY > 0.0) {
+    if (movementData.inWater && abuseVertically > 1e-5 && receivedMotionY > 0.0 && receivedMotionY < 0.35) {
       Location location = new Location(player.getWorld(), movementData.positionX, movementData.positionY, movementData.positionZ);
       if (CollisionHelper.nearBySolidBlock(location, 0.4)) {
-        abuseVertically = 0;
+        boolean airAbove = !PlayerMovementHelper.isAllLiquid(player.getWorld(), movementData.boundingBox());
+        if (airAbove) {
+          abuseVertically = 0;
+        }
       }
     }
 
