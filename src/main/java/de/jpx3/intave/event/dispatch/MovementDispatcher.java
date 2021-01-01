@@ -175,6 +175,10 @@ public final class MovementDispatcher implements EventProcessor {
     boolean hasMovement = packet.getBooleans().read(1);
     physicsCheck.endMovement(user, hasMovement);
 
+    if (!movementData.teleport) {
+      movementData.lastTeleport++;
+    }
+
     movementData.invalidMovement = false;
     movementData.suspiciousMovement = false;
     movementData.teleport = false;

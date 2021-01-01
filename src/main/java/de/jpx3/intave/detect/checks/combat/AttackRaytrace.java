@@ -20,6 +20,7 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.event.service.entity.ClientSideEntityService.entityByIdentifier;
+import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE;
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_COMBAT_UPDATE;
 
 public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytraceMeta> {
@@ -77,7 +78,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
           && movementData.pastFlyingPacketAccurate > 4
           && attackRaytraceMeta.lastFlyPacketCounterReach > 1) {
           processReachCheck(player, entity);
-        } else if (clientData.protocolVersion() <= PROTOCOL_VERSION_COMBAT_UPDATE && attackRaytraceMeta.lastFlyPacketCounterReach > 1) {
+        } else if (clientData.protocolVersion() <= PROTOCOL_VERSION_BOUNTIFUL_UPDATE && attackRaytraceMeta.lastFlyPacketCounterReach > 1) {
           processReachCheck(player, entity);
         } else {
           //TODO: Old check

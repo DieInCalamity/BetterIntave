@@ -57,6 +57,7 @@ public final class UserMetaMovementData {
   public int keyForward, keyStrafe;
 
   public boolean teleport;
+  public int lastTeleport;
   public int teleportId;
   public volatile boolean awaitTeleport = false;
   public Location teleportLocation = null;

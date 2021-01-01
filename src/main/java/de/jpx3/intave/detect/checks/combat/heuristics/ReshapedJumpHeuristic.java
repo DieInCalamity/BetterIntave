@@ -36,7 +36,7 @@ public final class ReshapedJumpHeuristic extends IntaveCheckPart<Heuristics> {
     Heuristics.HeuristicMeta heuristicMeta = parentCheck().metaOf(user);
     boolean jump = Math.abs(movementData.jumpUpwardsMotion() - movementData.motionY()) < 1e-5;
 
-    if (jump && movementData.sprinting && movementData.suspiciousMovement) {
+    if (jump && movementData.sprinting && movementData.suspiciousMovement && movementData.lastTeleport > 5) {
       float rotationYaw = movementData.rotationYaw;
       float yawSine = SinusCache.sin(rotationYaw * (float) Math.PI / 180.0F, false);
       float yawCosine = SinusCache.cos(rotationYaw * (float) Math.PI / 180.0F, false);

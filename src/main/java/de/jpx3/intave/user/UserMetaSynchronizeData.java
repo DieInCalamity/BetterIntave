@@ -5,12 +5,12 @@ import de.jpx3.intave.event.service.entity.WrappedEntity;
 import de.jpx3.intave.event.service.transaction.TransactionCallBackData;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public final class UserMetaSynchronizeData {
   private final Map<Short, TransactionCallBackData<?>> transactionFeedBackMap = Maps.newHashMap();
   private final Map<Integer, WrappedEntity> synchronizedEntityMap = Maps.newHashMap();
   public short transactionCounter = Short.MIN_VALUE;
+  public int synchronizedEntitiesPerSecond;
 
   public Map<Short, TransactionCallBackData<?>> transactionFeedBackMap() {
     return transactionFeedBackMap;

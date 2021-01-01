@@ -18,6 +18,7 @@ import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaSynchronizeData;
 import de.jpx3.intave.user.UserRepository;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -25,14 +26,31 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public final class ClientSideEntityService implements PacketEventSubscriber {
+  private final static int SYNCHRONIZATIONS_PER_SECOND = 80; // 4 Entities
   private final IntavePlugin plugin;
 
   public ClientSideEntityService(IntavePlugin plugin) {
     this.plugin = plugin;
     plugin.packetSubscriptionLinker().linkSubscriptionsIn(this);
+    this.setupSynchronizer();
+  }
+
+  private void setupSynchronizer() {
+    Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this::resetSynchronizationsAll, 0, 20);
+  }
+
+  private void resetSynchronizationsAll() {
+    for (Player player : Bukkit.getOnlinePlayers()) {
+      resetSynchronizationsPerSecondFor(player);
+    }
+  }
+
+  private void resetSynchronizationsPerSecondFor(Player player) {
+    User user = UserRepository.userOf(player);
+    UserMetaSynchronizeData synchronizeData = user.meta().synchronizeData();
+    synchronizeData.synchronizedEntitiesPerSecond = 0;
   }
 
   @PacketSubscription(
@@ -118,21 +136,26 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
   public void receiveTeleport(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    acquireEntity(event, (entity) -> {
-      PacketType packetType = event.getPacketType();
-      if (packetType == PacketType.Play.Server.ENTITY_TELEPORT) {
-        entity.handleEntityTeleport(event.getPacket());
-      }
-    });
+    UserMetaSynchronizeData synchronizeData = user.meta().synchronizeData();
     PacketContainer packet = event.getPacket();
     int entityId = packet.getIntegers().read(0);
     WrappedEntity entity = entityByIdentifier(user, entityId);
+    if (entity == null) {
+      registerEntity(event);
+      entity = entityByIdentifier(user, entityId);
+    }
     if (entity != null) {
-      boolean synchronizeEntityMovement = synchronizeEntityMovement(player, entity);
+      boolean synchronizeEntityMovement = suitableDistanceForSynchronization(player, entity);
+      boolean exceededSynchronizationLimit = synchronizeData.synchronizedEntitiesPerSecond++ > SYNCHRONIZATIONS_PER_SECOND;
+      System.out.println(synchronizeData.synchronizedEntitiesPerSecond);
+      if (!entity.isEntityLiving || synchronizeEntityMovement && exceededSynchronizationLimit) {
+        synchronizeEntityMovement = false;
+      }
       if (synchronizeEntityMovement) {
-        plugin.eventService().transactionFeedbackService().requestPong(player, event, (player1, target) -> {
-          processEntityTeleport(player, target);
-          entity.clientSynchronized = true;
+        WrappedEntity finalEntity = entity;
+        plugin.eventService().transactionFeedbackService().requestPong(player, event, (player1, event1) -> {
+          finalEntity.clientSynchronized = true;
+          processEntityTeleport(player1, event1);
         });
       } else {
         processEntityTeleport(player, event);
@@ -141,13 +164,13 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     }
   }
 
-  private boolean synchronizeEntityMovement(Player player, WrappedEntity entity) {
+  private boolean suitableDistanceForSynchronization(Player player, WrappedEntity entity) {
     WrappedEntity.EntityPositionContext positions = entity.positions;
     Location location = player.getLocation();
     double diffX = location.getX() - positions.posX;
     double diffY = location.getY() - positions.posY;
     double diffZ = location.getZ() - positions.posZ;
-    return Math.sqrt(diffX * diffX + diffY * diffY + diffZ * diffZ) < 10.0;
+    return Math.sqrt(diffX * diffX + diffY * diffY + diffZ * diffZ) < 7.0;
   }
 
   private void processEntityTeleport(Player player, PacketEvent event) {
@@ -164,10 +187,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     }
   }
 
-  /**
-   * Creates a new entity if the requested entity isn't registered.
-   */
-  private void acquireEntity(PacketEvent event, Consumer<WrappedEntity> generator) {
+  private void registerEntity(PacketEvent event) {
     Player player = event.getPlayer();
     PacketContainer packet = event.getPacket();
     User user = UserRepository.userOf(player);
@@ -178,12 +198,11 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     }
     Entity serverEntity = serverEntityByIdentifier(player, entityId);
     if (serverEntity != null) {
-      entity = spawnMobByBukkitEntity(user, serverEntity);
-      generator.accept(entity);
+      spawnMobByBukkitEntity(user, serverEntity);
     }
   }
 
-  private WrappedEntity spawnMobByBukkitEntity(User user, Entity bukkitEntity) {
+  private void spawnMobByBukkitEntity(User user, Entity bukkitEntity) {
     String entityName = entityNameByBukkitEntity(bukkitEntity);
     Location location = bukkitEntity.getLocation();
     boolean isEntityLiving = !bukkitEntity.isDead();
@@ -193,7 +212,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     int serverPosX = WrappedMathHelper.floor(location.getX() * 32d);
     int serverPosY = WrappedMathHelper.floor(location.getY() * 32d);
     int serverPosZ = WrappedMathHelper.floor(location.getZ() * 32d);
-    return processEntitySpawn(
+    processEntitySpawn(
       user,
       entityName, isEntityLiving, entityID,
       serverPosX, serverPosY, serverPosZ,
@@ -217,7 +236,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     );
   }
 
-  private WrappedEntity processEntitySpawn(
+  private void processEntitySpawn(
     User user, String entityName,
     boolean isEntityLiving, int entityId,
     int serverPosX, int serverPosY, int serverPosZ,
@@ -234,7 +253,6 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     entity.serverPosZ = serverPosZ;
     entity.setPositionAndRotationSpawnMob(posX, posY, posZ, posY);
     synchronizedEntityMap.put(entityId, entity);
-    return entity;
   }
 
   @Nullable
