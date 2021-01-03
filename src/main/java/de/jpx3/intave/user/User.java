@@ -68,6 +68,7 @@ public final class User {
     private final UserMetaClientData clientData;
     private final UserMetaSynchronizeData synchronizeData;
     private final UserMetaInventoryData inventoryData;
+    private final UserMetaAttackData attackData;
 
     public UserMeta(Player player, User user) {
       this.violationLevelData = new UserMetaViolationLevelData();
@@ -77,6 +78,7 @@ public final class User {
       this.inventoryData = new UserMetaInventoryData(player);
       this.synchronizeData = new UserMetaSynchronizeData();
       this.movementData = new UserMetaMovementData(player, user);
+      this.attackData = new UserMetaAttackData(player);
     }
 
     public UserMetaViolationLevelData violationLevelData() {
@@ -105,6 +107,10 @@ public final class User {
 
     public UserMetaClientData clientData() {
       return clientData;
+    }
+
+    public UserMetaAttackData attackData() {
+      return attackData;
     }
   }
 }

@@ -13,7 +13,7 @@ public final class CollisionEngine {
   public static void setup() {
     IntaveLogger logger = IntavePlugin.singletonInstance().logger();
     MinecraftVersion version = ProtocolLibAdapter.serverVersion();
-    logger.logToFile("[Intave] Generating block collisions");
+    logger.logToFile("Generating block collisions");
 
     try {
       if (version.isAtLeast(ProtocolLibAdapter.BEE_UPDATE)) {
@@ -25,9 +25,9 @@ public final class CollisionEngine {
       }
       collisionResolver.setup();
 
-      logger.logToFile("[Intave] Generated successfully");
+      logger.logToFile("Generated successfully");
     } catch (Exception e) {
-      logger.error("[Intave] An error occurred while resolving block collisions");
+      logger.error("An error occurred while resolving block collisions");
       e.printStackTrace();
     }
   }

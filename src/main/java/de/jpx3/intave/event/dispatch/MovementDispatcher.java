@@ -73,19 +73,6 @@ public final class MovementDispatcher implements EventProcessor {
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
     packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ENTITY")
-    }
-  )
-  public void receiveUseEntity(PacketEvent event) {
-    Player player = event.getPlayer();
-    User user = UserRepository.userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
-    movementData.pastPlayerAttackPhysics = 0;
-  }
-
-  @PacketSubscription(
-    priority = ListenerPriority.HIGH,
-    packets = {
       @PacketDescriptor(sender = Sender.SERVER, packetName = "EXPLOSION"),
     }
   )
@@ -120,8 +107,7 @@ public final class MovementDispatcher implements EventProcessor {
 
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
-    UserMetaAbilityData abilityData = meta.abilityData();
-    UserMetaInventoryData inventoryData = meta.inventoryData();
+    UserMetaAttackData attackData = meta.attackData();
     UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
 
     boolean hasMovement = packet.getBooleans().read(1);
@@ -144,6 +130,7 @@ public final class MovementDispatcher implements EventProcessor {
     movementData.applyGroundInformationToPacket(packet);
 
     if (!movementData.teleport) {
+      attackData.updatePerfectRotation();
       // Check calls
 
       updatePotionEffects(user);
@@ -153,8 +140,36 @@ public final class MovementDispatcher implements EventProcessor {
     if (movementData.invalidMovement) {
       event.setCancelled(true);
     }
+  }
+
+  @PacketSubscription(
+    priority = ListenerPriority.HIGHEST,
+    packets = {
+      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
+      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
+      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
+      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING")
+    }
+  )
+  public void receiveFinalMovement(PacketEvent event) {
+    Player player = event.getPlayer();
+    PacketContainer packet = event.getPacket();
+    User user = UserRepository.userOf(player);
+
+    User.UserMeta meta = user.meta();
+    UserMetaMovementData movementData = meta.movementData();
+    UserMetaAbilityData abilityData = meta.abilityData();
+    UserMetaInventoryData inventoryData = meta.inventoryData();
+
+    boolean hasMovement = packet.getBooleans().read(1);
+    physicsCheck.endMovement(user, hasMovement);
+
+    if (!movementData.teleport) {
+      movementData.lastTeleport++;
+    }
 
     movementData.invalidMovement = false;
+    movementData.suspiciousMovement = false;
     movementData.teleport = false;
 
     boolean flyingWithElytra = PlayerMovementLocaleHelper.flyingWithElytra(player);

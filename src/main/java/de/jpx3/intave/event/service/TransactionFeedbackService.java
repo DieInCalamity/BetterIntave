@@ -11,6 +11,7 @@ import de.jpx3.intave.event.service.transaction.TransactionFeedbackCallback;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaSynchronizeData;
 import de.jpx3.intave.user.UserRepository;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -73,7 +74,7 @@ public final class TransactionFeedbackService extends PacketAdapter {
       return null;
     }
     UserMetaSynchronizeData synchronizeData = user.meta().synchronizeData();
-    short transactionCounter = ++synchronizeData.transactionCounter;
+    short transactionCounter = synchronizeData.transactionCounter++;
     if (transactionCounter >= TRANSACTION_MAX_CODE) {
       transactionCounter = TRANSACTION_MIN_CODE;
     }
@@ -87,7 +88,6 @@ public final class TransactionFeedbackService extends PacketAdapter {
     transactionPacket.getIntegers().write(0, 0);
     transactionPacket.getShorts().write(0, id);
     transactionPacket.getBooleans().write(0, false);
-
     try {
       protocolManager.sendServerPacket(receiver, transactionPacket);
     } catch (InvocationTargetException e) {

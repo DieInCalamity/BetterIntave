@@ -5,6 +5,7 @@ import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.detect.checks.movement.physics.CollisionHelper;
 import de.jpx3.intave.reflect.Reflection;
 import de.jpx3.intave.tools.MathHelper;
+import de.jpx3.intave.tools.client.PlayerMovementHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedBlockPosition;
@@ -15,6 +16,7 @@ import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.world.collision.CollisionFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
@@ -137,7 +139,7 @@ public final class MovementEmulationEngine {
     // check motion status (velocity?)
     Location futurePosition = movementData.verifiedLocation();
     WrappedAxisAlignedBB boundingBox = CollisionHelper.boundingBoxOf(user, futurePosition);
-    motion = motionProceed(motion, player, boundingBox);
+    motion = motionProceed(motion, user, boundingBox);
 
     futurePosition = futurePosition.clone().add(motion);
     futurePosition.setYaw(movementData.rotationYaw);
@@ -147,7 +149,7 @@ public final class MovementEmulationEngine {
       teleport(player, futurePosition);
 
       // velocity
-      Vector futureMotion = motionProceed(motion, player, boundingBox);
+      Vector futureMotion = motionProceed(motion, user, boundingBox);
       player.setVelocity(futureMotion);
 
       violationLevelData.isInActiveTeleportBundle = false;
@@ -170,17 +172,30 @@ public final class MovementEmulationEngine {
       Synchronizer.synchronizeDelayed(() -> proceedEmulationTick(player, finalMotion, ticks - 1), 1);
 
       // velocity
-      Vector futureMotion = motionProceed(motion, player, boundingBox);
+      Vector futureMotion = motionProceed(motion, user, boundingBox);
       player.setVelocity(futureMotion);
     }
   }
 
-  private Vector motionProceed(Vector lastMotion, Player player, WrappedAxisAlignedBB boundingBox) {
-    double motionY = (lastMotion.getY() - 0.08) * 0.98f;
+  private Vector motionProceed(Vector lastMotion, User user, WrappedAxisAlignedBB boundingBox) {
+    Player player = user.player();
+    UserMetaMovementData movementData = user.meta().movementData();
+    double motionY;
+    if (movementData.inWater) {
+      motionY = lastMotion.getY() * 0.8f;
+      motionY -= 0.02;
+    } else {
+      motionY = (lastMotion.getY() - 0.08) * 0.98f;
+    }
     Vector collisionVector = resolveCollisionVector(player, boundingBox, lastMotion.getX(), motionY, lastMotion.getZ());
     boolean onGround = motionY != collisionVector.getY() && motionY < 0.0;
     motionY = collisionVector.getY();
-    double multiplier = onGround ? 0.546f : 0.91f;
+    double multiplier;
+    if (movementData.inWater) {
+      multiplier = 0.8f;
+    } else {
+      multiplier = onGround ? 0.546f : 0.91f;
+    }
     double motionX = lastMotion.getX() * multiplier;
     double motionZ = lastMotion.getZ() * multiplier;
     collisionVector = resolveCollisionVector(player, boundingBox, motionX, motionY, motionZ);
@@ -200,6 +215,14 @@ public final class MovementEmulationEngine {
     movementData.setVerifiedLocation(teleportLocation.clone(), "Emulation-Setback");
 //    player.teleport(teleportLocation);
     rotationlessTeleport(player, teleportLocation);
+    updateMovementStatus(user);
+  }
+
+  private void updateMovementStatus(User user) {
+    Player player = user.player();
+    World world = player.getWorld();
+    UserMetaMovementData movementData = user.meta().movementData();
+    movementData.inWater = PlayerMovementHelper.isAnyLiquid(world, movementData.boundingBox());
   }
 
   private final static Set<Object> teleportFlags = new HashSet<>();

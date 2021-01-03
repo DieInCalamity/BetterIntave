@@ -130,6 +130,7 @@ public final class TeleportPositionObserver implements PacketEventSubscriber {
     movementData.teleportLocation = teleportLocation;
     movementData.setVerifiedLocation(teleportLocation.clone(), "Teleportation (legacy)");
     movementData.teleport = true;
+    movementData.lastTeleport = 0;
 
 //    player.sendMessage("Requested teleportation on ");
     if (TELEPORTATION_DEBUG) {

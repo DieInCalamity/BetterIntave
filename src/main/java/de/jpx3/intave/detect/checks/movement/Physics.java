@@ -29,7 +29,8 @@ import org.bukkit.util.Vector;
 import java.util.List;
 
 import static de.jpx3.intave.detect.checks.movement.physics.PhysicsHelper.resolveKeysFromInput;
-import static de.jpx3.intave.tools.MathHelper.*;
+import static de.jpx3.intave.tools.MathHelper.formatDouble;
+import static de.jpx3.intave.tools.MathHelper.formatPosition;
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_AQUATIC_UPDATE;
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_VILLAGE_UPDATE;
 
@@ -37,7 +38,6 @@ public final class Physics extends IntaveCheck {
   private final static boolean DEBUG_MOVEMENT = false;
   private final static boolean DEBUG_PERFORMANCE = false; // Disable DEBUG_MOVEMENT
   private final static boolean MOVEMENT_EMULATION = true;
-  private final static float STEP_HEIGHT = 0.6f;
 
   private final IntavePlugin plugin;
   private final PhysicsCollisionRepository collisionRepository;
@@ -83,6 +83,15 @@ public final class Physics extends IntaveCheck {
     double motionZ = movementData.motionZ();
     if (hasMovement) {
       processMovement(user, motionX, motionY, motionZ);
+    }
+  }
+
+  public void endMovement(User user, boolean hasMovement) {
+    UserMetaMovementData movementData = user.meta().movementData();
+    double motionX = movementData.motionX();
+    double motionY = movementData.motionY();
+    double motionZ = movementData.motionZ();
+    if (hasMovement) {
       prepareNextTick(
         user,
         movementData.positionX, movementData.positionY, movementData.positionZ,
@@ -91,16 +100,17 @@ public final class Physics extends IntaveCheck {
     }
   }
 
-  // receiveMovementUpdate
   private void processMovement(User user, double receivedMotionX, double receivedMotionY, double receivedMotionZ) {
     Player player = user.player();
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
     UserMetaClientData clientData = meta.clientData();
+    UserMetaInventoryData inventoryData = meta.inventoryData();
     double positionX = movementData.verifiedPositionX;
     double positionY = movementData.verifiedPositionY;
     double positionZ = movementData.verifiedPositionZ;
     float friction = resolveFriction(player, movementData, positionX, positionY, positionZ);
+    boolean sprinting = movementData.sprinting;
     boolean sneaking;
     if (clientData.delayedSneak()) {
       sneaking = movementData.lastSneaking;
@@ -109,10 +119,13 @@ public final class Physics extends IntaveCheck {
     } else {
       sneaking = movementData.sneaking;
     }
+    if (inventoryData.inventoryOpen()) {
+      sprinting = false;
+    }
+    physicsCalculateMovementClamp(user);
     float rotationYaw = movementData.rotationYaw;
     float yawSine = SinusCache.sin(rotationYaw * (float) Math.PI / 180.0F, false);
     float yawCosine = SinusCache.cos(rotationYaw * (float) Math.PI / 180.0F, false);
-    boolean sprinting = movementData.sprinting;
     long startTime = System.nanoTime();
     /*
     Physics process
@@ -148,7 +161,6 @@ public final class Physics extends IntaveCheck {
     movementData.pastRiptideSpin++;
   }
 
-  // simulateMovementDeep
   private PreciseCollisionResult physicsAccurate(
     User user, float friction,
     boolean sprinting, boolean sneaking,
@@ -201,7 +213,7 @@ public final class Physics extends IntaveCheck {
 
         for (int jumpState = 0; jumpState <= 1; jumpState++) {
           boolean jumped = jumpState == 1;
-          // Only allow jumping when on ground
+          // Jumps are only allowed on the ground :(
           if (jumped && !lastOnGround && !inLava && !inWater) {
             continue;
           }
@@ -250,7 +262,6 @@ public final class Physics extends IntaveCheck {
     return predictedMovement;
   }
 
-  // New name: simulateMovementBiased
   private PreciseCollisionResult physicsFast(
     User user, float friction,
     boolean sprinting, boolean sneaking,
@@ -285,7 +296,6 @@ public final class Physics extends IntaveCheck {
     );
   }
 
-  // performStateExactMovementSimulation
   private void physicsCalculate(
     User user, PhysicsProcessorContext context,
     float yawSine, float yawCosine, float friction,
@@ -357,7 +367,6 @@ public final class Physics extends IntaveCheck {
     }
   }
 
-  // performStateExactWaterSimulation
   private void physicsCalculateWater(
     User user, PhysicsProcessorContext context,
     float moveForward, float moveStrafe,
@@ -379,7 +388,6 @@ public final class Physics extends IntaveCheck {
     physicsCalculateRelativeMovement(context, f2, yawSine, yawCosine, moveForward, moveStrafe);
   }
 
-  // performStateExactKeySimulation
   private void physicsCalculateRelativeMovement(
     PhysicsProcessorContext context, float friction,
     float yawSine, float yawCosine,
@@ -396,7 +404,6 @@ public final class Physics extends IntaveCheck {
     }
   }
 
-  // performStateExactElytraSimulation
   private void physicsCalculateElytra(
     Vector lookVector, PhysicsProcessorContext context,
     float rotationPitch, double gravity
@@ -449,7 +456,6 @@ public final class Physics extends IntaveCheck {
     context.motionZ *= 0.99f;
   }
 
-  // performStateExactLavaSimulation
   private void physicsCalculateLava(
     PhysicsProcessorContext context,
     float moveForward, float moveStrafe,
@@ -459,7 +465,6 @@ public final class Physics extends IntaveCheck {
     physicsCalculateRelativeMovement(context, friction, yawSine, yawCosine, moveForward, moveStrafe);
   }
 
-  // performStateExactUnaffectedSimulation
   private void physicsCalculateNormal(
     User user, PhysicsProcessorContext context,
     float moveForward, float moveStrafe,
@@ -482,7 +487,6 @@ public final class Physics extends IntaveCheck {
     physicsCalculateFlying(user, context);
   }
 
-  // tryRelinkMovementContext
   private void physicsCalculateFlying(User user, PhysicsProcessorContext context) {
     Player player = user.player();
     UserMetaMovementData movementData = user.meta().movementData();
@@ -590,11 +594,10 @@ public final class Physics extends IntaveCheck {
     return heldItemStack != null && heldItemStack.getType() == InventoryUseItemHelper.ITEM_TRIDENT;
   }
 
-  // evaluateBestSimulation
   private void evaluateMovement(User user, PreciseCollisionResult expectedMovement) {
     Player player = user.player();
     User.UserMeta meta = user.meta();
-    boolean specator = player.getGameMode() == GameMode.SPECTATOR;
+    boolean spectator = player.getGameMode() == GameMode.SPECTATOR;
 
     UserMetaMovementData movementData = meta.movementData();
     UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
@@ -627,8 +630,8 @@ public final class Physics extends IntaveCheck {
     double distance = MathHelper.resolveDistance(differenceX, differenceY, differenceZ);
 
     boolean onLadder = PlayerMovementHelper.isOnLadder(user, positionX, positionY + 1.5, positionZ);
-    onLadder = onLadder || PlayerMovementHelper.isOnLadder(user, positionX, positionY - 0.5, positionZ);
-    onLadder = onLadder || PlayerMovementHelper.isOnLadder(user, positionX, positionY, positionZ);
+    onLadder |= PlayerMovementHelper.isOnLadder(user, positionX, positionY - 0.5, positionZ);
+    onLadder |= PlayerMovementHelper.isOnLadder(user, positionX, positionY, positionZ);
     boolean onLadderLast = movementData.onLadderLast;
     movementData.onLadderLast = onLadder;
     onLadder = movementData.onLadderLast || onLadderLast;
@@ -637,7 +640,11 @@ public final class Physics extends IntaveCheck {
     double horizontalViolationIncrease = resolveHorizontalViolationIncrease(user, keyForward, keyStrafe, predictedX, predictedZ, onLadder);
     double violationLevelIncrease = horizontalViolationIncrease + verticalViolationIncrease;
 
-    if (flying || specator) {
+    if (distance > 1e-3) {
+      movementData.suspiciousMovement = true;
+    }
+
+    if (flying || spectator) {
       violationLevelIncrease = 0;
     }
 
@@ -645,7 +652,7 @@ public final class Physics extends IntaveCheck {
       if (violationLevelIncrease > 0) {
         violationLevelIncrease = Math.max(violationLevelIncrease, 1.0);
       }
-      violationLevelIncrease *= 3.5;
+      violationLevelIncrease *= 8.5;
     }
 
     if (violationLevelIncrease == 0 && violationLevelData.physicsVL > 0) {
@@ -653,12 +660,13 @@ public final class Physics extends IntaveCheck {
       violationLevelData.physicsVL -= 0.012;
     }
 
+
     Location verifiedLocation = movementData.verifiedLocation();
     boolean boundingBoxIntersectionLast = CollisionHelper.checkBoundingBoxIntersection(user, CollisionHelper.boundingBoxOf(user, verifiedLocation.getX(), verifiedLocation.getY(), verifiedLocation.getZ()));
     boolean boundingBoxIntersectionCurrent = CollisionHelper.checkBoundingBoxIntersection(user, CollisionHelper.boundingBoxOf(user, receivedPositionX, receivedPositionY, receivedPositionZ));
     boolean movedIntoBlock = !boundingBoxIntersectionLast && boundingBoxIntersectionCurrent;
 
-    if (boundingBoxIntersectionCurrent && !specator) {
+    if (boundingBoxIntersectionCurrent && !spectator) {
       if (movedIntoBlock) {
         movementData.invalidMovement = true;
         String message = "intersected with bounding-box";
@@ -671,8 +679,8 @@ public final class Physics extends IntaveCheck {
       }
     }
 
-    // Update the players verified location
-    if (specator || violationLevelIncrease == 0 && !movedIntoBlock) {
+    // Update the player's verified location
+    if (spectator || violationLevelIncrease == 0 && !movedIntoBlock) {
       Location location = new Location(player.getWorld(), receivedPositionX, receivedPositionY, receivedPositionZ, movementData.rotationYaw, movementData.rotationPitch);
       movementData.setVerifiedLocation(location, "Movement validation (normal)");
     }
@@ -684,13 +692,13 @@ public final class Physics extends IntaveCheck {
       }
     }
 
-    if (violationLevelIncrease > 0 && !specator) {
+    if (violationLevelIncrease > 0 && !spectator) {
       violationLevelIncrease = Math.min(60.0, violationLevelIncrease);
       violationLevelIncrease = Math.max(1, violationLevelIncrease);
       violationLevelData.physicsVL += violationLevelIncrease;
     }
 
-    if (!specator && !movedIntoBlock && violationLevelData.physicsVL > 20 && violationLevelIncrease > 0) {
+    if (!spectator && !movedIntoBlock && violationLevelData.physicsVL > 20 && violationLevelIncrease > 0) {
       movementData.invalidMovement = true;
       String received = formatPosition(receivedMotionX, receivedMotionY, receivedMotionZ);
       String expected = formatPosition(predictedX, predictedY, predictedZ);
@@ -709,48 +717,45 @@ public final class Physics extends IntaveCheck {
 
     if (DEBUG_MOVEMENT) {
       ChatColor chatColor = violationLevelIncrease == 0 ? ChatColor.GRAY : ChatColor.YELLOW;
-      String position = formatPositionAsInt(receivedPositionX, receivedPositionY, receivedPositionZ);
-      String motion = formatDouble(receivedMotionX, 4) + ", " + formatDouble(receivedMotionY, 4) + ", " + formatDouble(receivedMotionZ, 4);
+      String motion = MathHelper.formatPositionAsInt(positionX, positionY, positionZ);
       String displayPhysicsVL = formatDouble(violationLevelData.physicsVL, 4);
       String displayHorizontalVL = formatDouble(horizontalViolationIncrease, 3);
       String displayVerticalVL = formatDouble(verticalViolationIncrease, 3);
       String displayViolationIncrease = formatDouble(violationLevelIncrease, 3);
 
-      if (movementData.pastFlyingPacketAccurate == 0) {
-        key += "f";
-      }
-
       String violationLevelInfo;
       if (violationLevelIncrease > 0) {
-        violationLevelInfo = "g:" + displayPhysicsVL + ",c:" + displayViolationIncrease
-          + "(" + displayHorizontalVL + "," + displayVerticalVL + ")";
+        violationLevelInfo = "g:" + displayPhysicsVL + ",c:" + displayViolationIncrease + "(" + displayHorizontalVL + "," + displayVerticalVL + ")";
       } else {
         violationLevelInfo = "g:" + displayPhysicsVL;
       }
-      String debug = chatColor + /*position*/motion + " (" + key + ") " + " " + violationLevelInfo;
+      String debug = chatColor + motion + " ";
+      if (movementData.pastFlyingPacketAccurate == 0) {
+        debug += "f";
+      }
+      debug += "(" + key + ") " + " " + violationLevelInfo;
+
 //      debug += " (sneak " + movementData.sneaking + ")";
 //      debug += " (size:" + movementData.width + "," + movementData.height + ")";
 //      debug += "handActive=" + inventoryData.handActive();
 //      debug += inventoryData.heldItem().getType().name();
 //      debug += " flying:" + movementData.pastFlyingPacketAccurate;
-//      if (violationLevelIncrease > 0) {
-//      }
       debug += " dist=" + formatDouble(distance, 10);
 //      debug += " inventoryOpen=" + inventoryData.inventoryOpen();
       debug += " " + (violationLevelData.isInActiveTeleportBundle ? "+" : "-");
       if (movedIntoBlock) {
-        debug += " evil-block";
+        debug += " bb-intersection";
       }
-      String finalDebug = debug;
-      Synchronizer.packetSynchronize(() -> player.sendMessage(player.getName() + "| " + finalDebug));
 
-//      player.sendMessage(debug + " dist=" + formatDouble(distance, 10));
+      String finalDebug = debug;
+      Synchronizer.packetSynchronize(() -> player.sendMessage(finalDebug));
     }
   }
 
   private final static double LADDER_UPWARDS_MOTION = (0.2 - 0.08) * 0.98005f;
 
   private double resolveVerticalViolationIncrease(User user, double predictedY, boolean onLadder) {
+    Player player = user.player();
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
     double distanceMoved = MathHelper.resolveHorizontalDistance(
@@ -773,11 +778,6 @@ public final class Physics extends IntaveCheck {
       legitimateDeviation = 0.1;
     }
 
-    // Jump out of water
-    if (movementData.pastWaterMovement < 5 && !movementData.inWater && distanceMoved < 0.1) {
-      legitimateDeviation = 0.6;
-    }
-
     // Movement in webs is always skipped
     if (movementData.inWeb && receivedMotionY < 0.0) {
       legitimateDeviation = 0.1;
@@ -798,6 +798,18 @@ public final class Physics extends IntaveCheck {
     }
 
     double abuseVertically = Math.max(0, differenceY - legitimateDeviation);
+
+    // Jump out of water
+    if (movementData.inWater && abuseVertically > 1e-5 && receivedMotionY > 0.0 && receivedMotionY < 0.35) {
+      Location location = new Location(player.getWorld(), movementData.positionX, movementData.positionY, movementData.positionZ);
+      if (CollisionHelper.nearBySolidBlock(location, 0.4)) {
+        boolean airAbove = !PlayerMovementHelper.isAllLiquid(player.getWorld(), movementData.boundingBox());
+        if (airAbove) {
+          abuseVertically = 0;
+        }
+      }
+    }
+
     double multiplier = abuseVertically > 1e-5 ? 205.0 : 25.0;
 
     if (onLadder && movementData.motionY() <= LADDER_UPWARDS_MOTION) {
@@ -827,7 +839,7 @@ public final class Physics extends IntaveCheck {
     );
     double predictedDistanceMoved = Math.hypot(predictedX, predictedZ);
     boolean pushedByWaterFlow = movementData.pastPushedByWaterFlow <= 20;
-    double legitimateDeviation = 7e-4;
+    double legitimateDeviation = 0.0007;
 
     if (movementData.pastWaterMovement < 10) {
       legitimateDeviation = 0.01;
@@ -857,7 +869,7 @@ public final class Physics extends IntaveCheck {
         legitimateDeviation = Math.max(legitimateDeviation, distanceMoved);
       }
     }
-    if (pressedNothing) {
+    if (pressedNothing && !inventoryData.inventoryOpen()) {
       double deviation = movementData.onGround || movementData.lastOnGround ? 0.1 : 0.07;
       legitimateDeviation = Math.max(legitimateDeviation, deviation);
     }
@@ -868,9 +880,9 @@ public final class Physics extends IntaveCheck {
 
     double distance = MathHelper.resolveHorizontalDistance(predictedX, predictedZ, motionX, motionZ);
     double abuseHorizontally = Math.max(0, distance - legitimateDeviation);
-    boolean movedTooQuickly = distanceMoved > predictedDistanceMoved * 1.005
+    boolean movedTooQuickly = distanceMoved > predictedDistanceMoved * 1.0005
       && inventoryData.pastItemUsageTransition > 10;
-    if (movedTooQuickly && distanceMoved > 0.2 && abuseHorizontally > 0 && !recentlySentFlying && !recentlyVelocity) {
+    if (movedTooQuickly && distanceMoved > 0.2 && abuseHorizontally > 0 && !recentlyVelocity) {
 //      double v = Math.max(abuseHorizontally, 0.3) * 100.0;
 //      Bukkit.broadcastMessage(user.bukkitPlayer().getName() + " moved too quickly: vl+" + v + " -" + inventoryData.pastItemUsageTransition);
       return Math.max(abuseHorizontally, 0.3) * 100.0;
@@ -949,8 +961,6 @@ public final class Physics extends IntaveCheck {
     } else if (!elytraFlying) {
       physicsCalculateNormalAfter(user, context, gravity, slipperiness);
     }
-
-    physicsCalculateMovementClamp(user, context);
 
     movementData.physicsLastMotionX = context.motionX;
     movementData.physicsLastMotionY = context.motionY;
@@ -1092,7 +1102,7 @@ public final class Physics extends IntaveCheck {
     if (f3 > 0.0F) {
       f1 += (0.54600006F - f1) * f3 / 3.0F;
     }
-    //fixme, daddy
+    //fixme
 //        if (this.isPotionActive(MobEffects.DOLPHINS_GRACE)) {
 //          f1 = 0.96F;
 //        }
@@ -1158,17 +1168,17 @@ public final class Physics extends IntaveCheck {
     context.motionZ *= multiplier;
   }
 
-  private void physicsCalculateMovementClamp(User user, PhysicsProcessorContext context) {
+  private void physicsCalculateMovementClamp(User user) {
     UserMetaMovementData movementData = user.meta().movementData();
     double resetMotion = movementData.resetMotion();
-    if (Math.abs(context.motionX) < resetMotion) {
-      context.motionX = 0.0;
+    if (Math.abs(movementData.physicsLastMotionX) < resetMotion) {
+      movementData.physicsLastMotionX = 0.0;
     }
-    if (Math.abs(context.motionY) < resetMotion) {
-      context.motionY = 0.0;
+    if (Math.abs(movementData.physicsLastMotionY) < resetMotion) {
+      movementData.physicsLastMotionY = 0.0;
     }
-    if (Math.abs(context.motionZ) < resetMotion) {
-      context.motionZ = 0.0;
+    if (Math.abs(movementData.physicsLastMotionZ) < resetMotion) {
+      movementData.physicsLastMotionZ = 0.0;
     }
   }
 
@@ -1222,6 +1232,8 @@ public final class Physics extends IntaveCheck {
     }
     return speed;
   }
+
+  private final static float STEP_HEIGHT = 0.6f;
 
   private PreciseCollisionResult physicsCalculateCollision(
     User user, PhysicsProcessorContext context,
@@ -1422,6 +1434,9 @@ public final class Physics extends IntaveCheck {
       boolean collidedHorizontally, boolean collidedVertically,
       boolean resetMotionX, boolean resetMotionZ
     ) {
+      if (context == null) {
+        throw new IllegalArgumentException("Context cannot be null");
+      }
       this.context = context;
       this.onGround = onGround;
       this.collidedHorizontally = collidedHorizontally;

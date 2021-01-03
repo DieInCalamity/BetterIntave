@@ -47,18 +47,14 @@ public final class Reflection {
     return CRAFT_BUKKIT_PREFIX + "." + className;
   }
 
-  private static MethodHandle entityHandleMethod;
-
   public static Object resolveEntityNMSHandle(Entity entity) {
     if(entity == null) {
       return null;
     }
     try {
-      if (entityHandleMethod == null) {
-        entityHandleMethod = MethodHandles
-          .lookup()
-          .findVirtual(entity.getClass(), "getHandle", NMS_ENTITY_METHOD_TYPE);
-      }
+      MethodHandle entityHandleMethod = MethodHandles
+        .lookup()
+        .findVirtual(entity.getClass(), "getHandle", NMS_ENTITY_METHOD_TYPE);
       return entityHandleMethod.invoke(entity);
     } catch (Throwable throwable) {
       throw new ReflectionFailureException(throwable);

@@ -53,21 +53,6 @@ public final class PlayerMovementHelper {
     return blockSlipperiness * 0.91f;
   }
 
-  /**
-   * Checks if the offset position from the entity's current position is inside of liquid. Args: x, y, z
-   */
-  /*public static boolean isOffsetPositionInLiquid(
-    Player player,
-    Checkable checkable,
-    double x, double y, double z
-  ) {
-    Checkable.CheckableMeta.SyncedValues syncedValues = checkable.meta().syncedValues();
-    WrappedAxisAlignedBB entityBoundingBox = syncedValues.physicsEntityBoundingBox;
-    if (entityBoundingBox == null) {
-      return false;
-    }
-    return isLiquidPresentInAABB(player, entityBoundingBox.offset(x, y, z));
-  }*/
   public static boolean isOffsetPositionInLiquid(
     Player player,
     WrappedAxisAlignedBB entityBoundingBox,
@@ -76,27 +61,21 @@ public final class PlayerMovementHelper {
     return isLiquidPresentInAABB(player, entityBoundingBox.offset(x, y, z));
   }
 
-  /**
-   * Determines if a liquid is present within the specified AxisAlignedBB.
-   */
   private static boolean isLiquidPresentInAABB(Player player, WrappedAxisAlignedBB boundingBox) {
     List<WrappedAxisAlignedBB> collisionBoxes = CollisionFactory.getCollisionBoxes(player, boundingBox);
     return collisionBoxes.isEmpty() && !isAnyLiquid(player.getWorld(), boundingBox);
   }
 
-  /**
-   * Returns if any of the blocks within the aabb are liquids. Args: aabb
-   */
   public static boolean isAnyLiquid(World world, WrappedAxisAlignedBB boundingBox) {
-    int i = WrappedMathHelper.floor(boundingBox.minX);
-    int j = WrappedMathHelper.floor(boundingBox.maxX);
-    int k = WrappedMathHelper.floor(boundingBox.minY);
-    int l = WrappedMathHelper.floor(boundingBox.maxY);
-    int i1 = WrappedMathHelper.floor(boundingBox.minZ);
-    int j1 = WrappedMathHelper.floor(boundingBox.maxZ);
-    for (int x = i; x <= j; ++x) {
-      for (int y = k; y <= l; ++y) {
-        for (int z = i1; z <= j1; ++z) {
+    int minX = WrappedMathHelper.floor(boundingBox.minX);
+    int minY = WrappedMathHelper.floor(boundingBox.minY);
+    int minZ = WrappedMathHelper.floor(boundingBox.minZ);
+    int maxX = WrappedMathHelper.floor(boundingBox.maxX);
+    int maxY = WrappedMathHelper.floor(boundingBox.maxY);
+    int maxZ = WrappedMathHelper.floor(boundingBox.maxZ);
+    for (int x = minX; x <= maxX; ++x) {
+      for (int y = minY; y <= maxY; ++y) {
+        for (int z = minZ; z <= maxZ; ++z) {
           Material material = BlockAccessor.blockAccess(world, x, y, z).getType();
           if (BlockLiquidHelper.isLiquid(material)) {
             return true;
@@ -105,6 +84,26 @@ public final class PlayerMovementHelper {
       }
     }
     return false;
+  }
+
+  public static boolean isAllLiquid(World world, WrappedAxisAlignedBB boundingBox) {
+    int minX = WrappedMathHelper.floor(boundingBox.minX);
+    int minY = WrappedMathHelper.floor(boundingBox.minY);
+    int minZ = WrappedMathHelper.floor(boundingBox.minZ);
+    int maxX = WrappedMathHelper.floor(boundingBox.maxX);
+    int maxY = WrappedMathHelper.floor(boundingBox.maxY);
+    int maxZ = WrappedMathHelper.floor(boundingBox.maxZ);
+    for (int x = minX; x <= maxX; ++x) {
+      for (int y = minY; y <= maxY; ++y) {
+        for (int z = minZ; z <= maxZ; ++z) {
+          Material material = BlockAccessor.blockAccess(world, x, y, z).getType();
+          if (!BlockLiquidHelper.isLiquid(material)) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
   }
 
   public static boolean isOnLadder(User user, double positionX, double positionY, double positionZ) {

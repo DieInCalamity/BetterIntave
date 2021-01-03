@@ -4,9 +4,13 @@ public final class HitBoxBoundaries {
   private final float width;
   private final float length;
 
-  public HitBoxBoundaries(float width, float length) {
+  private HitBoxBoundaries(float width, float length) {
     this.width = width;
     this.length = length;
+  }
+
+  public static HitBoxBoundaries from(float width, float length) {
+    return new HitBoxBoundaries(width, length);
   }
 
   public float width() {

@@ -15,6 +15,6 @@ public final class EntityHitBoxResolver {
   private static HitBoxBoundaries resolveBoundariesFromNMSEntity(Object entity) {
     float width = Reflection.invokeField(entity.getClass(), "width", entity);
     float length = Reflection.invokeField(entity.getClass(), "length", entity);
-    return new HitBoxBoundaries(width, length);
+    return HitBoxBoundaries.from(width, length);
   }
 }

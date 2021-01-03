@@ -1,11 +1,17 @@
 package de.jpx3.intave.detect.checks.combat;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.IntaveMetaCheck;
-import de.jpx3.intave.detect.checks.combat.heuristics.ExampleHeuristic;
+import de.jpx3.intave.detect.checks.combat.heuristics.ReshapedJumpHeuristic;
+import de.jpx3.intave.detect.checks.combat.heuristics.RotationStandardDeviationHeuristic;
+import de.jpx3.intave.event.packet.PacketDescriptor;
+import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.tools.AccessHelper;
+import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.user.UserCustomCheckMeta;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -25,9 +31,30 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
     super("Heuristics", "heuristics", HeuristicMeta.class);
     this.plugin = plugin;
     this.setupSubChecks();
+    this.setupEvaluationScheduler(plugin);
   }
 
-  private void setupSubChecks() {
+  @PacketSubscription(
+    packets = {
+      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ENTITY")
+    }
+  )
+  public void receiveUseEntity(PacketEvent event) {
+    Player player = event.getPlayer();
+    HeuristicMeta heuristicMeta = metaOf(player);
+    PacketContainer packet = event.getPacket();
+    if (packet.getEntityUseActions().read(0) == EnumWrappers.EntityUseAction.ATTACK) {
+      if (heuristicMeta.overallAttacks++ == 0) {
+        heuristicMeta.firstAttack = AccessHelper.now();
+      }
+    }
+  }
+
+  private void setupEvaluationScheduler(IntavePlugin plugin) {
+    Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this::evaluateAll, 0, 400);
+  }
+
+  public void setupSubChecks() {
     appendCheckPart(new ExampleHeuristic(this));
   }
 
@@ -46,23 +73,35 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
     List<Anomaly> anomalies = heuristicMeta.anomalies;
     anomalies.removeIf(Anomaly::expired);
 
+    List<MiningStrategy> recommendedMiningStrategies = new ArrayList<>();
     List<Confidence> confidences = new ArrayList<>();
     for (Anomaly anomaly : anomalies) {
       confidences.add(anomaly.confidence);
+      recommendedMiningStrategies.add(anomaly.recommendedMiningStrategy);
     }
     Confidence overallConfidence = computeOverallConfidence(confidences);
 
-    if(overallConfidence.level >= Confidence.PROBABLE.level()) {
+    if (overallConfidence.level >= Confidence.PROBABLE.level()) {
       boolean hasPerformedMiningStrategyYet = !heuristicMeta.performedMiningStrategies.isEmpty();
       boolean mightBeAGoodIdeaToPerformMiningStrategy = overallConfidence.level <= Confidence.VERY_LIKELY.level();
 
       if(!hasPerformedMiningStrategyYet && mightBeAGoodIdeaToPerformMiningStrategy) {
-        MiningStrategy miningStrategy = findSuitableMiningStrategy(player, overallConfidence);
-        performMiningStrategy(player, miningStrategy);
+
       }
 
-      plugin.retributionService().markPlayer(player, -1, this.name(), "is fighting suspiciously (confidence: "+overallConfidence.output()+")");
+      double percentage = resolveConfidencePercentage(overallConfidence.level());
+      String confidence = MathHelper.formatDouble(percentage, 2) + "%" + overallConfidence.output();
+
+      plugin.retributionService().markPlayer(player, -1, this.name(), "is fighting suspiciously (confidence: " + confidence + ")");
     }
+  }
+
+  private double resolveConfidencePercentage(double confidenceOutput) {
+    double percentage = confidenceOutput >= 800 ? 100.0 : confidenceOutput / 800.0 * 100.0;
+    if (percentage < 50) {
+      percentage += 50;
+    }
+    return percentage;
   }
 
   // this implementation is pure garbage, please get some experience with this check and refactor this method
@@ -70,6 +109,7 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
     HeuristicMeta heuristicMeta = metaOf(player);
     List<MiningStrategy> availableMiningStrategies = Arrays.stream(MiningStrategy.values()).collect(Collectors.toList());
     availableMiningStrategies.removeAll(heuristicMeta.performedMiningStrategies);
+
     Confidence confidenceGoal = Confidence.CERTAIN;
     int overallConfidenceInteger = overallConfidence.level;
     int requiredConfidenceInter = confidenceGoal.level - overallConfidenceInteger;
@@ -200,7 +240,8 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
     }
 
     static {
-      RATING = ImmutableMap.copyOf(Arrays.stream(MiningStrategy.values()).collect(Collectors.toMap(value -> value, MiningStrategy::computeStrategyRating, (a, b) -> b)));
+      Map<MiningStrategy, Integer> ratings = Arrays.stream(MiningStrategy.values()).collect(Collectors.toMap(value -> value, MiningStrategy::computeStrategyRating, (a, b) -> b));
+      RATING = ImmutableMap.copyOf(ratings);
     }
 
     public static int computeStrategyRating(MiningStrategy strategy) {
@@ -257,5 +298,7 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
   public static class HeuristicMeta extends UserCustomCheckMeta {
     public List<Anomaly> anomalies = Lists.newCopyOnWriteArrayList();
     public List<MiningStrategy> performedMiningStrategies = Lists.newCopyOnWriteArrayList();
+    public int overallAttacks = 0;
+    public long firstAttack = Long.MAX_VALUE;
   }
 }

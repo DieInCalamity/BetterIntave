@@ -11,13 +11,21 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 
 import java.util.List;
 
 public final class CollisionHelper {
-  private final static float PLAYER_HEIGHT = 1.8f;
-  private final static double HALF_WIDTH = 0.3;
+  public static boolean nearBySolidBlock(Location location, double expansion) {
+    for (double x = -expansion; x <= expansion; x += expansion) {
+      for (double z = -expansion; z <= expansion; z += expansion) {
+        Block block = BlockAccessor.blockAccess(location.clone().add(x, 0.0, z));
+        if (block.getType().isSolid()) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 
   public static WrappedAxisAlignedBB boundingBoxOf(
     User user,
@@ -43,6 +51,9 @@ public final class CollisionHelper {
   public static WrappedAxisAlignedBB boundingBoxOf(WrappedBlockPosition position) {
     return boundingBoxOf(position.xCoord, position.yCoord, position.zCoord);
   }
+
+  private final static float PLAYER_HEIGHT = 1.8f;
+  private final static double HALF_WIDTH = 0.3;
 
   @Deprecated
   public static WrappedAxisAlignedBB boundingBoxOf(
