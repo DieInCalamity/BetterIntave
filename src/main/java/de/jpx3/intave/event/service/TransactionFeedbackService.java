@@ -6,6 +6,8 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.event.packet.*;
 import de.jpx3.intave.event.service.transaction.TransactionCallBackData;
 import de.jpx3.intave.event.service.transaction.TransactionFeedbackCallback;
 import de.jpx3.intave.user.User;
@@ -17,17 +19,21 @@ import org.bukkit.plugin.Plugin;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
-public final class TransactionFeedbackService extends PacketAdapter {
+public final class TransactionFeedbackService implements PacketEventSubscriber {
   public final static short TRANSACTION_MIN_CODE = Short.MIN_VALUE;
   public final static short TRANSACTION_MAX_CODE = -16370;
   private final static ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
 
-  public TransactionFeedbackService(Plugin plugin) {
-    super(plugin, PacketType.Play.Client.TRANSACTION);
-    protocolManager.addPacketListener(this);
+  public TransactionFeedbackService(IntavePlugin plugin) {
+    plugin.packetSubscriptionLinker().linkSubscriptionsIn(this);
   }
 
-  @Override
+  @PacketSubscription(
+    priority = ListenerPriority.LOWEST,
+    packets = {
+      @PacketDescriptor(sender = Sender.CLIENT, packetName = "TRANSACTION")
+    }
+  )
   public void onPacketReceiving(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);

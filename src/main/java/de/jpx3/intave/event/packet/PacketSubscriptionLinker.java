@@ -13,11 +13,12 @@ import de.jpx3.intave.reflect.irx.IRXFactory;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.IntFunction;
 
 public final class PacketSubscriptionLinker {
   private final IntavePlugin plugin;
-  private final Map<PacketType, SCOWAList<LocalPacketAdapter>> intavePacketListeners = new HashMap<>();
+  private final Map<PacketType, SCOWAList<LocalPacketAdapter>> intavePacketListeners = new ConcurrentHashMap<>();
   private final static boolean NO_CHAT_HOOKUP = false;
 
   public PacketSubscriptionLinker(IntavePlugin plugin) {
@@ -42,6 +43,11 @@ public final class PacketSubscriptionLinker {
     if(plugin.isEnabled()) {
       refreshInternalSubscriptions();
     }
+  }
+
+  public void reset() {
+    ProtocolLibrary.getProtocolManager().removePacketListeners(plugin);
+    intavePacketListeners.clear();
   }
 
   public void refreshInternalSubscriptions() {
@@ -89,7 +95,7 @@ public final class PacketSubscriptionLinker {
   private void linkSubscription(PacketEventSubscriber subscriber, Method method) {
     PacketSubscription metadata = method.getAnnotation(PacketSubscription.class);
     PacketSubscriptionMethodExecutor executor = assembleSubscriptionMethodCaller(subscriber, method, metadata.identifier());
-    linkAsAdapter(plugin, subscriber, metadata.priority(), translatePacketTypes(metadata.packets()), method.getName(), executor);
+    performInternalLinkage(plugin, subscriber, metadata.priority(), translatePacketTypes(metadata.packets()), method.getName(), executor);
   }
 
   private PacketType[] translatePacketTypes(PacketDescriptor[] packetDescriptors) {
@@ -190,7 +196,7 @@ public final class PacketSubscriptionLinker {
     return input.replaceAll("\\.", "/");
   }
 
-  private void linkAsAdapter(
+  private void performInternalLinkage(
     IntavePlugin plugin, PacketEventSubscriber subscriber,
     ListenerPriority priority, PacketType[] translatePacketTypes,
     String methodName, PacketSubscriptionMethodExecutor executor
@@ -200,9 +206,7 @@ public final class PacketSubscriptionLinker {
     }
     LocalPacketAdapter adapter = new LocalPacketAdapter(plugin, subscriber, priority, translatePacketTypes, methodName, executor);
     for (PacketType translatePacketType : translatePacketTypes) {
-      SCOWAList<LocalPacketAdapter> packetTypeListeners =
-        intavePacketListeners.computeIfAbsent(translatePacketType, x -> new SCOWAList<>());
-      packetTypeListeners.add(adapter);
+      intavePacketListeners.computeIfAbsent(translatePacketType, x -> new SCOWAList<>()).add(adapter);
     }
   }
 }

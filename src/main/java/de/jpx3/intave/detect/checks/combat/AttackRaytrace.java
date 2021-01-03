@@ -53,7 +53,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
   }
 
   @PacketSubscription(
-    priority = ListenerPriority.EIGHTH,
+    priority = ListenerPriority.HIGH,
     packets = {
       @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
       @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
@@ -157,7 +157,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
   }
 
   @PacketSubscription(
-    priority = ListenerPriority.FIRST,
+    priority = ListenerPriority.LOWEST,
     packets = {
       @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ENTITY")
     }

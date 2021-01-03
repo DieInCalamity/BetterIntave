@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PacketSubscription {
-  ListenerPriority priority() default ListenerPriority.FIFTH;
+  ListenerPriority priority() default ListenerPriority.NORMAL;
   String identifier() default "no identifier assigned";
   PacketDescriptor[] packets();
 }
