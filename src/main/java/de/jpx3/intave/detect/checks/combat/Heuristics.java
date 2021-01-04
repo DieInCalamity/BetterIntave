@@ -36,8 +36,8 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
 
   public void setupSubChecks() {
 //    appendCheckPart(new ExampleHeuristic(this));
-    appendCheckPart(new ReshapedJumpHeuristic(this));
-    appendCheckPart(new RotationStandardDeviationHeuristic(this));
+//    appendCheckPart(new ReshapedJumpHeuristic(this));
+//    appendCheckPart(new RotationStandardDeviationHeuristic(this));
   }
 
   public void saveAnomaly(Player player, Anomaly anomaly) {

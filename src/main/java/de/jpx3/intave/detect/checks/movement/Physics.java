@@ -679,7 +679,7 @@ public final class Physics extends IntaveCheck {
     if (boundingBoxIntersectionCurrent && !spectator) {
       if (movedIntoBlock) {
         movementData.invalidMovement = true;
-        String message = "intersected with bounding-box";
+        String message = "moved into block";
 
         plugin.retributionService().markPlayer(player, 0, "Physics", message);
         Vector emulationMotion = new Vector(predictedX, predictedY, predictedZ);
@@ -714,7 +714,7 @@ public final class Physics extends IntaveCheck {
       String expected = formatPosition(predictedX, predictedY, predictedZ);
 
       Vector emulationMotion = new Vector(predictedX, predictedY, predictedZ);
-      String message = "sent unexpected position: (" + received + ") but expected (" + expected + ")";
+      String message = "sent an unexpected position (" + received + ") but expected (" + expected + ")";
 
       plugin.retributionService().markPlayer(player, (int) violationLevelIncrease, "Physics", message);
       if (violationLevelData.physicsVL > 40 && MOVEMENT_EMULATION && emulationMotion != null) {

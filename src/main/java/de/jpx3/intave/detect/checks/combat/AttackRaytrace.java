@@ -76,7 +76,8 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
       if (entity != null && entity.checkable() && !player.isDead()) {
         if (clientData.protocolVersion() >= PROTOCOL_VERSION_COMBAT_UPDATE
           && movementData.pastFlyingPacketAccurate > 4
-          && attackRaytraceMeta.lastFlyPacketCounterReach > 1) {
+          && attackRaytraceMeta.lastFlyPacketCounterReach > 1
+        ) {
           processReachCheck(player, entity);
         } else if (clientData.protocolVersion() <= PROTOCOL_VERSION_BOUNTIFUL_UPDATE && attackRaytraceMeta.lastFlyPacketCounterReach > 1) {
           processReachCheck(player, entity);
@@ -134,7 +135,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
     AttackRaytraceResult.ResultType attackRaytraceResult = AttackRaytraceResult.raytraceResultOf(blockReachDistance, reach);
     switch (attackRaytraceResult) {
       case MISS: {
-        message = "missed hitbox on " + entity.entityName();
+        message = "missed hitbox on " + entity.entityName().toLowerCase();
         vl = 1;
         break;
       }
@@ -143,7 +144,8 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
           return;
         }
         String displayReach = MathHelper.formatDouble(reach, 4);
-        message = "attacked " + entity.entityName() + " too far away (" + displayReach + " blocks)";
+        String entityName = entity.entityName().toLowerCase();
+        message = "attacked " + resolveIndefArticle(entityName) + " " + entityName + " too far away (" + displayReach + " blocks)";
         vl = 6;
         break;
       }
@@ -154,6 +156,20 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
 
     plugin.retributionService().markPlayer(player, vl, "AttackRaytrace", message);
 //    player.sendMessage("§6s:" + reach);
+  }
+
+  private final static char[] vocals = "aeiou".toCharArray();
+
+  private String resolveIndefArticle(String exceptionName) {
+    char c = exceptionName.toCharArray()[0];
+    boolean isVocal = false;
+    for (char vocal : vocals) {
+      if (vocal == c) {
+        isVocal = true;
+        break;
+      }
+    }
+    return isVocal ? "an" : "a";
   }
 
   @PacketSubscription(

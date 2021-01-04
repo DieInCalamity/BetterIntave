@@ -37,7 +37,7 @@ public final class MathHelper {
   }
 
   public static String formatPosition(double x, double y, double z) {
-    return formatDouble(x, 3) + "," + formatDouble(y, 4) + "," + formatDouble(z, 3);
+    return formatDouble(x, 3) + ", " + formatDouble(y, 4) + ", " + formatDouble(z, 3);
   }
 
   public static String formatPositionAsInt(double x, double y, double z) {

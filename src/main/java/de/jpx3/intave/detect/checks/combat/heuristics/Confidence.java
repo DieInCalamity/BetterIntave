@@ -35,7 +35,7 @@ public enum Confidence {
   public static Confidence confidenceFrom(int level) {
     Confidence highest = Confidence.NONE;
     for (Confidence value : Confidence.values()) {
-      if (value.level > highest.level && value.level >= level) {
+      if (value.level > highest.level && value.level <= level) {
         highest = value;
       }
     }
