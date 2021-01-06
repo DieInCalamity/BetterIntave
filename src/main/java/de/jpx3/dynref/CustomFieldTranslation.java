@@ -1,0 +1,43 @@
+package de.jpx3.dynref;
+
+import com.google.common.collect.ImmutableList;
+import de.jpx3.dynref.annotate.DynRefUnknownVersionPolicy;
+import de.jpx3.intave.lib.asm.tree.AnnotationNode;
+import de.jpx3.intave.tools.annotate.Natify;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public final class CustomFieldTranslation {
+  private DynRefUnknownVersionPolicy versionPolicy;
+  private List<VersionFieldReference> versionFieldReferences = new ArrayList<>();
+
+  public DynRefUnknownVersionPolicy versionPolicy() {
+    return versionPolicy;
+  }
+
+  public List<VersionFieldReference> versionFieldDescriptors() {
+    return versionFieldReferences;
+  }
+
+  @Natify
+  public static CustomFieldTranslation buildFrom(AnnotationNode annotationNode) {
+    if (!DynRefTranslationConfiguration.className(annotationNode).equals(DynRefTranslationConfiguration.CUSTOM_FIELD_TRANSLATION_ANNOTATION_PATH)) {
+      throw new IllegalArgumentException("Invalid annotation type");
+    }
+    CustomFieldTranslation customFieldTranslation = new CustomFieldTranslation();
+    Map<String, Object> stringObjectMap = DynRefTranslationConfiguration.buildAnnotationMap(annotationNode.values);
+    if (stringObjectMap.containsKey("unknownVersionPolicy")) {
+      customFieldTranslation.versionPolicy = Enum.valueOf(DynRefUnknownVersionPolicy.class, ((String[]) stringObjectMap.get("unknownVersionPolicy"))[1]);
+    } else {
+      customFieldTranslation.versionPolicy = DynRefUnknownVersionPolicy.USE_NEXT_LOWER;
+    }
+    //noinspection unchecked
+    for (AnnotationNode value : (List<AnnotationNode>) stringObjectMap.get("value")) {
+      customFieldTranslation.versionFieldReferences.add(VersionFieldReference.buildFrom(value));
+    }
+    customFieldTranslation.versionFieldReferences = ImmutableList.copyOf(customFieldTranslation.versionFieldReferences);
+    return customFieldTranslation;
+  }
+}

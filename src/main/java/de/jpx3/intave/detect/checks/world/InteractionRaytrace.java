@@ -10,7 +10,7 @@ import com.comphenix.protocol.wrappers.WrappedBlockData;
 import com.google.common.collect.Maps;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.IntaveMetaCheck;
-import de.jpx3.intave.detect.checks.world.interaction.BlockRaytracer;
+import de.jpx3.intave.world.raytrace.Raytracer;
 import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
@@ -71,6 +71,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     if(enumDirection == 255) {
       return;
     }
+
     User user = userOf(player);
     InteractionMeta interactionMeta = metaOf(user);
     if(interactionMeta.excludeCurrentPacket) {
@@ -79,14 +80,27 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     UserMetaMovementData movementData = user.meta().movementData();
     World world = player.getWorld();
     Location targetLocation = blockPosition.toLocation(world);
+    Location blockPlacementLocation = blockPosition.toLocation(world).add(WrappedEnumDirection.getFront(enumDirection).getDirectionVec().convertToBukkitVec());
     Location playerLocation = movementData.verifiedLocation().clone();
     playerLocation.setYaw(movementData.rotationYaw);
     playerLocation.setPitch(movementData.rotationPitch);
-    WrappedMovingObjectPosition raycastResult = BlockRaytracer.resolveBlockInLineOfSight(player, playerLocation);
+    WrappedMovingObjectPosition raycastResult = Raytracer.blockRayTrace(player, playerLocation);
     boolean hitMiss = raycastResult == null || raycastResult.hitVec == WrappedVector.ZERO;
     WrappedBlockPosition raycastVector = hitMiss ? WrappedBlockPosition.ORIGIN : raycastResult.getBlockPos();
     Location raycastLocation = raycastVector.toLocation(world);
-    boolean isPlacement = player.getItemInHand().getType() != Material.AIR && player.getItemInHand().getType().isBlock();
+    Material itemTypeInHand = player.getItemInHand().getType();
+    boolean isPlacement = itemTypeInHand != Material.AIR && itemTypeInHand.isBlock();
+
+//    player.sendMessage("Test");
+    if(isPlacement) {
+      final int blockX = blockPlacementLocation.getBlockX();
+      final int blockY = blockPlacementLocation.getBlockY();
+      final int blockZ = blockPlacementLocation.getBlockZ();
+
+      boolean cancelled = plugin.interactionPermissionService().blockPlacePermissionCheck().hasPermission(player, world, blockX, blockY, blockZ, itemTypeInHand.getId(), (byte) 0);
+      player.sendMessage("Cancelled: " + cancelled);
+    }
+
     InteractionType type = isPlacement ? InteractionType.PLACE : InteractionType.INTERACT;
     if((raycastResult == null || enumDirection != raycastResult.sideHit.getIndex()) || raycastLocation.distance(targetLocation) > 0) {
       boolean cancel = processViolation(player, type);
@@ -138,7 +152,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     Location playerLocation = movementData.verifiedLocation().clone();
     playerLocation.setYaw(movementData.rotationYaw);
     playerLocation.setPitch(movementData.rotationPitch);
-    WrappedMovingObjectPosition raycastResult = BlockRaytracer.resolveBlockInLineOfSight(player, playerLocation);
+    WrappedMovingObjectPosition raycastResult = Raytracer.blockRayTrace(player, playerLocation);
     boolean hitMiss = raycastResult == null || raycastResult.hitVec == WrappedVector.ZERO;
     WrappedBlockPosition raycastVector = hitMiss ? WrappedBlockPosition.ORIGIN : raycastResult.getBlockPos();
     Location raycastLocation = raycastVector.toLocation(world);
@@ -183,7 +197,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     playerLocation.setYaw(movementData.rotationYaw);
     playerLocation.setPitch(movementData.rotationPitch);
 
-    WrappedMovingObjectPosition raycastResult = BlockRaytracer.resolveBlockInLineOfSight(player, playerLocation);
+    WrappedMovingObjectPosition raycastResult = Raytracer.blockRayTrace(player, playerLocation);
     boolean hitMiss = raycastResult == null || raycastResult.hitVec == WrappedVector.ZERO;
     WrappedBlockPosition raycastVector = hitMiss ? WrappedBlockPosition.ORIGIN : raycastResult.getBlockPos();
     Location raycastLocation = raycastVector.toLocation(world);

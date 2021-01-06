@@ -1,7 +1,8 @@
-package de.jpx3.intave.detect.checks.world.interaction;
+package de.jpx3.intave.world.raytrace;
 
 import de.jpx3.intave.access.IntaveException;
 import de.jpx3.intave.access.IntaveInternalException;
+import de.jpx3.intave.adapter.ProtocolLibAdapter;
 import de.jpx3.intave.reflect.Reflection;
 import de.jpx3.intave.tools.wrapper.WrappedMovingObjectPosition;
 import org.bukkit.Location;
@@ -14,6 +15,8 @@ import java.lang.reflect.Method;
 import static de.jpx3.intave.reflect.Reflection.lookupServerClass;
 
 public final class BlockAccessHelper {
+  private static boolean MINECRAFT_AUSRUTSCHER = ProtocolLibAdapter.serverVersion().isAtLeast(ProtocolLibAdapter.COMBAT_UPDATE) && !ProtocolLibAdapter.serverVersion().isAtLeast(ProtocolLibAdapter.AQUATIC_UPDATE);
+
   private static Method getChunkAtMethod;
   private static Method getTypeMethod;
   private static Constructor<?> blockPositionConstructor;
@@ -23,7 +26,7 @@ public final class BlockAccessHelper {
   static {
     try {
       getChunkAtMethod = lookupServerClass("World").getMethod("getChunkAt", Integer.TYPE, Integer.TYPE);
-      getTypeMethod = lookupServerClass("Chunk").getMethod("getType", lookupServerClass("BlockPosition"));
+      getTypeMethod = lookupServerClass("Chunk").getMethod(MINECRAFT_AUSRUTSCHER ? "getBlockData" : "getType", lookupServerClass("BlockPosition"));
       blockPositionConstructor = lookupServerClass("BlockPosition").getConstructor(Integer.TYPE, Integer.TYPE, Integer.TYPE);
       getBlockDataMethod = lookupServerClass("Chunk").getMethod("getBlockData", lookupServerClass("BlockPosition"));
     } catch (NoSuchMethodException exception) {

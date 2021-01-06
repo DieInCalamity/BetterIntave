@@ -14,6 +14,8 @@ import de.jpx3.intave.tools.client.SinusCache;
 import de.jpx3.intave.tools.items.InventoryUseItemHelper;
 import de.jpx3.intave.world.BlockAccessor;
 import de.jpx3.intave.world.collision.CollisionEngine;
+import de.jpx3.intave.world.permission.InteractionPermissionService;
+import de.jpx3.intave.world.raytrace.Raytracer;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class IntavePlugin extends JavaPlugin {
@@ -28,6 +30,7 @@ public final class IntavePlugin extends JavaPlugin {
   private EventService eventService;
   private RetributionService retributionService;
   private CheckService checkService;
+  private InteractionPermissionService interactionPermissionService;
 
   static {
     // stage 1
@@ -72,6 +75,7 @@ public final class IntavePlugin extends JavaPlugin {
 
 //    BlockBoxResolver.setup();
 
+    Raytracer.setup();
     SinusCache.setup();
     BlockAccessor.setup();
     ViaVersionAdapter.setup();
@@ -91,7 +95,7 @@ public final class IntavePlugin extends JavaPlugin {
       String requiredConfigurationHash = "server response";
       configurationService.setupConfiguration(requiredConfigurationHash);
 
-
+      interactionPermissionService = new InteractionPermissionService();
       checkService = new CheckService(this);
       retributionService = new RetributionService();
       eventService = new EventService(this);
@@ -136,6 +140,10 @@ public final class IntavePlugin extends JavaPlugin {
 
   public RetributionService retributionService() {
     return this.retributionService;
+  }
+
+  public InteractionPermissionService interactionPermissionService() {
+    return interactionPermissionService;
   }
 
   public static String version() {

@@ -43,14 +43,14 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
   private void reevaluateTracingEntities() {
     for (Player player : Bukkit.getOnlinePlayers()) {
-      resetSynchronizationsPerSecondFor(player);
+      reevaluteTracingEntitiesFor(player);
     }
   }
 
   private final static int REQUIRED_DISTANCE = 16;
   private final static int MAX_TRACED_ENTITIES = 8;
 
-  private void resetSynchronizationsPerSecondFor(Player player) {
+  private void reevaluteTracingEntitiesFor(Player player) {
     User user = UserRepository.userOf(player);
     UserMetaSynchronizeData synchronizeData = user.meta().synchronizeData();
 

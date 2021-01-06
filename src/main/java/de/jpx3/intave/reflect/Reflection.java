@@ -31,6 +31,10 @@ public final class Reflection {
     }
   }
 
+  public static String version() {
+    return NMS_PACKAGE_NAME;
+  }
+
   public static Class<?> lookupServerClass(String className) {
     return classByName(appendNMSPrefixToClass(className));
   }

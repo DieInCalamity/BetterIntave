@@ -5,6 +5,7 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.detect.checks.combat.AttackRaytrace;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
+import de.jpx3.intave.detect.checks.example.WorkspaceCheck;
 import de.jpx3.intave.detect.checks.movement.Physics;
 import de.jpx3.intave.detect.checks.world.InteractionRaytrace;
 import de.jpx3.intave.event.bukkit.BukkitEventLinker;
@@ -30,6 +31,7 @@ public final class CheckService {
     addCheck(InteractionRaytrace.class);
     addCheck(Heuristics.class);
     addCheck(AttackRaytrace.class);
+    addCheck(WorkspaceCheck.class);
 
     bakeQuickAccess();
     linkBukkitEventSubscriptions();
@@ -56,8 +58,8 @@ public final class CheckService {
       }
 
       addCheck(check);
-    } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-      throw new IntaveInternalException(e);
+    } catch (Exception e) {
+      throw new IntaveInternalException("Unable to load check " + checkClass.getSimpleName(), e);
     }
   }
 
