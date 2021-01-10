@@ -925,6 +925,7 @@ public final class Physics extends IntaveCheck {
     Player player = user.player();
     World world = player.getWorld();
     User.UserMeta meta = user.meta();
+    UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
     UserMetaMovementData movementData = meta.movementData();
     UserMetaClientData clientData = meta.clientData();
     PhysicsProcessorContext context = movementData.physicsProcessorContext;
@@ -975,9 +976,11 @@ public final class Physics extends IntaveCheck {
       simulateNormalAfter(user, context, gravity, slipperiness);
     }
 
-    movementData.physicsLastMotionX = context.motionX;
-    movementData.physicsLastMotionY = context.motionY;
-    movementData.physicsLastMotionZ = context.motionZ;
+    if (!violationLevelData.isInActiveTeleportBundle) {
+      movementData.physicsLastMotionX = context.motionX;
+      movementData.physicsLastMotionY = context.motionY;
+      movementData.physicsLastMotionZ = context.motionZ;
+    }
 
     updateAquatics(user);
 
