@@ -149,7 +149,15 @@ public final class MovementEmulationEngine {
     Location futurePosition = movementData.verifiedLocation();
     WrappedAxisAlignedBB boundingBox = CollisionHelper.boundingBoxOf(user, futurePosition);
 
-    motion = motionProceed(motion, user, boundingBox, startingTicks > ticks);
+
+    Vector emulationVelocity = movementData.emulationVelocity;
+    if (emulationVelocity != null) {
+      motion = emulationVelocity;
+//      player.sendMessage("Set emulation motion to " + MathHelper.formatMotion(emulationVelocity));
+      movementData.emulationVelocity = null;
+    } else {
+      motion = motionProceed(motion, user, boundingBox, startingTicks > ticks);
+    }
 
     futurePosition = futurePosition.clone().add(motion);
     futurePosition.setYaw(movementData.rotationYaw);

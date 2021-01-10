@@ -38,7 +38,8 @@ public final class UserMetaMovementData {
   public float rotationYaw, rotationPitch;
   public float lastRotationYaw, lastRotationPitch;
 
-  private WrappedAxisAlignedBB boundingBox;
+  private volatile WrappedAxisAlignedBB boundingBox;
+  public Vector emulationVelocity;
   private double resetMotion;
   private double jumpUpwardsMotion;
   public int pastFlyingPacketAccurate, pastWaterMovement;
