@@ -62,7 +62,7 @@ public final class PlayerMovementHelper {
   }
 
   private static boolean isLiquidPresentInAABB(Player player, WrappedAxisAlignedBB boundingBox) {
-    List<WrappedAxisAlignedBB> collisionBoxes = Collision.resolveCollidingBoundingBoxes(player, boundingBox);
+    List<WrappedAxisAlignedBB> collisionBoxes = Collision.resolve(player, boundingBox);
     return collisionBoxes.isEmpty() && !isAnyLiquid(player.getWorld(), boundingBox);
   }
 

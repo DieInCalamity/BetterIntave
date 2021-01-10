@@ -317,7 +317,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
       int vl = interactionMeta.violationLevel.computeIfAbsent(type, x -> 0);
       vl = MathHelper.minmax(0, vl + 1,8);
 //      player.sendMessage(type + ": " + vl);
-      if(vl > 1) {
+      if(vl > 3) {
         cancel = true;
       }
       interactionMeta.violationLevel.put(type, vl);

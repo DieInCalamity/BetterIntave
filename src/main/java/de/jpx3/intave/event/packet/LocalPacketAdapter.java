@@ -26,7 +26,7 @@ public final class LocalPacketAdapter extends IntavePacketAdapter implements Com
     ListenerPriority priority, PacketType[] packetTypes,
     String methodName, PacketSubscriptionMethodExecutor executor
   ) {
-    super(plugin, com.comphenix.protocol.events.ListenerPriority.LOWEST, packetTypes);
+    super(plugin, priority.toProtocolLibPriority(), packetTypes);
     this.subscriber = subscriber;
     this.methodName = methodName;
     this.priority = priority;

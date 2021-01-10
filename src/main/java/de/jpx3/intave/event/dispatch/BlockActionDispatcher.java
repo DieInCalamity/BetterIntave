@@ -1,32 +1,45 @@
 package de.jpx3.intave.event.dispatch;
 
+import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.EnumWrappers;
+import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.EventProcessor;
-import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
-import de.jpx3.intave.event.packet.*;
+import de.jpx3.intave.event.packet.ListenerPriority;
+import de.jpx3.intave.event.packet.PacketDescriptor;
+import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.event.packet.Sender;
+import de.jpx3.intave.reflect.Reflection;
+import de.jpx3.intave.reflect.ReflectionFailureException;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedEnumDirection;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.world.BlockAccessor;
 import de.jpx3.intave.world.collision.BoundingBoxAccess;
+import net.minecraft.server.v1_8_R3.BlockTrapdoor;
+import net.minecraft.server.v1_8_R3.IBlockData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType.STOP_DESTROY_BLOCK;
 
 public final class BlockActionDispatcher implements EventProcessor {
   private final IntavePlugin plugin;
+
+  public final List<Material> clickableMaterials = new ArrayList<>();
 
   // TODO: 01/09/21 prevent invalid chunk access
 
@@ -34,6 +47,63 @@ public final class BlockActionDispatcher implements EventProcessor {
     this.plugin = plugin;
     this.plugin.packetSubscriptionLinker().linkSubscriptionsIn(this);
     this.plugin.eventLinker().registerEventsIn(this);
+    this.loadClickableMaterials();
+  }
+
+  public void loadClickableMaterials() {
+    Class<?> blockClass = Reflection.lookupServerClass("Block");
+    Method getByIdMethod;
+    try {
+      getByIdMethod = blockClass.getMethod("getById", Integer.TYPE);
+    } catch (NoSuchMethodException exception) {
+      throw new ReflectionFailureException(exception);
+    }
+
+    Class<?> world = Reflection.lookupServerClass("World");
+    Class<?> blockPosition = Reflection.lookupServerClass("BlockPosition");
+    Class<?> iBlockData = Reflection.lookupServerClass("IBlockData");
+    Class<?> entityHuman = Reflection.lookupServerClass("EntityHuman");
+    Class<?> enumDirection = Reflection.lookupServerClass("EnumDirection");
+    Class<Float> floatClass = Float.TYPE;
+
+    // TODO: 01/10/21 check version availability
+
+
+/*
+    for (IBlockData x : net.minecraft.server.v1_8_R3.Block.d) {
+      int integer = 0;
+      for (int i = 0; i < 4096; i++) {
+        if(net.minecraft.server.v1_8_R3.Block.d.a(i) == x) {
+          integer = i;
+        }
+      }
+
+      net.minecraft.server.v1_8_R3.Block block = x.getBlock();
+      if(block instanceof BlockTrapdoor) {
+        System.out.println(net.minecraft.server.v1_8_R3.Block.getId(block) + " " + x + " " + Integer.toBinaryString(integer));
+
+      }
+    }
+*/
+
+
+    try {
+      for (int i = 0; i < 64000; i++) {
+        Material material = Material.getMaterial(i);
+        if(material == null) {
+          continue;
+        }
+        Object block = getByIdMethod.invoke(null, i);
+        if(block == null) {
+          continue;
+        }
+        if(block.getClass().getMethod("interact", world, blockPosition, iBlockData, entityHuman, enumDirection, floatClass, floatClass, floatClass).getDeclaringClass() != blockClass) {
+          clickableMaterials.add(material);
+        }
+      }
+    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   @PacketSubscription(
@@ -63,9 +133,16 @@ public final class BlockActionDispatcher implements EventProcessor {
     }
 
     World world = player.getWorld();
-    Location blockPlacementLocation = blockPosition.toLocation(world).add(WrappedEnumDirection.getFront(enumDirection).getDirectionVec().convertToBukkitVec());
+    Location blockAgainstLocation = blockPosition.toLocation(world).clone();
+    Location blockPlacementLocation = blockAgainstLocation.clone().add(WrappedEnumDirection.getFront(enumDirection).getDirectionVec().convertToBukkitVec());
+
+    // TODO: 01/10/21 replace with own resolve (getItemInHand is not synchronized !!!)
     Material itemTypeInHand = player.getItemInHand().getType();
-    boolean isPlacement = itemTypeInHand != Material.AIR && itemTypeInHand.isBlock();
+
+    Block clickedBlock = BlockAccessor.blockAccess(blockAgainstLocation);
+    Material clickedType = clickedBlock.getType();
+    boolean clickable = clickableMaterials.contains(clickedType);
+    boolean isPlacement = itemTypeInHand != Material.AIR && itemTypeInHand.isBlock() && !clickable;
 
     if(isPlacement) {
       int blockX = blockPlacementLocation.getBlockX();
@@ -90,21 +167,51 @@ public final class BlockActionDispatcher implements EventProcessor {
 
       if(access) {
         // add to future bounding boxes
-
 //        player.sendMessage("Block-placement confirmation for " + MathHelper.formatPosition(blockPlacementLocation));
-
         BoundingBoxAccess boundingBoxAccess = UserRepository.userOf(player).boundingBoxAccess();
         boundingBoxAccess.override(world, blockX, blockY, blockZ, id, shape);
-
-        Synchronizer.synchronize(() -> {
-          boundingBoxAccess.invalidate(blockX, blockY, blockZ);
-          boundingBoxAccess.invalidateOverride(world, blockX, blockY, blockZ);
-        });
       }
     } else {
+      // wooden doors and trapdoors
+      if(clickedType == Material.WOODEN_DOOR) {
+/*
+        // TODO: 01/10/21 interact event
 
-      // doors etc
+        Block blockOfInterest = clickedBlock;
+        int data = blockOfInterest.getData();
+        boolean upperPart = (data & 8) > 0;
 
+        if(upperPart) {
+          blockOfInterest = clickedBlock.getRelative(BlockFace.DOWN);
+          data = blockOfInterest.getData();
+        }
+
+        boolean isOpen = (data & 4) > 0;
+
+        player.sendMessage(String.valueOf(isOpen));
+
+        int bitMask = 4;
+        byte newData = (byte) (isOpen ? data & ~bitMask : data | bitMask);
+
+        BoundingBoxAccess boundingBoxAccess = UserRepository.userOf(player).boundingBoxAccess();
+        boundingBoxAccess.override(world, blockOfInterest.getX(), blockOfInterest.getY(), blockOfInterest.getZ(), blockOfInterest.getTypeId(), newData);
+        if(upperPart) {
+          boundingBoxAccess.override(world, blockOfInterest.getX(), blockOfInterest.getY() + 1, blockOfInterest.getZ(), blockOfInterest.getTypeId(), newData);
+        }*/
+      } else if(clickedType == Material.TRAP_DOOR) {
+        int data = clickedBlock.getData();
+        boolean isOpen = (data & 4) > 0;
+        int bitMask = 4;
+        byte newData = (byte) (!isOpen ? (data | bitMask) : (data & ~bitMask));
+
+        int id = clickedBlock.getType().getId();
+        BoundingBoxAccess boundingBoxAccess = UserRepository.userOf(player).boundingBoxAccess();
+        boundingBoxAccess.override(world, clickedBlock.getX(), clickedBlock.getY(), clickedBlock.getZ(), id, newData);
+
+        Synchronizer.synchronize(() -> {
+          boundingBoxAccess.invalidateOverride(world, clickedBlock.getX(), clickedBlock.getY(), clickedBlock.getZ());
+        });
+      }
     }
   }
 
@@ -145,8 +252,6 @@ public final class BlockActionDispatcher implements EventProcessor {
         BlockAccessor.blockAccess(blockBreakLocation)
       );
 
-    Bukkit.broadcastMessage("Block-break confirmation for " + MathHelper.formatPosition(blockBreakLocation) + ": " + access);
-
     if(access) {
       int blockX = blockBreakLocation.getBlockX();
       int blockY = blockBreakLocation.getBlockY();
@@ -156,51 +261,34 @@ public final class BlockActionDispatcher implements EventProcessor {
 
       BoundingBoxAccess boundingBoxAccess = UserRepository.userOf(player).boundingBoxAccess();
       boundingBoxAccess.override(world, blockX, blockY, blockZ, 0, (byte) 0);
-
-      Synchronizer.synchronize(() -> {
-        boundingBoxAccess.invalidate(blockX, blockY, blockZ);
-        boundingBoxAccess.invalidateOverride(world, blockX, blockY, blockZ);
-      });
     }
   }
 
-/*  @BukkitEventSubscription
-  public void on(BlockPlaceEvent event) {
-    if(event.getClass() != BlockPlaceEvent.class) {
-      return;
+  @PacketSubscription(
+    packets = {
+      @PacketDescriptor(sender = Sender.SERVER, packetName = "BLOCK_BREAK"),
+//      @PacketDescriptor(sender = Sender.SERVER, packetName = "BLOCK_ACTION"),
+      @PacketDescriptor(sender = Sender.SERVER, packetName = "BLOCK_CHANGE"),
+      @PacketDescriptor(sender = Sender.SERVER, packetName = "MULTI_BLOCK_CHANGE")
     }
-
+  )
+  public void sentBlockUpdate(PacketEvent event) {
     Player player = event.getPlayer();
-
-    Block block = event.getBlockPlaced();
-    World world = block.getWorld();
-
-    int posX = block.getX();
-    int posY = block.getY();
-    int posZ = block.getZ();
+    PacketContainer packet = event.getPacket();
+    PacketType packetType = event.getPacketType();
 
     BoundingBoxAccess boundingBoxAccess = UserRepository.userOf(player).boundingBoxAccess();
-    boundingBoxAccess.invalidate(posX, posY, posZ);
-    boundingBoxAccess.invalidateOverride(world, posX, posY, posZ);
+    World world = player.getWorld();
+    if(packetType == PacketType.Play.Server.MULTI_BLOCK_CHANGE) {
+      MultiBlockChangeInfo[] multiBlockChangeInfos = packet.getMultiBlockChangeInfoArrays().readSafely(0);
+      for (MultiBlockChangeInfo multiBlockChangeInfo : multiBlockChangeInfos) {
+        boundingBoxAccess.invalidate(multiBlockChangeInfo.getAbsoluteX(), multiBlockChangeInfo.getY(), multiBlockChangeInfo.getAbsoluteZ());
+//        boundingBoxAccess.invalidateOverride(world, multiBlockChangeInfo.getAbsoluteX(), multiBlockChangeInfo.getY(), multiBlockChangeInfo.getAbsoluteZ());
+      }
+    } else {
+      BlockPosition position = packet.getBlockPositionModifier().readSafely(0);
+      boundingBoxAccess.invalidate(position.getX(), position.getY(), position.getZ());
+//      boundingBoxAccess.invalidateOverride(world, position.getX(), position.getY(), position.getZ());
+    }
   }
-
-  @BukkitEventSubscription
-  public void on(BlockBreakEvent event) {
-    if(event.getClass() != BlockBreakEvent.class) {
-      return;
-    }
-
-    Player player = event.getPlayer();
-
-    Block block = event.getBlock();
-    World world = block.getWorld();
-
-    int posX = block.getX();
-    int posY = block.getY();
-    int posZ = block.getZ();
-
-    BoundingBoxAccess boundingBoxAccess = UserRepository.userOf(player).boundingBoxAccess();
-    boundingBoxAccess.invalidate(posX, posY, posZ);
-    boundingBoxAccess.invalidateOverride(world, posX, posY, posZ);
-  }*/
 }

@@ -23,10 +23,10 @@ public final class LegacyBoundingBoxResolver implements BoundingBoxResolver {
     Chunk handle = ((CraftChunk) world.getChunkAt(posX >> 4, posZ >> 4)).getHandle();
     BlockPosition blockposition = new BlockPosition(posX, posY, posZ);
     IBlockData blockData = handle.getBlockData(blockposition);
-    List<AxisAlignedBB> bbs = new ArrayList<>();
     if(blockData == null) {
       return Collections.emptyList();
     }
+    List<AxisAlignedBB> bbs = new ArrayList<>();
     blockData.getBlock().a(
       ((CraftWorld) world).getHandle(),
       blockposition,
@@ -40,9 +40,9 @@ public final class LegacyBoundingBoxResolver implements BoundingBoxResolver {
 
   @Override
   @PatchyAutoTranslation
-  public List<WrappedAxisAlignedBB> resolve(World world, int posX, int posY, int posZ, int typeId, byte blockState) {
-    IBlockData blockData = Block.d.a(typeId << 4 | blockState);
+  public List<WrappedAxisAlignedBB> resolve(World world, int posX, int posY, int posZ, int typeId, int blockState) {
     BlockPosition blockposition = new BlockPosition(posX, posY, posZ);
+    IBlockData blockData = Block.d.a((typeId << 4) | (blockState & 0xF));
     List<AxisAlignedBB> bbs = new ArrayList<>();
     if(blockData == null) {
       return Collections.emptyList();

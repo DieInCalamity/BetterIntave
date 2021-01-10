@@ -9,7 +9,7 @@ import java.util.List;
 public interface BoundingBoxResolver {
   List<WrappedAxisAlignedBB> resolve(World world, int posX, int posY, int posZ);
 
-  default List<WrappedAxisAlignedBB> resolve(World world, int posX, int posY, int posZ, int typeId, byte blockState) {
+  default List<WrappedAxisAlignedBB> resolve(World world, int posX, int posY, int posZ, int typeId, int blockState) {
     return Collections.emptyList();
   }
 }

@@ -3,9 +3,11 @@ package de.jpx3.intave.world.collision;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.world.BlockAccessor;
+import de.jpx3.intave.world.collision.patches.BoundingBoxPatcher;
 import de.jpx3.patchy.PatchyLoadingInjector;
-import org.bukkit.*;
-import org.bukkit.block.Block;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.lang.ref.WeakReference;
@@ -20,9 +22,6 @@ public final class BoundingBoxAccess {
     globalBoundingBoxResolver = new LegacyBoundingBoxResolver();
   }
 
-  private static int access;
-  private static int resolve;
-
   private final Player player;
   private final Map<Integer, List<WrappedAxisAlignedBB>> blockCache = new HashMap<>(4096);
 
@@ -31,7 +30,6 @@ public final class BoundingBoxAccess {
 
   private WeakReference<Chunk> activeChunk = new WeakReference<>(null);
   private int chunkXPos;
-//  private int activeChunkSection = 0;
   private int chunkZPos;
 
   public BoundingBoxAccess(Player player) {
@@ -44,16 +42,13 @@ public final class BoundingBoxAccess {
     }
 
     Chunk chunkX = activeChunk.get();
-    if(chunkX == null || (chunk.getX() != chunkX.getX() && chunk.getZ() != chunkX.getZ())/*|| posY >> 4 != activeChunkSection*/) {
+    if(chunkX == null || (chunk.getX() != chunkX.getX() || chunk.getZ() != chunkX.getZ())) {
       translateLocalReplacements(chunk.getWorld());
       activeChunk = new WeakReference<>(chunk);
       chunkXPos = chunk.getX() << 4;
       chunkZPos = chunk.getZ() << 4;
-//      activeChunkSection = posY >> 4;
       blockCache.clear();
     }
-
-    access++;
 
     byte dx = (byte) (chunkXPos - posX), dz = (byte) (chunkZPos - posZ);
     int blockPositionKey = (posY & 0x1FF) << 16 | (dx & 0x0FF) << 8 | (dz & 0x0FF);
@@ -69,22 +64,23 @@ public final class BoundingBoxAccess {
     // global replacements (escape current-chunk constrain)
     if(!globalReplacements.isEmpty()) {
       for (Location location : globalReplacements.keySet()) {
-        if(location.getBlockX() == posX && location.getBlockZ() == posZ && location.getBlockY() == posY) {
+        if(location.getX() == posX && location.getZ() == posZ && location.getY() == posY) {
           return globalReplacements.get(location);
         }
       }
     }
 
-    List<WrappedAxisAlignedBB> blockBoxes = blockCache.get(blockPositionKey);
-    if(blockBoxes == null) {
-//      Bukkit.broadcastMessage(access + " accesses with " + resolve + " resolves");
-      resolve++;
+    List<WrappedAxisAlignedBB> boundingBoxes = blockCache.get(blockPositionKey);
+    if(boundingBoxes == null) {
       World world = chunk.getWorld();
-      blockBoxes = globalBoundingBoxResolver.resolve(world, posX, posY, posZ);
-      blockBoxes = patch(world, BlockAccessor.blockAccess(world, posX, posY, posZ), blockBoxes);
-      blockCache.put(blockPositionKey, blockBoxes);
+      boundingBoxes = BoundingBoxPatcher.patch(
+        world, player,
+        BlockAccessor.blockAccess(world, posX, posY, posZ),
+        globalBoundingBoxResolver.resolve(world, posX, posY, posZ)
+      );
+      blockCache.put(blockPositionKey, boundingBoxes);
     }
-    return blockBoxes;
+    return boundingBoxes;
   }
 
   private void translateLocalReplacements(World world) {
@@ -96,28 +92,15 @@ public final class BoundingBoxAccess {
       int posY = (blockPositionKey >> 16) & 0x1FF;
       int posX = chunkXPos + ((blockPositionKey >> 8) & 0xFF);
       int posZ = chunkZPos + ((blockPositionKey >> 0) & 0xFF);
-
-//      Bukkit.broadcastMessage(ChatColor.RED + Integer.toBinaryString(blockPositionKey));
-
       globalReplacements.put(new Location(world, posX, posY, posZ), entry.getValue());
     }
     localReplacements.clear();
-  }
-
-  private List<WrappedAxisAlignedBB> patch(World world, Block block, List<WrappedAxisAlignedBB> wrappedAxisAlignedBBS) {
-
-//    player
-
-
-    return wrappedAxisAlignedBBS;
   }
 
   public void invalidate(int posX, int posY, int posZ) {
     int chunkX = this.chunkXPos;
     int chunkZ = this.chunkZPos;
     if (posX < chunkX || posZ < chunkZ || chunkX + 16 <= posX || chunkZ + 16 <= posZ) {
-      blockCache.clear();
-//      Bukkit.broadcastMessage("Invalidate ignored " + posX + " " + chunkX + "  " + posZ + " " + chunkZ);
       return;
     }
     byte dx = (byte) (chunkXPos - posX), dz = (byte) (chunkZPos - posZ);
@@ -125,17 +108,21 @@ public final class BoundingBoxAccess {
     blockCache.remove(blockPositionKey);
   }
 
-  public void override(World world, int posX, int posY, int posZ, int typeId, byte blockState) {
-    List<WrappedAxisAlignedBB> replacementBoxes = globalBoundingBoxResolver.resolve(player.getWorld(), posX, posY, posZ, typeId, blockState);
+  public void override(World world, int posX, int posY, int posZ, int typeId, int blockState) {
+    List<WrappedAxisAlignedBB> boundingBoxes = BoundingBoxPatcher.patch(
+      world, player,
+      typeId, blockState,
+      globalBoundingBoxResolver.resolve(world, posX, posY, posZ, typeId, blockState)
+    );
     int chunkX = this.chunkXPos;
     int chunkZ = this.chunkZPos;
     boolean useLocalList = posX >= chunkX && posZ >= chunkZ && chunkX + 16 > posX && chunkZ + 16 > posZ;
     if(useLocalList) {
       byte dx = (byte) (chunkXPos - posX), dz = (byte) (chunkZPos - posZ);
       int blockPositionKey = (posY & 0x1FF) << 16 | (dx & 0x0FF) << 8 | (dz & 0x0FF);
-      localReplacements.put(blockPositionKey, replacementBoxes);
+      localReplacements.put(blockPositionKey, boundingBoxes);
     } else {
-      globalReplacements.put(new Location(world, posX, posY, posZ), replacementBoxes);
+      globalReplacements.put(new Location(world, posX, posY, posZ), boundingBoxes);
     }
   }
 

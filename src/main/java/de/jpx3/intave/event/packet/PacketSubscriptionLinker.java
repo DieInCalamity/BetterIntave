@@ -8,6 +8,7 @@ import com.comphenix.protocol.injector.packet.PacketRegistry;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.lib.asm.Type;
 import de.jpx3.intave.reflect.irx.IRXFactory;
+import org.bukkit.Bukkit;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -215,7 +216,7 @@ public final class PacketSubscriptionLinker {
     if(translatePacketTypes.length == 0) {
       return;
     }
-    LocalPacketAdapter adapter = new LocalPacketAdapter(plugin, subscriber, priority, translatePacketTypes, methodName, executor);
+    LocalPacketAdapter adapter = new LocalPacketAdapter(plugin, subscriber, ListenerPriority.LOWEST, translatePacketTypes, methodName, executor);
     for (PacketType translatePacketType : translatePacketTypes) {
       internalPacketListenerMappings.computeIfAbsent(translatePacketType, x -> new SCOWAList<>()).add(adapter);
     }
@@ -226,6 +227,7 @@ public final class PacketSubscriptionLinker {
     ListenerPriority priority, PacketType[] translatePacketTypes,
     String methodName, PacketSubscriptionMethodExecutor executor
   ) {
+//    System.out.println(subscriber + " " + priority + " " + Arrays.toString(translatePacketTypes) + " " + methodName + " " + executor);
     if(translatePacketTypes.length == 0) {
       return;
     }

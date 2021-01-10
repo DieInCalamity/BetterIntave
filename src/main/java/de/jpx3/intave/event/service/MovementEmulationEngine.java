@@ -295,7 +295,7 @@ public final class MovementEmulationEngine {
     WrappedAxisAlignedBB entityBoundingBox,
     double motionX, double motionY, double motionZ
   ) {
-    List<WrappedAxisAlignedBB> collisionBoxes = Collision.resolveCollidingBoundingBoxes(player, entityBoundingBox.addCoord(motionX, motionY, motionZ));
+    List<WrappedAxisAlignedBB> collisionBoxes = Collision.resolve(player, entityBoundingBox.addCoord(motionX, motionY, motionZ));
 
     // motion y
     for (WrappedAxisAlignedBB collisionBox : collisionBoxes) {
@@ -360,6 +360,6 @@ public final class MovementEmulationEngine {
   }
 
   private boolean hasEmptyCollisionBox(Player player, WrappedBlockPosition blockPosition) {
-    return Collision.resolveCollidingBoundingBoxes(player, CollisionHelper.boundingBoxOf(blockPosition)).isEmpty();
+    return Collision.resolve(player, CollisionHelper.boundingBoxOf(blockPosition)).isEmpty();
   }
 }

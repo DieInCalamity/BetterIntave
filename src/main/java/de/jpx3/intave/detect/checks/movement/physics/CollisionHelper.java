@@ -6,9 +6,7 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.world.BlockAccessor;
 import de.jpx3.intave.world.collision.Collision;
-import de.jpx3.intave.world.collision.garbage.GlobalCollisionResolver;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -72,7 +70,7 @@ public final class CollisionHelper {
     double motionX, double motionY, double motionZ
   ) {
     WrappedAxisAlignedBB boundingBox = CollisionHelper.boundingBoxOf(positionX, positionY, positionZ);
-    List<WrappedAxisAlignedBB> collisionBoxes = Collision.resolveCollidingBoundingBoxes(
+    List<WrappedAxisAlignedBB> collisionBoxes = Collision.resolve(
       player,
       boundingBox.addCoord(motionX, motionY, motionZ)
     );
@@ -95,8 +93,10 @@ public final class CollisionHelper {
   public static boolean checkBoundingBoxIntersection(User user, WrappedAxisAlignedBB boundingBox) {
     Player player = user.player();
     World world = player.getWorld();
-    List<WrappedAxisAlignedBB> collisionBoxes = Collision.resolveCollidingBoundingBoxes(user.player(), boundingBox);
-    for (WrappedAxisAlignedBB collisionBox : collisionBoxes) {
+    List<WrappedAxisAlignedBB> collisionBoxes = Collision.resolve(user.player(), boundingBox);
+    return !collisionBoxes.isEmpty();
+
+/*    for (WrappedAxisAlignedBB collisionBox : collisionBoxes) {
       double positionX = (collisionBox.minX + collisionBox.maxX) / 2.0;
       double positionY = (collisionBox.minY + collisionBox.maxY) / 2.0;
       double positionZ = (collisionBox.minZ + collisionBox.maxZ) / 2.0;
@@ -106,7 +106,7 @@ public final class CollisionHelper {
         return true;
       }
     }
-    return false;
+    return false;*/
   }
 
   public static class CollisionResult {

@@ -20,4 +20,22 @@ public enum ListenerPriority {
   public int slot() {
     return slot;
   }
+
+  public com.comphenix.protocol.events.ListenerPriority toProtocolLibPriority() {
+    switch (this) {
+      case LOWEST:
+        return com.comphenix.protocol.events.ListenerPriority.LOWEST;
+      case LOW:
+        return com.comphenix.protocol.events.ListenerPriority.LOW;
+      case NORMAL:
+        return com.comphenix.protocol.events.ListenerPriority.NORMAL;
+      case HIGH:
+        return com.comphenix.protocol.events.ListenerPriority.HIGH;
+      case HIGHEST:
+        return com.comphenix.protocol.events.ListenerPriority.HIGHEST;
+      case MONITOR:
+        return com.comphenix.protocol.events.ListenerPriority.MONITOR;
+    }
+    return null;
+  }
 }

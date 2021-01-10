@@ -721,7 +721,7 @@ public final class Physics extends IntaveCheck {
       String expected = formatPosition(predictedX, predictedY, predictedZ);
 
       Vector emulationMotion = new Vector(predictedX, predictedY, predictedZ);
-      String message = "sent an unexpected position (" + received + ") but expected (" + expected + ")";
+      String message = "moved incorrectly (" + received + " ex: " + expected + ")";
 
       plugin.retributionService().markPlayer(player, (int) violationLevelIncrease, "Physics", message);
       if (violationLevelData.physicsVL > 40 && MOVEMENT_EMULATION && emulationMotion != null) {
@@ -1277,7 +1277,7 @@ public final class Physics extends IntaveCheck {
 
       double d6;
 
-      for (d6 = 0.05D; context.motionX != 0.0D && Collision.resolveCollidingBoundingBoxes(player, boundingBox.offset(context.motionX, -1.0D, 0.0D)).isEmpty(); startMotionX = context.motionX) {
+      for (d6 = 0.05D; context.motionX != 0.0D && Collision.resolve(player, boundingBox.offset(context.motionX, -1.0D, 0.0D)).isEmpty(); startMotionX = context.motionX) {
         if (context.motionX < d6 && context.motionX >= -d6) {
           context.motionX = 0.0D;
         } else if (context.motionX > 0.0D) {
@@ -1287,7 +1287,7 @@ public final class Physics extends IntaveCheck {
         }
       }
 
-      for (; context.motionZ != 0.0D && Collision.resolveCollidingBoundingBoxes(player, boundingBox.offset(0.0D, -1.0D, context.motionZ)).isEmpty(); startMotionZ = context.motionZ) {
+      for (; context.motionZ != 0.0D && Collision.resolve(player, boundingBox.offset(0.0D, -1.0D, context.motionZ)).isEmpty(); startMotionZ = context.motionZ) {
         if (context.motionZ < d6 && context.motionZ >= -d6) {
           context.motionZ = 0.0D;
         } else if (context.motionZ > 0.0D) {
@@ -1297,7 +1297,7 @@ public final class Physics extends IntaveCheck {
         }
       }
 
-      for (; context.motionX != 0.0D && context.motionZ != 0.0D && Collision.resolveCollidingBoundingBoxes(player, boundingBox.offset(context.motionX, -1.0D, context.motionZ)).isEmpty(); startMotionZ = context.motionZ) {
+      for (; context.motionX != 0.0D && context.motionZ != 0.0D && Collision.resolve(player, boundingBox.offset(context.motionX, -1.0D, context.motionZ)).isEmpty(); startMotionZ = context.motionZ) {
         if (context.motionX < d6 && context.motionX >= -d6) {
           context.motionX = 0.0D;
         } else if (context.motionX > 0.0D) {
@@ -1318,7 +1318,7 @@ public final class Physics extends IntaveCheck {
       }
     }
 
-    List<WrappedAxisAlignedBB> collisionBoxes = Collision.resolveCollidingBoundingBoxes(
+    List<WrappedAxisAlignedBB> collisionBoxes = Collision.resolve(
       player, movementData.boundingBox().addCoord(context.motionX, context.motionY, context.motionZ)
     );
     WrappedAxisAlignedBB startBoundingBox = movementData.boundingBox();
@@ -1347,7 +1347,7 @@ public final class Physics extends IntaveCheck {
       WrappedAxisAlignedBB axisalignedbb3 = entityBoundingBox;
       entityBoundingBox = startBoundingBox;
       context.motionY = STEP_HEIGHT;
-      List<WrappedAxisAlignedBB> list = Collision.resolveCollidingBoundingBoxes(
+      List<WrappedAxisAlignedBB> list = Collision.resolve(
         player,
         entityBoundingBox.addCoord(startMotionX, startMotionY, startMotionZ)
       );

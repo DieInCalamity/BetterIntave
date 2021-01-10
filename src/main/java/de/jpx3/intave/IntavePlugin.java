@@ -16,11 +16,10 @@ import de.jpx3.intave.tools.items.InventoryUseItemHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.trustfactor.TrustFactorService;
 import de.jpx3.intave.world.BlockAccessor;
-import de.jpx3.intave.world.collision.BoundingBoxAccess;
-import de.jpx3.intave.world.collision.garbage.ForwardingCBBResolver;
+import de.jpx3.intave.world.collision.patches.BoundingBoxPatch;
+import de.jpx3.intave.world.collision.patches.BoundingBoxPatcher;
 import de.jpx3.intave.world.permission.InteractionPermissionService;
 import de.jpx3.intave.world.raytrace.Raytracer;
-import de.jpx3.patchy.PatchyLoadingInjector;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class IntavePlugin extends JavaPlugin {
@@ -91,7 +90,7 @@ public final class IntavePlugin extends JavaPlugin {
     BlockAccessor.setup();
     ViaVersionAdapter.setup();
     InventoryUseItemHelper.setup();
-    ForwardingCBBResolver.setup();
+    BoundingBoxPatcher.setup();
 
     try {
       // stage 7
