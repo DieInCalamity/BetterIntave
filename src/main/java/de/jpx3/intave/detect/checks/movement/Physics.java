@@ -693,7 +693,7 @@ public final class Physics extends IntaveCheck {
 
         user.boundingBoxAccess().invalidate();
 
-        plugin.retributionService().markPlayer(player, 0, "Physics", message);
+        plugin.retributionService().processViolation(player, 0, "Physics", message);
         Vector emulationMotion = new Vector(predictedX, predictedY, predictedZ);
         plugin.eventService().emulationEngine().emulationSetBack(player, emulationMotion, 8);
       } else {
@@ -730,7 +730,7 @@ public final class Physics extends IntaveCheck {
       Vector emulationMotion = new Vector(predictedX, predictedY, predictedZ);
       String message = "moved incorrectly (" + received + " ex: " + expected + ")";
 
-      plugin.retributionService().markPlayer(player, (int) violationLevelIncrease, "Physics", message);
+      plugin.retributionService().processViolation(player, violationLevelIncrease / 10d, "Physics", message);
       if (violationLevelData.physicsVL > 40 && MOVEMENT_EMULATION && emulationMotion != null) {
         plugin.eventService().emulationEngine().emulationSetBack(player, emulationMotion, 8);
       }

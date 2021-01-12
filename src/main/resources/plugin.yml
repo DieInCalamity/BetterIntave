@@ -7,3 +7,25 @@ description: @DESCRIPTION@
 main: de.jpx3.intave.IntavePlugin
 database: false
 softdepend: [ProtocolLib, ViaVersion]
+
+permissions:
+  intave.bypass:
+    default: false
+
+  intave.trust.darkgreen:
+    default: false
+
+  intave.trust.green:
+    default: false
+
+  intave.trust.yellow:
+    default: false
+
+  intave.trust.orange:
+    default: false
+
+  intave.trust.red:
+    default: false
+
+  intave.trust.darkred:
+    default: false

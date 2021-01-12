@@ -175,7 +175,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
     switch (attackRaytraceResult) {
       case MISS: {
         message = "attacked " + resolveIndefArticle(entityName) + " " + entityName.toLowerCase() + " out of sight";
-        vl = 1;
+        vl = 2;
         break;
       }
       case REACH: {
@@ -184,7 +184,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
         }
         String displayReach = MathHelper.formatDouble(reach, 4);
         message = "attacked " + resolveIndefArticle(entityName) + " " + entityName.toLowerCase() + " from too far away (" + displayReach + " blocks)";
-        vl = 6;
+        vl = 10;
         break;
       }
       default: {
@@ -192,7 +192,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
       }
     }
 
-    plugin.retributionService().markPlayer(player, vl, "AttackRaytrace", message);
+    plugin.retributionService().processViolation(player, vl, "AttackRaytrace", message);
 //    player.sendMessage("§6s:" + reach);
     return true;
   }
@@ -286,7 +286,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
 //        message = "attacked "+targetDescriptor+" too far away (estimated) (" + minReachDisplay + " at best)";
         message = "attacked " + resolveIndefArticle(entityName) + " " + entityName.toLowerCase() + " from too far away (" + minReachDisplay + " at best) (estimated)";
       }
-      plugin.retributionService().markPlayer(player, 0, "AttackRaytrace", message);
+      plugin.retributionService().processViolation(player, 0, "AttackRaytrace", message);
       return true;
     }
     return false;

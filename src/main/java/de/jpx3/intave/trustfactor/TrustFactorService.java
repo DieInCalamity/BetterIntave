@@ -8,6 +8,7 @@ import de.jpx3.intave.event.bukkit.BukkitEventSubscriber;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -30,11 +31,22 @@ public final class TrustFactorService implements BukkitEventSubscriber {
     trustFactorResolver = new DefaultForwardingPermissionTrustFactorResolver(new DefaultTrustFactorResolver());
 
     plugin.eventLinker().registerEventsIn(this);
+    resolveTrustFactorForAll();
   }
 
   @BukkitEventSubscription(priority = EventPriority.MONITOR)
   public void on(PlayerJoinEvent join) {
     Player player = join.getPlayer();
+    resolveTrustFactorFor(player);
+  }
+
+  private void resolveTrustFactorForAll() {
+    for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+      resolveTrustFactorFor(onlinePlayer);
+    }
+  }
+
+  private void resolveTrustFactorFor(Player player) {
     User user = UserRepository.userOf(player);
     user.setTrustFactor(defaultTrustFactor);
     trustFactorResolver.resolveTrustFactor(player, user::setTrustFactor);

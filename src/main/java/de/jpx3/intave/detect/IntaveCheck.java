@@ -1,6 +1,7 @@
 package de.jpx3.intave.detect;
 
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.config.CheckConfiguration;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import org.bukkit.entity.Player;
@@ -12,6 +13,7 @@ public abstract class IntaveCheck implements EventProcessor {
   private final IntavePlugin plugin;
   private final String checkName;
   private final String configurationName;
+  public final CheckConfiguration checkConfiguration;
 
   public final List<IntaveCheckPart<?>> checkParts = new ArrayList<>();
 
@@ -19,6 +21,8 @@ public abstract class IntaveCheck implements EventProcessor {
     this.plugin = IntavePlugin.singletonInstance();
     this.checkName = checkName;
     this.configurationName = configurationName;
+    this.checkConfiguration = new CheckConfiguration(this);
+
   }
 
   protected User userOf(Player player) {

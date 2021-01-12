@@ -11,16 +11,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public final class CheckConfiguration {
   private final IntaveCheck check;
   private volatile CheckSettings settingsAccess;
-  private Map<String, Integer> detectionSuggestions = ImmutableMap.of();
   private Map<Integer, List<String>> thresholdCommands = ImmutableMap.of();
-  private CheckViolationDecaySettings checkViolationDecaySettings = CheckViolationDecaySettings.empty();
-  private double startBlocking;
-  private double startLogging;
+  private String trustFactorPreventionAccessKey;
 
   public CheckConfiguration(IntaveCheck check) {
     this.check = check;
@@ -46,68 +42,16 @@ public final class CheckConfiguration {
     this.thresholdCommands = thresholdCommands;
   }
 
-  public double startBlocking() {
-    return startBlocking;
+  public String trustFactorPreventionLevelKey() {
+    return trustFactorPreventionAccessKey;
   }
 
-  public void setStartBlocking(int startBlocking) {
-    this.startBlocking = startBlocking;
-  }
-
-  public double startLogging() {
-    return startLogging;
-  }
-
-  public void setStartLogging(int startLogging) {
-    this.startLogging = startLogging;
-  }
-
-  public Map<String, Integer> detectionSuggestions() {
-    return detectionSuggestions;
-  }
-
-  public void setDetectionSuggestions(Map<String, Integer> detectionSuggestions) {
-    this.detectionSuggestions = detectionSuggestions;
-  }
-
-  public CheckViolationDecaySettings decaySettings() {
-    return checkViolationDecaySettings;
-  }
-
-  public void setDecaySettings(CheckViolationDecaySettings checkViolationDecaySettings) {
-    this.checkViolationDecaySettings = checkViolationDecaySettings;
-  }
-
-  public boolean preventionRequiredAt(int violationLevel) {
-    return violationLevel >= this.startBlocking;
-  }
-
-  public boolean loggingRequiredAt(int violationLevel) {
-    return violationLevel >= this.startLogging;
-  }
-
-  public Map<String, Integer> flagSuggestions() {
-    return flagSuggestions("");
-  }
-
-  public Map<String, Integer> flagSuggestions(String path) {
-    Map<String, Integer> copy = new HashMap<>(detectionSuggestions);
-    copy.keySet().stream()
-      .filter(key -> !key.startsWith(path))
-      .collect(Collectors.toList())
-      .forEach(copy::remove);
-    return copy;
-  }
-
-  public int flagSuggestionFor(String algorithm, int def) {
-    return detectionSuggestions.getOrDefault(algorithm, def);
+  public void setTrustFactorPreventionAccessKey(String trustFactorPreventionAccessKey) {
+    this.trustFactorPreventionAccessKey = trustFactorPreventionAccessKey;
   }
 
   public void deleteCaches() {
     thresholdCommands = ImmutableMap.of();
-    detectionSuggestions = ImmutableMap.of();
-    startBlocking = 0;
-    startLogging = 0;
   }
 
   public static class CheckSettings {

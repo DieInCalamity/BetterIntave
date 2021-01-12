@@ -301,26 +301,32 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
       return true;
     }
 
+    double vl = 0;
+
     String flagMessage;
     if(type == InteractionType.BREAK) {
       String typeName = targetLocationBlock.getType().name().toLowerCase().replace("_", "").replace("block", "");
       String append = "";
       if (hitMiss || (raycastLocation.getBlockX() == 0 && raycastLocation.getBlockY() == 0 && raycastLocation.getBlockZ() == 0)) {
         append = " looking in air)";
+        vl = 5;
       } else if(raycastLocation.distance(targetLocation) > 0 && raycastLocationBlock.getType() != Material.AIR) {
         String blockName = raycastLocationBlock.getType().name().toLowerCase().replace("_", "").replace("block", "");
         if(raycastLocationBlock.getType() == targetLocationBlock.getType()) {
           blockName = "a different " + blockName;
         }
         append = " looking at " + blockName + " block)";
+        vl = 5;
       } else if (interaction.targetDirection != raycastResult.sideHit.getIndex()){
         append = " invalid block face)";
+        vl = 15;
       }
       flagMessage = "invalid break (" + typeName + " block)";// +" -" + append;
     } else if(type == InteractionType.PLACE) {
       String typeAgainstName = shortenTypeName(targetLocationBlock.getType());
       String typeName = shortenTypeName(player.getItemInHand().getType());
       flagMessage = "invalid placement (" + typeName + " block on " + typeAgainstName + " block)";
+      vl = 2.5;
     } else {
 //      String typeAgainstName = shortenTypeName(targetLocationBlock.getType());
 //      flagMessage = "invalid interaction (" + typeAgainstName + " block)";
@@ -333,7 +339,8 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
 //      flagMessage += " (timeout)";
 //    }
 
-    return plugin.retributionService().markPlayer(player, 0, name(), flagMessage);
+
+    return plugin.retributionService().processViolation(player, vl, name(), flagMessage);
   }
 
   private String shortenTypeName(Material type) {

@@ -11,15 +11,13 @@ import de.jpx3.intave.detect.checks.world.InteractionRaytrace;
 import de.jpx3.intave.event.bukkit.BukkitEventLinker;
 import de.jpx3.intave.event.packet.PacketSubscriptionLinker;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class CheckService {
   private final IntavePlugin plugin;
   private List<IntaveCheck> checks = new ArrayList<>();
   private Map<Class<?>, IntaveCheck> requestCache = new HashMap<>();
+  private Map<String, IntaveCheck> nameRequestCache = new HashMap<>();
 
   public CheckService(IntavePlugin plugin) {
     this.plugin = plugin;
@@ -40,6 +38,7 @@ public final class CheckService {
 
   public void reset() {
     requestCache.clear();
+    nameRequestCache.clear();
 
     resetQuickAccess();
     removeBukkitEventSubscriptions();
@@ -71,6 +70,7 @@ public final class CheckService {
     requestCache = new HashMap<>();
     for (IntaveCheck check : checks) {
       requestCache.put(check.getClass(), check);
+      nameRequestCache.put(check.name().toLowerCase(Locale.ROOT), check);
     }
     requestCache = ImmutableMap.copyOf(requestCache);
   }
@@ -147,6 +147,15 @@ public final class CheckService {
     IntaveCheck check = requestCache.get(checkClass);
     if(check == null) {
       throw new IllegalStateException("Unable to find check " + checkClass);
+    }
+    //noinspection unchecked
+    return (T) check;
+  }
+
+  public <T extends IntaveCheck> T searchCheck(String checkName) {
+    IntaveCheck check = nameRequestCache.get(checkName.toLowerCase());
+    if(check == null) {
+      throw new IllegalStateException("Unable to find check " + checkName);
     }
     //noinspection unchecked
     return (T) check;

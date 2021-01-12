@@ -12,7 +12,7 @@ public final class PermissionCheck {
     if(permissionCache.inCache(permission)) {
       return permissionCache.permissionCheck(permission);
     } else {
-      boolean access = player.hasPermission(permission);
+      boolean access = player.hasPermission(permission) && player.isPermissionSet(permission);
       permissionCache.permissionSave(permission, access);
       return access;
     }

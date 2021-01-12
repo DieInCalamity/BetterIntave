@@ -71,7 +71,7 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
 
       }
 
-      plugin.retributionService().markPlayer(player, -1, this.name(), "is fighting suspiciously (confidence: " + overallConfidence.output() + ")");
+      plugin.retributionService().processViolation(player, -1, this.name(), "is fighting suspiciously (confidence: " + overallConfidence.output() + ")");
     }
   }
 

@@ -10,7 +10,8 @@ import de.jpx3.intave.detect.CheckService;
 import de.jpx3.intave.event.EventService;
 import de.jpx3.intave.event.bukkit.BukkitEventLinker;
 import de.jpx3.intave.event.packet.PacketSubscriptionLinker;
-import de.jpx3.intave.event.service.RetributionService;
+import de.jpx3.intave.event.service.CustomEventService;
+import de.jpx3.intave.event.service.ViolationService;
 import de.jpx3.intave.executor.UniversalIOExecutor;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.annotate.Natify;
@@ -36,7 +37,8 @@ public final class IntavePlugin extends JavaPlugin {
   private BukkitEventLinker eventLinker;
   private PacketSubscriptionLinker packetSubscriptionLinker;
   private EventService eventService;
-  private RetributionService retributionService;
+  private CustomEventService customEventService;
+  private ViolationService violationService;
   private CheckService checkService;
   private InteractionPermissionService interactionPermissionService;
   private TrustFactorService trustFactorService;
@@ -110,9 +112,10 @@ public final class IntavePlugin extends JavaPlugin {
       String requiredConfigurationHash = "server response";
       configurationService.setupConfiguration(requiredConfigurationHash);
 
+      customEventService = new CustomEventService(this);
       interactionPermissionService = new InteractionPermissionService();
       checkService = new CheckService(this);
-      retributionService = new RetributionService();
+      violationService = new ViolationService(this);
       eventService = new EventService(this);
       proxyMessenger = new ProxyMessenger(this);
       sibylIntegrationService = new SibylIntegrationService(this);
@@ -120,6 +123,7 @@ public final class IntavePlugin extends JavaPlugin {
       // stage 8
 
       checkService.setup();
+      customEventService.setup();
       eventService.setup();
     } catch (Exception exception) {
       logger.error("Unable to boot");
@@ -143,6 +147,10 @@ public final class IntavePlugin extends JavaPlugin {
     return trustFactorService;
   }
 
+  public CustomEventService customEventService() {
+    return customEventService;
+  }
+
   public IntaveLogger logger() {
     return logger;
   }
@@ -153,6 +161,10 @@ public final class IntavePlugin extends JavaPlugin {
 
   public CheckService checkService() {
     return checkService;
+  }
+
+  public ConfigurationService configurationService() {
+    return configurationService;
   }
 
   public EventService eventService() {
@@ -167,8 +179,8 @@ public final class IntavePlugin extends JavaPlugin {
     return packetSubscriptionLinker;
   }
 
-  public RetributionService retributionService() {
-    return this.retributionService;
+  public ViolationService retributionService() {
+    return this.violationService;
   }
 
   public InteractionPermissionService interactionPermissionService() {
