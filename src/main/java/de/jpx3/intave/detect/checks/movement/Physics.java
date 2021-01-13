@@ -284,7 +284,7 @@ public final class Physics extends IntaveCheck {
     boolean handActive = inventoryData.handActive();
     boolean attackReduce = movementData.pastPlayerAttackPhysics == 0;
     boolean jumped = movementData.jumpUpwardsMotion() == movementData.motionY()
-      && movementData.onGround
+      && movementData.lastOnGround
       && !inventoryData.inventoryOpen();
     context.reset(movementData.physicsLastMotionX, movementData.physicsLastMotionY, movementData.physicsLastMotionZ);
     performSimulationOfState(
@@ -663,7 +663,6 @@ public final class Physics extends IntaveCheck {
       violationLevelData.physicsVL -= 0.012;
     }
 
-
     Location verifiedLocation = movementData.verifiedLocation();
 
     List<WrappedAxisAlignedBB> intersectionBoundingBoxesLast = Collision.resolve(user.player(), CollisionHelper.boundingBoxOf(user, verifiedLocation.getX(), verifiedLocation.getY(), verifiedLocation.getZ()));
@@ -717,7 +716,7 @@ public final class Physics extends IntaveCheck {
       user.boundingBoxAccess().invalidate();
     }
 
-    if (!spectator && !movedIntoBlock && violationLevelData.physicsVL > 20 && violationLevelIncrease > 0) {
+    if ((!spectator && !movedIntoBlock && violationLevelData.physicsVL > 20 && violationLevelIncrease > 0)) {
       movementData.invalidMovement = true;
       String received = formatPosition(receivedMotionX, receivedMotionY, receivedMotionZ);
       String expected = formatPosition(predictedX, predictedY, predictedZ);

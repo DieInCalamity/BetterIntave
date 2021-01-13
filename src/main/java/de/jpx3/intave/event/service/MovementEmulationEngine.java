@@ -1,5 +1,6 @@
 package de.jpx3.intave.event.service;
 
+import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveException;
 import de.jpx3.intave.access.IntaveInternalException;
@@ -32,7 +33,6 @@ import java.util.Set;
 
 public final class MovementEmulationEngine {
   private final IntavePlugin plugin;
-  private final static boolean DEBUG_EMULATION = false;
 
   public MovementEmulationEngine(IntavePlugin plugin) {
     this.plugin = plugin;
@@ -57,7 +57,7 @@ public final class MovementEmulationEngine {
 
     violationLevelData.isInActiveTeleportBundle = true;
 
-    if (DEBUG_EMULATION) {
+    if (IntaveControl.DEBUG_EMULATION) {
       player.sendMessage("[E+] " + motion + " (" + ticks + " ticks)");
     }
 
@@ -100,8 +100,8 @@ public final class MovementEmulationEngine {
       Vector pushVector = resolvePushVector(player, positionX, positionY, positionZ);
 
       if (isOpenBlockSpace(player, new WrappedBlockPosition(positionX, positionY, positionZ))) {
-        if (DEBUG_EMULATION) {
-          Bukkit.broadcastMessage("[E-] Push vector cannot be applied (no open block space)");
+        if (IntaveControl.DEBUG_EMULATION) {
+          player.sendMessage("[E-] Push vector cannot be applied (no open block space)");
         }
         violationLevelData.isInActiveTeleportBundle = false;
         return;
@@ -111,19 +111,19 @@ public final class MovementEmulationEngine {
         Location location = movementData.verifiedLocation().clone().add(pushVector);
         teleport(player, location);
 
-        if (DEBUG_EMULATION) {
-          Bukkit.broadcastMessage("[E/] Push out of blocks emulation (? remaining) with " + MathHelper.formatMotion(pushVector));
+        if (IntaveControl.DEBUG_EMULATION) {
+          player.sendMessage("[E/] Push out of blocks emulation (? remaining) with " + MathHelper.formatMotion(pushVector));
         }
         Synchronizer.synchronizeDelayed(() -> proceedPushOutOfBlockEmulationTick(player), 1);
       } else {
-        if (DEBUG_EMULATION) {
-          Bukkit.broadcastMessage("[E-] Push vector is too small");
+        if (IntaveControl.DEBUG_EMULATION) {
+          player.sendMessage("[E-] Push vector is too small");
         }
         violationLevelData.isInActiveTeleportBundle = false;
       }
     } else {
-      if (DEBUG_EMULATION) {
-        Bukkit.broadcastMessage("[E-] Player does no longer intersect with their bounding-box");
+      if (IntaveControl.DEBUG_EMULATION) {
+        player.sendMessage("[E-] Player does no longer intersect with their bounding-box");
       }
       violationLevelData.isInActiveTeleportBundle = false;
     }
@@ -167,16 +167,19 @@ public final class MovementEmulationEngine {
       // velocity
 
       teleport(player, futurePosition);
+      violationLevelData.isInActiveTeleportBundle = false;
 
       Vector futureMotion = motionProceed(motion, user, boundingBox, true);
-//      player.setVelocity(futureMotion);
+
+      movementData.willReceiveSetbackVelocity = true;
+      player.setVelocity(futureMotion);
+
       movementData.physicsLastMotionX = futureMotion.getX();
       movementData.physicsLastMotionY = futureMotion.getY();
       movementData.physicsLastMotionZ = futureMotion.getZ();
 
 
-      violationLevelData.isInActiveTeleportBundle = false;
-      if (DEBUG_EMULATION) {
+      if (IntaveControl.DEBUG_EMULATION) {
         player.sendMessage("[E-] (" + ticks + " ticks remaining)");
       }
 
@@ -185,7 +188,7 @@ public final class MovementEmulationEngine {
       //player.teleport(futurePosition);
       teleport(player, futurePosition);
 
-      if (DEBUG_EMULATION) {
+      if (IntaveControl.DEBUG_EMULATION) {
         String s = "[E/] " + MathHelper.formatMotion(motion) + " at " + MathHelper.formatPosition(futurePosition) + " (" + ticks + " ticks remaining)";
         player.sendMessage(s);
       }
@@ -196,10 +199,12 @@ public final class MovementEmulationEngine {
 
       // velocity
       Vector futureMotion = motionProceed(motion, user, boundingBox, true);
-      movementData.physicsLastMotionX = futureMotion.getX();
-      movementData.physicsLastMotionY = futureMotion.getY();
-      movementData.physicsLastMotionZ = futureMotion.getZ();
-//      player.setVelocity(futureMotion);
+//      movementData.physicsLastMotionX = futureMotion.getX();
+//      movementData.physicsLastMotionY = futureMotion.getY();
+//      movementData.physicsLastMotionZ = futureMotion.getZ();
+      movementData.willReceiveSetbackVelocity = true;
+      movementData.setbackOverrideVelocity = futureMotion;
+      player.setVelocity(new Vector(0,0,0));
     }
   }
 

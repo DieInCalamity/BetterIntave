@@ -84,7 +84,7 @@ public final class TeleportPositionObserver implements PacketEventSubscriber {
     if (TELEPORTATION_DEBUG) {
       Bukkit.broadcastMessage("[Intave] Checking potential legacy teleportation accept of " + player.getName() + ": " + MathHelper.formatPosition(positionX, positionY, positionZ));
     }
-    boolean validPosition = positionDeviation < 1e-5;
+    boolean validPosition = positionDeviation < 0.00001;
 //    boolean validRotation = validTeleportRotation(teleportLocation, movementData.rotationYaw, movementData.rotationPitch);
     if (validPosition /*&& validRotation*/) {
       releaseAwaitTeleportLock(player);
@@ -127,7 +127,7 @@ public final class TeleportPositionObserver implements PacketEventSubscriber {
     Location teleportLocation = new Location(player.getWorld(), positionX, positionY, positionZ, rotationYaw, rotationPitch);
     movementData.teleportLocation = teleportLocation;
     movementData.setVerifiedLocation(teleportLocation.clone(), "Teleportation (legacy)");
-    movementData.teleport = true;
+    //movementData.teleport = true;
     movementData.lastTeleport = 0;
 
 //    player.sendMessage("Requested teleportation on ");
@@ -195,13 +195,14 @@ public final class TeleportPositionObserver implements PacketEventSubscriber {
     UserMetaMovementData movementData = user.meta().movementData();
     movementData.awaitTeleport = true;
     movementData.teleportResendCountdown = 20;
-    movementData.teleport = false;
+    movementData.isTeleportConfirmationPacket = false;
   }
 
   private void releaseAwaitTeleportLock(Player player) {
     User user = UserRepository.userOf(player);
     UserMetaMovementData movementData = user.meta().movementData();
     movementData.awaitTeleport = false;
+    movementData.isTeleportConfirmationPacket = true;
   }
 
   private void applyPositionConfirmationUpdate(
@@ -217,11 +218,13 @@ public final class TeleportPositionObserver implements PacketEventSubscriber {
     movementData.verifiedPositionY = positionY;
     movementData.verifiedPositionZ = positionZ;
 
-    if (movementData.onGround) {
+    //if (movementData.onGround) {
       movementData.physicsLastMotionX = 0.0;
       movementData.physicsLastMotionY = 0.0;
       movementData.physicsLastMotionZ = 0.0;
-    }
+    //}
+
+    movementData.lastOnGround = false;
 
     Location teleportLocation = movementData.teleportLocation;
     double teleportLocationX = teleportLocation.getX();

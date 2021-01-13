@@ -122,14 +122,35 @@ public final class MovementDispatcher implements EventProcessor {
       return;
     }
 
-    physicsCheck.receiveMovement(user, hasMovement);
+
+    if(
+      !movementData.isTeleportConfirmationPacket &&
+      movementData.canResetMotion &&
+      movementData.physicsLastMotionX == 0 &&
+      movementData.physicsLastMotionY == 0 &&
+      movementData.physicsLastMotionZ == 0 &&
+      movementData.motionX() == 0 &&
+      movementData.motionY() == 0 &&
+      movementData.motionZ() == 0
+    ) {
+      movementData.canResetMotion = false;
+      return;
+    }
+
+
+    if (!movementData.isTeleportConfirmationPacket) {
+      physicsCheck.receiveMovement(user, hasMovement);
+    }
     movementData.applyGroundInformationToPacket(packet);
 
-    if (!movementData.teleport) {
+    if (!movementData.isTeleportConfirmationPacket) {
       attackData.updatePerfectRotation();
       // Check calls
 
       updatePotionEffects(user);
+      movementData.canResetMotion = false;
+    } else {
+      movementData.canResetMotion = true;
     }
 
     // flag -> remove packet
@@ -158,15 +179,22 @@ public final class MovementDispatcher implements EventProcessor {
     UserMetaInventoryData inventoryData = meta.inventoryData();
 
     boolean hasMovement = packet.getBooleans().read(1);
-    physicsCheck.endMovement(user, hasMovement);
 
-    if (!movementData.teleport) {
+    if (movementData.awaitTeleport) {
+      return;
+    }
+
+    if (!event.isCancelled() && !movementData.isTeleportConfirmationPacket) {
+      physicsCheck.endMovement(user, hasMovement);
+    }
+
+    if (!movementData.isTeleportConfirmationPacket) {
       movementData.lastTeleport++;
     }
 
     movementData.invalidMovement = false;
     movementData.suspiciousMovement = false;
-    movementData.teleport = false;
+    movementData.isTeleportConfirmationPacket = false;
 
     boolean flyingWithElytra = PlayerMovementLocaleHelper.flyingWithElytra(player);
     if (flyingWithElytra) {
@@ -259,19 +287,31 @@ public final class MovementDispatcher implements EventProcessor {
     Player player = event.getPlayer();
     PacketContainer packet = event.getPacket();
     StructureModifier<Integer> integers = packet.getIntegers();
-    Vector velocity = new Vector(
-      integers.readSafely(1) / 8000d,
-      integers.readSafely(2) / 8000d,
-      integers.readSafely(3) / 8000d
-    );
     if (packet.getEntityModifier(event).readSafely(0) == player) {
+      Vector velocity = new Vector(
+        integers.readSafely(1) / 8000d,
+        integers.readSafely(2) / 8000d,
+        integers.readSafely(3) / 8000d
+      );
+
+      User user = UserRepository.userOf(player);
+      User.UserMeta meta = user.meta();
+      UserMetaMovementData movementData = meta.movementData();
+      UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
+      boolean isInActiveTeleportBundle = violationLevelData.isInActiveTeleportBundle;
+
+      if (movementData.willReceiveSetbackVelocity && velocity.length() < 0.001) {
+        movementData.willReceiveSetbackVelocity = false;
+        velocity = movementData.setbackOverrideVelocity;
+
+        integers.writeSafely(1, (int) (velocity.getX() * 8000d));
+        integers.writeSafely(2, (int) (velocity.getY() * 8000d));
+        integers.writeSafely(3, (int) (velocity.getZ() * 8000d));
+        return;
+      }
 
       plugin.eventService().transactionFeedbackService().requestPong(player, velocity, (player1, velocity1) -> {
-        User user = UserRepository.userOf(player1);
-        User.UserMeta meta = user.meta();
-        UserMetaMovementData movementData = meta.movementData();
-        UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
-        if (violationLevelData.isInActiveTeleportBundle) {
+        if (isInActiveTeleportBundle) {
           movementData.emulationVelocity = velocity1.clone();
         } else {
           movementData.physicsLastMotionX = velocity1.getX();

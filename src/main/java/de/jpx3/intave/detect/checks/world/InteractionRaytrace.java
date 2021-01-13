@@ -350,7 +350,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
 
   private void refreshBlock(Player player, Location location) {
     PacketContainer packet = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.BLOCK_CHANGE);
-    Block block = location.getBlock();
+    Block block = BlockAccessor.blockAccess(location);
     WrappedBlockData blockData = WrappedBlockData.createData(block.getType(), block.getData());
     BlockPosition position = new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
     packet.getBlockData().write(0, blockData);

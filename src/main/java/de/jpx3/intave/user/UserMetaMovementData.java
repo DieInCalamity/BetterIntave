@@ -40,6 +40,8 @@ public final class UserMetaMovementData {
 
   private volatile WrappedAxisAlignedBB boundingBox;
   public Vector emulationVelocity;
+  public Vector setbackOverrideVelocity;
+  public boolean canResetMotion;
   private double resetMotion;
   private double jumpUpwardsMotion;
   public int pastFlyingPacketAccurate, pastWaterMovement;
@@ -58,7 +60,8 @@ public final class UserMetaMovementData {
   public boolean physicsResetMotionX, physicsResetMotionZ;
   public int keyForward, keyStrafe;
 
-  public boolean teleport;
+  public boolean isTeleportConfirmationPacket;
+  public boolean willReceiveSetbackVelocity;
   public int lastTeleport;
   public int teleportId;
   public volatile boolean awaitTeleport = false;
