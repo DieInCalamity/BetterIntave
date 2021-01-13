@@ -19,11 +19,8 @@ permissions:
   intave.bypass:
     default: false
 
-  intave.trust.darkgreen:
-    default: op
-
   intave.trust.green:
-    default: false
+    default: op
 
   intave.trust.yellow:
     default: false

@@ -2,18 +2,18 @@
 
 physics:
 
-  prevention-activation: [100, 50, 15, 10, 5, 5, 5]
+  prevention-activation: [100, 50, 15, 10, 5, 5]
 
 attackraytrace:
 
-  prevention-activation: [100, 50, 15, 10, 5, 5, 5]
+  prevention-activation: [100, 50, 15, 10, 5, 5]
 
 interactionraytrace:
 
-  prevention-activation: [100, 50, 15, 10, 5, 5, 5]
+  prevention-activation: [100, 50, 15, 10, 5, 5]
 
 timer:
 
-  buffer-size: [100, 16, 8, 6, 4, 4, 4]
+  buffer-size: [100, 16, 8, 6, 4, 4]
 
-  prevention-activation: [100, 0, 0, 0, 0, 0, 0]
+  prevention-activation: [100, 0, 0, 0, 0, 0]

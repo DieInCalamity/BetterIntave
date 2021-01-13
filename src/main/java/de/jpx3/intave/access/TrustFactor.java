@@ -10,12 +10,11 @@ import org.bukkit.ChatColor;
 
 public enum TrustFactor implements Comparable<TrustFactor> {
   BYPASS(1000, ChatColor.WHITE, "intave.bypass"), // pocketmc
-  DARK_GREEN(2, ChatColor.DARK_GREEN, "intave.trust.darkgreen"), // badlion
-  GREEN(1, ChatColor.GREEN, "intave.trust.green"), // labymod / playtime
-  YELLOW(0, ChatColor.YELLOW, "intave.trust.yellow"), // default
-  ORANGE(-1, ChatColor.GOLD, "intave.trust.orange"), // once banned
-  RED(-2, ChatColor.RED, "intave.trust.red"), // recently banned
-  DARK_RED(-3, ChatColor.DARK_RED, "intave.trust.darkred") // invis installed / alt account
+  GREEN(2, ChatColor.GREEN, "intave.trust.green"), // badlion
+  YELLOW(1, ChatColor.YELLOW, "intave.trust.yellow"), // labymod / playtime
+  ORANGE(0, ChatColor.GOLD, "intave.trust.orange"),// default
+  RED(-1, ChatColor.RED, "intave.trust.red"),
+  DARK_RED(-2, ChatColor.DARK_RED, "intave.trust.darkred")
 
   ;
 

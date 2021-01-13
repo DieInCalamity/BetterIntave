@@ -21,7 +21,7 @@ public final class TrustFactorService implements BukkitEventSubscriber {
   private final IntavePlugin plugin;
   private TrustFactorResolver trustFactorResolver;
   private TrustFactorConfiguration trustFactorConfiguration;
-  private TrustFactor defaultTrustFactor = TrustFactor.YELLOW;
+  private TrustFactor defaultTrustFactor = TrustFactor.ORANGE;
 
   public TrustFactorService(IntavePlugin plugin) {
     this.plugin = plugin;
