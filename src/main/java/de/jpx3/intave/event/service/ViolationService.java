@@ -114,7 +114,7 @@ public final class ViolationService {
         User user = UserRepository.userOf(onlinePlayer);
         if(user.receives(UserMessageChannel.VERBOSE)) {
           if(user.hasChannelConstraint(UserMessageChannel.VERBOSE)) {
-            if(user.channelPlayerConstraint(UserMessageChannel.VERBOSE).appliesTo(onlinePlayer)) {
+            if(user.channelPlayerConstraint(UserMessageChannel.VERBOSE).appliesTo(player)) {
               onlinePlayer.sendMessage(fullMessage);
             }
           } else {
