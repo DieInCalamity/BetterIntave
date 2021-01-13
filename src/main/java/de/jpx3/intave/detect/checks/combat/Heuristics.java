@@ -46,15 +46,13 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
   }
 
   public void saveAnomaly(Player player, Anomaly anomaly) {
-    Synchronizer.synchronize(
-      () -> {
-        for (Player otherPlayer : Bukkit.getOnlinePlayers()) {
-          if (plugin.sibylIntegrationService().isAuthenticated(otherPlayer)) {
-            otherPlayer.sendMessage(ChatColor.RED + "[HEUR] [DEB] " + player.getName() + ": " + anomaly.description() + " (" + anomaly.confidence() + ")");
-          }
+    Synchronizer.synchronize(() -> {
+      for (Player otherPlayer : Bukkit.getOnlinePlayers()) {
+        if (plugin.sibylIntegrationService().isAuthenticated(otherPlayer)) {
+          otherPlayer.sendMessage(ChatColor.RED + "[HEUR] [DEB] " + player.getName() + ": " + anomaly.description() + " (" + anomaly.confidence() + ")");
         }
       }
-    );
+    });
 
    // player.sendMessage(ChatColor.RED + "[HEUR] [DEB] " + player.getName() + ": " + anomaly.description() + " (" +
     // anomaly.confidence() + ")");
@@ -87,12 +85,15 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
 
       }
 
-      Anomaly.Type type = findDominantType(anomalies);
-      plugin.retributionService().processViolation(
-        player, 0, this.name(),
-        "is fighting suspiciously",
-        "estimated: " + type.details() + ", confidence: " + overallConfidence.output()
-      );
+      if(overallConfidence.level() >= Confidence.LIKELY.level()) {
+        Anomaly.Type type = findDominantType(anomalies);
+        plugin.retributionService().processViolation(
+          player, 25, this.name(),
+          "is fighting suspiciously",
+          type.details() + " " + overallConfidence.output(),
+          "confidence-thresholds." + overallConfidence.output()
+        );
+      }
     }
   }
 

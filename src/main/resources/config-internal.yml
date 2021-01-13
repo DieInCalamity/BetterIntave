@@ -22,15 +22,21 @@ check:
 
     confidence-thresholds:
 
-      "??":
-
-      "?":
-
-      "?!":
+      "!!":
+        25:
+          - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been removed for attacking suspiciously (!!) (heuristics)"
+          - "kick {player} &cYou have been removed from the game based on data that was collected by the anti-cheat"
 
       "!":
+        25: "intave internals sendnotify &c{player}&7/{trust-color}&7 is attacking suspiciously (!) (heuristics)"
+        50:
+          - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been removed for attacking suspiciously (!) (heuristics)"
+          - "kick {player} &cYou have been removed from the game based on data that was collected by the anti-cheat"
 
-      "!!":
+      "?!":
+        50: "intave internals sendnotify &c{player}&7/{trust-color}&7 is attacking suspiciously (?!) (heuristics)"
+        75: "intave internals sendnotify &c{player}&7/{trust-color}&7 is attacking suspiciously #2 (?!) (heuristics)"
+
 
   attackRaytrace:
 
@@ -65,7 +71,7 @@ layout:
 
   verbose: "{prefix} &c{player}&7/{trust-color}&7 {message} {details} (+{vladded} -> {vl})"
 
-  notify: "{prefix} &7{text}"
+  notify: "{prefix} &cNotify&8: &7{text}"
 
   prefix: "&8[&c&lIntave&8]&7 "
 

@@ -118,7 +118,11 @@ public final class ViolationService {
               onlinePlayer.sendMessage(fullMessage);
             }
           } else {
-            onlinePlayer.sendMessage(compactMessage);
+            if(onlinePlayer.equals(player)) {
+              onlinePlayer.sendMessage(fullMessage);
+            } else {
+              onlinePlayer.sendMessage(compactMessage);
+            }
           }
         }
       }
