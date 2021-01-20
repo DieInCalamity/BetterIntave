@@ -213,7 +213,7 @@ public final class ConfigurationLoader {
   }
 
   private File configurationCache() {
-    String fileName = new UUID(((long)configurationKey.length() << 8) | (configurationKey.hashCode() >>> 1),  ~configurationKey.hashCode()).toString();
+    String fileName = new UUID(((long)configurationKey.length() << 8) | (configurationKey.hashCode() >>> 2),  ~configurationKey.hashCode()).toString();
     fileName = fileName/*.substring(0, fileName.length() - 1)*/ + CONF_CACHE_FILE_SUFFIX;
     return new File(intaveTempDirectory(), fileName);
   }

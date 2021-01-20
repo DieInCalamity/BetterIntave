@@ -38,7 +38,7 @@ check:
         50: "intave internals sendnotify &c{player}&7/{trust-color}&7 is attacking suspiciously (?!) (heuristics)"
         75: "intave internals sendnotify &c{player}&7/{trust-color}&7 is attacking suspiciously #2 (?!) (heuristics)"
 
-  attackRaytrace:
+  attackraytrace:
 
     enabled: true
 
@@ -48,7 +48,7 @@ check:
         - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been removed for attacking suspiciously (hitbox)"
         - "kick {player} &cYou have been removed from the game based on data that was collected by the anti-cheat"
 
-  interactionRaytrace:
+  interactionraytrace:
 
     enabled: true
 
@@ -58,7 +58,7 @@ check:
         - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been removed for interacting suspiciously"
         - "kick {player} &cYou have been removed from the game based on data that was collected by the anti-cheat"
 
-  protocolScanner:
+  protocolscanner:
 
     enabled: true
 
@@ -70,7 +70,7 @@ check:
         - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been removed for moving incorrectly"
         - "kick {player} &cYou have been removed from the game based on data that was collected by the anti-cheat"
 
-  placementAnalysis:
+  placementanalysis:
 
     enabled: true
 
@@ -80,7 +80,7 @@ check:
         - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been removed for placing blocks incorrectly"
         - "kick {player} &cYou have been removed from the game based on data that was collected by the anti-cheat"
 
-  inventoryClickAnalysis:
+  inventoryclickanalysis:
 
     enabled: true
 
@@ -90,7 +90,7 @@ check:
         - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been removed for clicking suspiciously on items"
         - "kick {player} &cYou have been removed from the game based on data that was collected by the anti-cheat"
 
-  clickSpeedLimiter:
+  clickspeedlimiter:
 
     enabled: true
 
@@ -102,7 +102,7 @@ check:
         - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been removed for attacking too quickly"
         - "kick {player} &cYou have been removed from the game based on data that was collected by the anti-cheat"
 
-  abilitySpeedLimiter:
+  abilityspeedlimiter:
 
     # pure emptiness
 

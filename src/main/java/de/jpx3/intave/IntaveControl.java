@@ -6,5 +6,5 @@ public final class IntaveControl {
   public final static boolean DEBUG_MOVEMENT = false;
   public final static boolean DEBUG_EMULATION = false;
 
-  public final static boolean DISABLE_LICENSE_CHECK = false;
+  public final static boolean DISABLE_LICENSE_CHECK = true;
 }
