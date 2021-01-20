@@ -8,6 +8,7 @@ import de.jpx3.intave.patchy.annotate.PatchyAutoTranslation;
 import de.jpx3.intave.patchy.annotate.PatchyTranslateParameters;
 import de.jpx3.intave.reflect.Reflection;
 import de.jpx3.intave.reflect.ReflectionFailureException;
+import de.jpx3.intave.user.UserRepository;
 import net.minecraft.server.v1_8_R3.WorldServer;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -35,7 +36,7 @@ public final class LegacyCBPlacePermissionResolver implements BlockPlacePermissi
       Block blockClicked = craftWorld.getBlockAt(blockX, blockY, blockZ);
       Block placedBlock = replacedBlockState.getBlock();
       boolean canBuild = canBuildReflectiveCall(craftWorld, player, placedBlock.getX(), placedBlock.getZ());
-      ItemStack item = player.getInventory().getItemInHand();
+      ItemStack item = UserRepository.userOf(player).meta().inventoryData().heldItem();//player.getInventory().getItemInHand();
       BlockPlaceEvent event = new PermissionCheckBlockPlaceEvent(placedBlock, replacedBlockState, blockClicked, item, player, canBuild);
       IntavePlugin.singletonInstance().eventLinker().fireExternalEvent(event);
       return !event.isCancelled();
