@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static de.jpx3.intave.IntaveControl.DISABLE_BLOCK_CACHING_ENTIRELY;
+
 public final class BoundingBoxAccess {
   private final static BoundingBoxResolver globalBoundingBoxResolver;
   static {
@@ -78,7 +80,9 @@ public final class BoundingBoxAccess {
         BlockAccessor.blockAccess(world, posX, posY, posZ),
         globalBoundingBoxResolver.resolve(world, posX, posY, posZ)
       );
-      blockCache.put(blockPositionKey, boundingBoxes);
+      if(!DISABLE_BLOCK_CACHING_ENTIRELY) {
+        blockCache.put(blockPositionKey, boundingBoxes);
+      }
     }
     return boundingBoxes;
   }

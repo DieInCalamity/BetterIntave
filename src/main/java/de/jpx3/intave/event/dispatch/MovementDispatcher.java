@@ -65,6 +65,24 @@ public final class MovementDispatcher implements EventProcessor {
     }
   }
 
+  @PacketSubscription(
+    packets = {
+      @PacketDescriptor(sender = Sender.SERVER, packetName = "SCOREBOARD_TEAM")
+    }
+  )
+  public void applyNoEntityCollisionRule(PacketEvent event) {
+    Player player = event.getPlayer();
+    PacketContainer packet = event.getPacket();
+    StructureModifier<String> strings = packet.getStrings();
+
+
+
+
+
+
+
+  }
+
   @BukkitEventSubscription
   public void receiveWorldChange(PlayerChangedWorldEvent event) {
     Player player = event.getPlayer();
@@ -274,6 +292,7 @@ public final class MovementDispatcher implements EventProcessor {
     inventoryData.pastItemUsageTransition++;
     movementData.pastWaterMovement++;
     movementData.pastVelocity++;
+    movementData.pastExternalVelocity++;
 
     if (!event.isCancelled() && !movementData.isTeleportConfirmationPacket) {
       movementData.lastOnGround = movementData.onGround;
@@ -417,6 +436,8 @@ public final class MovementDispatcher implements EventProcessor {
       movementData.physicsLastMotionY = velocity.getY();
       movementData.physicsLastMotionZ = velocity.getZ();
       movementData.lastVelocity = velocity.clone();
+
+      movementData.pastExternalVelocity = 0;
 //      player.sendMessage("Apply velocity: " + MathHelper.formatMotion(velocity));
     }
     Synchronizer.synchronize(() -> movementData.emulationVelocity = null);

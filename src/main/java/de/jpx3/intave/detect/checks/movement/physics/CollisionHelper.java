@@ -38,6 +38,18 @@ public final class CollisionHelper {
     );
   }
 
+  public static WrappedAxisAlignedBB boundingBoxOf(
+    User user, double width,
+    double positionX, double positionY, double positionZ
+  ) {
+    UserMetaMovementData movementData = user.meta().movementData();
+    float height = movementData.height;
+    return new WrappedAxisAlignedBB(
+      positionX - width, positionY, positionZ - width,
+      positionX + width, positionY + height, positionZ + width
+    );
+  }
+
   public static WrappedAxisAlignedBB boundingBoxOf(User user, Location location) {
     return boundingBoxOf(user, location.getX(), location.getY(), location.getZ());
   }

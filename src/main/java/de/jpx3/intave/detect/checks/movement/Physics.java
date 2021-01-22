@@ -711,13 +711,51 @@ public final class Physics extends IntaveCheck {
       violationLevelData.physicsVL -= 0.012;
     }
 
+    if(violationLevelIncrease > 0) {
+      UserMetaClientData clientData = meta.clientData();
+
+      // process movement with no keys pressed
+
+      boolean sprinting = movementData.sprinting;
+      boolean sneaking;
+      if (clientData.delayedSneak()) {
+        sneaking = movementData.lastSneaking;
+      } else if (clientData.alternativeSneak()) {
+        sneaking = movementData.lastSneaking || movementData.sneaking;
+      } else {
+        sneaking = movementData.sneaking;
+      }
+      if (inventoryData.inventoryOpen()) {
+        sprinting = false;
+      }
+      simulateMotionClamp(user);
+      float rotationYaw = movementData.rotationYaw;
+      float yawSine = SinusCache.sin(rotationYaw * (float) Math.PI / 180.0F, false);
+      float yawCosine = SinusCache.cos(rotationYaw * (float) Math.PI / 180.0F, false);
+      PhysicsProcessorContext context2 = PhysicsProcessorContext.from(movementData.physicsProcessorContext);
+      context2.reset(movementData.physicsLastMotionX, movementData.physicsLastMotionY, movementData.physicsLastMotionZ);
+      performSimulationOfState(
+        user, context2, yawSine, yawCosine, resolveFriction(player, movementData, positionX, positionY, positionZ),
+        0, 0, sneaking, false, false, sprinting, false
+      );
+      predictedX = context2.motionX;
+      predictedY = context2.motionY;
+      predictedZ = context2.motionZ;
+    }
+
+
     Location verifiedLocation = movementData.verifiedLocation();
 
     List<WrappedAxisAlignedBB> intersectionBoundingBoxesLast = Collision.resolve(user.player(), CollisionHelper.boundingBoxOf(user, verifiedLocation.getX(), verifiedLocation.getY(), verifiedLocation.getZ()));
     List<WrappedAxisAlignedBB> intersectionBoundingBoxesCurrent = Collision.resolve(user.player(), CollisionHelper.boundingBoxOf(user, receivedPositionX, receivedPositionY, receivedPositionZ));
 
-    boolean boundingBoxIntersectionLast = !intersectionBoundingBoxesLast.isEmpty();//CollisionHelper.checkBoundingBoxIntersection(user, CollisionHelper.boundingBoxOf(user, verifiedLocation.getX(), verifiedLocation.getY(), verifiedLocation.getZ()));
-    boolean boundingBoxIntersectionCurrent = !intersectionBoundingBoxesCurrent.isEmpty();//CollisionHelper.checkBoundingBoxIntersection(user, CollisionHelper.boundingBoxOf(user, receivedPositionX, receivedPositionY, receivedPositionZ));
+    boolean boundingBoxIntersectionLast = !intersectionBoundingBoxesLast.isEmpty();
+    boolean boundingBoxIntersectionCurrent = !intersectionBoundingBoxesCurrent.isEmpty();
+//    boolean boundingBoxIntersectionLast = !intersectionBoundingBoxesLast.isEmpty();
+//    WrappedAxisAlignedBB currentPhaseBoundingBox = CollisionHelper.boundingBoxOf(user, 0.299, receivedPositionX, receivedPositionY, receivedPositionZ);
+//    boolean boundingBoxIntersectionCurrent = CollisionHelper.checkBoundingBoxIntersection(user, currentPhaseBoundingBox);
+
+
     boolean movedIntoBlock = !boundingBoxIntersectionLast && boundingBoxIntersectionCurrent;
 
     if (boundingBoxIntersectionCurrent && !spectator) {
@@ -768,7 +806,7 @@ public final class Physics extends IntaveCheck {
 
       boolean setback = plugin.retributionService().processViolation(player, violationLevelIncrease / 20d, "Physics", message, details) || violationLevelData.physicsVL >= 60;
       if (setback) {
-        plugin.eventService().emulationEngine().emulationSetBack(player, emulationMotion, context.motionY > 0 ? 12 : 4);
+        plugin.eventService().emulationEngine().emulationSetBack(player, emulationMotion, user.meta().movementData().pastExternalVelocity <= 8 ? 8 : 1);
       }
       if(setback) {
         movementData.invalidMovement = true;

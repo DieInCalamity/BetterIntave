@@ -366,6 +366,10 @@ public final class IntavePlugin extends JavaPlugin {
 
       getCommand("intave").setExecutor(new CommandProcessor());
 
+      if(IntaveControl.DISABLE_BLOCK_CACHING_ENTIRELY) {
+        logger().info("This version does not cache block-accesses");
+      }
+
       // stage 8
 
       trustFactorService.setup();
