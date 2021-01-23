@@ -57,6 +57,10 @@ public final class BlockActionDispatcher implements EventProcessor {
   )
   public void receiveInteraction(PacketEvent event) {
     Player player = event.getPlayer();
+    if (player.isDead()) {
+      event.setCancelled(true);
+      return;
+    }
     PacketContainer packet = event.getPacket();
     BlockPosition blockPosition = packet.getBlockPositionModifier().readSafely(0);
     if(blockPosition == null) {
@@ -178,6 +182,10 @@ public final class BlockActionDispatcher implements EventProcessor {
   )
   public void receiveBreak(PacketEvent event) {
     Player player = event.getPlayer();
+    if (player.isDead()) {
+      event.setCancelled(true);
+      return;
+    }
     User user = UserRepository.userOf(player);
     PacketContainer packet = event.getPacket();
     BlockPosition blockPosition = packet.getBlockPositionModifier().readSafely(0);

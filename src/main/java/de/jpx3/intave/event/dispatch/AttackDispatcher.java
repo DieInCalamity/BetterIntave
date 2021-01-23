@@ -29,6 +29,10 @@ public final class AttackDispatcher implements EventProcessor {
   )
   public void receiveUseEntity(PacketEvent event) {
     Player player = event.getPlayer();
+    if (player.isDead()) {
+      event.setCancelled(true);
+      return;
+    }
     User user = UserRepository.userOf(player);
     User.UserMeta meta = user.meta();
     UserMetaAttackData attackData = meta.attackData();
