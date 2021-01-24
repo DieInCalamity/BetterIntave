@@ -5,7 +5,7 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import de.jpx3.intave.detect.checks.movement.Physics;
 import de.jpx3.intave.detect.checks.movement.physics.CollisionHelper;
 import de.jpx3.intave.detect.checks.movement.physics.pose.PhysicsMovementPoseType;
-import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.reflect.ReflectiveHandleAccess;
 import de.jpx3.intave.tools.client.PlayerEffectHelper;
 import de.jpx3.intave.tools.client.PlayerMovementHelper;
 import de.jpx3.intave.tools.client.PlayerMovementPoseHelper;
@@ -110,10 +110,10 @@ public final class UserMetaMovementData {
 
   public void updateWorld() {
     if (player == null) {
-      nmsWorld = ReflectiveAccess.handleResolver().resolveWorldHandleOf(Bukkit.getWorlds().get(0));
+      nmsWorld = ReflectiveHandleAccess.handleOf(Bukkit.getWorlds().get(0));
       return;
     }
-    nmsWorld = ReflectiveAccess.handleResolver().resolveWorldHandleOf(player.getWorld());
+    nmsWorld = ReflectiveHandleAccess.handleOf(player.getWorld());
   }
 
   public void updateMovement(
