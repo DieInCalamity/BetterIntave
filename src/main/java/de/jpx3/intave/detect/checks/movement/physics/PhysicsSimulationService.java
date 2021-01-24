@@ -4,18 +4,22 @@ import de.jpx3.intave.detect.checks.movement.Physics;
 import de.jpx3.intave.detect.checks.movement.physics.collision.entity.EntityCollisionResult;
 import de.jpx3.intave.detect.checks.movement.physics.pose.PhysicsCalculationPart;
 import de.jpx3.intave.detect.checks.movement.physics.pose.PhysicsMovementPoseType;
+import de.jpx3.intave.reflect.ReflectiveDataWatcherAccess;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.client.PlayerMovementHelper;
 import de.jpx3.intave.tools.client.SinusCache;
 import de.jpx3.intave.tools.items.InventoryUseItemHelper;
+import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaClientData;
 import de.jpx3.intave.user.UserMetaInventoryData;
 import de.jpx3.intave.user.UserMetaMovementData;
 import org.bukkit.inventory.ItemStack;
 
+import static de.jpx3.intave.reflect.ReflectiveDataWatcherAccess.DATA_WATCHER_BLOCKING_ID;
+
 public final class PhysicsSimulationService {
-  private final static boolean SIMULATE_USE_ITEM_TWICE = true;
+  private final static boolean SIMULATE_USE_ITEM_TWICE = false;
 
   public EntityCollisionResult simulate(User user, PhysicsMovementPoseType poseType) {
     User.UserMeta meta = user.meta();
@@ -47,18 +51,38 @@ public final class PhysicsSimulationService {
     if (keyCalculation) {
       EntityCollisionResult predictedMovement;
       predictedMovement = simulateMovementBiased(user, yawSine, yawCosine, friction, sprinting, sneaking);
-      Physics.PhysicsProcessorContext context = predictedMovement.context();
-      double biasedDistance = MathHelper.resolveDistance(
-        context.motionX, context.motionY, context.motionZ,
-        movementData.motionX(), movementData.motionY(), movementData.motionZ()
-      );
-      if (biasedDistance > 0.001) {
+      double movementDistance = calculateMovementDistance(user, predictedMovement.context());
+      if (movementDistance > 0.001) {
         predictedMovement = simulatePossibleMovement(user, yawSine, yawCosine, friction, sprinting, sneaking);
+        movementDistance = calculateMovementDistance(user, predictedMovement.context());
       }
+
+      if (inventoryData.handActive() && movementDistance > 0.001) {
+        inventoryData.setHandActive(false);
+        predictedMovement = simulatePossibleMovement(user, yawSine, yawCosine, friction, sprinting, sneaking);
+        movementDistance = calculateMovementDistance(user, predictedMovement.context());
+
+        if (movementDistance > 0.001) {
+          // Movement is still wrong -> activate hand again
+          inventoryData.setHandActive(true);
+        } else {
+          // Release the player's hand on the client and serverside
+          Synchronizer.synchronize(() -> ReflectiveDataWatcherAccess.setDataWatcherFlag(user.player(), DATA_WATCHER_BLOCKING_ID, false));
+        }
+      }
+
       return predictedMovement;
     }
 
     return simulateMovementWithoutKeyPress(user, friction);
+  }
+
+  private double calculateMovementDistance(User user, Physics.PhysicsProcessorContext context) {
+    UserMetaMovementData movementData = user.meta().movementData();
+    return MathHelper.resolveDistance(
+      context.motionX, context.motionY, context.motionZ,
+      movementData.motionX(), movementData.motionY(), movementData.motionZ()
+    );
   }
 
   public EntityCollisionResult simulateMovementWithoutKeyPress(User user, float friction) {

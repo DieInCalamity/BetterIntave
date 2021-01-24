@@ -25,6 +25,7 @@ public final class ReflectiveAccess {
 
   static {
     PatchyLoadingInjector.loadUnloadedClassPatched(IntavePlugin.class.getClassLoader(), "de.jpx3.intave.reflect.ReflectiveAccess$ReflectiveHandleResolver");
+    ReflectiveDataWatcherAccess.setup();
     handleResolver = new ReflectiveHandleResolver();
   }
 

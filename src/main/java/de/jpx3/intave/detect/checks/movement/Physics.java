@@ -15,6 +15,7 @@ import de.jpx3.intave.detect.checks.movement.physics.pose.PhysicsCalculationPart
 import de.jpx3.intave.detect.checks.movement.physics.pose.PhysicsMovementPoseType;
 import de.jpx3.intave.detect.checks.movement.physics.water.AquaticWaterMovementBase;
 import de.jpx3.intave.detect.checks.movement.physics.water.aquatics.*;
+import de.jpx3.intave.reflect.ReflectiveDataWatcherAccess;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.client.PlayerMovementHelper;
 import de.jpx3.intave.tools.client.PlayerMovementPoseHelper;
@@ -214,8 +215,6 @@ public final class Physics extends IntaveCheck {
       violationLevelData.physicsVL *= 0.980;
       violationLevelData.physicsVL -= 0.012;
     }
-
-
 
     Location verifiedLocation = movementData.verifiedLocation();
 

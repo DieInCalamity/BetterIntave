@@ -149,7 +149,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
 
     EnumWrappers.Direction direction = packet.getDirections().readSafely(0);
     int enumDirection = direction == null ? 255 : direction.ordinal();
-    if (enumDirection == 255) {
+    if (enumDirection == 255 || enumDirection == 0) {
       return;
     }
 

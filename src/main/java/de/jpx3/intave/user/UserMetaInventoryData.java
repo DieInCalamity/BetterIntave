@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 
 public final class UserMetaInventoryData {
   private final Player player;
-//  private ItemStack heldItem;
+  private ItemStack heldItem;
   private int handSlot;
   private boolean handActive;
 
@@ -21,19 +21,15 @@ public final class UserMetaInventoryData {
 
   public UserMetaInventoryData(Player player) {
     this.player = player;
-    if(player != null) {
+    if (player != null) {
       this.handSlot = player.getInventory().getHeldItemSlot();
     }
-//    this.heldItem = resolveMaterialInHand();
+    this.heldItem = resolveMaterialInHand();
   }
 
-//  public void resynchronizeHeldItem() {
-//    this.heldItem = resolveMaterialInHand();
-//  }
-
-//  private ItemStack resolveMaterialInHand() {
-//    return player == null ? null : player.getItemInHand();
-//  }
+  private ItemStack resolveMaterialInHand() {
+    return player == null ? null : player.getItemInHand();
+  }
 
   public boolean handActive() {
     return handActive;
@@ -51,10 +47,6 @@ public final class UserMetaInventoryData {
   public boolean inventoryOpen() {
     return inventoryOpen;
   }
-//
-//  public void setHeldItem(ItemStack heldItem) {
-//    this.heldItem = heldItem;
-//  }
 
   public void deactivateHand() {
     User user = UserRepository.userOf(player);
@@ -79,25 +71,12 @@ public final class UserMetaInventoryData {
     this.handSlot = slot;
   }
 
-/*  public void applySlotSwitch() {
-    int previousItemSlot = this.selectedHotBarSlot;
-    int newItemSlot = this.selectedHotBarSlot + 1;
-    if (newItemSlot > 8) {
-      newItemSlot = 0;
-    }
-    setHeldItemSlot(newItemSlot);
-    setHeldItemSlot(previousItemSlot);
+  public void setHandActive(boolean handActive) {
+    this.handActive = handActive;
   }
 
-  private void setHeldItemSlot(int slot) {
-    if(player == null) {
-      return;
-    }
-    PlayerInventory inventory = player.getInventory();
-    inventory.setHeldItemSlot(slot);
-  }*/
-
   public void setInventoryOpen(boolean inventoryOpen) {
+    deactivateHand();
     this.inventoryOpen = inventoryOpen;
   }
 
