@@ -2,12 +2,7 @@ package de.jpx3.intave.reflect;
 
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.patchy.PatchyLoadingInjector;
-import de.jpx3.intave.patchy.annotate.PatchyAutoTranslation;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
-import org.bukkit.entity.Entity;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -21,12 +16,9 @@ public final class ReflectiveAccess {
   public final static Class<?> NMS_ENTITY_CLASS = lookupServerClass("Entity");
   public final static Class<?> NMS_AABB_CLASS = lookupServerClass("AxisAlignedBB");
 
-  private static final ReflectiveHandleResolver handleResolver;
-
   static {
-    PatchyLoadingInjector.loadUnloadedClassPatched(IntavePlugin.class.getClassLoader(), "de.jpx3.intave.reflect.ReflectiveAccess$ReflectiveHandleResolver");
-    ReflectiveDataWatcherAccess.setup();
-    handleResolver = new ReflectiveHandleResolver();
+    PatchyLoadingInjector.loadUnloadedClassPatched(IntavePlugin.class.getClassLoader(), "de.jpx3.intave.reflect.ReflectiveDataWatcherAccess");
+    PatchyLoadingInjector.loadUnloadedClassPatched(IntavePlugin.class.getClassLoader(), "de.jpx3.intave.reflect.ReflectiveHandleAccess");
   }
 
   public static <T> Class<T> classByName(String className) {
@@ -74,21 +66,5 @@ public final class ReflectiveAccess {
     if (!accessibleObject.isAccessible()) {
       accessibleObject.setAccessible(true);
     }
-  }
-
-  public static final class ReflectiveHandleResolver {
-    @PatchyAutoTranslation
-    public Object resolveEntityHandleOf(Entity entity) {
-      return ((CraftEntity) entity).getHandle();
-    }
-
-    @PatchyAutoTranslation
-    public Object resolveWorldHandleOf(World world) {
-      return ((CraftWorld) world).getHandle();
-    }
-  }
-
-  public static ReflectiveHandleResolver handleResolver() {
-    return handleResolver;
   }
 }

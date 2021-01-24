@@ -3,6 +3,7 @@ package de.jpx3.intave.tools.hitbox;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.ProtocolLibAdapter;
 import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.reflect.ReflectiveHandleAccess;
 import org.bukkit.entity.Entity;
 
 import java.lang.reflect.Field;
@@ -30,7 +31,7 @@ public final class EntityHitBoxResolver {
   }
 
   public static HitBoxBoundaries resolveHitBoxOf(Entity entity) {
-    return resolveHitBoxOf(ReflectiveAccess.handleResolver().resolveEntityHandleOf(entity));
+    return resolveHitBoxOf(ReflectiveHandleAccess.handleOf(entity));
   }
 
   public static HitBoxBoundaries resolveHitBoxOf(Object entity) {

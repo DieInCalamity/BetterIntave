@@ -10,6 +10,7 @@ import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.ProtocolLibAdapter;
 import de.jpx3.intave.event.packet.*;
 import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.reflect.ReflectiveHandleAccess;
 import de.jpx3.intave.tools.hitbox.EntityHitBoxResolver;
 import de.jpx3.intave.tools.hitbox.HitBoxBoundaries;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
@@ -349,7 +350,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
   }
 
   private String entityNameByBukkitEntity(Entity entity) {
-    return entityNameOf(ReflectiveAccess.handleResolver().resolveEntityHandleOf(entity));
+    return entityNameOf(ReflectiveHandleAccess.handleOf(entity));
   }
 
   private Object entityOfDataWatcher(WrappedDataWatcher dataWatcher) {

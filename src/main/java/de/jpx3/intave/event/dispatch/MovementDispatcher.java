@@ -273,8 +273,11 @@ public final class MovementDispatcher implements EventProcessor {
 
       if (inventoryData.awaitingSlotSet != -1) {
         Synchronizer.synchronize(() -> {
-          player.getInventory().setHeldItemSlot(inventoryData.awaitingSlotSet);
-          inventoryData.awaitingSlotSet = -1;
+          int awaitingSlotSet = inventoryData.awaitingSlotSet;
+          if (awaitingSlotSet != -1) {
+            player.getInventory().setHeldItemSlot(awaitingSlotSet);
+            inventoryData.awaitingSlotSet = -1;
+          }
         });
       }
       updatePotionEffects(user);
