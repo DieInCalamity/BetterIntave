@@ -90,7 +90,7 @@ public class PhysicsNormalPlayerMovement extends PhysicsCalculationPart {
       performDefaultMoveSimulationOfState(user, context, forward, strafe, yawSine, yawCosine, friction);
     }
 
-    if (!inWater && !elytraFlying && !inLava) {
+    if (!inWater && !elytraFlying && !inLava && movementData.motionY() < 0) {
       tryRelinkFlyingPosition(user, context);
     }
 
