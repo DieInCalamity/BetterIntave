@@ -55,16 +55,20 @@ public final class UserMetaMovementData {
   public boolean inWater, eyesInWater;
   public boolean inWeb;
   public int pastPushedByWaterFlow = 100;
-  public int pastElytraFlying = 100, pastVelocity = 100, pastExternalVelocity = 100;
+  public int pastElytraFlying = 100, pastVelocity = 100, pastOutgoingVelocity= 100, pastExternalVelocity = 100;
   public boolean onLadderLast;
 
   public int physicsPacketRelinkFlyVL; // In Air
   public boolean invalidMovement, suspiciousMovement;
   public double physicsLastMotionX, physicsLastMotionY, physicsLastMotionZ;
+  public double physicsMotionXBeforeVelocity, physicsMotionYBeforeVelocity, physicsMotionZBeforeVelocity;
   public int pastRiptideSpin;
-  public int pastPlayerAttackPhysics;
+  public int pastPlayerAttackPhysics = 100;
   public boolean physicsResetMotionX, physicsResetMotionZ;
   public int keyForward, keyStrafe;
+
+  // Will be set to true if the player sends a flying packet and receives server velocity later
+  public boolean physicsUnpredictableVelocityExpected;
 
   public boolean isTeleportConfirmationPacket;
   public boolean willReceiveSetbackVelocity;
@@ -302,5 +306,9 @@ public final class UserMetaMovementData {
 
   public void setMovementPoseType(PhysicsMovementPoseType movementPoseType) {
     this.movementPoseType = movementPoseType;
+  }
+
+  public void setPastFlyingPacketAccurate(int pastFlyingPacketAccurate) {
+    this.pastFlyingPacketAccurate = pastFlyingPacketAccurate;
   }
 }

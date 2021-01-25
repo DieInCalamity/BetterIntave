@@ -15,7 +15,6 @@ import de.jpx3.intave.detect.checks.movement.physics.pose.PhysicsCalculationPart
 import de.jpx3.intave.detect.checks.movement.physics.pose.PhysicsMovementPoseType;
 import de.jpx3.intave.detect.checks.movement.physics.water.AquaticWaterMovementBase;
 import de.jpx3.intave.detect.checks.movement.physics.water.aquatics.*;
-import de.jpx3.intave.reflect.ReflectiveDataWatcherAccess;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.client.PlayerMovementHelper;
 import de.jpx3.intave.tools.client.PlayerMovementPoseHelper;
@@ -125,14 +124,40 @@ public final class Physics extends IntaveCheck {
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
     simulateMotionClamp(user);
+
+    if (movementData.pastVelocity == 0) {
+      double motionX = movementData.physicsMotionXBeforeVelocity * 0.91f;
+      double motionY = (movementData.physicsMotionYBeforeVelocity - 0.08) * 0.98f;
+      double motionZ = movementData.physicsMotionZBeforeVelocity * 0.91f;
+
+      if (motionX != 0 && motionY != 0 && motionZ != 0) {
+        CollisionHelper.CollisionResult collisionResult = CollisionHelper.resolveQuickCollisions(
+          user.player(),
+          movementData.verifiedPositionX, movementData.verifiedPositionY, movementData.verifiedPositionZ,
+          motionX, motionY, motionZ
+        );
+        motionX = collisionResult.motionX();
+        motionY = collisionResult.motionY();
+        motionZ = collisionResult.motionZ();
+
+        if (collisionResult.onGround() || movementData.onGround) {
+          double distance = motionX * motionX + motionY * motionY + motionZ * motionZ;
+          if (distance < 0.009) {
+            movementData.physicsUnpredictableVelocityExpected = true;
+            movementData.setPastFlyingPacketAccurate(0);
+          }
+        }
+      }
+    }
+
     EntityCollisionResult predictedMovement = simulationService.simulate(user, movementData.movementPoseType());
-    evaluateBestSimulation(user, predictedMovement);
     movementData.onGround = predictedMovement.onGround();
     movementData.collidedHorizontally = predictedMovement.collidedHorizontally();
     movementData.collidedVertically = predictedMovement.collidedVertically();
     movementData.physicsResetMotionX = predictedMovement.resetMotionX();
     movementData.physicsResetMotionZ = predictedMovement.resetMotionZ();
     movementData.pastRiptideSpin++;
+    evaluateBestSimulation(user, predictedMovement);
   }
 
   private void evaluateBestSimulation(User user, EntityCollisionResult expectedMovement) {
@@ -178,7 +203,7 @@ public final class Physics extends IntaveCheck {
     onLadder = movementData.onLadderLast || onLadderLast;
 
     double verticalViolationIncrease = calculateVerticalViolationLevelIncrease(user, predictedY, onLadder);
-    double horizontalViolationIncrease = calculateHorizontalViolationIncrease(user, keyForward, keyStrafe, predictedX, predictedZ, onLadder);
+    double horizontalViolationIncrease = calculateHorizontalViolationIncrease(user, predictedX, predictedZ, onLadder);
     double violationLevelIncrease = horizontalViolationIncrease + verticalViolationIncrease;
 
     if (distance > 1e-3) {
@@ -329,7 +354,7 @@ public final class Physics extends IntaveCheck {
         debug += " bb-intersection";
       }
 
-      String finalDebug = debug;
+      String finalDebug = debug + " " + movementData.collidedHorizontally;
       Synchronizer.synchronize(() -> player.sendMessage(finalDebug));
     }
   }
@@ -377,6 +402,11 @@ public final class Physics extends IntaveCheck {
       }
     }
 
+    if (movementData.physicsUnpredictableVelocityExpected) {
+      double velocityY = movementData.lastVelocity.getY();
+      legitimateDeviation = Math.max(legitimateDeviation, velocityY * 1.2 - differenceY);
+    }
+
     boolean criticalWeb = receivedMotionY > -0.01
       && movementData.inWeb
       && movementData.positionY % 1 > 0.1
@@ -414,14 +444,9 @@ public final class Physics extends IntaveCheck {
     return abuseVertically * multiplier;
   }
 
-  private double calculateHorizontalViolationIncrease(
-    User user, int keyForward, int keyStrafe,
-    double predictedX, double predictedZ,
-    boolean onLadder
-  ) {
+  private double calculateHorizontalViolationIncrease(User user, double predictedX, double predictedZ, boolean onLadder) {
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
-    UserMetaInventoryData inventoryData = meta.inventoryData();
 
     PhysicsMovementPoseType movementPoseType = movementData.movementPoseType();
     double motionX = movementData.motionX();
@@ -443,6 +468,10 @@ public final class Physics extends IntaveCheck {
 
     boolean pushedByWaterFlow = movementData.pastPushedByWaterFlow <= 20;
     double legitimateDeviation = movementData.pastPlayerAttackPhysics <= 1 ? 0.01 : 0.0007;
+
+    if (movementData.collidedHorizontally && movementData.pastVelocity < 20) {
+      legitimateDeviation = 0.027;
+    }
 
     if (movementData.pastWaterMovement < 10) {
       legitimateDeviation = 0.01;
@@ -469,7 +498,6 @@ public final class Physics extends IntaveCheck {
       legitimateDeviation = resolveRiptideDeviation(movementData);
     }
 
-    boolean pressedNothing = keyStrafe == 0 && keyForward == 0;
     boolean recentlySentFlying = movementData.recentlyEncounteredFlyingPacket(2);
     boolean recentlyVelocity = movementData.pastVelocity <= 1;
 
@@ -479,25 +507,30 @@ public final class Physics extends IntaveCheck {
         legitimateDeviation = Math.max(legitimateDeviation, distanceMoved);
       }
     }
-    if (pressedNothing && !inventoryData.inventoryOpen()) {
-      double deviation = movementData.onGround || movementData.lastOnGround ? 0.1 : 0.07;
-      legitimateDeviation = Math.max(legitimateDeviation, deviation);
-    }
 
     if (onLadder && (distanceMoved < predictedDistanceMoved || distanceMoved < (movementData.motionY() < 0 ? 0.4 : 0.2))) {
       legitimateDeviation = Math.max(distanceMoved, 0.2);
     }
 
     double distance = MathHelper.resolveHorizontalDistance(predictedX, predictedZ, motionX, motionZ);
+    if (movementData.physicsUnpredictableVelocityExpected) {
+      Vector lastVelocity = movementData.lastVelocity;
+      double velocityDistance = Math.hypot(lastVelocity.getX(), lastVelocity.getZ());
+      distance -= velocityDistance;
+      legitimateDeviation = Math.max(legitimateDeviation, velocityDistance * 1.2 - distanceMoved);
+    }
+
     double abuseHorizontally = Math.max(0, distance - legitimateDeviation);
-    boolean movedTooQuickly = distanceMoved > predictedDistanceMoved * 1.0005
-      && inventoryData.pastItemUsageTransition > 10;
-    if (movedTooQuickly && distanceMoved > 0.2 && abuseHorizontally > 0 && !recentlyVelocity) {
-//      double v = Math.max(abuseHorizontally, 0.3) * 100.0;
-//      Bukkit.broadcastMessage(user.bukkitPlayer().getName() + " moved too quickly: vl+" + v + " -" + inventoryData.pastItemUsageTransition);
+
+    boolean movedTooQuickly = distanceMoved > predictedDistanceMoved * 1.0005;
+    if (movedTooQuickly && distanceMoved > 0.15 && abuseHorizontally > 0 && !recentlyVelocity) {
+//      double vl = Math.max(abuseHorizontally, 0.3) * 100.0;
+//      Bukkit.broadcastMessage(user.player().getName() + " moved too quickly: vl+" + vl);
       return Math.max(abuseHorizontally, 0.3) * 100.0;
     }
-    return abuseHorizontally * ((abuseHorizontally > 0.1) ? 20.0 : 10.0);
+
+    double multiplier = abuseHorizontally > 0.1 ? 20.0 : 10.0;
+    return abuseHorizontally * multiplier;
   }
 
   private final static double RIPTIDE_TOLERANCE = 3.005;

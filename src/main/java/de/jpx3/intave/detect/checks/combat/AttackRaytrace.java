@@ -78,19 +78,10 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
     UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
 
     List<Attack> remainingAttacks = attackRaytraceMeta.remainingAttacks;
-
-//    player.sendMessage(ChatColor.GRAY + "" + System.nanoTime());
-
     if(!remainingAttacks.isEmpty()) {
-//      int attacks = remainingAttacks.size();
-//      long duration = 0;
-
-//      player.sendMessage(String.valueOf(diff));
       for (Attack remainingAttack : remainingAttacks) {
         WrappedEntity entity = entityByIdentifier(user, remainingAttack.entityId());
-
         boolean invalid = false;
-
         if (entity != null && entity.checkable() && !player.isDead()) {
           if (entity.clientSynchronized && clientData.protocolVersion() >= PROTOCOL_VERSION_COMBAT_UPDATE
             && !movementData.recentlyEncounteredFlyingPacket(4)
@@ -100,19 +91,13 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
           } else if (entity.clientSynchronized && clientData.protocolVersion() <= PROTOCOL_VERSION_BOUNTIFUL_UPDATE && attackRaytraceMeta.lastFlyPacketCounterReach > 1) {
             invalid = processReachCheck(player, entity);
           } else {
-            //TODO: Old check
-//            iterative = true;
             invalid = processIterativeReachCheck(player, entity);
           }
         }
-//        duration += System.nanoTime() - start;
-
         if(!invalid && !violationLevelData.isInActiveTeleportBundle) {
           receiveExcludedPacket(player, remainingAttack.packet);
         }
       }
-
-//      player.sendMessage(duration + " ns | " + attacks);
       remainingAttacks.clear();
     }
 
@@ -143,7 +128,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
 
     double blockReachDistance = reachDistance(player.getGameMode() == GameMode.CREATIVE);
     float lastRotationYaw = movementData.lastRotationYaw % 360;
-    float rotationYaw = movementData.rotationYaw;
+    float rotationYaw = movementData.rotationYaw % 360;
     boolean alternativePositionY = clientData.protocolVersion() == UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE;
 
     // normal
@@ -212,7 +197,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
 
     double blockReachDistance = reachDistance(player.getGameMode() == GameMode.CREATIVE);
     float lastRotationYaw = movementData.lastRotationYaw % 360;
-    float rotationYaw = movementData.rotationYaw;
+    float rotationYaw = movementData.rotationYaw % 360;
     boolean alternativePositionY = clientData.protocolVersion() == UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE;
 
     double minReach = 10;
@@ -326,7 +311,6 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
   public static class AttackRaytraceMeta extends UserCustomCheckMeta {
     public int lastFlyPacketCounterReach = 0;
     public List<Attack> remainingAttacks = new ArrayList<>();
-    public long lastTimeAttackedEntity;
     public int confidence;
   }
 

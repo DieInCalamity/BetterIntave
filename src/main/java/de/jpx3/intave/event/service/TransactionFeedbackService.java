@@ -81,9 +81,8 @@ public final class TransactionFeedbackService implements PacketEventSubscriber {
     UserMetaSynchronizeData synchronizeData = user.meta().synchronizeData();
     short transactionCounter = synchronizeData.transactionCounter++;
     if (transactionCounter >= TRANSACTION_MAX_CODE) {
-      transactionCounter = TRANSACTION_MIN_CODE;
+      synchronizeData.transactionCounter = TRANSACTION_MIN_CODE;
     }
-    synchronizeData.transactionCounter = transactionCounter;
     if(obj == null) {
       //noinspection unchecked
       obj = (T) FALLBACK_OBJECT;

@@ -365,7 +365,9 @@ public final class MovementDispatcher implements EventProcessor {
     inventoryData.pastItemUsageTransition++;
     movementData.pastWaterMovement++;
     movementData.pastVelocity++;
+    movementData.pastOutgoingVelocity++;
     movementData.pastExternalVelocity++;
+    movementData.physicsUnpredictableVelocityExpected = false;
 
     if (!event.isCancelled() && !movementData.isTeleportConfirmationPacket) {
       movementData.lastOnGround = movementData.onGround;
@@ -494,6 +496,7 @@ public final class MovementDispatcher implements EventProcessor {
       //if(isInActiveTeleportBundle) {
       //}
       movementData.emulationVelocity = velocity.clone();
+//      movementData.pastOutgoingVelocity = 0;
 
       VelocityCallBackData velocityCallBackData = new VelocityCallBackData(isInActiveTeleportBundle, velocity);
       plugin.eventService().transactionFeedbackService().requestPong(player, velocityCallBackData, this::receiveVelocity);
@@ -505,6 +508,9 @@ public final class MovementDispatcher implements EventProcessor {
     UserMetaMovementData movementData = user.meta().movementData();
     Vector velocity = velocityCallBackData.velocity;
     if (!velocityCallBackData.isInActiveTeleportBundle) {
+      movementData.physicsMotionXBeforeVelocity = movementData.physicsLastMotionX;
+      movementData.physicsMotionYBeforeVelocity = movementData.physicsLastMotionY;
+      movementData.physicsMotionZBeforeVelocity = movementData.physicsLastMotionZ;
       movementData.physicsLastMotionX = velocity.getX();
       movementData.physicsLastMotionY = velocity.getY();
       movementData.physicsLastMotionZ = velocity.getZ();
