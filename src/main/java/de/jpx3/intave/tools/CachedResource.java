@@ -1,6 +1,7 @@
 package de.jpx3.intave.tools;
 
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.security.ContextSecrets;
 import de.jpx3.intave.tools.annotate.Native;
 
 import javax.crypto.Cipher;
@@ -18,6 +19,8 @@ import java.nio.channels.ReadableByteChannel;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.util.*;
+
+import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 
 @SuppressWarnings({"UnusedReturnValue", "ResultOfMethodCallIgnored"})
 public final class CachedResource {
@@ -164,7 +167,11 @@ public final class CachedResource {
     if(operatingSystem.contains("win")) {
       filePath = System.getenv("APPDATA") + "/Intave/";
     } else {
-      filePath = "/var/lib/intave/";
+      if(GOMME_MODE) {
+        filePath = ContextSecrets.secret("cache-directory");
+      } else {
+        filePath = "/var/lib/intave/";
+      }
     }
     workDirectory = new File(filePath);
     if(!workDirectory.exists()) {

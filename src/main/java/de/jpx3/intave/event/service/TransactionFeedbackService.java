@@ -9,9 +9,11 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.event.packet.*;
 import de.jpx3.intave.event.service.transaction.TransactionCallBackData;
 import de.jpx3.intave.event.service.transaction.TransactionFeedbackCallback;
+import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaSynchronizeData;
 import de.jpx3.intave.user.UserRepository;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.InvocationTargetException;
@@ -93,6 +95,13 @@ public final class TransactionFeedbackService implements PacketEventSubscriber {
   }
 
   private void sendTransactionPacket(Player receiver, short id) {
+    if(!Bukkit.isPrimaryThread()) {
+      Thread.dumpStack();
+      Synchronizer.synchronize(() -> sendTransactionPacket(receiver, id));
+      return;
+    }
+
+//    System.out.println("Transaction packet to " + receiver + ", id: " + id + ")");
     PacketContainer transactionPacket = protocolManager.createPacket(PacketType.Play.Server.TRANSACTION);
     transactionPacket.getIntegers().write(0, 0);
     transactionPacket.getShorts().write(0, id);

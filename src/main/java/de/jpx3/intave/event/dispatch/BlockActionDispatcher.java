@@ -292,12 +292,15 @@ public final class BlockActionDispatcher implements EventProcessor {
 //  }
 
   private void refreshBlocksAround(Player player, Location targetLocation) {
-    player.updateInventory();
-    refreshBlock(player, targetLocation);
-    for (WrappedEnumDirection direction : WrappedEnumDirection.values()) {
-      Location placedBlock = targetLocation.clone().add(direction.getDirectionVec().convertToBukkitVec());
-      refreshBlock(player, placedBlock);
-    }
+    Location targetLocationClone = targetLocation.clone();
+    Synchronizer.synchronize(() -> {
+      player.updateInventory();
+      refreshBlock(player, targetLocationClone);
+      for (WrappedEnumDirection direction : WrappedEnumDirection.values()) {
+        Location placedBlock = targetLocationClone.clone().add(direction.getDirectionVec().convertToBukkitVec());
+        refreshBlock(player, placedBlock);
+      }
+    });
   }
 
   private void refreshBlock(Player player, Location location) {

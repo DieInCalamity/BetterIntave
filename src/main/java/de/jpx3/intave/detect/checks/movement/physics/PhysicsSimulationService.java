@@ -4,6 +4,7 @@ import de.jpx3.intave.detect.checks.movement.Physics;
 import de.jpx3.intave.detect.checks.movement.physics.collision.entity.EntityCollisionResult;
 import de.jpx3.intave.detect.checks.movement.physics.pose.PhysicsCalculationPart;
 import de.jpx3.intave.detect.checks.movement.physics.pose.PhysicsMovementPoseType;
+import de.jpx3.intave.diagnostics.timings.Timings;
 import de.jpx3.intave.reflect.ReflectiveDataWatcherAccess;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.client.PlayerMovementHelper;
@@ -50,11 +51,15 @@ public final class PhysicsSimulationService {
 
     if (keyCalculation) {
       EntityCollisionResult predictedMovement;
+      Timings.CHECK_PHYSICS_PROC_BIA.start();
       predictedMovement = simulateMovementBiased(user, yawSine, yawCosine, friction, sprinting, sneaking);
       double movementDistance = calculateMovementDistance(user, predictedMovement.context());
+      Timings.CHECK_PHYSICS_PROC_BIA.stop();
       if (movementDistance > 0.001) {
+        Timings.CHECK_PHYSICS_PROC_ITR.start();
         predictedMovement = simulatePossibleMovement(user, yawSine, yawCosine, friction, sprinting, sneaking);
         movementDistance = calculateMovementDistance(user, predictedMovement.context());
+        Timings.CHECK_PHYSICS_PROC_ITR.stop();
       }
 
       if (inventoryData.handActive() && movementDistance > 0.001) {

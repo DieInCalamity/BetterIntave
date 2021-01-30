@@ -3,6 +3,7 @@ package de.jpx3.intave.command;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.permission.PermissionCheck;
+import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import org.bukkit.ChatColor;
@@ -94,11 +95,15 @@ public final class IntaveSubCommand {
 
   private final static String NO_PERMISSION_MESSAGE = ChatColor.RED + "I'm sorry, but you do not have permission to perform this command. Please contact the server administrators if you believe that this is in error.";
 
+  @Native
   public CommandStage execute(CommandSender sender, String executedCommand) {
     String prefix = IntavePlugin.prefix();
     String[] args = executedCommand.split(" ");
 
-    if(sender instanceof Player && !permission.equals("none") && !PermissionCheck.permissionCheck(sender, permission)) {
+    if(sender instanceof Player && permission.equalsIgnoreCase("sibyl") && !IntavePlugin.singletonInstance().sibylIntegrationService().isAuthenticated(((Player) sender).getPlayer())) {
+      sender.sendMessage(ChatColor.RED + "Unauthorized, internal command");
+      return null;
+    } else if(sender instanceof Player && !permission.equals("none") && !permission.equalsIgnoreCase("sibyl") && !PermissionCheck.permissionCheck(sender, permission)) {
       sender.sendMessage(NO_PERMISSION_MESSAGE);
       return null;
     }

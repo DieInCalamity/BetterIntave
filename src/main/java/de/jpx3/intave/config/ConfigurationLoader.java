@@ -3,6 +3,7 @@ package de.jpx3.intave.config;
 import com.google.common.hash.Hashing;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.security.ContextSecrets;
 import de.jpx3.intave.security.SSLConnectionVerifier;
 import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.tools.annotate.Nullable;
@@ -26,6 +27,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Locale;
 import java.util.UUID;
+
+import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 
 public final class ConfigurationLoader {
   private final static String CONF_CACHE_FILE_SUFFIX = "x";
@@ -221,10 +224,15 @@ public final class ConfigurationLoader {
   private File intaveTempDirectory() {
     File workDirectory;
     String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.ROOT);
+
     if(operatingSystem.contains("win")) {
       workDirectory = new File(System.getenv("APPDATA") + "/Intave");
     } else {
-      workDirectory = new File("/var/lib/intave");
+      if(GOMME_MODE) {
+        workDirectory = new File(ContextSecrets.secret("cache-directory"));
+      } else {
+        workDirectory = new File("/var/lib/intave/");
+      }
     }
     if(!workDirectory.exists()) {
       workDirectory.mkdir();

@@ -18,7 +18,10 @@ public class Timings {
   private static final Map<String, Timing> eventTimings = Maps.newConcurrentMap();
   private final static Map<Class<?>, String> classNameCache = Maps.newConcurrentMap();
 
-
+  public static final Timing CHECK_PHYSICS_PROC_TOT = Timing.of("Check/Physics/ProcTot");
+  public static final Timing CHECK_PHYSICS_PROC_BIA = Timing.of("Check/Physics/ProcBia");
+  public static final Timing CHECK_PHYSICS_PROC_ITR = Timing.of("Check/Physics/ProcItr");
+  public static final Timing CHECK_PHYSICS_EVAL = Timing.of("Check/Physics/Eval");
 
   public static void addTiming(Timing timing) {
     timingPool.add(timing);
@@ -26,7 +29,7 @@ public class Timings {
 
   public static Timing eventTimingOf(Event event) {
     String eventName = classNameCache.computeIfAbsent(event.getClass(), eventClass -> event.getEventName());
-    return eventTimings.computeIfAbsent(eventName, x -> Timing.of("Event-" + eventName));
+    return eventTimings.computeIfAbsent(eventName, x -> Timing.of("Event/" + eventName));
   }
 
   public static List<Timing> timingPool() {

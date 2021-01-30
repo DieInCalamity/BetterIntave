@@ -15,7 +15,7 @@ import de.jpx3.intave.detect.checks.movement.physics.pose.PhysicsCalculationPart
 import de.jpx3.intave.detect.checks.movement.physics.pose.PhysicsMovementPoseType;
 import de.jpx3.intave.detect.checks.movement.physics.water.AquaticWaterMovementBase;
 import de.jpx3.intave.detect.checks.movement.physics.water.aquatics.*;
-import de.jpx3.intave.diagnostics.timings.Timing;
+import de.jpx3.intave.diagnostics.timings.Timings;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.client.PlayerMovementHelper;
 import de.jpx3.intave.tools.client.PlayerMovementPoseHelper;
@@ -139,7 +139,7 @@ public final class Physics extends IntaveCheck {
     UserMetaMovementData movementData = meta.movementData();
     simulateMotionClamp(user);
 
-    Timing.CHECK_PHYSICS_PROCESS.start();
+    Timings.CHECK_PHYSICS_PROC_TOT.start();
 
     if (movementData.pastVelocity == 0) {
       double motionX = movementData.physicsMotionXBeforeVelocity * 0.91f;
@@ -172,10 +172,10 @@ public final class Physics extends IntaveCheck {
     movementData.collidedVertically = predictedMovement.collidedVertically();
     movementData.physicsResetMotionX = predictedMovement.resetMotionX();
     movementData.physicsResetMotionZ = predictedMovement.resetMotionZ();
-    Timing.CHECK_PHYSICS_PROCESS.stop();
-    Timing.CHECK_PHYSICS_EVALUATION.start();
+    Timings.CHECK_PHYSICS_PROC_TOT.stop();
+    Timings.CHECK_PHYSICS_EVAL.start();
     evaluateBestSimulation(user, predictedMovement);
-    Timing.CHECK_PHYSICS_EVALUATION.stop();
+    Timings.CHECK_PHYSICS_EVAL.stop();
     movementData.pastRiptideSpin++;
   }
 
@@ -227,7 +227,6 @@ public final class Physics extends IntaveCheck {
 
     if (distance > 1e-3) {
       movementData.suspiciousMovement = true;
-
       float friction = PlayerMovementHelper.resolveFriction(
         user,
         movementData.verifiedPositionX,
@@ -275,7 +274,7 @@ public final class Physics extends IntaveCheck {
       if (movedIntoBlock) {
         movementData.invalidMovement = true;
 
-        WrappedAxisAlignedBB playerBox = user.meta().movementData().boundingBox();
+        WrappedAxisAlignedBB playerBox = currentBoundingBox;//user.meta().movementData().boundingBox();
         WrappedAxisAlignedBB boundingBox = intersectionBoundingBoxesCurrent.get(0);
 
         double blockPositionX = (boundingBox.minX + boundingBox.maxX) / 2.0;
@@ -286,7 +285,7 @@ public final class Physics extends IntaveCheck {
 
         String message = "moved into "+(currentlyInOverride ? "<emulated>" : shortenTypeName(block.getType())) + " block";
         boolean multipleBoxes = intersectionBoundingBoxesCurrent.size() > 1;
-        String details = (multipleBoxes ? intersectionBoundingBoxesCurrent.size() : "one") + " box" + (multipleBoxes ? "es" : "");
+        String details = (multipleBoxes ? intersectionBoundingBoxesCurrent.size() : "one") + " box" + (multipleBoxes ? "es" : "") + ": "+intersectionBoundingBoxesCurrent+", pb: " + playerBox;
 
         user.boundingBoxAccess().invalidate();
 
@@ -487,7 +486,7 @@ public final class Physics extends IntaveCheck {
 
     if (movementPoseType == PhysicsMovementPoseType.PHYSICS_VEHICLE_MOVEMENT) {
 
-      user.player().sendMessage(distanceMoved + " " + predictedDistanceMoved);
+//      user.player().sendMessage(distanceMoved + " " + predictedDistanceMoved);
 
       if (distanceMoved < predictedDistanceMoved) {
         return 0;

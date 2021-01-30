@@ -462,8 +462,8 @@ public final class MovementDispatcher implements EventProcessor {
       boundingBox = new WrappedAxisAlignedBB(boundingBox.minX, boundingBox.minY, boundingBox.minZ, boundingBox.minX + (double) width, boundingBox.minY + (double) height, boundingBox.minZ + (double) width);
       if (Collision.resolve(user.player(), boundingBox).isEmpty()) {
         movementData.width = width;
-        movementData.widthRounded = Math.round(width * 50000d) / 100000D;
         movementData.height = height;
+        movementData.applySizeUpdate();
       }
     }
   }

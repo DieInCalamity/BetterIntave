@@ -32,9 +32,11 @@ public final class CollisionHelper {
     UserMetaMovementData movementData = user.meta().movementData();
     double width = movementData.widthRounded;
     float height = movementData.height;
+    // 0.000000001 accuracy
+    double newYMax = Math.round((positionY + height) * 1000000000d) / 1000000000d;
     return new WrappedAxisAlignedBB(
       positionX - width, positionY, positionZ - width,
-      positionX + width, positionY + height, positionZ + width
+      positionX + width, newYMax, positionZ + width
     );
   }
 
@@ -43,7 +45,7 @@ public final class CollisionHelper {
     double positionX, double positionY, double positionZ
   ) {
     UserMetaMovementData movementData = user.meta().movementData();
-    float height = movementData.height;
+    double height = movementData.height;
     return new WrappedAxisAlignedBB(
       positionX - width, positionY, positionZ - width,
       positionX + width, positionY + height, positionZ + width

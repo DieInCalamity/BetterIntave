@@ -10,6 +10,7 @@ import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.MathHelper;
+import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserCustomCheckMeta;
 import de.jpx3.intave.user.UserMetaMovementData;
@@ -66,9 +67,11 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
 
     if(delta > 500) {
       timerData.lastLagSpike = AccessHelper.now();
-      plugin.eventService().transactionFeedbackService().requestPong(player, null, (player1, target) -> {
-        // Lag spike - requesting feedback to reset balance
-        timerData.timerBalance = Math.max(0, timerData.timerBalance);
+      Synchronizer.synchronize(() -> {
+        plugin.eventService().transactionFeedbackService().requestPong(player, null, (player1, target) -> {
+          // Lag spike - requesting feedback to reset balance
+          timerData.timerBalance = Math.max(0, timerData.timerBalance);
+        });
       });
     }
 
@@ -90,10 +93,10 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
           event.setCancelled(true);
         }
         // packet removed
-        timerData.timerBalance -= 10.0;
+        timerData.timerBalance -= 5.0;
       }
       // leniency
-      timerData.timerBalance -= 1;
+      timerData.timerBalance -= 5.5;
     }
   }
 

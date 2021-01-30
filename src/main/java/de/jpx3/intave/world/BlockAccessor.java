@@ -32,9 +32,7 @@ public final class BlockAccessor implements BukkitEventSubscriber {
 
   public static Block blockAccess(World blockAccess, int x, int y, int z) {
     if (isInLoadedChunk(blockAccess, x, z) || Bukkit.isPrimaryThread()) {
-      //IntrinsicTimings.blockAccess.start();
       return blockAccess.getBlockAt(x, y, z);
-      //IntrinsicTimings.blockAccess.stop();
     }
     return invalidRequestBlockMap.get(blockAccess);
   }

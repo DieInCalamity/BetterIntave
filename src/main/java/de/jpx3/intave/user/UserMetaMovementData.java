@@ -26,7 +26,7 @@ public final class UserMetaMovementData {
 
   public boolean disabledFlying;
   public float width = 0.6f, height = 1.8f;
-  public double widthRounded = Math.round(width * 50000d) / 100000D;
+  public double widthRounded, heightRounded;
 
   public boolean swimming, elytraFlying;
 
@@ -92,6 +92,7 @@ public final class UserMetaMovementData {
     applyPlayerStats();
     updateWorld();
     applyPlayerLocation();
+    applySizeUpdate();
   }
 
   private void applyPlayerLocation() {
@@ -117,6 +118,11 @@ public final class UserMetaMovementData {
     }
     sprinting = player.isSprinting();
     sneaking = player.isSneaking();
+  }
+
+  public void applySizeUpdate() {
+    widthRounded = Math.round(width * 50000d) / 100000d;
+    heightRounded = Math.round(height * 100000d) / 100000d;
   }
 
   public void updateWorld() {

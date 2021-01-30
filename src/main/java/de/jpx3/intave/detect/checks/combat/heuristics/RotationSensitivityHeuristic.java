@@ -123,7 +123,7 @@ public final class RotationSensitivityHeuristic extends IntaveMetaCheckPart<Heur
     }
   }
 
-  private static strictfp int decimalPlacesOf(float value) {
+  private static int decimalPlacesOf(float value) {
     String s = Float.toString(value);
     s = s.substring(s.indexOf(".") + 1);
     return s.length();

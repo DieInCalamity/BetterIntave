@@ -26,8 +26,8 @@ public final class IntaveRootStage extends CommandStage {
   @SubCommand(
     selectors = "timings",
     usage = "",
-    permission = "sibyl",
-    description = "Output timing data"
+    description = "Output timing data",
+    permission = "sibyl"
   )
   @Native
   public void internalCommand(User user) {

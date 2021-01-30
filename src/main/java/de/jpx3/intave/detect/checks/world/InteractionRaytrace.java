@@ -368,11 +368,13 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
 
   private void refreshBlocksAround(Player player, Location targetLocation) {
     player.updateInventory();
-    refreshBlock(player, targetLocation);
-    for (WrappedEnumDirection direction : WrappedEnumDirection.values()) {
-      Location placedBlock = targetLocation.clone().add(direction.getDirectionVec().convertToBukkitVec());
-      refreshBlock(player, placedBlock);
-    }
+    Synchronizer.synchronize(() -> {
+      refreshBlock(player, targetLocation);
+      for (WrappedEnumDirection direction : WrappedEnumDirection.values()) {
+        Location placedBlock = targetLocation.clone().add(direction.getDirectionVec().convertToBukkitVec());
+        refreshBlock(player, placedBlock);
+      }
+    });
   }
 
   private boolean performFlag(
