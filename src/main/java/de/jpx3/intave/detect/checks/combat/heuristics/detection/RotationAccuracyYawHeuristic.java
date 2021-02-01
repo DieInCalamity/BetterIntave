@@ -1,8 +1,10 @@
-package de.jpx3.intave.detect.checks.combat.heuristics;
+package de.jpx3.intave.detect.checks.combat.heuristics.detection;
 
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.detect.IntaveMetaCheckPart;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
+import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
+import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
@@ -15,12 +17,18 @@ import de.jpx3.intave.user.UserMetaAttackData;
 import de.jpx3.intave.user.UserMetaMovementData;
 import org.bukkit.entity.Player;
 
-public final class RotationAccuracyHeuristic extends IntaveMetaCheckPart<Heuristics, RotationAccuracyHeuristic.RotationAccuracyHeuristicMeta> {
-  public RotationAccuracyHeuristic(Heuristics parentCheck) {
+public final class RotationAccuracyYawHeuristic extends IntaveMetaCheckPart<Heuristics, RotationAccuracyYawHeuristic.RotationAccuracyHeuristicMeta> {
+  public RotationAccuracyYawHeuristic(Heuristics parentCheck) {
     super(parentCheck, RotationAccuracyHeuristicMeta.class);
   }
 
-  @PacketSubscription(priority = ListenerPriority.HIGH, packets = {@PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"), @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK")})
+  @PacketSubscription(
+    priority = ListenerPriority.HIGH,
+    packets = {
+      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
+      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK")
+    }
+  )
   public void receiveMovement(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
@@ -32,11 +40,7 @@ public final class RotationAccuracyHeuristic extends IntaveMetaCheckPart<Heurist
 
     if (attackedEntity != null && attackedEntity.moving(0.2) && attackData.recentlyAttacked(1000)) {
       float yawSpeed = MathHelper.distanceInDegrees(movementData.rotationYaw, movementData.lastRotationYaw);
-      float pitchSpeed = MathHelper.distanceInDegrees(movementData.rotationPitch, movementData.lastRotationPitch);
 
-      /*
-      1: Yaw Check
-       */
       if (yawSpeed > 1.0) {
         float distanceToPerfectYaw = MathHelper.distanceInDegrees(attackData.perfectYaw(), movementData.rotationYaw);
 
@@ -79,17 +83,6 @@ public final class RotationAccuracyHeuristic extends IntaveMetaCheckPart<Heurist
           heuristicMeta.balanceYawAccuracyOther = 0;
         }
       }
-
-      /*
-      2: Pitch Check
-
-       if (pitchSpeed > 1.0) {
-        float distanceToPerfectPitch = MathHelper.distanceInDegrees(movementData.rotationPitch, attackData.perfectPitch());
-
-        player.sendMessage("dist:" + MathHelper.distanceInDegrees(distanceToPerfectPitch, 3));
-
-      }
-       */
     }
   }
 

@@ -1,10 +1,12 @@
-package de.jpx3.intave.detect.checks.combat.heuristics;
+package de.jpx3.intave.detect.checks.combat.heuristics.detection;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.detect.IntaveMetaCheckPart;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
+import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
+import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;

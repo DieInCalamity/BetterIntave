@@ -1,9 +1,11 @@
-package de.jpx3.intave.detect.checks.combat.heuristics;
+package de.jpx3.intave.detect.checks.combat.heuristics.detection;
 
 import com.comphenix.protocol.events.PacketEvent;
 import com.google.common.collect.Lists;
 import de.jpx3.intave.detect.IntaveMetaCheckPart;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
+import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
+import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
@@ -41,38 +43,72 @@ public final class RotationStandardDeviationHeuristic extends IntaveMetaCheckPar
     WrappedEntity attackedEntity = attackData.lastAttackedEntity();
 
     if (attackedEntity != null && attackData.recentlyAttacked(500) && attackedEntity.moving(0.05)) {
+      /*
+      Yaw deviation
+       */
       float yawSpeed = MathHelper.distanceInDegrees(movementData.rotationYaw, movementData.lastRotationYaw);
       float distanceToPerfectYaw = MathHelper.distanceInDegrees(attackData.perfectYaw(), movementData.rotationYaw);
       if (yawSpeed > 2.5) {
         heuristicMeta.distancesToPerfectYaw.add(distanceToPerfectYaw);
       }
       if (heuristicMeta.distancesToPerfectYaw.size() >= 7) {
-        evaluateResult(user);
+        evaluateYawPatterns(user);
         heuristicMeta.distancesToPerfectYaw.clear();
+      }
+
+      /*
+      Pitch deviation
+       */
+      float pitchSpeed = Math.abs(movementData.rotationPitch - movementData.lastRotationPitch);
+      float distanceToPerfectPitch = Math.abs(movementData.rotationPitch - attackData.perfectPitch());
+      if (pitchSpeed > 0.5) {
+        heuristicMeta.distancesToPerfectPitch.add(distanceToPerfectPitch);
+      }
+      if (heuristicMeta.distancesToPerfectPitch.size() >= 10) {
+        evaluatePitchPatterns(user);
+        heuristicMeta.distancesToPerfectPitch.clear();
       }
     }
   }
 
-  private void evaluateResult(User user) {
+  private void evaluateYawPatterns(User user) {
     Player player = user.player();
     RotationStandardDeviationMeta heuristicMeta = metaOf(user);
     double standardDeviation = RotationMathHelper.calculateStandardDeviation(heuristicMeta.distancesToPerfectYaw);
 
     if (standardDeviation < 1.0) {
-      if (heuristicMeta.rotationBalance++ >= 2) {
-        String description = "standard deviation (" + standardDeviation + ")";
+      if (heuristicMeta.rotationBalanceYaw++ >= 2) {
+        String description = "standard deviation (yaw) (" + standardDeviation + ")";
         Anomaly anomaly = Anomaly.anomalyOf("26", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, Anomaly.AnomalyOption.LIMIT_2);
         parentCheck().saveAnomaly(player, anomaly);
-        heuristicMeta.rotationBalance--;
+        heuristicMeta.rotationBalanceYaw--;
       }
     } else {
-      heuristicMeta.rotationBalance -= heuristicMeta.rotationBalance > 0 ? 0.2 : 0;
+      heuristicMeta.rotationBalanceYaw -= heuristicMeta.rotationBalanceYaw > 0 ? 0.2 : 0;
     }
   }
 
+  private void evaluatePitchPatterns(User user) {
+    Player player = user.player();
+    RotationStandardDeviationMeta heuristicMeta = metaOf(user);
+    double standardDeviation = RotationMathHelper.calculateStandardDeviation(heuristicMeta.distancesToPerfectPitch);
+
+    if (standardDeviation < 3.0) {
+      if (heuristicMeta.rotationBalancePitch++ >= 2) {
+        String description = "standard deviation (pitch) (" + standardDeviation + ")";
+        Anomaly anomaly = Anomaly.anomalyOf("28", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, Anomaly.AnomalyOption.LIMIT_2);
+        parentCheck().saveAnomaly(player, anomaly);
+        heuristicMeta.rotationBalancePitch--;
+      }
+    } else {
+      heuristicMeta.rotationBalancePitch -= heuristicMeta.rotationBalancePitch > 0 ? 0.2 : 0;
+    }
+  }
 
   public static class RotationStandardDeviationMeta extends UserCustomCheckMeta {
     private final List<Float> distancesToPerfectYaw = Lists.newArrayList();
-    private double rotationBalance;
+    private final List<Float> distancesToPerfectPitch = Lists.newArrayList();
+    private double rotationBalanceYaw;
+    private double rotationBalancePitch;
   }
 }

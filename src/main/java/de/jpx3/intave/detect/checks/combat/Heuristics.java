@@ -8,6 +8,7 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.IntaveMetaCheck;
 import de.jpx3.intave.detect.checks.combat.heuristics.*;
+import de.jpx3.intave.detect.checks.combat.heuristics.detection.*;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;
@@ -38,7 +39,8 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
 
   public void setupSubChecks() {
     appendCheckPart(new ReshapedJumpHeuristic(this));
-    appendCheckPart(new RotationAccuracyHeuristic(this));
+    appendCheckPart(new RotationAccuracyYawHeuristic(this));
+    appendCheckPart(new RotationAccuracyPitchHeuristic(this));
     appendCheckPart(new PerfectAttackHeuristic(this));
     appendCheckPart(new RotationSensitivityHeuristic(this));
     appendCheckPart(new RotationStandardDeviationHeuristic(this));
@@ -46,7 +48,6 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
     appendCheckPart(new PacketOrderSwingHeuristic(this));
     appendCheckPart(new PacketSprintToggleHeuristic(this));
     appendCheckPart(new AirClickLimitHeuristic(this));
-    appendCheckPart(new ReverseSilentStrafeHeuristics(this));
   }
 
   public void saveAnomaly(Player player, Anomaly anomaly) {
