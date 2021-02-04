@@ -11,7 +11,10 @@ import de.jpx3.intave.tools.client.PlayerMovementHelper;
 import de.jpx3.intave.tools.client.SinusCache;
 import de.jpx3.intave.tools.items.InventoryUseItemHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserMetaClientData;
+import de.jpx3.intave.user.UserMetaInventoryData;
+import de.jpx3.intave.user.UserMetaMovementData;
 import org.bukkit.inventory.ItemStack;
 
 import static de.jpx3.intave.reflect.ReflectiveDataWatcherAccess.DATA_WATCHER_BLOCKING_ID;
@@ -122,17 +125,20 @@ public final class PhysicsSimulationService {
     Physics.PhysicsProcessorContext context = movementData.physicsProcessorContext;
     int keyForward = movementData.keyForward;
     int keyStrafe = movementData.keyStrafe;
-    if (inventoryData.inventoryOpen()) {
-      keyForward = 0;
-      keyStrafe = 0;
-    }
+
     boolean handActive = inventoryData.handActive();
     boolean attackReduce = sprinting && movementData.pastPlayerAttackPhysics == 0;
 
     boolean jumped = false;
-    if (movementData.lastOnGround && !inventoryData.inventoryOpen() && !movementData.exceededJumpPrevention()) {
+    if (movementData.lastOnGround && !movementData.exceededJumpPrevention()) {
       double motionY = movementData.motionY();
       jumped = Math.abs(motionY - 0.2) < 1e-5 || motionY == movementData.jumpUpwardsMotion();
+    }
+
+    if (inventoryData.inventoryOpen()) {
+      keyForward = 0;
+      keyStrafe = 0;
+      jumped = false;
     }
 
     float moveForward = keyForward * 0.98f;

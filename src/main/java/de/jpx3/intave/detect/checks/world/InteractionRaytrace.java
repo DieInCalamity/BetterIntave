@@ -68,6 +68,11 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     InteractionMeta interactionMeta = metaOf(user);
     UserMetaMovementData movementData = user.meta().movementData();
     PacketContainer packet = event.getPacket();
+
+
+    // 1.8 - 1.13 server
+
+    // perform check please
     BlockPosition blockPosition = packet.getBlockPositionModifier().readSafely(0);
     if (blockPosition == null || movementData.inVehicle()) {
       return;
@@ -461,6 +466,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
 //    if(invalidFacing) {
 //      vl = 0;
 //    }
+    details += ", fly: " + user.meta().movementData().pastFlyingPacketAccurate();
 
     return plugin.retributionService().processViolation(player, vl, name(), message, details) || mustFlag;
   }

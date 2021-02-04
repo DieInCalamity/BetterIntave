@@ -109,24 +109,22 @@ public final class ViolationService {
     broadcastVerbose(detectedPlayer, fullViolationContext, compactViolationContext);
   }
 
+  private final static UserMessageChannel VERBOSE_MESSAGE_CHANNEL = UserMessageChannel.VERBOSE;
+
   private void broadcastVerbose(Player player, ViolationContext full, ViolationContext compact) {
     String fullMessage = MessageFormatter.resolveVerboseMessage(player, full);
-    String compactMessage = MessageFormatter.resolveVerboseMessage(player, compact);
+//    String compactMessage = MessageFormatter.resolveVerboseMessage(player, compact);
 
     Synchronizer.synchronize(() -> {
       for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
         User user = UserRepository.userOf(onlinePlayer);
-        if(user.receives(UserMessageChannel.VERBOSE)) {
-          if(user.hasChannelConstraint(UserMessageChannel.VERBOSE)) {
-            if(user.channelPlayerConstraint(UserMessageChannel.VERBOSE).appliesTo(player)) {
+        if(user.receives(VERBOSE_MESSAGE_CHANNEL)) {
+          if(user.hasChannelConstraint(VERBOSE_MESSAGE_CHANNEL)) {
+            if(user.channelPlayerConstraint(VERBOSE_MESSAGE_CHANNEL).appliesTo(player)) {
               onlinePlayer.sendMessage(fullMessage);
             }
           } else {
-            if(onlinePlayer.equals(player)) {
-              onlinePlayer.sendMessage(fullMessage);
-            } else {
-              onlinePlayer.sendMessage(compactMessage);
-            }
+            onlinePlayer.sendMessage(fullMessage);
           }
         }
       }
