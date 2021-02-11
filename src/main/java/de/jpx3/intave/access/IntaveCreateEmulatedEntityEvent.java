@@ -28,7 +28,7 @@ public class IntaveCreateEmulatedEntityEvent extends AbstractIntaveExternalEvent
   }
 
   @Override
-  public void clearPlayerReference() {
+  public void refClear() {
     this.observer = null;
   }
 

@@ -3,6 +3,7 @@ package de.jpx3.intave.event.packet;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.user.UserRepository;
 
 import java.util.Arrays;
@@ -57,11 +58,11 @@ public final class LocalPacketAdapter extends IntavePacketAdapter implements Com
       processException(event.getPacketType(), exception);
 
       if(exceptions++ >= 50) {
-        System.out.println(subscriber.getClass().getSimpleName()+"."+methodName + " has been deactivated due to too many exceptions");
+        IntaveLogger.logger().globalPrintLn(subscriber.getClass().getSimpleName()+"."+methodName + " has been deactivated due to too many exceptions");
       }
     }
 //    if(!cancelled && event.isCancelled()) {
-//      System.out.println(subscriber.getClass().getSimpleName()+"."+methodName + " cancelled packet " + event.getPacketType());
+//      IntaveLogger.logger().globalPrintLn(subscriber.getClass().getSimpleName()+"."+methodName + " cancelled packet " + event.getPacketType());
 //    }
   }
 
@@ -83,13 +84,13 @@ public final class LocalPacketAdapter extends IntavePacketAdapter implements Com
     try {
       executor.invoke(subscriber, event);
     }/* catch (UnsupportedOperationException exception) {
-      System.out.println("[Intave] We recommend updating ProtocolLib");
+      IntaveLogger.logger().globalPrintLn("[Intave] We recommend updating ProtocolLib");
       processException(exception);
     } */catch (RuntimeException exception) {
       exception.getStackTrace();
       processException(event.getPacketType(), exception);
       if(exceptions++ >= 50) {
-        System.out.println(subscriber.getClass().getSimpleName()+"."+methodName + " has been deactivated due to too many exceptions");
+        IntaveLogger.logger().globalPrintLn(subscriber.getClass().getSimpleName()+"."+methodName + " has been deactivated due to too many exceptions");
       }
     }
   }
@@ -113,7 +114,7 @@ public final class LocalPacketAdapter extends IntavePacketAdapter implements Com
 
   private void processException(PacketType packetType, RuntimeException exception) {
     String simpleName = exception.getClass().getSimpleName();
-    System.out.println("[Intave] " + resolveIndefArticle(simpleName) + " " + simpleName + " occurred while processing a "+packetType+" packet ("+subscriber.getClass().getSimpleName()+"."+methodName+")");
+    IntaveLogger.logger().globalPrintLn("[Intave] " + resolveIndefArticle(simpleName) + " " + simpleName + " occurred while processing a "+packetType+" packet ("+subscriber.getClass().getSimpleName()+"."+methodName+")");
     exception.printStackTrace();
   }
 

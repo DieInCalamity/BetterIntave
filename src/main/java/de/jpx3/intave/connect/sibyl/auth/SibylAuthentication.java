@@ -182,7 +182,7 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
 
   @Native
   private void setAuthState(Player player, SibylAuthenticationState state) {
-//    System.out.println("SIBYL AUTH STATE FOR " + player.getName() + " -> " + state);
+//    IntaveLogger.logger().globalPrintLn("SIBYL AUTH STATE FOR " + player.getName() + " -> " + state);
     authStates.put(player.getUniqueId(), state);
   }
 

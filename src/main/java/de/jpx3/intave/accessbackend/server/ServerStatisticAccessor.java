@@ -1,0 +1,69 @@
+package de.jpx3.intave.accessbackend.server;
+
+import com.google.common.collect.Maps;
+import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.access.ServerStatisticAccess;
+import de.jpx3.intave.tools.TpsResolver;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+
+public final class ServerStatisticAccessor {
+  private final IntavePlugin plugin;
+  private ServerStatisticAccess statisticAccess;
+  private final Map<ServerStatisticAccess.TimeSpan, List<Consumer<Double>>> subscriptions = Maps.newConcurrentMap();
+  private int schedulerId;
+
+  public ServerStatisticAccessor(IntavePlugin plugin) {
+    this.plugin = plugin;
+  }
+
+  public synchronized ServerStatisticAccess serverStatisticAccess() {
+    if(statisticAccess == null) {
+      statisticAccess = newServerStatisticAccess();
+      loadScheduler();
+    }
+    return statisticAccess;
+  }
+
+  private void loadScheduler() {
+    schedulerId = plugin.getServer().getScheduler().scheduleAsyncRepeatingTask(plugin, () -> {
+      subscriptions.forEach((timeSpan, doubleConsumers) -> {
+        double tickAverage = tickAverageOf(timeSpan);
+        for (Consumer<Double> doubleConsumer : doubleConsumers) {
+          doubleConsumer.accept(tickAverage);
+        }
+      });
+    },20,20 * 5);
+  }
+
+  public void shutdownScheduler() {
+    if(schedulerId > 0 && statisticAccess != null) {
+      plugin.getServer().getScheduler().cancelTask(schedulerId);
+    }
+  }
+
+  private double tickAverageOf(ServerStatisticAccess.TimeSpan span) {
+    return TpsResolver.recentTickAverage()[indexOf(span)];
+  }
+
+  private int indexOf(ServerStatisticAccess.TimeSpan timeSpan) {
+    return timeSpan.ordinal();
+  }
+
+  private ServerStatisticAccess newServerStatisticAccess() {
+    return new ServerStatisticAccess() {
+      @Override
+      public double tickAverageOver(TimeSpan timeSpan) {
+        return tickAverageOf(timeSpan);
+      }
+
+      @Override
+      public void subscribeToTick(TimeSpan timeSpan, Consumer<Double> averagePush) {
+        subscriptions.computeIfAbsent(timeSpan, x -> new ArrayList<>()).add(averagePush);
+      }
+    };
+  }
+}

@@ -2,6 +2,7 @@ package de.jpx3.intave.trustfactor;
 
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.access.TrustFactor;
+import de.jpx3.intave.logging.IntaveLogger;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.*;
@@ -41,7 +42,7 @@ public final class YamlTrustFactorConfiguration implements TrustFactorConfigurat
     try {
       return trustFactorIntegerEnumMap.get(trustFactor);
     } catch (NullPointerException exception) {
-      System.out.println(key + " " + settingsMap);
+      IntaveLogger.logger().globalPrintLn(key + " " + settingsMap);
       throw exception;
     }
   }

@@ -55,7 +55,7 @@ public final class BreakSpeedLimiter extends IntaveMetaCheck<BreakSpeedLimiter.B
             String message = "started block break too quickly";
             String details = "gained " + -startTimeGained + "ms";
             int vl = -startTimeGained > 50 ? 10 : 5;
-            if (plugin.retributionService().processViolation(player, vl, "BreakSpeedLimiter", message, details)) {
+            if (plugin.violationProcessor().processViolation(player, vl, "BreakSpeedLimiter", message, details)) {
               event.setCancelled(true);
               return;
             }
@@ -82,7 +82,7 @@ public final class BreakSpeedLimiter extends IntaveMetaCheck<BreakSpeedLimiter.B
           if (timeGained > 55) {
             String message = "broke a block too quickly";
             String details = "gained " + timeGained + "ms";
-            if (plugin.retributionService().processViolation(player, 20, "BreakSpeedLimiter", message, details)) {
+            if (plugin.violationProcessor().processViolation(player, 20, "BreakSpeedLimiter", message, details)) {
               event.setCancelled(true);
             }
           }

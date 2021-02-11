@@ -12,6 +12,7 @@ public abstract class IntaveCheck implements EventProcessor {
   private final IntavePlugin plugin;
   private final String checkName;
   private final String configurationKey;
+  private final CheckStatistics statistics;
   public final CheckConfiguration checkConfiguration;
 
   public final List<IntaveCheckPart<?>> checkParts = new ArrayList<>();
@@ -20,6 +21,7 @@ public abstract class IntaveCheck implements EventProcessor {
     this.plugin = IntavePlugin.singletonInstance();
     this.checkName = checkName;
     this.configurationKey = configurationKey;
+    this.statistics = new CheckStatistics();
     this.checkConfiguration = new CheckConfiguration(this);
 
     plugin.checkService().enterConfiguration(checkConfiguration);
@@ -31,6 +33,10 @@ public abstract class IntaveCheck implements EventProcessor {
 
   protected void appendCheckPart(IntaveCheckPart<?> checkPart) {
     checkParts.add(checkPart);
+  }
+
+  public CheckStatistics statistics() {
+    return statistics;
   }
 
   public int trustFactorSetting(String key, Player player) {

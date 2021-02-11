@@ -29,6 +29,7 @@ package de.jpx3.intave.lib.asm.tree;
 
 import de.jpx3.intave.lib.asm.MethodVisitor;
 import de.jpx3.intave.lib.asm.Type;
+import de.jpx3.intave.logging.IntaveLogger;
 
 import java.util.Map;
 
@@ -90,7 +91,7 @@ public class FieldInsnNode extends AbstractInsnNode {
     try {
       methodVisitor.visitFieldInsn(opcode, owner, name, desc);
     } catch (Exception exception) {
-      System.out.println("Occurred in " + owner + " " + name + " " + desc);
+      IntaveLogger.logger().globalPrintLn("Occurred in " + owner + " " + name + " " + desc);
       exception.printStackTrace();
     }
     acceptAnnotations(methodVisitor);

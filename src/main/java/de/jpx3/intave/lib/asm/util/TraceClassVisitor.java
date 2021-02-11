@@ -67,7 +67,7 @@ import java.io.PrintWriter;
  * public class Hello {
  *
  *   public static void main(String[] args) {
- *     System.out.println(&quot;hello&quot;);
+ *     IntaveLogger.logger().globalPrintLn(&quot;hello&quot;);
  *   }
  * }
  * </pre>

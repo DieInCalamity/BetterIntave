@@ -2,18 +2,26 @@ package de.jpx3.intave.access;
 
 public interface PlayerAccess {
   int protocolVersion();
-  String minecraftVersion();
 
-  int violationLevel(String check);
-  void addViolationPoints(String check, int amount);
-  void resetViolationLevel(String check);
+  default double violationLevel(String check) {
+    return violationLevel(check, "thresholds");
+  }
+  double violationLevel(String check, String threshold);
 
-  boolean syncMarginOverflow();
+  default void addViolationPoints(String check, double amount) {
+    addViolationPoints(check, "thresholds", amount);
+  }
+
+  void addViolationPoints(String check, String threshold, double amount);
+
+  default void resetViolationLevel(String check) {
+    resetViolationLevel(check, "thresholds");
+  }
+
+  void resetViolationLevel(String check, String threshold);
 
   TrustFactor trustFactor();
 
-  PlayerNetStatistics networkStatistics();
-  PlayerClickStatistics clickStatistics();
-
-  void clearCombatData();
+  PlayerNetStatistics connection();
+  PlayerClickStatistics clicks();
 }

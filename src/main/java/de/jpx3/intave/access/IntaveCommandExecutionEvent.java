@@ -9,13 +9,13 @@ import org.bukkit.event.Cancellable;
  * Created by Jpx3 on 10.11.2017.
  */
 
-public final class AsyncIntaveCommandTriggerEvent extends AbstractIntaveExternalEvent implements Cancellable {
+public final class IntaveCommandExecutionEvent extends AbstractIntaveExternalEvent implements Cancellable {
   private Player punished;
   private String command;
   private boolean delayedExecution;
   private boolean cancelled;
 
-  private AsyncIntaveCommandTriggerEvent(Player punished, String command, boolean delayedExecution) {
+  private IntaveCommandExecutionEvent(Player punished, String command, boolean delayedExecution) {
     this.punished = punished;
     this.command = command;
     this.delayedExecution = delayedExecution;
@@ -51,25 +51,25 @@ public final class AsyncIntaveCommandTriggerEvent extends AbstractIntaveExternal
   }
 
   @Override
-  public void clearPlayerReference() {
+  public void refClear() {
     punished = null;
   }
 
-  public void renew(Player punished, String command, boolean delayedExecute) {
+  public void copy(Player punished, String command, boolean delayedExecute) {
     this.punished = punished;
     this.command = command;
     this.delayedExecution = delayedExecute;
     this.setCancelled(false);
   }
 
-  public static AsyncIntaveCommandTriggerEvent empty(IntavePlugin handle) {
+  public static IntaveCommandExecutionEvent empty(IntavePlugin handle) {
     return construct(handle, null, "empty", false);
   }
 
-  public static AsyncIntaveCommandTriggerEvent construct(IntavePlugin plugin, Player punished, String command, boolean isWaveExecuted) {
+  public static IntaveCommandExecutionEvent construct(IntavePlugin plugin, Player punished, String command, boolean isWaveExecuted) {
     if(plugin != IntavePlugin.singletonInstance()) {
       throw new IllegalStateException();
     }
-    return new AsyncIntaveCommandTriggerEvent(punished, command, isWaveExecuted);
+    return new IntaveCommandExecutionEvent(punished, command, isWaveExecuted);
   }
 }

@@ -6,6 +6,7 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import de.jpx3.intave.adapter.ProtocolLibAdapter;
 import de.jpx3.intave.detect.checks.movement.physics.CollisionHelper;
 import de.jpx3.intave.event.packet.*;
+import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
@@ -56,12 +57,12 @@ public final class TeleportPositionObserver implements PacketEventSubscriber {
     UserMetaMovementData movementData = user.meta().movementData();
     if (movementData.awaitTeleport) {
       if (TELEPORTATION_DEBUG) {
-        System.out.println("[Intave] Cancel packet (Awaiting teleportation accept)");
+        IntaveLogger.logger().globalPrintLn("[Intave] Cancel packet (Awaiting teleportation accept)");
       }
 //      event.setCancelled(true);
       if (movementData.teleportResendCountdown-- < 0) {
         if (TELEPORTATION_DEBUG) {
-          System.out.println("[Intave] UPDATE POSITION BECAUSE OLD IS OUTDATED");
+          IntaveLogger.logger().globalPrintLn("[Intave] UPDATE POSITION BECAUSE OLD IS OUTDATED");
         }
         Synchronizer.synchronize(() -> {
           Location location = movementData.teleportLocation;
@@ -124,7 +125,7 @@ public final class TeleportPositionObserver implements PacketEventSubscriber {
 
 //    player.sendMessage("Requested teleportation on ");
     if (TELEPORTATION_DEBUG) {
-      System.out.println("[Intave] Sent teleportation request to " + player.getName() + ": " + MathHelper.formatPosition(movementData.teleportLocation));
+      IntaveLogger.logger().globalPrintLn("[Intave] Sent teleportation request to " + player.getName() + ": " + MathHelper.formatPosition(movementData.teleportLocation));
     }
     awaitTeleport(player);
   }

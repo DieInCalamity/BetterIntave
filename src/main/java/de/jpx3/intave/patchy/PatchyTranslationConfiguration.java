@@ -45,11 +45,11 @@ final class PatchyTranslationConfiguration {
         }
       }
     }
-//    System.out.println("Selection: " + selectedTranslation);
+//    IntaveLogger.logger().globalPrintLn("Selection: " + selectedTranslation);
     if(selectedTranslation == null) {
       return null;
     }
-//    System.out.println(selectedTranslation.selectedTranslationOf(originalMethodReference));
+//    IntaveLogger.logger().globalPrintLn(selectedTranslation.selectedTranslationOf(originalMethodReference));
     return selectedTranslation.selectedTranslationOf(originalMethodReference);
   }
 
@@ -81,7 +81,7 @@ final class PatchyTranslationConfiguration {
       availableVersions.add(versionMethodReference.version());
     }
     availableVersions.sort(Comparator.comparingInt(PatchyTranslationConfiguration::versionToInt).reversed());
-//    System.out.println(availableVersions);
+//    IntaveLogger.logger().globalPrintLn(availableVersions);
     boolean nativeVersionAvailable = availableVersions.contains(serverVersion);
     switch (selectedTranslation.versionPolicy()) {
       case IGNORE:

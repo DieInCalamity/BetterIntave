@@ -23,7 +23,7 @@ public final class v8PipelineInjector implements PipelineInjector {
     EntityPlayer entityPlayer = ((CraftPlayer) target).getHandle();
     Channel channel = entityPlayer.playerConnection.networkManager.channel;
     ChannelPipeline pipeline = channel.pipeline();
-//    System.out.println(pipeline.get("protocol_lib_decoder"));
+//    IntaveLogger.logger().globalPrintLn(pipeline.get("protocol_lib_decoder"));
     pipeline.addBefore("decoder", "shadowpacketin", new v8PipelineHandler(target.getUniqueId(), integration));
   }
 

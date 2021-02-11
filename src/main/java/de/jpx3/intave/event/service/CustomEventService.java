@@ -17,8 +17,8 @@ public final class CustomEventService {
   }
 
   public void setup() {
-    setupClass(AsyncIntaveViolationEvent.class, () -> AsyncIntaveViolationEvent.empty(plugin));
-    setupClass(AsyncIntaveCommandTriggerEvent.class, () -> AsyncIntaveCommandTriggerEvent.empty(plugin));
+    setupClass(IntaveViolationEvent.class, () -> IntaveViolationEvent.empty(plugin));
+    setupClass(IntaveCommandExecutionEvent.class, () -> IntaveCommandExecutionEvent.empty(plugin));
     setupClass(IntaveCreateEmulatedEntityEvent.class, () -> IntaveCreateEmulatedEntityEvent.empty(plugin));
     setupClass(IntaveCreateEmulatedPlayerEvent.class, () -> IntaveCreateEmulatedPlayerEvent.empty(plugin));
   }
@@ -31,7 +31,7 @@ public final class CustomEventService {
     T eventInstance = activeInstanceOf(eventClass);
     applier.accept(eventInstance);
     callEvent(eventInstance);
-    eventInstance.clearPlayerReference();
+    eventInstance.refClear();
     return eventInstance;
   }
 

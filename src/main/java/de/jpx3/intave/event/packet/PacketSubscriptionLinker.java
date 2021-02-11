@@ -226,7 +226,7 @@ public final class PacketSubscriptionLinker {
     ListenerPriority priority, PacketType[] translatePacketTypes,
     String methodName, PacketSubscriptionMethodExecutor executor
   ) {
-//    System.out.println(subscriber + " " + priority + " " + Arrays.toString(translatePacketTypes) + " " + methodName + " " + executor);
+//    IntaveLogger.logger().globalPrintLn(subscriber + " " + priority + " " + Arrays.toString(translatePacketTypes) + " " + methodName + " " + executor);
     if(translatePacketTypes.length == 0) {
       return;
     }

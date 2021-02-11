@@ -237,7 +237,7 @@ public final class MovementDispatcher implements EventProcessor {
       Vector vector = new Vector(movementData.physicsLastMotionX, movementData.physicsLastMotionY, movementData.physicsLastMotionZ);
       plugin.eventService().emulationEngine().emulationSetBack(player, vector, 10);
       String details = "moved " + MathHelper.formatDouble(distance, 2) + " blocks";
-      plugin.retributionService().processViolation(player, 25, "Physics", "sent unsafe position", details);
+      plugin.violationProcessor().processViolation(player, 25, "Physics", "sent unsafe position", details);
       return;
     }
 

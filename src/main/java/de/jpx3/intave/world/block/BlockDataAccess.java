@@ -3,6 +3,7 @@ package de.jpx3.intave.world.block;
 import com.comphenix.protocol.utility.MinecraftVersion;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.patchy.PatchyLoadingInjector;
 import de.jpx3.intave.reflect.ReflectionFailureException;
 import de.jpx3.intave.reflect.ReflectiveBlockAccess;
@@ -71,7 +72,7 @@ public final class BlockDataAccess {
       }
       Object block = ReflectiveBlockAccess.blockById(i);
       if (block == null) {
-        System.out.println("No block fund for id " + i);
+        IntaveLogger.logger().globalPrintLn("No block found for id " + i);
         continue;
       }
 

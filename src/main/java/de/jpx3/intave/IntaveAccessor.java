@@ -36,6 +36,6 @@ public final class IntaveAccessor {
 
   @Native
   private static IntaveAccess uncheckedUnsafeAccess() {
-    return null;//IntavePlugin.singletonInstance().intaveAccess();
+    return IntavePlugin.singletonInstance().access();
   }
 }

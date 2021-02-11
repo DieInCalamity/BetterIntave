@@ -1,5 +1,6 @@
 package de.jpx3.intave.patchy;
 
+import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.annotate.Native;
 
 import java.io.*;
@@ -44,7 +45,7 @@ public final class PatchyLoadingInjector {
     className = className.replace('.', '/') + ".class";
     InputStream stream = classLoader.getResourceAsStream(className);
     if(stream == null) {
-      System.out.println("Unable to resolve class bytes for class " + className + ". Performing manual load attempt..");
+      IntaveLogger.logger().globalPrintLn("Unable to resolve class bytes for class " + className + ". Performing manual load attempt..");
       String path;
       try {
         path = PatchyLoadingInjector.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();

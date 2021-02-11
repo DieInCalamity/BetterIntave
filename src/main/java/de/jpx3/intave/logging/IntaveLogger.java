@@ -1,47 +1,54 @@
 package de.jpx3.intave.logging;
 
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.executor.BackgroundExecutor;
 import de.jpx3.intave.tools.AccessHelper;
 import org.bukkit.ChatColor;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class IntaveLogger {
+
+  public static boolean FILE_OUTPUT;
+  public static boolean CONSOLE_OUTPUT;
+
   private final static String LOG_PATH = "plugins" + File.separator + "Intave" + File.separator + "logs";
   private final IntavePlugin plugin;
   private final FileArchiver archiver;
+  private final List<PrintStream> outputStreams = new CopyOnWriteArrayList<>();
+  private static IntaveLogger singletonInstance;
   private long lastNameCheck;
   private PrintWriter printWriter;
   private String activeFileName;
 
-  private final ExecutorService compressionService = Executors.newSingleThreadExecutor();
-
   public IntaveLogger(IntavePlugin plugin) {
+    singletonInstance = this;
     this.plugin = plugin;
     this.archiver = new FileArchiver();
+    outputStreams.add(System.out);
     setup();
   }
 
   public void info(String infoMessage) {
-    System.out.println("[Intave] " + infoMessage);
+    globalPrintLn("[Intave] " + infoMessage);
     logToFile("(INF) " + infoMessage);
   }
 
   public void error(String errorMessage) {
-    System.out.println("[Intave] ERROR: " + errorMessage);
+    globalPrintLn("[Intave] ERROR: " + errorMessage);
     logToFile("(ERR) " + errorMessage);
   }
 
   public void violation(String violation) {
+    if(CONSOLE_OUTPUT) {
+      globalPrintLn("[Intave] Violation: " + violation);
+    }
     logToFile("(DET) " + violation);
   }
 
@@ -51,13 +58,34 @@ public final class IntaveLogger {
   }
 
   public void exception(Throwable throwable) {
-    System.out.println("[Intave] Caught an "+throwable.getClass().getSimpleName()+" exception");
+    globalPrintLn("[Intave] Caught an "+throwable.getClass().getSimpleName()+" exception");
     throwable.printStackTrace();
+  }
+
+  public void globalPrintLn(Object object) {
+    globalPrintLn(object.toString());
+  }
+
+  public void globalPrintLn(String message) {
+    for (PrintStream outputStream : outputStreams) {
+      outputStream.println(message);
+    }
+  }
+
+  public void addOutputStream(PrintStream outputStream) {
+    outputStreams.add(outputStream);
+  }
+
+  public void removeOutputStream(PrintStream outputStream) {
+    outputStreams.remove(outputStream);
   }
 
   private final static DateTimeFormatter MESSAGE_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH.mm.ss.SSS");
 
   private synchronized void logToFile(String message) {
+    if(!FILE_OUTPUT) {
+      return;
+    }
     try {
       if (!plugin.getDataFolder().exists()) {
         return;
@@ -85,7 +113,7 @@ public final class IntaveLogger {
       printWriter.flush();
 
       if(compressLogsLater) {
-        compressionService.execute(this::performCompression);
+        BackgroundExecutor.execute(this::performCompression);
       }
     } catch (Exception exception) {
       exception.printStackTrace();
@@ -178,5 +206,9 @@ public final class IntaveLogger {
   private String activeFileName() {
     String timestamp = dateFormat.get().format(AccessHelper.now());
     return "intave" + timestamp + ".log";
+  }
+
+  public static IntaveLogger logger() {
+    return singletonInstance;
   }
 }

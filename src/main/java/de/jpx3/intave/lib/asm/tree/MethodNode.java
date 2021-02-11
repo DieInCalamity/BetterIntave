@@ -28,6 +28,7 @@
 package de.jpx3.intave.lib.asm.tree;
 
 import de.jpx3.intave.lib.asm.*;
+import de.jpx3.intave.logging.IntaveLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -641,7 +642,7 @@ public class MethodNode extends MethodVisitor {
       try {
         accept(methodVisitor);
       } catch (Exception e) {
-        System.out.println("Exception in method " + name + " " + desc);
+        IntaveLogger.logger().globalPrintLn("Exception in method " + name + " " + desc);
         e.printStackTrace();
       }
     }

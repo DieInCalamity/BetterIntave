@@ -9,6 +9,7 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.ProtocolLibAdapter;
 import de.jpx3.intave.event.packet.*;
+import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.reflect.ReflectiveHandleAccess;
 import de.jpx3.intave.tools.hitbox.EntityHitBoxResolver;
@@ -67,7 +68,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
       if(declaredField.getType() == entityClass) {
         String fieldName = declaredField.getName();
         if(!dataWatcherEntityFieldName.equals(fieldName)) {
-          System.out.println("[Intave] Conflicting field name internal for entity-from-datawatcher access: Internals suggest " + dataWatcherEntityFieldName + " but found " + fieldName);
+          IntaveLogger.logger().globalPrintLn("[Intave] Conflicting field name internal for entity-from-datawatcher access: Internals suggest " + dataWatcherEntityFieldName + " but found " + fieldName);
         }
         dataWatcherEntityFieldName = fieldName;
         break;

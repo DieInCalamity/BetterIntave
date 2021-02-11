@@ -19,6 +19,7 @@ import java.util.*;
 public final class CheckService {
   private final IntavePlugin plugin;
   private List<IntaveCheck> checks = new ArrayList<>();
+  private List<String> checkNames = new ArrayList<>();
   private Map<Class<?>, IntaveCheck> requestCache = new HashMap<>();
   private Map<String, IntaveCheck> nameRequestCache = new HashMap<>();
 
@@ -72,6 +73,7 @@ public final class CheckService {
   public void bakeQuickAccess() {
     requestCache = new HashMap<>();
     for (IntaveCheck check : checks) {
+      checkNames.add(check.name());
       requestCache.put(check.getClass(), check);
       nameRequestCache.put(check.name().toLowerCase(Locale.ROOT), check);
     }
@@ -164,6 +166,10 @@ public final class CheckService {
     return (T) check;
   }
 
+  public boolean hasCheck(String checkName) {
+    return nameRequestCache.containsKey(checkName.toLowerCase());
+  }
+
   public void enterConfiguration(CheckConfiguration checkConfiguration) {
     YamlConfiguration configuration = plugin.configurationService().configuration();
     String checkSectionPath = "check." + checkConfiguration.check().configurationKey();
@@ -174,5 +180,9 @@ public final class CheckService {
       mappings.putIfAbsent(key, checkSection.get(key));
     }
     checkConfiguration.setSettings(mappings);
+  }
+
+  public List<String> checkNames() {
+    return checkNames;
   }
 }

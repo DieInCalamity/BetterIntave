@@ -18,7 +18,10 @@ import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedMovingObjectPosition;
 import de.jpx3.intave.tools.wrapper.WrappedVector;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserCustomCheckMeta;
+import de.jpx3.intave.user.UserMetaClientData;
+import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.world.BlockAccessor;
 import de.jpx3.intave.world.block.BlockDataAccess;
 import de.jpx3.intave.world.raytrace.Raytracer;
@@ -174,8 +177,9 @@ public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirC
       sum += clickOfTick;
     }
 
-    if(sum != 0)
-      player.sendMessage("cps: " + sum);
+    if(sum != 0) {
+//      player.sendMessage("cps: " + sum);
+    }
 
     if(sum > 13 && user.meta().clientData().protocolVersion() <= UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE) {
       parentCheck().saveAnomaly(player,

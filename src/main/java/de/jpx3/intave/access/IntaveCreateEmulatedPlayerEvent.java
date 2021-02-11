@@ -27,7 +27,7 @@ public final class IntaveCreateEmulatedPlayerEvent extends IntaveCreateEmulatedE
     return id;
   }
 
-  public void __INTERNAL__renew(Player observer, int reservedEntityId, String name, UUID id) {
+  public void copy(Player observer, int reservedEntityId, String name, UUID id) {
     this.observer = new WeakReference<>(observer);
     this.reservedEntityId = reservedEntityId;
     this.name = name;
@@ -35,7 +35,7 @@ public final class IntaveCreateEmulatedPlayerEvent extends IntaveCreateEmulatedE
   }
 
   @Override
-  public void clearPlayerReference() {
+  public void refClear() {
     this.observer = null;
   }
 

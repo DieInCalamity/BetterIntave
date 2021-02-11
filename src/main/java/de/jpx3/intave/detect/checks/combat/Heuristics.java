@@ -149,7 +149,7 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
         identifier = resolveIdentifier(anomalies);
       }
       String details = type.details() + ": " + overallConfidence.name().toLowerCase().replace("_", " ") + " / " + identifier;
-      plugin.retributionService().processViolation(player, 25, this.name(), "is fighting suspiciously", details, "confidence-thresholds." + overallConfidence.output());
+      plugin.violationProcessor().processViolation(player, 25, this.name(), "is fighting suspiciously", details, "confidence-thresholds." + overallConfidence.output());
     }
   }
 

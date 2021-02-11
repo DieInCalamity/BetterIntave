@@ -86,6 +86,11 @@ public final class ConnectionHealthResolver implements PacketEventSubscriber {
         (int) differenceBalance.stream().mapToLong(value -> value).average().orElse(0d);
     }
 
+    plugin.accessService()
+      .playerAccessor()
+      .netStatisticsAccessor()
+      .pushPingJitterUpdate(player, synchronizeData.latency, (int) pingChange);
+
     synchronizeData.lastKeepAliveDifference = difference;
   }
 }

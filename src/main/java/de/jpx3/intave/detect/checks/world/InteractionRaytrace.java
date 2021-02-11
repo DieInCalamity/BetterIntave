@@ -468,7 +468,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
 //    }
     details += ", fly: " + user.meta().movementData().pastFlyingPacketAccurate();
 
-    return plugin.retributionService().processViolation(player, vl, name(), message, details) || mustFlag;
+    return plugin.violationProcessor().processViolation(player, vl, name(), message, details) || mustFlag;
   }
 
   private String shortenTypeName(Material type) {

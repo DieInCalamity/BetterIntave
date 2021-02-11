@@ -1,5 +1,7 @@
 package de.jpx3.intave.executor;
 
+import de.jpx3.intave.logging.IntaveLogger;
+
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -21,7 +23,7 @@ public final class IntaveThreadFactory implements ThreadFactory {
     thread.setDaemon(false);
     thread.setPriority(defaultPriority);
     thread.setUncaughtExceptionHandler((threadx, exception) -> {
-      System.out.println("Thread " + threadx.getName() + " has encountered an " + exception);
+      IntaveLogger.logger().globalPrintLn("Thread " + threadx.getName() + " has encountered an " + exception);
       exception.printStackTrace();
     });
     return thread;

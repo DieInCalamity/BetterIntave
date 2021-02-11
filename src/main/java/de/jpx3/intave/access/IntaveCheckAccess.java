@@ -7,16 +7,23 @@ import java.util.Map;
 
 public interface IntaveCheckAccess {
   String name();
-  String configurationKey();
-  String category();
-  String description();
   boolean enabled();
-  int violationLevelOf(Player player);
-  void addViolationPoints(Player player, int amount);
-  void resetViolationLevel(Player player);
-  void setDecayEnabled(boolean decayEnabled);
-  Map<Integer, List<String>> globalThresholds();
-  List<String> thresholdsOf(int violationLevel);
-  Map<Integer, List<String>> thresholdsBetween(int from, int to);
+
+  default double violationLevelOf(Player player) {
+    return violationLevelOf(player, "threshold");
+  }
+  double violationLevelOf(Player player, String threshold);
+
+  default void addViolationPoints(Player player, double amount) {
+    addViolationPoints(player, "threshold", amount);
+  }
+  void addViolationPoints(Player player, String threshold, double amount);
+
+  default void resetViolationLevel(Player player) {
+    resetViolationLevel(player, "threshold");
+  }
+  void resetViolationLevel(Player player, String threshold);
+
+  Map<Integer, List<String>> commandsOf(String threshold);
   IntaveCheckStatisticsAccess statistics();
 }

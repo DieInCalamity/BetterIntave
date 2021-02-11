@@ -8,6 +8,7 @@ import de.jpx3.intave.lib.asm.Type;
 import de.jpx3.intave.lib.asm.tree.*;
 import de.jpx3.intave.lib.asm.util.Textifier;
 import de.jpx3.intave.lib.asm.util.TraceMethodVisitor;
+import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.patchy.annotate.PatchyAutoTranslation;
 import de.jpx3.intave.tools.annotate.Native;
 import org.bukkit.Bukkit;
@@ -31,28 +32,28 @@ final class PatchyTranslator {
   public static byte[] translateClass(byte[] inputBytes) {
     ClassNode classNode = classNodeOf(inputBytes);
     if(IntaveControl.OUTPUT_PATCHY_RESULT) {
-      System.out.println("[Intave/Patchy] Translating " + classNode.name);
+      IntaveLogger.logger().globalPrintLn("[Intave/Patchy] Translating " + classNode.name);
     }
     translateClassDependencies(classNode);
-//    System.out.println("Translating methods..");
+//    IntaveLogger.logger().globalPrintLn("Translating methods..");
     processMethods(selectedMethodsIn(classNode));
 
 
     if(IntaveControl.OUTPUT_PATCHY_RESULT) {
-      System.out.println(classNode.name + " " + classNode.superName);
-      System.out.println(classNode.name + " " + classNode.superName);
+      IntaveLogger.logger().globalPrintLn(classNode.name + " " + classNode.superName);
+      IntaveLogger.logger().globalPrintLn(classNode.name + " " + classNode.superName);
       for (MethodNode method : classNode.methods) {
-        System.out.println(method.name);
+        IntaveLogger.logger().globalPrintLn(method.name);
 
         Textifier textifier;
         MethodVisitor methodVisitor = new TraceMethodVisitor(textifier = new Textifier());
         method.accept(methodVisitor);
-        System.out.println(textifier.text);
+        IntaveLogger.logger().globalPrintLn(textifier.text);
       }
     }
 
     if(IntaveControl.OUTPUT_PATCHY_RESULT) {
-      System.out.println("[Intave/Patchy] Done");
+      IntaveLogger.logger().globalPrintLn("[Intave/Patchy] Done");
     }
 
     return byteArrayOf(classNode);
@@ -61,12 +62,12 @@ final class PatchyTranslator {
   @Native
   private static void translateClassDependencies(ClassNode classNode) {
     String newSuperName = translateDependency(classNode.superName);
-//    System.out.println("Patched " + classNode.superName + " to " + newSuperName);
+//    IntaveLogger.logger().globalPrintLn("Patched " + classNode.superName + " to " + newSuperName);
     classNode.superName = newSuperName;
     String[] strings = classNode.interfaces.toArray(new String[0]);
     for (int i = 0; i < strings.length; i++) {
       String newName = translateDependency(strings[i]);
-//      System.out.println("Patched " + strings[i] + " to " + newName);
+//      IntaveLogger.logger().globalPrintLn("Patched " + strings[i] + " to " + newName);
       strings[i] = newName;
     }
     classNode.interfaces = Arrays.stream(strings).collect(Collectors.toList());
@@ -84,7 +85,7 @@ final class PatchyTranslator {
 
   private static void processMethods(List<MethodNode> methodNodes) {
     for (MethodNode methodNode : methodNodes) {
-//      System.out.println("Processing " + methodNode.name + methodNode.desc + "..");
+//      IntaveLogger.logger().globalPrintLn("Processing " + methodNode.name + methodNode.desc + "..");
       processMethod(methodNode);
     }
   }
@@ -119,7 +120,7 @@ final class PatchyTranslator {
     String extractedVersion = desc.substring(versionBeginIndex, versionEndIndex);
     String newDesc = desc.replace(extractedVersion, CURRENT_SERVER_VERSION);
 
-//    System.out.println("Patched " + methodNode.desc + " with " + newDesc + " (method desc)");
+//    IntaveLogger.logger().globalPrintLn("Patched " + methodNode.desc + " with " + newDesc + " (method desc)");
     methodNode.desc = newDesc;
   }
 
@@ -137,10 +138,10 @@ final class PatchyTranslator {
         instructionTarget = process(instructionTarget, configuration);
 
         if (!instructionTarget.equals(originalInstruction)) {
-//          System.out.println("Patched " + originalInstruction.owner + "." + originalInstruction.name + originalInstruction.desc + " with " + instructionTarget.owner + "." + instructionTarget.name + instructionTarget.desc);
+//          IntaveLogger.logger().globalPrintLn("Patched " + originalInstruction.owner + "." + originalInstruction.name + originalInstruction.desc + " with " + instructionTarget.owner + "." + instructionTarget.name + instructionTarget.desc);
         }
 
-//        System.out.println(instructionTarget);
+//        IntaveLogger.logger().globalPrintLn(instructionTarget);
 
         methodInsnNode.owner = instructionTarget.owner;
         methodInsnNode.name = instructionTarget.name;
@@ -179,16 +180,16 @@ final class PatchyTranslator {
 //      return original;
 //    }
 
-//    System.out.println("Processing method instruction " + original);
+//    IntaveLogger.logger().globalPrintLn("Processing method instruction " + original);
 
 //    if(original.isMethod()) {
       VersionMethodReference translatedversionMethodReference =
         configuration.resolveCustomMethodDescriptor(original.owner, original.name, original.desc);
 
       if(translatedversionMethodReference == null) {
-//        System.out.println("No custom translation configuration found");
+//        IntaveLogger.logger().globalPrintLn("No custom translation configuration found");
         if(configuration.translateEverything()) {
-//          System.out.println("Attempting heuristic replacement..");
+//          IntaveLogger.logger().globalPrintLn("Attempting heuristic replacement..");
           // heuristic replacement
           // maybe find better solution?
           String newOwner;
@@ -213,7 +214,7 @@ final class PatchyTranslator {
             newDesc = original.desc.replace(extractedVersion, CURRENT_SERVER_VERSION);
           }
 
-//          System.out.println(newOwner + " " + newDesc);
+//          IntaveLogger.logger().globalPrintLn(newOwner + " " + newDesc);
 
           return InstructionTarget.methodInstructionTarget(newOwner, original.name, newDesc);
         }

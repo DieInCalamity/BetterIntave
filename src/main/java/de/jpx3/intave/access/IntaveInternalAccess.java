@@ -1,5 +1,6 @@
 package de.jpx3.intave.access;
 
+import java.io.PrintStream;
 import java.util.List;
 
 public interface IntaveInternalAccess {
@@ -9,9 +10,10 @@ public interface IntaveInternalAccess {
   void overrideBreakPermissionCheck(BlockBreakPermissionCheck check);
   void overridePlacePermissionCheck(BlockPlacePermissionCheck check);
 
+  void subscribeOutputStream(PrintStream stream);
+  void unsubscribeOutputStream(PrintStream stream);
+
   IntaveCheckAccess accessCheck(String checkName) throws UnknownCheckException;
   List<String> loadedCheckNames();
-  @Deprecated
   void restart();
-  void reload();
 }

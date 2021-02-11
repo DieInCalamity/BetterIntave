@@ -1,5 +1,7 @@
 package de.jpx3.intave;
 
+import de.jpx3.intave.access.IntaveAccess;
+import de.jpx3.intave.accessbackend.IntaveAccessService;
 import de.jpx3.intave.adapter.ComponentLoader;
 import de.jpx3.intave.adapter.ProtocolLibAdapter;
 import de.jpx3.intave.adapter.ViaVersionAdapter;
@@ -22,10 +24,12 @@ import de.jpx3.intave.metrics.Metrics;
 import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.security.ContextSecrets;
 import de.jpx3.intave.security.HWIDVerification;
+import de.jpx3.intave.security.HashAccess;
 import de.jpx3.intave.security.SSLConnectionVerifier;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.DurationTranslator;
 import de.jpx3.intave.tools.EncryptedResource;
+import de.jpx3.intave.tools.TpsResolver;
 import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.tools.client.SinusCache;
 import de.jpx3.intave.tools.items.InventoryUseItemHelper;
@@ -46,12 +50,13 @@ import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -85,7 +90,10 @@ public final class IntavePlugin extends JavaPlugin {
   private TrustFactorService trustFactorService;
   private VersionList versionList;
   private LabymodShadowIntegration shadowIntegration;
+  private IntaveAccessService accessService;
+  private IntaveAccess access;
   private Metrics metrics;
+
 
   public IntavePlugin() {
     // stage 2
@@ -106,6 +114,7 @@ public final class IntavePlugin extends JavaPlugin {
 
     // event links must be available throughout the onEnable call
     eventLinker = new BukkitEventLinker(this);
+
   }
 
   @Native
@@ -116,21 +125,24 @@ public final class IntavePlugin extends JavaPlugin {
 
     prefix = ChatColor.translateAlternateColorCodes('&', prefix);
 
+    if(System.getSecurityManager() != null) {
+      logger.error("A security manager is present, unable to start");
+      return;
+    }
+
     try {
       SinusCache.setup();
-      WrapperLinkage.setup();
-      ReflectiveAccess.setup();
+      TpsResolver.setup();
       Synchronizer.setup();
       ContextSecrets.setup();
       BackgroundExecutor.start();
-
-      componentLoader = new ComponentLoader(this);
-      componentLoader.loadComponents();
 
       trustFactorService = new TrustFactorService(this);
       // version mambo jumbo
 
       // stage 5
+      componentLoader = new ComponentLoader(this);
+      componentLoader.loadComponents();
 
       packetSubscriptionLinker = new PacketSubscriptionLinker(this);
 
@@ -140,6 +152,8 @@ public final class IntavePlugin extends JavaPlugin {
 
       ProtocolLibAdapter.checkIfOutdated();
 
+      ReflectiveAccess.setup();
+      WrapperLinkage.setup();
       Raytracer.setup();
       BlockAccessor.setup();
       BlockDataAccess.setup();
@@ -165,22 +179,6 @@ public final class IntavePlugin extends JavaPlugin {
         requiredConfigurationHash = null;
       } else {
         File currentJavaJarFile = new File(IntavePlugin.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-        StringBuilder jarChecksum = new StringBuilder();
-        try {
-          MessageDigest md = MessageDigest.getInstance("SHA-256");// MD5
-          FileInputStream fis = new FileInputStream(currentJavaJarFile);
-          byte[] dataBytes = new byte[1024];
-          int nread;
-          while ((nread = fis.read(dataBytes)) != -1) {
-            md.update(dataBytes, 0, nread);
-          }
-          byte[] mdbytes = md.digest();
-          for (byte mdbyte : mdbytes)
-            jarChecksum.append(Integer.toString((mdbyte & 0xff) + 0x100, 16).substring(1));
-        } catch (NoSuchAlgorithmException | IOException exception) {
-          exception.printStackTrace();
-          jarChecksum.append("~invalid");
-        }
         long identificationKey;
         try {
           identificationKey = Frame.class.getField("x").getLong(null);
@@ -202,7 +200,7 @@ public final class IntavePlugin extends JavaPlugin {
           connection.addRequestProperty("User-Agent", "Intave/" + version());
           connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
           connection.addRequestProperty("Pragma", "no-cache");
-          connection.addRequestProperty("A", jarChecksum.toString());
+          connection.addRequestProperty("A", HashAccess.hashOf(currentJavaJarFile));
           connection.addRequestProperty("B", idKey);
           connection.addRequestProperty("C", HWIDVerification.publicHardwareIdentifier());
           connection.addRequestProperty("D", configurationKey);
@@ -215,12 +213,12 @@ public final class IntavePlugin extends JavaPlugin {
           while (scanner2.hasNext())
             raw2.append(scanner2.next());
           response = raw2.toString();
-//          System.out.println(response);
         } catch (IOException exception) {
           exception.printStackTrace();
           response = "timeout";
         }
-        String message;
+
+        String message = null;
         boolean bad = false;
         switch (response) {
           case "banned":
@@ -244,18 +242,16 @@ public final class IntavePlugin extends JavaPlugin {
             message = "Unable to connect to service";
             break;
           default:
-            message = null;
             break;
         }
+
         if (message != null) {
-          logger().error(message);
+          logger.error(message);
         }
-        if (bad || response.length() < 2) {
+
+        if (bad) {
           contextStatusResource.write(new ByteArrayInputStream(("failure-"+response).getBytes(StandardCharsets.UTF_8)));
-          getCommand("intave").setExecutor((commandSender, command, s, strings) -> {
-            commandSender.sendMessage(prefix() + ChatColor.RED + "Intave couldn't boot properly");
-            return false;
-          });
+          boolFailure();
           performShutdown();
           return;
         }
@@ -347,10 +343,7 @@ public final class IntavePlugin extends JavaPlugin {
 
         if(allowLeniency && !configurationService().loader().configurationCacheExists()) {
           logger().error("Unable to boot: Intave requires an internet connection for first-time startup");
-          getCommand("intave").setExecutor((commandSender, command, s, strings) -> {
-            commandSender.sendMessage(prefix() + ChatColor.RED + "Intave couldn't boot properly");
-            return false;
-          });
+          boolFailure();
           performShutdown();
           return;
         }
@@ -359,10 +352,8 @@ public final class IntavePlugin extends JavaPlugin {
 
         if(!allowLeniency) {
           logger().error("Unable to boot: Intave requires an internet connection");
-          getCommand("intave").setExecutor((commandSender, command, s, strings) -> {
-            commandSender.sendMessage(prefix() + ChatColor.RED + "Intave couldn't boot properly");
-            return false;
-          });
+          boolFailure();
+//          Synchronizer.synchronize(this::performShutdown);
           performShutdown();
           return;
         }
@@ -394,10 +385,7 @@ public final class IntavePlugin extends JavaPlugin {
             break;
           case INVALID:
             logger().error("Unable to boot: This version has been deactivated");
-            getCommand("intave").setExecutor((commandSender, command, s, strings) -> {
-              commandSender.sendMessage(prefix() + ChatColor.RED + "This version has been deactivated. Please update Intave immediately");
-              return false;
-            });
+            boolFailure();
             performShutdown();
             return;
         }
@@ -416,6 +404,9 @@ public final class IntavePlugin extends JavaPlugin {
 
       shadowIntegration = new LabymodShadowIntegration(this);
       shadowIntegration.setup();
+
+      accessService = new IntaveAccessService(this);
+      accessService.setup();
 
       customEventService = new CustomEventService(this);
       interactionPermissionService = new InteractionPermissionService();
@@ -440,11 +431,7 @@ public final class IntavePlugin extends JavaPlugin {
       eventService.setup();
     } catch (Exception exception) {
       logger.error("Unable to boot");
-      exception.printStackTrace();
-      getCommand("intave").setExecutor((commandSender, command, s, strings) -> {
-        commandSender.sendMessage(prefix() + ChatColor.RED + "Intave couldn't boot properly");
-        return false;
-      });
+      boolFailure();
       performShutdown();
       return;
     }
@@ -463,6 +450,14 @@ public final class IntavePlugin extends JavaPlugin {
   }
 
   @Native
+  public void boolFailure() {
+    getCommand("intave").setExecutor((commandSender, command, s, strings) -> {
+      commandSender.sendMessage(prefix() + ChatColor.RED + "Intave couldn't boot properly");
+      return false;
+    });
+  }
+
+  @Native
   @Override
   public void onDisable() {
     performShutdown();
@@ -472,11 +467,32 @@ public final class IntavePlugin extends JavaPlugin {
   public void performShutdown() {
     logger().info("Stopping Intave");
     BackgroundExecutor.stopBlocking();
-    shadowIntegration.shutdown();
-    packetSubscriptionLinker.reset();
-    eventLinker.performShutdown();
+    if(shadowIntegration != null) {
+      shadowIntegration.shutdown();
+    }
+    if(packetSubscriptionLinker != null) {
+      packetSubscriptionLinker.reset();
+    }
+    if(eventLinker != null) {
+      eventLinker.performShutdown();
+    }
+    if(accessService != null) {
+      accessService.serverAccessor().pluginShutdown();
+    }
     logger().info("Intave offline");
     logger.shutdown();
+  }
+
+  public IntaveAccess access() {
+    return access;
+  }
+
+  public void setAccess(IntaveAccess access) {
+    this.access = access;
+  }
+
+  public IntaveAccessService accessService() {
+    return accessService;
   }
 
   public TrustFactorService trustFactorService() {
@@ -515,7 +531,7 @@ public final class IntavePlugin extends JavaPlugin {
     return packetSubscriptionLinker;
   }
 
-  public ViolationService retributionService() {
+  public ViolationService violationProcessor() {
     return this.violationService;
   }
 

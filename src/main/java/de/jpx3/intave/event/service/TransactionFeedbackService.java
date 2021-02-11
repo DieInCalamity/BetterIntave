@@ -101,7 +101,7 @@ public final class TransactionFeedbackService implements PacketEventSubscriber {
       return;
     }
 
-//    System.out.println("Transaction packet to " + receiver + ", id: " + id + ")");
+//    IntaveLogger.logger().globalPrintLn("Transaction packet to " + receiver + ", id: " + id + ")");
     PacketContainer transactionPacket = protocolManager.createPacket(PacketType.Play.Server.TRANSACTION);
     transactionPacket.getIntegers().write(0, 0);
     transactionPacket.getShorts().write(0, id);

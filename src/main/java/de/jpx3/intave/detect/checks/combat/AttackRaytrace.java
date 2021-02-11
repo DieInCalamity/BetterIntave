@@ -185,7 +185,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
       message += " (vehicle)";
     }
 
-    plugin.retributionService().processViolation(player, vl, "AttackRaytrace", message, details);
+    plugin.violationProcessor().processViolation(player, vl, "AttackRaytrace", message, details);
 //    player.sendMessage("§6s:" + reach);
     return true;
   }
@@ -285,7 +285,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
         message += " (vehicle)";
       }
 
-      plugin.retributionService().processViolation(player, 0, "AttackRaytrace", message, details);
+      plugin.violationProcessor().processViolation(player, 0, "AttackRaytrace", message, details);
       return true;
     }
     decrementer.decrement(user, 0.05);

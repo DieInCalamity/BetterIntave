@@ -82,7 +82,7 @@ public final class Synchronizer {
     return () -> {
       try {
         runnable.run();
-      } catch (Exception exception) {
+      } catch (Exception | Error exception) {
         exception.printStackTrace();
       }
     };

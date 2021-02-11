@@ -71,7 +71,7 @@ public final class EncryptedResource {
     if(file.exists()) {
       file.delete();
     }
-//    System.out.println(file.getAbsolutePath());
+//    IntaveLogger.logger().globalPrintLn(file.getAbsolutePath());
 
     try {
       file.createNewFile();
@@ -137,7 +137,7 @@ public final class EncryptedResource {
     if(!workDirectory.exists()) {
       workDirectory.mkdir();
     }
-//    System.out.println(workDirectory.exists());
+//    IntaveLogger.logger().globalPrintLn(workDirectory.exists());
     return new File(workDirectory, resourceId());
   }
 
