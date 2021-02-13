@@ -12,6 +12,7 @@ public final class ReflectiveAccess {
 
   public final static Class<?> NMS_WORLD_SERVER_CLASS = lookupServerClass("WorldServer");
   public final static Class<?> NMS_ENTITY_CLASS = lookupServerClass("Entity");
+  public final static Class<?> NMS_CRAFT_WORLD_CLASS = lookupCraftBukkitClass("CraftWorld");
   public final static Class<?> NMS_AABB_CLASS = lookupServerClass("AxisAlignedBB");
 
   public static void setup() {
@@ -20,6 +21,7 @@ public final class ReflectiveAccess {
     ReflectiveEntityHitBoxAccess.setup();
     PatchyLoadingInjector.loadUnloadedClassPatched(IntavePlugin.class.getClassLoader(), "de.jpx3.intave.reflect.ReflectiveDataWatcherAccess");
     PatchyLoadingInjector.loadUnloadedClassPatched(IntavePlugin.class.getClassLoader(), "de.jpx3.intave.reflect.ReflectiveHandleAccess");
+    PatchyLoadingInjector.loadUnloadedClassPatched(IntavePlugin.class.getClassLoader(), "de.jpx3.intave.reflect.ReflectiveEntityAccess");
   }
 
   public static <T> Class<T> classByName(String className) {

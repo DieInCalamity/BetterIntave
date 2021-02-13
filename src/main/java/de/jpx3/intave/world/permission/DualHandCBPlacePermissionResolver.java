@@ -62,7 +62,7 @@ public final class DualHandCBPlacePermissionResolver implements BlockPlacePermis
   private boolean canBuildReflectiveCall(CraftWorld world, Player player, int x, int z) {
     if(canBuildMethod == null) {
       try {
-        canBuildMethod = ReflectiveAccess.lookupCraftBukkitClass("event.CraftEventFactory").getDeclaredMethod("canBuild", CraftWorld.class, Player.class, Integer.TYPE, Integer.TYPE);
+        canBuildMethod = ReflectiveAccess.lookupCraftBukkitClass("event.CraftEventFactory").getDeclaredMethod("canBuild", ReflectiveAccess.NMS_CRAFT_WORLD_CLASS, Player.class, Integer.TYPE, Integer.TYPE);
         if(!canBuildMethod.isAccessible()) {
           canBuildMethod.setAccessible(true);
         }
