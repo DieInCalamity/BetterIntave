@@ -15,7 +15,6 @@ public final class LocalPacketAdapter extends IntavePacketAdapter implements Com
       .anyMatch(method -> method.getName().equalsIgnoreCase("isPlayerTemporary"));
   }
 
-  private int exceptions;
   private final String methodName;
   private final ListenerPriority priority;
   private final PacketEventSubscriber subscriber;
@@ -34,12 +33,9 @@ public final class LocalPacketAdapter extends IntavePacketAdapter implements Com
     this.executor = executor;
   }
 
-//  @Override
+  @Override
   public void onPacketReceiving(PacketEvent event) {
     if(!validateEvent(event)) {
-      return;
-    }
-    if(exceptions > 50) {
       return;
     }
 //    boolean cancelled = event.isCancelled();
@@ -56,17 +52,13 @@ public final class LocalPacketAdapter extends IntavePacketAdapter implements Com
 //      Timings.packetProcessing.stop();
     } catch (RuntimeException exception) {
       processException(event.getPacketType(), exception);
-
-      if(exceptions++ >= 50) {
-        IntaveLogger.logger().globalPrintLn(subscriber.getClass().getSimpleName()+"."+methodName + " has been deactivated due to too many exceptions");
-      }
     }
 //    if(!cancelled && event.isCancelled()) {
 //      IntaveLogger.logger().globalPrintLn(subscriber.getClass().getSimpleName()+"."+methodName + " cancelled packet " + event.getPacketType());
 //    }
   }
 
-//  @Override
+  @Override
   public void onPacketSending(PacketEvent event) {
     if(!validateEvent(event)) {
       return;
@@ -78,9 +70,6 @@ public final class LocalPacketAdapter extends IntavePacketAdapter implements Com
         return;
       }
     }
-    if(exceptions > 50) {
-      return;
-    }
     try {
       executor.invoke(subscriber, event);
     }/* catch (UnsupportedOperationException exception) {
@@ -89,9 +78,6 @@ public final class LocalPacketAdapter extends IntavePacketAdapter implements Com
     } */catch (RuntimeException exception) {
       exception.getStackTrace();
       processException(event.getPacketType(), exception);
-      if(exceptions++ >= 50) {
-        IntaveLogger.logger().globalPrintLn(subscriber.getClass().getSimpleName()+"."+methodName + " has been deactivated due to too many exceptions");
-      }
     }
   }
 
