@@ -46,11 +46,12 @@ public final class ConfigurationService {
     }
   }
 
-  public void setupConfiguration(String requiredHash) {
-    String hash = loader.precomputeConfigurationHash();
-    if(hash == null || /* we don't have a configuration */
-      requiredHash == null ||  /* no connection to our servers */
-      hash.equalsIgnoreCase(requiredHash) /* configuration is up to date */
+  public void setupConfiguration(String requiredState) {
+//    String hash = loader.precomputeConfigurationHash();
+    int latestKnownState = loader().latestState();
+    if(/*latestKnownState == 0 || *//* we don't have a configuration */
+      requiredState == null ||  /* no connection to our servers */
+      requiredState.equalsIgnoreCase(String.valueOf(latestKnownState)) /* configuration is up to date */
     ) {
       loader.loadConfiguration();
     } else {

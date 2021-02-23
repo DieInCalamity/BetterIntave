@@ -31,7 +31,6 @@ public abstract class CommandStage {
   }
 
   public void processMethod(Method method) {
-//    Bukkit.broadcastMessage("Processing " + method + " " + method.getDeclaredAnnotation(SubCommand.class));
     if(method.getDeclaredAnnotation(SubCommand.class) != null) {
       subCommandList.add(new IntaveSubCommand(this, method));
     }
@@ -45,17 +44,13 @@ public abstract class CommandStage {
       showInfo(sender);
       return;
     }
-
     String[] command = currentCommand.split(" ", 2);
     IntaveSubCommand link = tryFindNearestLink(command[0]);
-
     if(link == null) {
       showInfo(sender);
       return;
     }
-
     String leftCommand = command.length > 1 ? command[1] : "";
-
     if(link.forwardClass() != null) {
       String permission = link.permission();
       if(sender instanceof Player && permission.equalsIgnoreCase("sibyl") && !IntavePlugin.singletonInstance().sibylIntegrationService().isAuthenticated((Player) sender)) {
@@ -77,14 +72,11 @@ public abstract class CommandStage {
     if(currentCommand.isEmpty()) {
       return subcommandCompletions(sender);
     }
-
     String[] command = currentCommand.split(" ", 2);
     IntaveSubCommand link = tryFindNearestLink(command[0]);//searchLink(command[0]);
-
     if(link == null) {
       return subcommandCompletions(sender);
     }
-
     String leftCommand = command.length > 1 ? command[1] : "";
     if(link.forwardClass() != null) {
       String permission = link.permission();
@@ -114,7 +106,6 @@ public abstract class CommandStage {
     do {
       commandPath.append(currentStage.name()).append(" ");
     } while ((currentStage = currentStage.parent()) != null);
-
     for (IntaveSubCommand intaveSubCommand : subCommandList) {
       if(intaveSubCommand.hideInHelp()) {
         continue;

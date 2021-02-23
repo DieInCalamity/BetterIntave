@@ -100,7 +100,11 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
   }
 
   private void evaluateAll() {
-    for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+    Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
+    if(onlinePlayers.size() >= 6) {
+      return;
+    }
+    for (Player onlinePlayer : onlinePlayers) {
       evaluate(onlinePlayer, false);
     }
   }

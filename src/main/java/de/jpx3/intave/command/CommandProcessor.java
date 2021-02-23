@@ -42,11 +42,9 @@ public final class CommandProcessor implements CommandExecutor, TabCompleter {
     }
     String rawCommand = Arrays.stream(arguments).map(s1 -> s1 + " ").collect(Collectors.joining()).trim();
     List<String> tabCompletions = rootCommandStage.tabComplete(commandSender, rawCommand);
-
     if(tabCompletions == null) {
       return null;
     }
-
     List<String> completions = new ArrayList<>();
     StringUtil.copyPartialMatches(arguments[0], tabCompletions, completions);
     return completions;

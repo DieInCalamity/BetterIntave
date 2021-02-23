@@ -43,9 +43,6 @@ import de.jpx3.intave.world.collision.patches.BoundingBoxPatcher;
 import de.jpx3.intave.world.permission.InteractionPermissionService;
 import de.jpx3.intave.world.raytrace.Raytracer;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -169,13 +166,12 @@ public final class IntavePlugin extends JavaPlugin {
 
       EncryptedResource contextStatusResource = new EncryptedResource("context-status", false);
 
-      String requiredConfigurationHash;
+      String requiredState = null; // leave this be
 
       // ja das muss so krebsig hier hin
       if (IntaveControl.DISABLE_LICENSE_CHECK) {
         logger().info("This self-signed version bypasses certification requirements");
         System.setProperty("8ugyoiodfg", "~bypass");
-        requiredConfigurationHash = null;
       } else {
         File currentJavaJarFile = new File(IntavePlugin.class.getProtectionDomain().getCodeSource().getLocation().toURI());
         long identificationKey;
@@ -258,7 +254,7 @@ public final class IntavePlugin extends JavaPlugin {
         if (response.equals("timeout")) {
           System.setProperty("8ugyoiodfg", "~timeout");
           offlineMode = true;
-          requiredConfigurationHash = null;
+          requiredState = null;
         } else {
           // Intavede#key1=value1#key2=value2 ...
 
@@ -276,7 +272,7 @@ public final class IntavePlugin extends JavaPlugin {
             String[] split1 = propertyPair.split("=");
             properties.put(split1[0], split1[1]);
           }
-          requiredConfigurationHash = properties.get("configuration-hash");
+          requiredState = properties.get("configuration-hash");
         }
       }
 
@@ -381,7 +377,7 @@ public final class IntavePlugin extends JavaPlugin {
       }
 
       // resolve config hash
-      configurationService.setupConfiguration(requiredConfigurationHash);
+      configurationService.setupConfiguration(requiredState);
 
       prefix = configurationService.configuration().getString("layout.prefix", prefix);
       prefix = ChatColor.translateAlternateColorCodes('&', prefix);
@@ -427,14 +423,11 @@ public final class IntavePlugin extends JavaPlugin {
       return;
     }
 
-    Synchronizer.synchronize(new Runnable() {
-      @Override
-      public void run() {
-        for (RegisteredListener registeredListener : BlockPlaceEvent.getHandlerList().getRegisteredListeners()) {
-          if (registeredListener.isIgnoringCancelled() && registeredListener.getPlugin() != IntavePlugin.this) {
-            logger.info("WARNING: " + registeredListener.getPlugin().getName() + " in class " + registeredListener.getListener().getClass().getCanonicalName() + " has registered a BlockPlaceEvent listener ignoring cancels");
-            logger.info("This could cause severe issues for your world atm when using some sort of custom block-reset mechanic");
-          }
+    Synchronizer.synchronize(() -> {
+      for (RegisteredListener registeredListener : BlockPlaceEvent.getHandlerList().getRegisteredListeners()) {
+        if (registeredListener.isIgnoringCancelled() && registeredListener.getPlugin() != IntavePlugin.this) {
+          logger.info("WARNING: " + registeredListener.getPlugin().getName() + " in class " + registeredListener.getListener().getClass().getCanonicalName() + " has registered a BlockPlaceEvent listener ignoring cancels");
+          logger.info("This could cause severe issues for your world atm when using some sort of custom block-reset mechanic");
         }
       }
     });
@@ -450,12 +443,9 @@ public final class IntavePlugin extends JavaPlugin {
 
   @Native
   public void boolFailure() {
-    getCommand("intave").setExecutor(new CommandExecutor() {
-      @Override
-      public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        commandSender.sendMessage(prefix() + ChatColor.RED + "Intave couldn't boot properly");
-        return false;
-      }
+    getCommand("intave").setExecutor((commandSender, command, s, strings) -> {
+      commandSender.sendMessage(prefix() + ChatColor.RED + "Intave couldn't boot properly");
+      return false;
     });
   }
 

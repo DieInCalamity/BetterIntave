@@ -1,12 +1,12 @@
 package de.jpx3.intave.config;
 
-import com.google.common.hash.Hashing;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.security.ContextSecrets;
+import de.jpx3.intave.security.LicenseVerification;
 import de.jpx3.intave.security.SSLConnectionVerifier;
+import de.jpx3.intave.tools.EncryptedResource;
 import de.jpx3.intave.tools.annotate.Native;
-import de.jpx3.intave.tools.annotate.Nullable;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import javax.crypto.Cipher;
@@ -25,8 +25,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 
@@ -37,11 +36,13 @@ public final class ConfigurationLoader {
   private final String configurationKey;
   private YamlConfiguration configuration;
 
+  private final EncryptedResource configurationStates = new EncryptedResource("configuration-states", true);
+
   public ConfigurationLoader(String configurationKey) {
     this.configurationKey = configurationKey;
   }
 
-  @Native
+/*  @Native
   @Nullable
   public String precomputeConfigurationHash() {
     if(!configurationCacheExists()) {
@@ -71,6 +72,46 @@ public final class ConfigurationLoader {
     } catch (Exception exception) {
       return null;
     }
+  }*/
+
+  @Native
+  public int latestState() {
+    if (!configurationStates.exists()) {
+      return 0;
+    }
+    Scanner scanner = new Scanner(configurationStates.read());
+    Map<String, Integer> mappings = new HashMap<>();
+    while (scanner.hasNextLine()) {
+      String nextLine = scanner.nextLine();
+      if(!nextLine.contains(":")) {
+        return 0;
+      }
+      String[] split = nextLine.split(":");
+      mappings.put(split[0], Integer.parseInt(split[1]));
+    }
+    if(!mappings.containsKey(configurationKey)) {
+      return -1;
+    }
+    return mappings.get(configurationKey.toLowerCase());
+  }
+
+  @Native
+  public void saveState(int state) {
+    Map<String, Integer> mappings = new HashMap<>();
+    if(configurationStates.exists()) {
+      Scanner scanner = new Scanner(configurationStates.read());
+      while (scanner.hasNextLine()) {
+        String nextLine = scanner.nextLine();
+        if(nextLine.contains(":")) {
+          String[] split = nextLine.split(":");
+          mappings.put(split[0], Integer.parseInt(split[1]));
+        }
+      }
+    }
+    mappings.put(configurationKey.toLowerCase(), state);
+    StringBuilder content = new StringBuilder();
+    mappings.forEach((key, value) -> content.append(key).append(":").append(value));
+    configurationStates.write(new ByteArrayInputStream(content.toString().getBytes(StandardCharsets.UTF_8)));
   }
 
   @Native
@@ -122,13 +163,13 @@ public final class ConfigurationLoader {
       if(IntaveControl.USE_DEBUG_RESOURCES) {
         inputStream = ConfigurationLoader.class.getResourceAsStream("/config-internal.yml");
       } else {
-        URL url = new URL("https://intave.de/api/configuration-download.php");
+        URL url = new URL("https://intave.de/api/configuration-download");
         URLConnection urlConnection = url.openConnection();
         urlConnection.addRequestProperty("User-Agent", "Intave/"+IntavePlugin.version());
         urlConnection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
         urlConnection.setUseCaches(false);
         urlConnection.addRequestProperty("Pragma", "no-cache");
-        urlConnection.addRequestProperty("Identifier", "ID");
+        urlConnection.addRequestProperty("Identifier", LicenseVerification.rawLicense());
         urlConnection.addRequestProperty("ConfigKey", configurationKey);
         urlConnection.setConnectTimeout(3000);
         urlConnection.setReadTimeout(3000);
@@ -137,7 +178,7 @@ public final class ConfigurationLoader {
         inputStream = urlConnection.getInputStream();
       }
       return YamlConfiguration.loadConfiguration(new InputStreamReader(inputStream));
-    } catch (IOException exception) {
+    } catch (Exception exception) {
       exception.printStackTrace();
       return null;
     }
@@ -168,7 +209,8 @@ public final class ConfigurationLoader {
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       cipher.init(Cipher.DECRYPT_MODE, secretKey, new GCMParameterSpec(128, iv));
       byte[] output = cipher.doFinal(cipherBytes);
-      return YamlConfiguration.loadConfiguration(new InputStreamReader(new ByteArrayInputStream(output)));
+      InputStreamReader reader = new InputStreamReader(new ByteArrayInputStream(output));
+      return YamlConfiguration.loadConfiguration(reader);
     } catch (Exception exception) {
       throw new IllegalStateException(/*exception*/);
     }
@@ -177,6 +219,8 @@ public final class ConfigurationLoader {
   @Native
   private void saveConfiguration(YamlConfiguration configuration) {
     try {
+      int state = configuration.getInt("state");
+      saveState(state);
       File configurationCache = configurationCache();
       if (configurationCache.exists()) {
         configurationCache.delete();
