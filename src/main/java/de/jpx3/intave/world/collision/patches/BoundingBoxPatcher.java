@@ -15,6 +15,7 @@ public final class BoundingBoxPatcher {
   public static void setup() {
     add(BlockTrapdoorPatch.class);
     add(BlockAnvilPatch.class);
+    add(BlockLadderPatch.class);
   }
 
   private static void add(Class<? extends BoundingBoxPatch> patchClass) {
