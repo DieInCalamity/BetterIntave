@@ -23,9 +23,6 @@ public final class UserMetaAttackData {
   private WrappedEntity lastAttackedEntity;
   private float perfectYaw, perfectPitch;
 
-  public int attackCount;
-  public long miningStartEmulationHeavy, miningStartEmulationLight, miningStartEmulationModerate;
-  public int miningStartEntityDamageTicksBefore = -1;
   public final Map<MiningStrategy, MiningStrategyExecutor> activeMiningStrategies = Maps.newHashMap();
 
   public UserMetaAttackData(Player player) {

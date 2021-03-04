@@ -8,6 +8,8 @@ import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;
+import de.jpx3.intave.event.punishment.AttackCancelService;
+import de.jpx3.intave.event.punishment.AttackCancelType;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserCustomCheckMeta;
 import de.jpx3.intave.user.UserMetaAttackData;
@@ -67,6 +69,7 @@ public final class RotationSensitivityHeuristic extends IntaveMetaCheckPart<Heur
               LIMIT_1 | LIMIT_2 | DELAY_16s | SUGGEST_MINING
             )
           );
+          AttackCancelService.requestDamageCancel(user, AttackCancelType.DCRM);
         }
       } else if (heuristicMeta.decimalVL > 0) {
         heuristicMeta.decimalVL--;
@@ -121,6 +124,7 @@ public final class RotationSensitivityHeuristic extends IntaveMetaCheckPart<Heur
             SUGGEST_MINING
           )
         );
+        AttackCancelService.requestDamageCancel(user, AttackCancelType.DCRM);
       }
     } else if (heuristicMeta.sensitivityVL > 0) {
       heuristicMeta.sensitivityVL--;

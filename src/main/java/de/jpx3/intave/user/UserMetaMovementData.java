@@ -139,8 +139,8 @@ public final class UserMetaMovementData {
   }
 
   public void applySizeUpdate() {
-    widthRounded = Math.round(width * 50000d) / 100000d;
-    heightRounded = Math.round(height * 100000d) / 100000d;
+    widthRounded = Math.round(width * 500d) / 1000d;
+    heightRounded = Math.round(height * 10000d) / 10000d;
   }
 
   public void updateWorld() {

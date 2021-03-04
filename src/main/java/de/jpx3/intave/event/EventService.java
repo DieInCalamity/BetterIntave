@@ -5,6 +5,7 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscriber;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.event.dispatch.*;
+import de.jpx3.intave.event.punishment.AttackCancelService;
 import de.jpx3.intave.event.service.ConnectionHealthResolver;
 import de.jpx3.intave.event.service.MovementEmulationEngine;
 import de.jpx3.intave.event.service.TransactionFeedbackService;
@@ -46,6 +47,7 @@ public final class EventService implements BukkitEventSubscriber {
     new PlayerInventoryEvaluator(plugin);
     new ClientSideEntityService(plugin);
     new ConnectionHealthResolver(plugin);
+    new AttackCancelService(plugin);
 
     plugin.eventLinker().registerEventsIn(this);
   }

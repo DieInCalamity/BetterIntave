@@ -1,10 +1,12 @@
-package de.jpx3.intave.detect.checks.combat.heuristics.mining;
+package de.jpx3.intave.event.punishment;
 
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.reflect.ReflectiveHandleAccess;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaAttackData;
+import de.jpx3.intave.user.UserMetaPunishmentData;
+import de.jpx3.intave.user.UserRepository;
+import io.netty.util.internal.ThreadLocalRandom;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
@@ -12,22 +14,22 @@ import java.lang.reflect.Field;
 public final class EntityNoDamageTickChanger {
   private static boolean hitDelayLinkageError = false;
 
-  public static void applyHurtTimeChangeTo(User user, int durationTicks) {
+  public static void applyHurtTimeChangeTo(Player player, int durationTicks) {
     if (hitDelayLinkageError) {
       return;
     }
 
-    Player player = user.player();
-    UserMetaAttackData attackData = user.meta().attackData();
+    User user = UserRepository.userOf(player);
+    UserMetaPunishmentData punishmentData = user.meta().punishmentData();
 
     // Already changed
-    if (attackData.miningStartEntityDamageTicksBefore != -1) {
+    if (punishmentData.damageTicksBefore != -1) {
       return;
     }
 
     int noDamageTicksBefore = resolveNoDamageTicksOf(player);
     int newNoDamageTicks = calculateNewNoDamageTicks(noDamageTicksBefore);
-    attackData.miningStartEntityDamageTicksBefore = noDamageTicksBefore;
+    punishmentData.damageTicksBefore = noDamageTicksBefore;
     setNoDamageTicksOf(player, newNoDamageTicks);
     Synchronizer.synchronizeDelayed(new Runnable() {
       @Override
@@ -38,21 +40,21 @@ public final class EntityNoDamageTickChanger {
   }
 
   private static int calculateNewNoDamageTicks(int noDamageTicks) {
-    return Math.max(0, noDamageTicks - 2);
+    return Math.max(0, noDamageTicks - ThreadLocalRandom.current().nextInt(1, 2));
   }
 
   private static void removeNoDamageTickChangeOf(User user) {
     Player player = user.player();
-    UserMetaAttackData attackData = user.meta().attackData();
-    int noDamageTicksBefore = attackData.miningStartEntityDamageTicksBefore;
+    UserMetaPunishmentData punishmentData = user.meta().punishmentData();
+    int noDamageTicksBefore = punishmentData.damageTicksBefore;
     int expectedPlayerNoDamageTicks = calculateNewNoDamageTicks(noDamageTicksBefore);
     if (expectedPlayerNoDamageTicks != resolveNoDamageTicksOf(player)) {
       // The server has changed the noDamageTicks field, do not override
-      attackData.miningStartEntityDamageTicksBefore = -1;
+      punishmentData.damageTicksBefore = -1;
       return;
     }
     setNoDamageTicksOf(player, noDamageTicksBefore);
-    attackData.miningStartEntityDamageTicksBefore = -1;
+    punishmentData.damageTicksBefore = -1;
   }
 
   private static int resolveNoDamageTicksOf(Player player) {

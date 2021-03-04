@@ -232,7 +232,6 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
       removeExpiredStrategies(attackData.activeMiningStrategies);
       submitAttackToExecutors(event, attackData.activeMiningStrategies.values());
     }
-    attackData.attackCount++;
   }
 
   private void submitAttackToExecutors(

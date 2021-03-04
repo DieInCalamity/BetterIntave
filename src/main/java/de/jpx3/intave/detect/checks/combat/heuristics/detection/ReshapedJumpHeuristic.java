@@ -9,6 +9,8 @@ import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;
+import de.jpx3.intave.event.punishment.AttackCancelService;
+import de.jpx3.intave.event.punishment.AttackCancelType;
 import de.jpx3.intave.tools.client.SinusCache;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserCustomCheckMeta;
@@ -56,6 +58,7 @@ public final class ReshapedJumpHeuristic extends IntaveMetaCheckPart<Heuristics,
           int options = Anomaly.AnomalyOption.LIMIT_2 | Anomaly.AnomalyOption.DELAY_128s | Anomaly.AnomalyOption.SUGGEST_MINING;
           Anomaly anomaly = Anomaly.anomalyOf("61", Confidence.VERY_LIKELY, Anomaly.Type.KILLAURA, description, options);
           parentCheck().saveAnomaly(player, anomaly);
+          AttackCancelService.requestDamageCancel(user, AttackCancelType.DCRM);
         }
       } else {
         heuristicMeta.balance -= heuristicMeta.balance > 0 ? 0.2 : 0;

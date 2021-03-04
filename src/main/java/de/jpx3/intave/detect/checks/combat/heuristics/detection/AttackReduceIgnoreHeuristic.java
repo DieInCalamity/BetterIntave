@@ -9,6 +9,8 @@ import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;
+import de.jpx3.intave.event.punishment.AttackCancelService;
+import de.jpx3.intave.event.punishment.AttackCancelType;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserCustomCheckMeta;
 import de.jpx3.intave.user.UserMetaMovementData;
@@ -41,6 +43,7 @@ public final class AttackReduceIgnoreHeuristic extends IntaveMetaCheckPart<Heuri
           Anomaly anomaly = Anomaly.anomalyOf("21", Confidence.LIKELY, Anomaly.Type.KILLAURA, description, options);
           parentCheck().saveAnomaly(player, anomaly);
           heuristicMeta.vl = 0;
+          AttackCancelService.requestDamageCancel(user, AttackCancelType.DCRM);
         }
       } else if (heuristicMeta.vl > 0) {
         heuristicMeta.vl--;

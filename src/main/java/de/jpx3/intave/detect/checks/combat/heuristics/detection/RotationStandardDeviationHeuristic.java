@@ -10,6 +10,8 @@ import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;
+import de.jpx3.intave.event.punishment.AttackCancelService;
+import de.jpx3.intave.event.punishment.AttackCancelType;
 import de.jpx3.intave.event.service.entity.WrappedEntity;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.RotationMathHelper;
@@ -82,6 +84,7 @@ public final class RotationStandardDeviationHeuristic extends IntaveMetaCheckPar
         Anomaly anomaly = Anomaly.anomalyOf("121", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, Anomaly.AnomalyOption.LIMIT_2);
         parentCheck().saveAnomaly(player, anomaly);
         heuristicMeta.rotationBalanceYaw--;
+        AttackCancelService.requestDamageCancel(user, AttackCancelType.DCRM);
       }
     } else {
       heuristicMeta.rotationBalanceYaw -= heuristicMeta.rotationBalanceYaw > 0 ? 0.2 : 0;
@@ -99,6 +102,7 @@ public final class RotationStandardDeviationHeuristic extends IntaveMetaCheckPar
         Anomaly anomaly = Anomaly.anomalyOf("122", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, Anomaly.AnomalyOption.LIMIT_2);
         parentCheck().saveAnomaly(player, anomaly);
         heuristicMeta.rotationBalancePitch--;
+        AttackCancelService.requestDamageCancel(user, AttackCancelType.DCRM);
       }
     } else {
       heuristicMeta.rotationBalancePitch -= heuristicMeta.rotationBalancePitch > 0 ? 0.2 : 0;

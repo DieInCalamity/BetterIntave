@@ -10,6 +10,8 @@ import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;
+import de.jpx3.intave.event.punishment.AttackCancelService;
+import de.jpx3.intave.event.punishment.AttackCancelType;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserCustomCheckMeta;
 import de.jpx3.intave.user.UserMetaClientData;
@@ -51,6 +53,7 @@ public final class PacketOrderSwingHeuristic extends IntaveMetaCheckPart<Heurist
       String description = "swing not correlated with attack";
       Anomaly anomaly = Anomaly.anomalyOf("31", Confidence.CERTAIN, Anomaly.Type.KILLAURA, description, Anomaly.AnomalyOption.DELAY_128s);
       parentCheck().saveAnomaly(player, anomaly);
+      AttackCancelService.requestDamageCancel(user, AttackCancelType.DCRL);
     }
   }
 

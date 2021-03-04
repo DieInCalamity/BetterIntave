@@ -214,6 +214,7 @@ public final class User {
     private final UserMetaSynchronizeData synchronizeData;
     private final UserMetaInventoryData inventoryData;
     private final UserMetaAttackData attackData;
+    private final UserMetaPunishmentData punishmentData;
 
     public UserMeta(Player player, User user) {
       this.violationLevelData = new UserMetaViolationLevelData();
@@ -224,6 +225,7 @@ public final class User {
       this.synchronizeData = new UserMetaSynchronizeData();
       this.movementData = new UserMetaMovementData(player, user);
       this.attackData = new UserMetaAttackData(player);
+      this.punishmentData = new UserMetaPunishmentData(player);
     }
 
     public UserMetaViolationLevelData violationLevelData() {
@@ -256,6 +258,10 @@ public final class User {
 
     public UserMetaAttackData attackData() {
       return attackData;
+    }
+
+    public UserMetaPunishmentData punishmentData() {
+      return punishmentData;
     }
   }
 }
