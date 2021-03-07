@@ -257,9 +257,8 @@ public final class MovementDispatcher implements EventProcessor {
       if (movementData.onGround && !clientOnGround && movementData.step) {
         movementData.onGround = false;
       }
-    }
 
-    if (!movementData.isTeleportConfirmationPacket) {
+      timerCheck.checkSetback(event);
 
       // delete velocity cache if not used
 //      if(!violationLevelData.isInActiveTeleportBundle && !movementData.invalidMovement) {
