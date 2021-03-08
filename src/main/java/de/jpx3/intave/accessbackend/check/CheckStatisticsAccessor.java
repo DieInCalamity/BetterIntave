@@ -1,9 +1,9 @@
-package de.jpx3.intave.accessbackend.internal.check;
+package de.jpx3.intave.accessbackend.check;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.access.IntaveCheckStatisticsAccess;
+import de.jpx3.intave.access.CheckStatisticsAccess;
 import de.jpx3.intave.access.UnknownCheckException;
 import de.jpx3.intave.detect.IntaveCheck;
 
@@ -18,9 +18,9 @@ public final class CheckStatisticsAccessor {
     this.plugin = plugin;
   }
 
-  private final static Map<String, IntaveCheckStatisticsAccess> statisticAccessCache = Maps.newConcurrentMap();
+  private final static Map<String, CheckStatisticsAccess> statisticAccessCache = Maps.newConcurrentMap();
 
-  public synchronized IntaveCheckStatisticsAccess statisticsOf(String name) {
+  public synchronized CheckStatisticsAccess statisticsOf(String name) {
     Preconditions.checkNotNull(name);
     return statisticAccessCache.computeIfAbsent(name, x -> newStatisticsMirror(tryGetCheck(name)));
   }
@@ -33,8 +33,8 @@ public final class CheckStatisticsAccessor {
     }
   }
 
-  private IntaveCheckStatisticsAccess newStatisticsMirror(IntaveCheck intaveCheck) {
-    return new IntaveCheckStatisticsAccess() {
+  private CheckStatisticsAccess newStatisticsMirror(IntaveCheck intaveCheck) {
+    return new CheckStatisticsAccess() {
       @Override
       public final long totalViolations() {
         return intaveCheck.statistics().totalViolations();

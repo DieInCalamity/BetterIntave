@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.Map;
 
-public interface IntaveCheckAccess {
+public interface CheckAccess {
   String name();
   boolean enabled();
 
@@ -25,5 +25,5 @@ public interface IntaveCheckAccess {
   void resetViolationLevel(Player player, String threshold);
 
   Map<Integer, List<String>> commandsOf(String threshold);
-  IntaveCheckStatisticsAccess statistics();
+  CheckStatisticsAccess statistics();
 }

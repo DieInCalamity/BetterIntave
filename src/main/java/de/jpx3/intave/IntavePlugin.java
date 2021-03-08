@@ -230,7 +230,7 @@ public final class IntavePlugin extends JavaPlugin {
             clearReloCache = true;
             break;
           case "hwidr":
-            message = "Unable to boot: You need to enable hardware locking (see website)";
+            message = "Unable to boot: You need to complete your setup (see website)";
             bad = true;
             break;
           case "expired":

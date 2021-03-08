@@ -76,13 +76,13 @@ public final class PlayerAccessor {
       }
 
       @Override
-      public PlayerNetStatistics connection() {
-        return netStatisticsAccessor.netStatisticsOf(player);
+      public PlayerClicks clicks() {
+        return clickStatisticsAccessor.clickStatisticsOf(player);
       }
 
       @Override
-      public PlayerClickStatistics clicks() {
-        return clickStatisticsAccessor.clickStatisticsOf(player);
+      public PlayerConnection connection() {
+        return netStatisticsAccessor.netStatisticsOf(player);
       }
     };
   }

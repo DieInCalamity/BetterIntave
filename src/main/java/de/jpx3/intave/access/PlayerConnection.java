@@ -7,7 +7,7 @@ import java.util.function.BiConsumer;
  * Created by Richard Strunk 2020
  */
 
-public interface PlayerNetStatistics {
+public interface PlayerConnection {
   int latency();
   int latencyJitter();
   void subscribe(BiConsumer<Integer, Integer> callback);

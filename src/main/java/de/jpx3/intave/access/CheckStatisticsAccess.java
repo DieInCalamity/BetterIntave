@@ -1,6 +1,6 @@
 package de.jpx3.intave.access;
 
-public interface IntaveCheckStatisticsAccess {
+public interface CheckStatisticsAccess {
   long totalViolations();
   long executedCommands();
 }

@@ -5,6 +5,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+@Deprecated
 public interface BlockInteractionPermissionCheck {
   boolean hasPermission(Player player, ItemStack itemStack, Block block, BlockFace blockFace);
 

@@ -7,7 +7,7 @@ import java.util.function.Consumer;
  * Created by Richard Strunk 2020
  */
 
-public interface ServerStatisticAccess {
+public interface ServerHealthStatisticAccess {
   double tickAverageOver(TimeSpan timeSpan);
   void subscribeToTick(TimeSpan timeSpan, Consumer<Double> average);
 

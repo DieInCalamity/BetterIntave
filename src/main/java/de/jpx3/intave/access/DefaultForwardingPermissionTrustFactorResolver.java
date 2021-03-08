@@ -15,7 +15,7 @@ public final class DefaultForwardingPermissionTrustFactorResolver implements Tru
   }
 
   @Override
-  public void lazyResolve(Player player, Consumer<TrustFactor> callback) {
+  public void resolve(Player player, Consumer<TrustFactor> callback) {
     Optional<TrustFactor> resolvedTrustFactor =
       Arrays.stream(TrustFactor.values())
       .filter(trustFactor -> hasPermissionFor(player, trustFactor))
@@ -24,7 +24,7 @@ public final class DefaultForwardingPermissionTrustFactorResolver implements Tru
     if(resolvedTrustFactor.isPresent()) {
       callback.accept(resolvedTrustFactor.get());
     } else {
-      defaultResolver.lazyResolve(player, callback);
+      defaultResolver.resolve(player, callback);
     }
   }
 

@@ -6,5 +6,5 @@ package de.jpx3.intave.access;
  */
 
 public interface ServerAccess {
-  ServerStatisticAccess statistics();
+  ServerHealthStatisticAccess health();
 }

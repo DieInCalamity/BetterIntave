@@ -1,10 +1,10 @@
-package de.jpx3.intave.accessbackend.internal.check;
+package de.jpx3.intave.accessbackend.check;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.access.IntaveCheckAccess;
-import de.jpx3.intave.access.IntaveCheckStatisticsAccess;
+import de.jpx3.intave.access.CheckAccess;
+import de.jpx3.intave.access.CheckStatisticsAccess;
 import de.jpx3.intave.access.UnknownCheckException;
 import de.jpx3.intave.access.UnknownPlayerException;
 import de.jpx3.intave.detect.IntaveCheck;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class CheckAccessor {
-  private final Map<String, IntaveCheckAccess> checkAccessCache = Maps.newConcurrentMap();
+  private final Map<String, CheckAccess> checkAccessCache = Maps.newConcurrentMap();
   private final IntavePlugin plugin;
   private final CheckStatisticsAccessor statisticsAccessor;
 
@@ -25,7 +25,7 @@ public final class CheckAccessor {
     this.statisticsAccessor = new CheckStatisticsAccessor(plugin);
   }
 
-  public synchronized IntaveCheckAccess checkMirrorOf(String name) {
+  public synchronized CheckAccess checkMirrorOf(String name) {
     Preconditions.checkNotNull(name);
     return checkAccessCache.computeIfAbsent(name, x -> newCheckMirrorOf(tryGetCheck(name)));
   }
@@ -40,8 +40,8 @@ public final class CheckAccessor {
 
   private final static Map<String, Double> DEFAULT_RETURN = new HashMap<>();
 
-  private IntaveCheckAccess newCheckMirrorOf(IntaveCheck check) {
-    return new IntaveCheckAccess() {
+  private CheckAccess newCheckMirrorOf(IntaveCheck check) {
+    return new CheckAccess() {
 
       @Override
       public String name() {
@@ -87,7 +87,7 @@ public final class CheckAccessor {
       }
 
       @Override
-      public IntaveCheckStatisticsAccess statistics() {
+      public CheckStatisticsAccess statistics() {
         return null;
       }
     };

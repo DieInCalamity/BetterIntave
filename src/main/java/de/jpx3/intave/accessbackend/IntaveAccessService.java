@@ -2,10 +2,13 @@ package de.jpx3.intave.accessbackend;
 
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.*;
-import de.jpx3.intave.accessbackend.internal.IntaveInternalAccessor;
+import de.jpx3.intave.accessbackend.check.CheckAccessor;
 import de.jpx3.intave.accessbackend.player.PlayerAccessor;
 import de.jpx3.intave.accessbackend.server.ServerAccessor;
+import de.jpx3.intave.logging.IntaveLogger;
 import org.bukkit.entity.Player;
+
+import java.io.PrintStream;
 
 /**
  * Created by Jpx3 on 01.12.2017.
@@ -13,13 +16,13 @@ import org.bukkit.entity.Player;
 
 public final class IntaveAccessService {
   private final IntavePlugin plugin;
-  private final IntaveInternalAccessor internalAccessor;
+  private final CheckAccessor checkAccessor;
   private final PlayerAccessor playerAccessor;
   private final ServerAccessor serverAccessor;
 
   public IntaveAccessService(IntavePlugin plugin) {
     this.plugin = plugin;
-    this.internalAccessor = new IntaveInternalAccessor(plugin);
+    this.checkAccessor = new CheckAccessor(plugin);
     this.playerAccessor = new PlayerAccessor(plugin);
     this.serverAccessor = new ServerAccessor(plugin);
   }
@@ -35,24 +38,40 @@ public final class IntaveAccessService {
   private IntaveAccess newIntaveAccess() {
     return new IntaveAccess() {
       @Override
-      public PlayerAccess player(Player player) {
-        return playerAccessor.playerAccessOf(player);
+      public void setTrustFactorResolver(TrustFactorResolver resolver) {
+        plugin.trustFactorService().setTrustFactorResolver(resolver);
       }
 
       @Override
-      public IntaveInternalAccess internal() {
-        return internalAccessor.internalAccess();
+      public void setDefaultTrustFactor(TrustFactor defaultTrustFactor) {
+        plugin.trustFactorService().setDefaultTrustFactor(defaultTrustFactor);
+      }
+
+      @Override
+      public void subscribeOutputStream(PrintStream stream) {
+        IntaveLogger.logger().addOutputStream(stream);
+      }
+
+      @Override
+      public void unsubscribeOutputStream(PrintStream stream) {
+        IntaveLogger.logger().removeOutputStream(stream);
+      }
+
+      @Override
+      public PlayerAccess player(Player player) {
+        return playerAccessor.playerAccessOf(player);
       }
 
       @Override
       public ServerAccess server() {
         return serverAccessor.serverAccess();
       }
-    };
-  }
 
-  public IntaveInternalAccessor internalAccessor() {
-    return internalAccessor;
+      @Override
+      public CheckAccess check(String checkName) throws UnknownCheckException {
+        return checkAccessor.checkMirrorOf(checkName);
+      }
+    };
   }
 
   public PlayerAccessor playerAccessor() {
