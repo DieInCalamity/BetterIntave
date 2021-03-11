@@ -12,6 +12,7 @@ import com.google.common.collect.Maps;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.CheckViolationLevelDecrementer;
 import de.jpx3.intave.detect.IntaveMetaCheck;
+import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
@@ -35,6 +36,8 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -69,7 +72,6 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     InteractionMeta interactionMeta = metaOf(user);
     UserMetaMovementData movementData = user.meta().movementData();
     PacketContainer packet = event.getPacket();
-
 
     // 1.8 - 1.13 server
 
@@ -191,7 +193,8 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     if (interactionList.isEmpty()) {
       return;
     }
-//    player.sendMessage("A");
+    int interactionSize = interactionList.size();
+    player.sendMessage("Processing " + interactionSize + " " + (interactionSize == 1 ? "interaction" : "interactions"));
 
     Location playerLocation = new Location(world, movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ);
     playerLocation.setYaw(movementData.rotationYaw);
@@ -353,10 +356,6 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
 //          boundingBoxAccess.invalidateOverride(interaction.world, targetLocation.getBlockX(), targetLocation.getBlockY(), targetLocation.getBlockZ());
         }
         receiveExcludedPacket(player, packet);
-        Synchronizer.packetSynchronize(() -> {
-          boundingBoxAccess.invalidate(targetLocation.getBlockX(), targetLocation.getBlockY(), targetLocation.getBlockZ());
-          boundingBoxAccess.invalidateOverride(interaction.world, targetLocation.getBlockX(), targetLocation.getBlockY(), targetLocation.getBlockZ());
-        });
         if (canRefreshBlocks) {
           Synchronizer.synchronize(() -> refreshBlocksAround(player, targetLocation));
         }
@@ -370,10 +369,6 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
       } else {
         receiveExcludedPacket(player, interaction.thePacket);
       }
-      Synchronizer.packetSynchronize(() -> {
-        boundingBoxAccess.invalidate(targetLocation.getBlockX(), targetLocation.getBlockY(), targetLocation.getBlockZ());
-        boundingBoxAccess.invalidateOverride(interaction.world, targetLocation.getBlockX(), targetLocation.getBlockY(), targetLocation.getBlockZ());
-      });
     }
   }
 
@@ -526,12 +521,6 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     vl = MathHelper.minmax(0, vl - 1,8);
     interactionMeta.violationLevel.put(type, vl);
   }*/
-
-  @Override
-  public boolean enabled() {
-//    return super.enabled();
-    return false;
-  }
 
   public static class InteractionMeta extends UserCustomCheckMeta {
     final List<Interaction> interactionList = new ArrayList<>();
