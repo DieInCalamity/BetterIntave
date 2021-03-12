@@ -27,7 +27,10 @@ import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.*;
 import de.jpx3.intave.world.BlockAccessor;
 import de.jpx3.intave.world.collision.Collision;
-import org.bukkit.*;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -319,8 +322,8 @@ public final class Physics extends IntaveCheck {
 
     Location verifiedLocation = movementData.verifiedLocation();
 
-    List<WrappedAxisAlignedBB> intersectionBoundingBoxesLast = Collision.resolve(user.player(), Collision.boundingBoxOf(user, verifiedLocation.getX(), verifiedLocation.getY(), verifiedLocation.getZ()));
-    WrappedAxisAlignedBB currentBoundingBox = Collision.boundingBoxOf(user, receivedPositionX, receivedPositionY, receivedPositionZ);
+    List<WrappedAxisAlignedBB> intersectionBoundingBoxesLast = Collision.resolve(user.player(), WrappedAxisAlignedBB.createFromPosition(user, verifiedLocation.getX(), verifiedLocation.getY(), verifiedLocation.getZ()));
+    WrappedAxisAlignedBB currentBoundingBox = WrappedAxisAlignedBB.createFromPosition(user, receivedPositionX, receivedPositionY, receivedPositionZ);
     List<WrappedAxisAlignedBB> intersectionBoundingBoxesCurrent = Collision.resolve(user.player(), currentBoundingBox);
 
     boolean boundingBoxIntersectionLast = !intersectionBoundingBoxesLast.isEmpty();
@@ -381,7 +384,7 @@ public final class Physics extends IntaveCheck {
           String details = (multipleBoxes ? intersectionBoundingBoxesCurrent.size() : "one") + " box" + (multipleBoxes ? "es" : "");
 
           plugin.violationProcessor().processViolation(player, 0, "Physics", message, details);
-          WrappedAxisAlignedBB startPhaseBoundingBox = Collision.boundingBoxOf(user, movementData.verifiedLocation());
+          WrappedAxisAlignedBB startPhaseBoundingBox = WrappedAxisAlignedBB.createFromPosition(user, movementData.verifiedLocation());
           plugin.eventService().emulationEngine().emulationPushOutOfBlock(player, startPhaseBoundingBox, predictedX, predictedY, predictedZ);
         }
       }

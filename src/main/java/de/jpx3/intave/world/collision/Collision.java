@@ -3,10 +3,8 @@ package de.jpx3.intave.world.collision;
 import de.jpx3.intave.tools.annotate.Relocate;
 import de.jpx3.intave.tools.client.ClientBlockHelper;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
-import de.jpx3.intave.tools.wrapper.WrappedBlockPosition;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.world.BlockAccessor;
 import org.bukkit.*;
@@ -165,64 +163,12 @@ public final class Collision {
     return false;
   }
 
-  public static WrappedAxisAlignedBB boundingBoxOf(
-    User user,
-    double positionX, double positionY, double positionZ
-  ) {
-    UserMetaMovementData movementData = user.meta().movementData();
-    double width = movementData.widthRounded;
-    float height = movementData.height;
-    // 0.000000001 accuracy
-    double newYMax = Math.round((positionY + height) * 10000000d) / 10000000d;
-    return new WrappedAxisAlignedBB(
-      positionX - width, positionY, positionZ - width,
-      positionX + width, newYMax, positionZ + width
-    );
-  }
-
-  public static WrappedAxisAlignedBB boundingBoxOf(
-    User user, double width,
-    double positionX, double positionY, double positionZ
-  ) {
-    UserMetaMovementData movementData = user.meta().movementData();
-    double height = movementData.height;
-    return new WrappedAxisAlignedBB(
-      positionX - width, positionY, positionZ - width,
-      positionX + width, positionY + height, positionZ + width
-    );
-  }
-
-  public static WrappedAxisAlignedBB boundingBoxOf(User user, Location location) {
-    return boundingBoxOf(user, location.getX(), location.getY(), location.getZ());
-  }
-
-  public static WrappedAxisAlignedBB boundingBoxOf(Location center) {
-    return boundingBoxOf(center.getX(), center.getY(), center.getZ());
-  }
-
-  public static WrappedAxisAlignedBB boundingBoxOf(WrappedBlockPosition position) {
-    return boundingBoxOf(position.xCoord, position.yCoord, position.zCoord);
-  }
-
-  private final static float PLAYER_HEIGHT = 1.8f;
-  private final static double HALF_WIDTH = 0.3;
-
-  @Deprecated
-  public static WrappedAxisAlignedBB boundingBoxOf(
-    double positionX, double positionY, double positionZ
-  ) {
-    return new WrappedAxisAlignedBB(
-      positionX - HALF_WIDTH, positionY, positionZ - HALF_WIDTH,
-      positionX + HALF_WIDTH, positionY + PLAYER_HEIGHT, positionZ + HALF_WIDTH
-    );
-  }
-
   public static CollisionResult resolveQuickCollisions(
     Player player,
     double positionX, double positionY, double positionZ,
     double motionX, double motionY, double motionZ
   ) {
-    WrappedAxisAlignedBB boundingBox = boundingBoxOf(positionX, positionY, positionZ);
+    WrappedAxisAlignedBB boundingBox = WrappedAxisAlignedBB.createFromPosition(positionX, positionY, positionZ);
     List<WrappedAxisAlignedBB> collisionBoxes = Collision.resolve(
       player,
       boundingBox.addCoord(motionX, motionY, motionZ)

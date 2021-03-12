@@ -9,7 +9,6 @@ import de.jpx3.intave.reflect.ReflectiveHandleAccess;
 import de.jpx3.intave.tools.client.*;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.trustfactor.TrustFactorService;
-import de.jpx3.intave.world.collision.Collision;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -110,7 +109,7 @@ public final class UserMetaMovementData {
     this.resetMotion = clientData.protocolVersion() <= 47 ? 0.005 : 0.003;
     this.frictionPosSubtraction = clientData.protocolVersion() <= PROTOCOL_VERSION_BEE_UPDATE ? 1.0 : 0.5000001;
     Location location = player.getLocation();
-    boundingBox = Collision.boundingBoxOf(user, location.getX(), location.getY(), location.getZ());
+    boundingBox = WrappedAxisAlignedBB.createFromPosition(user, location.getX(), location.getY(), location.getZ());
   }
 
   private void applyPlayerLocation() {

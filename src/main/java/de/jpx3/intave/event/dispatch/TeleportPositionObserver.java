@@ -12,7 +12,6 @@ import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserRepository;
-import de.jpx3.intave.world.collision.Collision;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -223,7 +222,7 @@ public final class TeleportPositionObserver implements PacketEventSubscriber {
     double teleportLocationX = teleportLocation.getX();
     double teleportLocationY = teleportLocation.getY();
     double teleportLocationZ = teleportLocation.getZ();
-    WrappedAxisAlignedBB boundingBox = Collision.boundingBoxOf(user, teleportLocationX, teleportLocationY, teleportLocationZ);
+    WrappedAxisAlignedBB boundingBox = WrappedAxisAlignedBB.createFromPosition(user, teleportLocationX, teleportLocationY, teleportLocationZ);
     movementData.setBoundingBox(boundingBox);
   }
 }

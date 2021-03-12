@@ -307,7 +307,7 @@ public class PhysicsNormalPlayerMovement extends PhysicsCalculationPart {
       slipperiness = 0.91f;
     }
 
-    WrappedAxisAlignedBB boundingBox = Collision.boundingBoxOf(user, positionX, positionY, positionZ);
+    WrappedAxisAlignedBB boundingBox = WrappedAxisAlignedBB.createFromPosition(user, positionX, positionY, positionZ);
     movementData.setBoundingBox(boundingBox);
 
     if (movementData.inWeb) {

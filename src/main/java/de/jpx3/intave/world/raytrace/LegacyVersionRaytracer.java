@@ -4,6 +4,8 @@ import de.jpx3.intave.patchy.annotate.PatchyAutoTranslation;
 import de.jpx3.intave.patchy.annotate.PatchyTranslateParameters;
 import de.jpx3.intave.tools.wrapper.WrappedMovingObjectPosition;
 import de.jpx3.intave.tools.wrapper.WrappedVector;
+import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.world.collision.BoundingBoxAccess;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
@@ -24,7 +26,7 @@ public final class LegacyVersionRaytracer implements VersionRaytracer {
   @PatchyAutoTranslation
   @PatchyTranslateParameters
   public MovingObjectPosition performRaytrace(
-    Player player, net.minecraft.server.v1_8_R3.WorldServer world,
+    Player player, WorldServer world,
     Vec3D lookVector, Vec3D position,
     boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox, boolean returnLastUncollidableBlock
   ) {
@@ -40,9 +42,12 @@ public final class LegacyVersionRaytracer implements VersionRaytracer {
     int lookZ = MathHelper.floor(lookVector.c);
 
     BlockPosition blockposition = new BlockPosition(lookX, lookY, lookZ);
-    IBlockData iblockdata = world.getType(blockposition);
+    IBlockData iblockdata = typeOf(player, world, blockposition);//world.getType(blockposition);
     Block block = iblockdata.getBlock();
-    if ((!ignoreBlockWithoutBoundingBox || block.a(world, blockposition, iblockdata) != null) && block.a(iblockdata, stopOnLiquid) && (movingobjectposition = block.a(world, blockposition, lookVector, position)) != null) {
+    if ((!ignoreBlockWithoutBoundingBox || block.a(world, blockposition, iblockdata) != null) &&
+      block.a(iblockdata, stopOnLiquid) &&
+      (movingobjectposition = block.a(world, blockposition, lookVector, position)) != null
+    ) {
       return movingobjectposition;
     }
 
@@ -121,7 +126,7 @@ public final class LegacyVersionRaytracer implements VersionRaytracer {
       lookY = MathHelper.floor(lookVector.b) - (enumdirection == EnumDirection.UP ? 1 : 0);
       lookZ = MathHelper.floor(lookVector.c) - (enumdirection == EnumDirection.SOUTH ? 1 : 0);
       blockposition = new BlockPosition(lookX, lookY, lookZ);
-      IBlockData iblockdata1 = world.getType(blockposition);
+      IBlockData iblockdata1 = typeOf(player, world, blockposition);//world.getType(blockposition);
       Block block1 = iblockdata1.getBlock();
 
       // block1.a refers to getCollisionBoundingBox
@@ -138,6 +143,19 @@ public final class LegacyVersionRaytracer implements VersionRaytracer {
       movingobjectposition1 = new MovingObjectPosition(MovingObjectPosition.EnumMovingObjectType.MISS, lookVector, enumdirection, blockposition);
     }
     return returnLastUncollidableBlock ? movingobjectposition1 : null;
+  }
+
+  @PatchyAutoTranslation
+  @PatchyTranslateParameters
+  private IBlockData typeOf(Player player, WorldServer world, BlockPosition blockPosition) {
+    BoundingBoxAccess boundingBoxAccess = UserRepository.userOf(player).boundingBoxAccess();
+    BoundingBoxAccess.CacheEntry cacheEntry = boundingBoxAccess.overrideOf(blockPosition.getX(), blockPosition.getY(), blockPosition.getZ());
+    if(cacheEntry != null) {
+//      return Block.getById(cacheEntry.type().getId()).fromLegacyData(cacheEntry.data());
+      player.sendMessage("Suggested cache-replace " + cacheEntry.type() + " at " + blockPosition);
+    } else {
+    }
+    return world.getType(blockPosition);
   }
 
   @PatchyAutoTranslation

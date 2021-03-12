@@ -11,6 +11,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.lang.ref.WeakReference;
@@ -90,12 +91,13 @@ public final class BoundingBoxAccess {
     if (cacheEntry == null) {
       List<WrappedAxisAlignedBB> boundingBoxes;
       World world = chunk.getWorld();
+      Block block = BlockAccessor.blockAccess(world, posX, posY, posZ);
       boundingBoxes = BoundingBoxPatcher.patch(
         world, player,
-        BlockAccessor.blockAccess(world, posX, posY, posZ),
+        block,
         globalBoundingBoxResolver.resolve(world, posX, posY, posZ)
       );
-      cacheEntry = new CacheEntry(boundingBoxes, BlockAccessor.blockAccess(chunk.getWorld(), posX, posY, posZ).getType());
+      cacheEntry = new CacheEntry(boundingBoxes, block.getType(), block.getData());
       if (!DISABLE_BLOCK_CACHING_ENTIRELY) {
         blockCache.put(blockPositionKey, cacheEntry);
       }
@@ -132,12 +134,13 @@ public final class BoundingBoxAccess {
     if (cacheEntry == null) {
       List<WrappedAxisAlignedBB> boundingBoxes;
       World world = chunk.getWorld();
+      Block block = BlockAccessor.blockAccess(world, posX, posY, posZ);
       boundingBoxes = BoundingBoxPatcher.patch(
         world, player,
-        BlockAccessor.blockAccess(world, posX, posY, posZ),
+        block,
         globalBoundingBoxResolver.resolve(world, posX, posY, posZ)
       );
-      cacheEntry = new CacheEntry(boundingBoxes, BlockAccessor.blockAccess(chunk.getWorld(), posX, posY, posZ).getType());
+      cacheEntry = new CacheEntry(boundingBoxes, block.getType(), block.getData());
       if (!DISABLE_BLOCK_CACHING_ENTIRELY) {
         blockCache.put(blockPositionKey, cacheEntry);
       }
@@ -177,7 +180,7 @@ public final class BoundingBoxAccess {
 
   public void override(World world, int posX, int posY, int posZ, int typeId, int blockState) {
     List<WrappedAxisAlignedBB> boundingBoxes = constructBlock(world, posX, posY, posZ, typeId, blockState);
-    CacheEntry cacheEntry = new CacheEntry(boundingBoxes, Material.getMaterial(typeId));
+    CacheEntry cacheEntry = new CacheEntry(boundingBoxes, Material.getMaterial(typeId), blockState);
     globalReplacements.put(new Location(world, posX, posY, posZ), cacheEntry);
   }
 
@@ -191,6 +194,18 @@ public final class BoundingBoxAccess {
       }
     }
     return false;
+  }
+
+  public CacheEntry overrideOf(int posX, int posY, int posZ) {
+    if (!globalReplacements.isEmpty()) {
+      for (Map.Entry<Location, CacheEntry> entry : globalReplacements.entrySet()) {
+        Location location = entry.getKey();
+        if (location.getBlockX() == posX && location.getBlockZ() == posZ && location.getBlockY() == posY) {
+          return entry.getValue();
+        }
+      }
+    }
+    return null;
   }
 
   public List<WrappedAxisAlignedBB> constructBlock(World world, int posX, int posY, int posZ, int typeId, int blockState) {
@@ -209,10 +224,12 @@ public final class BoundingBoxAccess {
   public static class CacheEntry {
     private final List<WrappedAxisAlignedBB> boundingBoxes;
     private final Material type;
+    private final int data;
 
-    public CacheEntry(List<WrappedAxisAlignedBB> boundingBoxes, Material type) {
+    public CacheEntry(List<WrappedAxisAlignedBB> boundingBoxes, Material type, int data) {
       this.boundingBoxes = boundingBoxes;
       this.type = type;
+      this.data = data;
     }
 
     public List<WrappedAxisAlignedBB> boundingBoxes() {
@@ -221,6 +238,10 @@ public final class BoundingBoxAccess {
 
     public Material type() {
       return type;
+    }
+
+    public int data() {
+      return data;
     }
   }
 }

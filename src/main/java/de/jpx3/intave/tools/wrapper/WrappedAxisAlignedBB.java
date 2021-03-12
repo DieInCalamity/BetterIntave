@@ -1,6 +1,9 @@
 package de.jpx3.intave.tools.wrapper;
 
 import de.jpx3.intave.tools.MathHelper;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserMetaMovementData;
+import org.bukkit.Location;
 
 public class WrappedAxisAlignedBB {
   public final double minX, minY, minZ;
@@ -19,6 +22,7 @@ public class WrappedAxisAlignedBB {
     this.maxY = Math.max(y1, y2);
     this.maxZ = Math.max(z1, z2);
   }
+
 
   public double getMin(WrappedEnumDirection.Axis axis) {
     return axis.getCoordinate(this.minX, this.minY, this.minZ);
@@ -386,5 +390,57 @@ public class WrappedAxisAlignedBB {
 
   public WrappedAxisAlignedBB copy() {
     return new WrappedAxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
+  }
+
+  public static WrappedAxisAlignedBB createFromPosition(
+    User user,
+    double positionX, double positionY, double positionZ
+  ) {
+    UserMetaMovementData movementData = user.meta().movementData();
+    double width = movementData.widthRounded;
+    float height = movementData.height;
+    // 0.000000001 accuracy
+    double newYMax = Math.round((positionY + height) * 10000000d) / 10000000d;
+    return new WrappedAxisAlignedBB(
+      positionX - width, positionY, positionZ - width,
+      positionX + width, newYMax, positionZ + width
+    );
+  }
+
+  public static WrappedAxisAlignedBB createFromPosition(
+    User user, double width,
+    double positionX, double positionY, double positionZ
+  ) {
+    UserMetaMovementData movementData = user.meta().movementData();
+    double height = movementData.height;
+    return new WrappedAxisAlignedBB(
+      positionX - width, positionY, positionZ - width,
+      positionX + width, positionY + height, positionZ + width
+    );
+  }
+
+  public static WrappedAxisAlignedBB createFromPosition(User user, Location location) {
+    return createFromPosition(user, location.getX(), location.getY(), location.getZ());
+  }
+
+  public static WrappedAxisAlignedBB createFromPosition(Location center) {
+    return createFromPosition(center.getX(), center.getY(), center.getZ());
+  }
+
+  public static WrappedAxisAlignedBB createFromPosition(WrappedBlockPosition position) {
+    return createFromPosition(position.xCoord, position.yCoord, position.zCoord);
+  }
+
+  private final static float PLAYER_HEIGHT = 1.8f;
+  private final static double HALF_WIDTH = 0.3;
+
+  @Deprecated
+  public static WrappedAxisAlignedBB createFromPosition(
+    double positionX, double positionY, double positionZ
+  ) {
+    return new WrappedAxisAlignedBB(
+      positionX - HALF_WIDTH, positionY, positionZ - HALF_WIDTH,
+      positionX + HALF_WIDTH, positionY + PLAYER_HEIGHT, positionZ + HALF_WIDTH
+    );
   }
 }

@@ -149,7 +149,7 @@ public final class MovementEmulationEngine {
 
     // check motion status (velocity?)
     Location futurePosition = movementData.verifiedLocation();
-    WrappedAxisAlignedBB boundingBox = Collision.boundingBoxOf(user, futurePosition);
+    WrappedAxisAlignedBB boundingBox = WrappedAxisAlignedBB.createFromPosition(user, futurePosition);
 
     Vector emulationVelocity = movementData.emulationVelocity;
     if (emulationVelocity != null) {
@@ -270,7 +270,7 @@ public final class MovementEmulationEngine {
   private void teleport(Player player, Location teleportLocation) {
     User user = UserRepository.userOf(player);
     UserMetaMovementData movementData = user.meta().movementData();
-    WrappedAxisAlignedBB entityBoundingBox = Collision.boundingBoxOf(
+    WrappedAxisAlignedBB entityBoundingBox = WrappedAxisAlignedBB.createFromPosition(
       user, teleportLocation.getX(), teleportLocation.getY(), teleportLocation.getZ()
     );
     movementData.setBoundingBox(entityBoundingBox);
@@ -416,6 +416,6 @@ public final class MovementEmulationEngine {
   }
 
   private boolean hasEmptyCollisionBox(Player player, WrappedBlockPosition blockPosition) {
-    return Collision.resolve(player, Collision.boundingBoxOf(blockPosition)).isEmpty();
+    return Collision.resolve(player, WrappedAxisAlignedBB.createFromPosition(blockPosition)).isEmpty();
   }
 }
