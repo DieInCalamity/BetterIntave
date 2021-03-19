@@ -42,7 +42,6 @@ public final class AttackCancelService implements BukkitEventSubscriber {
     User user,
     AttackCancelType type
   ) {
-    Thread.dumpStack();
     Synchronizer.synchronize(() -> {
       UserMetaPunishmentData punishmentData = user.meta().punishmentData();
       UserMetaPunishmentData.DamageCancel damageCancel = punishmentData.damageCancelOfType(type);
