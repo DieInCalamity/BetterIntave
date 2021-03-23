@@ -1,8 +1,10 @@
 package de.jpx3.intave.detect.checks.movement.physics.simulators;
 
 import de.jpx3.intave.detect.checks.movement.Physics;
+import de.jpx3.intave.detect.checks.movement.physics.LegacyWaterPhysics;
 import de.jpx3.intave.detect.checks.movement.physics.collider.Colliders;
 import de.jpx3.intave.detect.checks.movement.physics.collider.SimulationResult;
+import de.jpx3.intave.tools.client.ClientBlockHelper;
 import de.jpx3.intave.tools.client.PlayerEffectHelper;
 import de.jpx3.intave.tools.client.PlayerMovementHelper;
 import de.jpx3.intave.tools.client.PlayerMovementPoseHelper;
@@ -61,7 +63,24 @@ public class DefaultPoseSimulator extends PoseSimulator {
       context.motionZ *= 0.6;
     }
     if (jumped) {
-      if (inWater) {
+      boolean allowJumpInWater = false;
+     if (clientData.waterUpdate()) {
+       // Geht nicht anders
+       Material material = BlockAccessor.cacheAppliedTypeAccess(
+         user, user.player().getWorld(),
+         movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ
+       );
+       int blockData = BlockAccessor.cacheAppliedDataAccess(
+         user, user.player().getWorld(),
+         movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ
+       );
+       float heightPercentage = LegacyWaterPhysics.resolveLiquidHeightPercentage(blockData);
+       if (movementData.onGround) {
+         heightPercentage += movementData.positionY % 1;
+         allowJumpInWater = !ClientBlockHelper.isWater(material) || heightPercentage > 0.5;
+       }
+     }
+      if (inWater && !allowJumpInWater) {
         context.motionY += 0.04F;
       } else if (inLava) {
         // #handleJumpLava
