@@ -110,7 +110,7 @@ public final class Raytracer {
       }
       WrappedMovingObjectPosition movingObjectPosition = hitBox.calculateIntercept(eyeVector, lookVector);
       if (hitBox.isVecInside(eyeVector)) {
-         lastReach = 0;
+        lastReach = 0;
         lastHitVec = null;
       } else if (movingObjectPosition != null) {
         WrappedMovingObjectPosition blockMovingPosition = Raytracer.blockRayTrace(player.getWorld(), player, eyeVector, lookVector);

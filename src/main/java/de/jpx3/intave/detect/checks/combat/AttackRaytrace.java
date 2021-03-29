@@ -5,7 +5,6 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.CheckViolationLevelDecrementer;
 import de.jpx3.intave.detect.IntaveMetaCheck;
@@ -14,21 +13,18 @@ import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.service.entity.WrappedEntity;
-import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.tools.MathHelper;
+import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedVector;
 import de.jpx3.intave.user.*;
 import de.jpx3.intave.world.raytrace.Raytracer;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -193,55 +189,25 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
     }
 
     attackData.setLastReach(distanceOfResult.reach);
-    String message, details, thresholdKey;
+    String message, details, thresholdKey, sibylMessage;
     AttackRaytraceResult attackRaytraceResult = AttackRaytrace.AttackRaytraceResult.of(distanceOfResult.reach, blockReachDistance);
     final int vl = applicableViolationPoints(attackRaytraceResult, distanceOfResult, user, expandHitbox);
     String entityName = entity.entityName();
+
     switch (attackRaytraceResult) {
       case MISS: {
         message = "attacked " + resolveIndefArticle(entityName) + " " + entityName.toLowerCase() + " out of sight";
         details = "";
         thresholdKey = "applicable-thresholds.hitbox";
-        Synchronizer.synchronize(() -> {
-          String sibylMessage = ChatColor.RED + "[R] " + player.getName() + " missed hit on " + entityName.toLowerCase();
-          if(IntaveControl.GOMME_MODE) {
-            Player p = playerByWrappedEntity(entity);
-            if (p != null) {
-              int lastTeleport = userOf(p).meta().movementData().lastTeleport;
-              sibylMessage += " tp " + (lastTeleport > 99 ? ">99" : lastTeleport);
-            }
-          }
-          for (Player authenticatedPlayer : Bukkit.getOnlinePlayers()) {
-            if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
-              authenticatedPlayer.sendMessage(sibylMessage);
-            }
-          }
-        });
+        sibylMessage = ChatColor.RED + "[R] " + player.getName() + " missed hit on " + entityName.toLowerCase();
         break;
       }
       case REACH: {
-        if (distanceOfResult.reach < 3.6 && attackRaytraceMeta.confidence++ == 0) {
-          return false;
-        }
         String displayReach = MathHelper.formatDouble(distanceOfResult.reach, 4);
         message = "attacked " + resolveIndefArticle(entityName) + " " + entityName.toLowerCase() + " from too far away";
         details = displayReach + " blocks";
         thresholdKey = "applicable-thresholds.reach";
-        Synchronizer.synchronize(() -> {
-          String sibylMessage = ChatColor.RED + "[R] " + player.getName() + " attacked " + entityName.toLowerCase() + " from " + displayReach;
-          if(IntaveControl.GOMME_MODE) {
-            Player p = playerByWrappedEntity(entity);
-            if (p != null) {
-              int lastTeleport = userOf(p).meta().movementData().lastTeleport;
-              sibylMessage += " tp " + (lastTeleport > 99 ? ">99" : lastTeleport);
-            }
-          }
-          for (Player authenticatedPlayer : Bukkit.getOnlinePlayers()) {
-            if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
-              authenticatedPlayer.sendMessage(sibylMessage);
-            }
-          }
-        });
+        sibylMessage = ChatColor.RED + "[R] " + player.getName() + " attacked " + entityName.toLowerCase() + " from " + displayReach;
         break;
       }
       default: {
@@ -250,6 +216,19 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
         return false;
       }
     }
+
+    Synchronizer.synchronize(new Runnable() {
+      @Native
+      @Override
+      public void run() {
+        for (Player authenticatedPlayer : Bukkit.getOnlinePlayers()) {
+          if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
+            authenticatedPlayer.sendMessage(sibylMessage);
+          }
+        }
+      }
+    });
+
     attackRaytraceMeta.lastHitVec = distanceOfResult.hitVec;
     if (movementData.inVehicle()) {
       message += " (vehicle)";
@@ -268,7 +247,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
     int vl = 0;
     switch (attackRaytraceResult) {
       case MISS: {
-        vl = 4;
+        vl = 14;
         break;
       }
       case REACH: {
