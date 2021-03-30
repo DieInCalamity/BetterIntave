@@ -104,7 +104,7 @@ public final class ViolationService {
           if(resolvedCommand.startsWith("ban") || resolvedCommand.startsWith("kick")) {
             plugin.eventService().reconDelayLimiter().ban(detectedPlayer.getAddress().getAddress(), detectedPlayer.getUniqueId(), finalCheckName1);
           }
-          IntaveLogger.logger().globalPrintLn("[Intave] Executing \"" + ChatColor.stripColor(resolvedCommand) + "\"");
+          IntaveLogger.logger().globalPrintLn("[Intave] Issued server command /\"" + ChatColor.stripColor(resolvedCommand) + "\"");
           plugin.logger().commandExecution(resolvedCommand);
           Bukkit.dispatchCommand(Bukkit.getConsoleSender(), resolvedCommand);
         });

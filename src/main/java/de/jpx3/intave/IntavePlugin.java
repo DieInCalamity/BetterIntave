@@ -5,6 +5,7 @@ import de.jpx3.intave.accessbackend.IntaveAccessService;
 import de.jpx3.intave.adapter.ComponentLoader;
 import de.jpx3.intave.adapter.ProtocolLibAdapter;
 import de.jpx3.intave.adapter.ViaVersionAdapter;
+import de.jpx3.intave.agent.IntaveAgentAccessor;
 import de.jpx3.intave.command.CommandProcessor;
 import de.jpx3.intave.config.ConfigurationService;
 import de.jpx3.intave.connect.proxy.ProxyMessenger;
@@ -125,6 +126,10 @@ public final class IntavePlugin extends JavaPlugin {
     logger.info("Please stand by..");
     // stage 4
 
+    if(IntaveAgentAccessor.agentAvailable()) {
+      logger.info("Using agent :{~"+"-"+"~}:");
+    }
+
     prefix = ChatColor.translateAlternateColorCodes('&', prefix);
 
     SecurityManager securityManager = System.getSecurityManager();
@@ -242,7 +247,7 @@ public final class IntavePlugin extends JavaPlugin {
           bad = true;
           clearReloCache = true;
         } else if ("hwidr".equals(response)) {
-          message = "Unable to boot: You need to complete your setup (see website)";
+          message = "Unable to boot: Hardware identification required (see website)";
           bad = true;
         } else if ("expired".equals(response)) {
           message = "Unable to boot: Buy Intave for continued use";

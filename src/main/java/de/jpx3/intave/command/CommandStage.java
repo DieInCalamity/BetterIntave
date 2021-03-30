@@ -58,9 +58,16 @@ public abstract class CommandStage {
     String leftCommand = command.length > 1 ? command[1] : "";
     if(link.forwardClass() != null) {
       String permission = link.permission();
-      if(sender instanceof Player && permission.equalsIgnoreCase("sibyl") && !IntavePlugin.singletonInstance().sibylIntegrationService().isAuthenticated((Player) sender)) {
-        showInfo(sender);
-        return;
+      if(permission.equalsIgnoreCase("sibyl")) {
+        if(sender instanceof Player) {
+          if(!IntavePlugin.singletonInstance().sibylIntegrationService().isAuthenticated((Player) sender)) {
+            showInfo(sender);
+            return;
+          }
+        } else {
+          showInfo(sender);
+          return;
+        }
       } else if(sender instanceof Player && !permission.equals("none") && !permission.equals("sibyl") && !PermissionCheck.permissionCheck(sender, permission)) {
         sender.sendMessage(NO_PERMISSION_MESSAGE);
         return;

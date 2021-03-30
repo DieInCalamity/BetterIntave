@@ -41,7 +41,7 @@ public final class HeuristicsPatternEncryption {
 
   @Test
   public void test() {
-    System.out.println(decryptPatterns("BLfE9daU9p"));
+    System.out.println(decryptPatterns("BOfVxXamxc"));
   }
 
   private List<Anomaly> anomaliesForId(List<Anomaly> anomalies) {

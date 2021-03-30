@@ -102,9 +102,16 @@ public final class IntaveSubCommand {
     String prefix = IntavePlugin.prefix();
     String[] args = executedCommand.split(" ");
 
-    if(sender instanceof Player && permission.equalsIgnoreCase("sibyl") && !IntavePlugin.singletonInstance().sibylIntegrationService().isAuthenticated(((Player) sender).getPlayer())) {
-      sender.sendMessage(NO_PERMISSION_MESSAGE);
-      return null;
+    if(permission.equalsIgnoreCase("sibyl")) {
+      if(sender instanceof Player) {
+        if(!IntavePlugin.singletonInstance().sibylIntegrationService().isAuthenticated(((Player) sender).getPlayer())) {
+          sender.sendMessage(NO_PERMISSION_MESSAGE);
+          return null;
+        }
+      } else {
+        sender.sendMessage(NO_PERMISSION_MESSAGE);
+        return null;
+      }
     } else if(sender instanceof Player && !permission.equals("none") && !permission.equalsIgnoreCase("sibyl") && !PermissionCheck.permissionCheck(sender, permission)) {
       sender.sendMessage(NO_PERMISSION_MESSAGE);
       return null;

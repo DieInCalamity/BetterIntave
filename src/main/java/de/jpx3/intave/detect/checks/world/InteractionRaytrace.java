@@ -7,7 +7,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 import com.google.common.collect.Maps;
 import de.jpx3.intave.IntavePlugin;
@@ -47,10 +46,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType.ABORT_DESTROY_BLOCK;
 import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType.STOP_DESTROY_BLOCK;
@@ -167,8 +165,8 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     int enumDirection = direction == null ? 255 : direction.ordinal();
     boolean blocking = blockPosition.getX() == 0 && blockPosition.getY() == 0 &&  blockPosition.getZ() == 0 && enumDirection == 0;
     if (enumDirection == 255 || blocking) {
-//      return;
-      breakBlock = false;
+      return;
+//      breakBlock = false;
     }
 
     InteractionMeta interactionMeta = metaOf(user);
@@ -495,93 +493,86 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     }
   }
 
-  @PacketSubscription(
-    priority = ListenerPriority.LOW,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "BLOCK_BREAK"),
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "BLOCK_CHANGE"),
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "MULTI_BLOCK_CHANGE")
-    }
-  )
-  public void erasePendingBlockUpdates(PacketEvent event) {
-    Player player = event.getPlayer();
-    User user = userOf(player);
-    PacketContainer packet = event.getPacket();
-    PacketType packetType = event.getPacketType();
-
-    List<BlockPosition> blockPositions;
-    List<WrappedBlockData> blockDataList;
-
-    if(packetType == PacketType.Play.Server.MULTI_BLOCK_CHANGE) {
-      MultiBlockChangeInfo[] multiBlockChangeInfos = packet.getMultiBlockChangeInfoArrays().readSafely(0);
-      blockPositions = new ArrayList<>();
-      blockDataList = new ArrayList<>();
-      for (MultiBlockChangeInfo multiBlockChangeInfo : multiBlockChangeInfos) {
-        blockPositions.add(new BlockPosition(multiBlockChangeInfo.getAbsoluteX(), multiBlockChangeInfo.getY(), multiBlockChangeInfo.getAbsoluteZ()));
-        blockDataList.add(multiBlockChangeInfo.getData());
-      }
-    } else {
-      BlockPosition position = packet.getBlockPositionModifier().readSafely(0);
-      blockPositions = new ArrayList<>(Collections.singletonList(position));
-      blockDataList = new ArrayList<>(Collections.singletonList(packet.getBlockData().read(0)));
-    }
-
-//    for (WrappedBlockData blockData : blockDataList) {
-//      if(blockData.getType() == Material.DIRT || blockData.getType() == Material.AIR) {
-//        Thread.dumpStack();
-////        event.setCancelled(true);
-////        return;
+//  @PacketSubscription(
+//    priority = ListenerPriority.LOW,
+//    packets = {
+//      @PacketDescriptor(sender = Sender.SERVER, packetName = "BLOCK_BREAK"),
+//      @PacketDescriptor(sender = Sender.SERVER, packetName = "BLOCK_CHANGE"),
+//      @PacketDescriptor(sender = Sender.SERVER, packetName = "MULTI_BLOCK_CHANGE")
+//    }
+//  )
+//  public void erasePendingBlockUpdates(PacketEvent event) {
+//    Player player = event.getPlayer();
+//    User user = userOf(player);
+//    PacketContainer packet = event.getPacket();
+//    PacketType packetType = event.getPacketType();
+//
+//    List<BlockPosition> blockPositions;
+//    List<WrappedBlockData> blockDataList;
+//
+//    if(packetType == PacketType.Play.Server.MULTI_BLOCK_CHANGE) {
+//      MultiBlockChangeInfo[] multiBlockChangeInfos = packet.getMultiBlockChangeInfoArrays().readSafely(0);
+//      blockPositions = new ArrayList<>();
+//      blockDataList = new ArrayList<>();
+//      for (MultiBlockChangeInfo multiBlockChangeInfo : multiBlockChangeInfos) {
+//        blockPositions.add(new BlockPosition(multiBlockChangeInfo.getAbsoluteX(), multiBlockChangeInfo.getY(), multiBlockChangeInfo.getAbsoluteZ()));
+//        blockDataList.add(multiBlockChangeInfo.getData());
+//      }
+//    } else {
+//      BlockPosition position = packet.getBlockPositionModifier().readSafely(0);
+//      blockPositions = new ArrayList<>(Collections.singletonList(position));
+//      blockDataList = new ArrayList<>(Collections.singletonList(packet.getBlockData().read(0)));
+//    }
+//
+//
+//    List<Interaction> interactionList = metaOf(user).interactionList;
+//    if(interactionList.isEmpty()) {
+//      return;
+//    }
+//
+//    List<BlockPosition> blockPositionsToClear = null;
+//    for (Interaction interaction : interactionList) {
+//      if(!interaction.changeLocked) {
+//        continue;
+//      }
+//      for (BlockPosition blockPosition : blockPositions) {
+//        if(interaction.targetBlock.equals(blockPosition)) {
+//          if(blockPositionsToClear == null) {
+//            blockPositionsToClear = new ArrayList<>();
+//          }
+//          blockPositionsToClear.add(blockPosition);
+//        }
 //      }
 //    }
-
-    List<Interaction> interactionList = metaOf(user).interactionList;
-    if(interactionList.isEmpty()) {
-      return;
-    }
-
-    List<BlockPosition> blockPositionsToClear = null;
-    for (Interaction interaction : interactionList) {
-      if(!interaction.changeLocked) {
-        continue;
-      }
-      for (BlockPosition blockPosition : blockPositions) {
-        if(interaction.targetBlock.equals(blockPosition)) {
-          if(blockPositionsToClear == null) {
-            blockPositionsToClear = new ArrayList<>();
-          }
-          blockPositionsToClear.add(blockPosition);
-        }
-      }
-    }
-
-    if(blockPositionsToClear == null) {
-      return;
-    }
-
-    for (BlockPosition blockPosition : blockPositionsToClear) {
-      int index = blockPositions.indexOf(blockPosition);
-      blockDataList.remove(index);
-    }
-    for (BlockPosition blockPosition : blockPositionsToClear) {
-      blockPositions.remove(blockPosition);
-    }
-
-    if(blockPositions.isEmpty()) {
-      event.setCancelled(true);
-    } else {
-      if(packetType == PacketType.Play.Server.MULTI_BLOCK_CHANGE) {
-        MultiBlockChangeInfo[] multiBlockChangeInfos = new MultiBlockChangeInfo[blockPositions.size()];
-        int i = 0;
-        for (BlockPosition blockPosition : blockPositions) {
-          multiBlockChangeInfos[i] = new MultiBlockChangeInfo(blockPosition.toLocation(player.getWorld()), blockDataList.get(i));
-          i++;
-        }
-        packet.getMultiBlockChangeInfoArrays().write(i, multiBlockChangeInfos);
-      } else {
-        throw new IllegalStateException();
-      }
-    }
-  }
+//
+//    if(blockPositionsToClear == null) {
+//      return;
+//    }
+//
+//    for (BlockPosition blockPosition : blockPositionsToClear) {
+//      int index = blockPositions.indexOf(blockPosition);
+//      blockDataList.remove(index);
+//    }
+//    for (BlockPosition blockPosition : blockPositionsToClear) {
+//      blockPositions.remove(blockPosition);
+//    }
+//
+//    if(blockPositions.isEmpty()) {
+//      event.setCancelled(true);
+//    } else {
+//      if(packetType == PacketType.Play.Server.MULTI_BLOCK_CHANGE) {
+//        MultiBlockChangeInfo[] multiBlockChangeInfos = new MultiBlockChangeInfo[blockPositions.size()];
+//        int i = 0;
+//        for (BlockPosition blockPosition : blockPositions) {
+//          multiBlockChangeInfos[i] = new MultiBlockChangeInfo(blockPosition.toLocation(player.getWorld()), blockDataList.get(i));
+//          i++;
+//        }
+//        packet.getMultiBlockChangeInfoArrays().write(i, multiBlockChangeInfos);
+//      } else {
+//        throw new IllegalStateException();
+//      }
+//    }
+//  }
 
   private void refreshBlocksAround(Player player, Location targetLocation) {
     Synchronizer.synchronize(() -> {
@@ -658,9 +649,6 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
         append = "invalid block face";
         vl = 2.5;
       }
-
-      append += " | " + targetLocationBlock + ", but expected " + raycastLocationBlock;
-
       message = "performed invalid placement";
       details = typeName + " block on " + typeAgainstName + " block, " + append;
     } else {
@@ -714,7 +702,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
   }
 
   public static class InteractionMeta extends UserCustomCheckMeta {
-    final List<Interaction> interactionList = new ArrayList<>();
+    final List<Interaction> interactionList = new CopyOnWriteArrayList<>();
     final Map<InteractionType, Integer> violationLevel = Maps.newEnumMap(InteractionType.class);
 
     public long lastPlacement;

@@ -1,6 +1,5 @@
 package de.jpx3.intave.detect.checks.combat;
 
-import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
@@ -27,6 +26,7 @@ import org.bukkit.entity.Player;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static de.jpx3.intave.event.service.entity.ClientSideEntityService.entityByIdentifier;
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE;
@@ -352,7 +352,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
   private final static char[] vocals = "aeiou".toCharArray();
 
   private String resolveIndefArticle(String exceptionName) {
-    char c = exceptionName.toCharArray()[0];
+    char c = exceptionName.trim().toLowerCase(Locale.ROOT).toCharArray()[0];
     boolean isVocal = false;
     for (char vocal : vocals) {
       if (vocal == c) {

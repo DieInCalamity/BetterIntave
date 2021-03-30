@@ -24,11 +24,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class BoundingBoxAccess {
   private final static CacheEntry EMPTY_CACHE_ENTRY = new CacheEntry(Collections.emptyList(), Material.AIR, 0);
-  private final static int REQUIRED_CHUNK_RESETS_FOR_FREQUENCY_SWITCH = 4;
+  private final static int REQUIRED_CHUNK_RESETS_FOR_FREQUENCY_SWITCH = Integer.MAX_VALUE;// 4 default, but currently deactivated;
   private static BoundingBoxResolver globalBoundingBoxResolver;
 
   public static void setup() {
-    // ugly, ZKM friendly way
+    // ugly, the way ZKM likes it
 
     String className = "de.jpx3.intave.world.collision.resolver.v8BoundingBoxResolver";
     String acClass = "de.jpx3.intave.world.collision.resolver.ac.v8AlwaysCollidingBoundingBox";
