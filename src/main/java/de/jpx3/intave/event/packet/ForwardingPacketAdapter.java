@@ -4,14 +4,12 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.tools.annotate.Relocate;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-@Relocate
 public final class ForwardingPacketAdapter extends IntavePacketAdapter {
   private final static boolean TEMP_PLAYER_CHECK;
   static {

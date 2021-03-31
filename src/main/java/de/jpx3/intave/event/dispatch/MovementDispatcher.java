@@ -267,11 +267,6 @@ public final class MovementDispatcher implements EventProcessor {
 
       if (!vehicleMove) {
         movementData.applyGroundInformationToPacket(packet);
-//        if (clientOnGround != movementData.onGround) {
-//          player.sendMessage(ChatColor.DARK_RED.toString() + clientOnGround + " " + movementData.onGround);
-//        } else {
-//          player.sendMessage(clientOnGround + " " + movementData.onGround + " " + hasMovement);
-//        }
       }
 
       if (movementData.onGround && !clientOnGround && movementData.step) {

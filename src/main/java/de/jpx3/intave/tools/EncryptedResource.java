@@ -138,7 +138,6 @@ public final class EncryptedResource {
     if(!workDirectory.exists()) {
       workDirectory.mkdir();
     }
-    System.out.println(workDirectory.getAbsolutePath() + " " + name);
     return new File(workDirectory, resourceId());
   }
 

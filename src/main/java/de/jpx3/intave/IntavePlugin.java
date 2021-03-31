@@ -395,10 +395,10 @@ public final class IntavePlugin extends JavaPlugin {
         String infoMessage = "";
         switch (version.typeClassifier()) {
           case LATEST:
-            infoMessage = "Using the latest version of Intave (" + durationAsString + " old)";
+            infoMessage = "Running the latest version of Intave (" + durationAsString + " old)";
             break;
           case STABLE:
-            infoMessage = "Using a stable version of Intave (" + durationAsString + " old)";
+            infoMessage = "Running a stable version of Intave (" + durationAsString + " old)";
             break;
           case OUTDATED:
             infoMessage = "A newer version of Intave is available (this version is " + durationAsString + " old)";
@@ -461,16 +461,8 @@ public final class IntavePlugin extends JavaPlugin {
       return;
     }
 
-    /*Synchronizer.synchronize(() -> {
-      for (RegisteredListener registeredListener : BlockPlaceEvent.getHandlerList().getRegisteredListeners()) {
-        if (registeredListener.isIgnoringCancelled() && registeredListener.getPlugin() != IntavePlugin.this) {
-          logger.info("WARNING: " + registeredListener.getPlugin().getName() + " in class " + registeredListener.getListener().getClass().getCanonicalName() + " has registered a BlockPlaceEvent listener ignoring cancels");
-          logger.info("This could cause severe issues for your world atm when using some sort of custom block-reset mechanic");
-        }
-      }
-    });*/
-
     BackgroundExecutor.execute(this::clearIntegrityGarbage);
+    BackgroundExecutor.execute(this::clearSaveFolderGarbage);
     packetSubscriptionLinker.refreshInternalSubscriptions();
     logger.info("Intave booted successfully");
   }
@@ -501,7 +493,8 @@ public final class IntavePlugin extends JavaPlugin {
 
   private final static long FILE_EXPIRE = TimeUnit.DAYS.toMillis(90);
 
-  public static void clearSaveFolderGarbage() {
+  @Native
+  public void clearSaveFolderGarbage() {
     String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.ROOT);
     File workDirectory;
     String filePath;

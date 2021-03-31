@@ -170,7 +170,9 @@ public final class IntaveCommandStage extends CommandStage {
 
     String version;
 
-    if(versionInformation != null) {
+    if(!hasVersionViewPermission) {
+      version = "(version hidden)";
+    } else if(versionInformation != null) {
       version = IntavePlugin.version() + " (" + DurationTranslator.translateDuration(AccessHelper.now() - versionInformation.release()) + " old";
       if(versionInformation.typeClassifier() == Version.Status.OUTDATED) {
         version += " and outdated";
@@ -178,10 +180,6 @@ public final class IntaveCommandStage extends CommandStage {
       version += ")";
     } else {
       version = IntavePlugin.version() + " (experimental)";
-    }
-
-    if(!hasVersionViewPermission) {
-      version = "(version hidden)";
     }
 
     String prefix = IntavePlugin.prefix();

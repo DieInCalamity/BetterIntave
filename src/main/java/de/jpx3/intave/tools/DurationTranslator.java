@@ -13,10 +13,17 @@ public final class DurationTranslator {
     hours = hours % 24;
     String firstType = stringifyType(TimeUnit.DAYS, days);
     String secondType = stringifyType(TimeUnit.HOURS, hours);
-    return firstType + (firstType.isEmpty() ? "" : " and ") + secondType;
+    String output = firstType + (firstType.isEmpty() ? "" : " and ") + secondType;
+    if(output.trim().isEmpty()) {
+      output = "a few hours";
+    }
+    return output;
   }
 
   private static String stringifyType(TimeUnit unit, long conv) {
+    if(conv == 0) {
+      return "";
+    }
     String name = unit.name().toLowerCase();
     return (conv == 1 ? "one" : conv) + " " + name.substring(0, name.length() - (conv == 1 ? 1 : 0));
   }
