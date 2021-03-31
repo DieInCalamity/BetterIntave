@@ -5,6 +5,7 @@ import de.jpx3.intave.tools.client.MaterialLogic;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import org.bukkit.*;
@@ -30,7 +31,19 @@ public final class Collision {
     int ystart = Math.max(minY - 1, 0);
 
     List<WrappedAxisAlignedBB> resolvedBoundingBoxes = null;
-    BoundingBoxAccess boundingBoxAccess = UserRepository.userOf(player).boundingBoxAccess();
+    User user = UserRepository.userOf(player);
+    UserMetaMovementData movementData = user.meta().movementData();
+
+    boolean outsideBorderLast = movementData.outsideBorder;
+    boolean outsideBorderCurrent = playerOutsideBorder(user);
+
+    if (outsideBorderLast && outsideBorderCurrent) {
+      movementData.outsideBorder = false;
+    } else if (!outsideBorderLast && !outsideBorderCurrent) {
+      movementData.outsideBorder= true;
+    }
+
+    BoundingBoxAccess boundingBoxAccess = user.boundingBoxAccess();
     World world = player.getWorld();
 
     // this looks 1000x slower than it actually is
@@ -49,15 +62,15 @@ public final class Collision {
               for (int y = ystart; y < maxY; ++y) {
                 List<WrappedAxisAlignedBB> resolve = boundingBoxAccess.resolve(chunk, x, y, z);
 
-                boolean insideBorder = !isInsideBorder(world, x, z);
-                if (insideBorder) {
+                boolean positionInBorder = !blockOutsideBorder(world, x, z);
+                if (positionInBorder && !movementData.outsideBorder) {
                   if (resolvedBoundingBoxes == null) {
                     resolvedBoundingBoxes = new ArrayList<>();
                   }
                   resolvedBoundingBoxes.add(new WrappedAxisAlignedBB(x, y, z, x + 1, y, z + 1));
                 }
 
-                if ((resolve != null && !resolve.isEmpty())) {
+                if (resolve != null && !resolve.isEmpty()) {
                   if (resolvedBoundingBoxes == null) {
                     resolvedBoundingBoxes = new ArrayList<>(resolve);
                   } else {
@@ -109,7 +122,7 @@ public final class Collision {
               for (int y = ystart; y < maxY; ++y) {
                 List<WrappedAxisAlignedBB> resolve = boundingBoxResolver.resolve(world, x, y, z);
 
-                boolean insideBorder = !isInsideBorder(world, x, z);
+                boolean insideBorder = !blockOutsideBorder(world, x, z);
                 if (insideBorder) {
                   if (resolvedBoundingBoxes == null) {
                     resolvedBoundingBoxes = new ArrayList<>();
@@ -138,7 +151,7 @@ public final class Collision {
     return resolvedBoundingBoxes;
   }
 
-  private static boolean isInsideBorder(World world, double positionX, double positionZ) {
+  private static boolean blockOutsideBorder(World world, double positionX, double positionZ) {
     WorldBorder worldBorder = world.getWorldBorder();
     Location center = worldBorder.getCenter();
     double radians = worldBorder.getSize() / 2.0;
@@ -146,6 +159,32 @@ public final class Collision {
     double minZ = center.getZ() - radians - 1;
     double maxX = center.getX() + radians;
     double maxZ = center.getZ() + radians;
+    return positionX > minX && positionX < maxX && positionZ > minZ && positionZ < maxZ;
+  }
+
+  private static boolean playerOutsideBorder(User user) {
+    World world = user.player().getWorld();
+    UserMetaMovementData movementData = user.meta().movementData();
+    double positionX = movementData.verifiedPositionX;
+    double positionZ = movementData.verifiedPositionZ;
+    WorldBorder worldBorder = world.getWorldBorder();
+    Location center = worldBorder.getCenter();
+    double radians = worldBorder.getSize() / 2.0;
+    double minX = center.getX() - radians;
+    double minZ = center.getZ() - radians;
+    double maxX = center.getX() + radians;
+    double maxZ = center.getZ() + radians;
+    if (movementData.outsideBorder) {
+      minX++;
+      minZ++;
+      maxX--;
+      maxZ--;
+    } else {
+      minX--;
+      minZ--;
+      maxX++;
+      maxZ++;
+    }
     return positionX > minX && positionX < maxX && positionZ > minZ && positionZ < maxZ;
   }
 

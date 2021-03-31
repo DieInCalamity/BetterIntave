@@ -35,6 +35,7 @@ public final class UserMetaMovementData {
   public float artificialFallDistance;
   public boolean allowFallDamage;
   public double gravity;
+  public boolean outsideBorder = true;
 
   public MotionVector motionVector = new MotionVector();
   public Vector lookVector;
