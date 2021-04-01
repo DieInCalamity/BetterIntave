@@ -12,7 +12,6 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaInventoryData;
 import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.world.collider.result.ComplexColliderSimulationResult;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -44,7 +43,6 @@ public final class SimulationProcessor {
     // Perform iterative simulation if biased fails
     //
     if (!forceBiased && movementDistance > VERIFY_DISTANCE) {
-      user.player().sendMessage(ChatColor.DARK_RED + "iterative calculation: " + movementDistance);
       Timings.CHECK_PHYSICS_PROC_ITR.start();
       IterativeSimulationResult iterativeSimulationResult = simulatePossibleMovement(user);
       predictedMovement = iterativeSimulationResult.collisionResult();
@@ -150,16 +148,19 @@ public final class SimulationProcessor {
       double direction;
       direction = Math.toDegrees(Math.atan2(differenceZ, differenceX)) - 90d;
       direction -= yaw;
-      direction %= 360f;
+      while (direction > 360)
+        direction -= 360;
+      while (direction < 0)
+        direction += 360;
       direction = Math.abs(direction);
-      direction /= 45f;
+      direction /= 45d;
       return (int) Math.round(direction);
     }
     return -1;
   }
 
-  private final int[] forwardKeys = {1,  1,  0, -1, -1, -1, 0, 1, 1};
-  private final int[] strafeKeys  = {0, 1, 1, 1, 0, -1, -1, -1, 0};
+  private final int[] forwardKeys = {1, 1, 0, -1, -1, -1, 0, 1, 1};
+  private final int[] strafeKeys  = {0, -1, -1, -1, 0, 1, 1, 1, 0};
 
   private int forwardKeyFrom(int direction) {
     return direction == -1 ? 0 : forwardKeys[direction];
