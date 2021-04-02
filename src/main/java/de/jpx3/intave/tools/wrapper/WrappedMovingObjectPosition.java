@@ -65,6 +65,8 @@ public class WrappedMovingObjectPosition {
 
   public static WrappedMovingObjectPosition fromNativeMovingObjectPosition(Object movingObjectPosition) {
     if(movingObjectPosition == null) {
+      // just to make IntelliJ happy..
+      //return new WrappedMovingObjectPosition(new WrappedVector(0,0,0), WrappedEnumDirection.UP, new WrappedBlockPosition(0,0,0));
       return null;
     }
     try {

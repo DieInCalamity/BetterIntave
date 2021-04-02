@@ -104,13 +104,13 @@ public final class LegacyVersionRaytracer implements VersionRaytracer {
         d5 = (d2 - lookVector.zCoord) / d8;
       }
       if (d3 == -0.0) {
-        d3 = -1.0E-4;
+        d3 = -0.0001;
       }
       if (d4 == -0.0) {
-        d4 = -1.0E-4;
+        d4 = -0.0001;
       }
       if (d5 == -0.0) {
-        d5 = -1.0E-4;
+        d5 = -0.0001;
       }
       if (d3 < d4 && d3 < d5) {
         enumdirection = positionX > lookX ? EnumDirection.WEST : EnumDirection.EAST;

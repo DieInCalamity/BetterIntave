@@ -8,7 +8,10 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -51,7 +54,6 @@ public final class Collision {
       int chunkXPos = chunkx << 4;
       for (int chunkz = minZ >> 4; chunkz <= maxZ - 1 >> 4; ++chunkz) {
         if (world.isChunkLoaded(chunkx, chunkz)) {
-          Chunk chunk = world.getChunkAt(chunkx, chunkz);
           int chunkZPos = chunkz << 4;
           int xstart = Math.max(minX, chunkXPos);
           int zstart = Math.max(minZ, chunkZPos);
@@ -60,7 +62,7 @@ public final class Collision {
           for (int x = xstart; x < xend; ++x) {
             for (int z = zstart; z < zend; ++z) {
               for (int y = ystart; y < maxY; ++y) {
-                List<WrappedAxisAlignedBB> resolve = boundingBoxAccess.resolve(chunk, x, y, z);
+                List<WrappedAxisAlignedBB> resolve = boundingBoxAccess.resolveBoxes(chunkx, chunkz, x, y, z);
 
                 boolean positionInBorder = !blockOutsideBorder(world, x, z);
                 if (positionInBorder && !movementData.outsideBorder) {

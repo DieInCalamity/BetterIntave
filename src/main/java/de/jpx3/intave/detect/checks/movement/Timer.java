@@ -88,7 +88,11 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
     timerData.timerBalance += 10;
 //    }
 
-    int allowedLagInSeconds = 2;//trustFactorSetting("buffer-size", player);
+    int allowedLagInSeconds = trustFactorSetting("buffer-size", player);
+
+    if(highToleranceMode) {
+      allowedLagInSeconds *= 1.5;
+    }
 
     if (AccessHelper.now() - timerData.lastRespawn < 6000) {
       allowedLagInSeconds = Math.max(allowedLagInSeconds, 8);
@@ -109,14 +113,6 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
           timerData.timerBalance = Math.max(0, timerData.timerBalance);
         });
       });
-
-      if(timerData.timerBalance <= packetLimit) {
-        if (plugin.violationProcessor().processViolation(player, 0.5, "Timer", "experienced lagspike", -packetLimit + " packets")) {
-          UserMetaMovementData movementData = user.meta().movementData();
-          plugin.eventService().emulationEngine().emulationSetBack(player, new Vector(movementData.physicsMotionX, movementData.physicsMotionY, movementData.physicsMotionZ), 12);
-//          event.setCancelled(true);
-        }
-      }
     }
 
     // fast recover

@@ -6,6 +6,8 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.user.UserRepository;
 
+import java.util.Locale;
+
 public final class LocalPacketAdapter extends IntavePacketAdapter implements Comparable<LocalPacketAdapter> {
   private final String methodName;
   private final ListenerPriority priority;
@@ -85,7 +87,7 @@ public final class LocalPacketAdapter extends IntavePacketAdapter implements Com
   private final static char[] vocals = "AEIOU".toCharArray();
 
   private String resolveIndefArticle(String exceptionName) {
-    char c = exceptionName.toCharArray()[0];
+    char c = exceptionName.toUpperCase(Locale.ROOT).toCharArray()[0];
     boolean isVocal = false;
     for (char vocal : vocals) {
       if (vocal == c) {

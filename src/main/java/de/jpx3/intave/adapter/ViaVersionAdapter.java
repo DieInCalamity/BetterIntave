@@ -35,6 +35,10 @@ public class ViaVersionAdapter {
     available.clear();
   }
 
+  public static boolean ignoreBlocking(Player player) {
+    return access != null && access.ignoreBlocking(player);
+  }
+
   public static int protocolVersionOf(Player player) {
     return hasViaVersion() ? access.protocolVersionOf(player) : ProtocolLibrary.getProtocolManager().getProtocolVersion(player);
   }

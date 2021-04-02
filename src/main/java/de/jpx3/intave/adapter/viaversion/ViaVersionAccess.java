@@ -7,5 +7,7 @@ public interface ViaVersionAccess {
 
   int protocolVersionOf(Player player);
 
+  boolean ignoreBlocking(Player player);
+
   boolean available();
 }

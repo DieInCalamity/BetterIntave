@@ -80,6 +80,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\src\main\java\de\jpx3\intave\diagnostics\KeyPressStudy.java">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\src\main\java\de\jpx3\intave\event\dispatch\BlockActionDispatcher.java">
           <value>
             <Attribute>
@@ -102,6 +109,13 @@
           </value>
         </entry>
         <entry key="\src\main\java\de\jpx3\intave\event\service\MovementEmulationEngine.java">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\src\main\java\de\jpx3\intave\event\service\entity\ClientSideEntityService.java">
           <value>
             <Attribute>
               <option name="separator" value=";" />

@@ -2,6 +2,7 @@ package de.jpx3.intave.config;
 
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.access.IntaveException;
 import de.jpx3.intave.security.ContextSecrets;
 import de.jpx3.intave.security.LicenseVerification;
 import de.jpx3.intave.security.SSLConnectionVerifier;
@@ -161,7 +162,14 @@ public final class ConfigurationLoader {
   private YamlConfiguration tryDownloadConfiguration() {
     try {
       InputStream inputStream;
-      if(IntaveControl.USE_DEBUG_RESOURCES) {
+      if(IntaveControl.USE_EXTERNAL_CONFIGURATION_FILE) {
+        IntavePlugin plugin = IntavePlugin.singletonInstance();
+        File settingFile = new File(plugin.getDataFolder(), "settings.yml");
+        if(!settingFile.exists()) {
+          throw new IntaveException("Unable to find file " + settingFile.getAbsolutePath());
+        }
+        inputStream = new FileInputStream(settingFile);
+      } else if(IntaveControl.USE_DEBUG_RESOURCES) {
         inputStream = ConfigurationLoader.class.getResourceAsStream("/config-internal.yml");
       } else {
         URL url = new URL("https://intave.de/api/configuration-download");

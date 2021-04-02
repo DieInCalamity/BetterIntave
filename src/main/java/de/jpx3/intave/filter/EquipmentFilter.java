@@ -2,9 +2,6 @@ package de.jpx3.intave.filter;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.reflect.EquivalentConverter;
-import com.comphenix.protocol.wrappers.BukkitConverters;
-import com.mojang.datafixers.util.Pair;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
@@ -15,7 +12,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
 
 import java.util.Collections;
-import java.util.List;
 
 public final class EquipmentFilter extends Filter {
   private final IntavePlugin plugin;
@@ -33,22 +29,22 @@ public final class EquipmentFilter extends Filter {
   public void filterEquipment(PacketEvent event) {
     PacketContainer packet = event.getPacket();
 
-    if(packet.getItemModifier().readSafely(0) != null) {
-      // 1.8 - 1.15
-      ItemStack itemStack = packet.getItemModifier().readSafely(0);
-      ItemStack newItemStack = stripFromData(itemStack);
-      packet.getItemModifier().write(0, newItemStack);
-    } else {
-      // 1.16+
-      //noinspection unchecked
-      List<Pair<?, ?>> slotItemPairList = (List<Pair<?, ?>>) packet.getModifier().readSafely(1);
-      EquivalentConverter<ItemStack> converter = BukkitConverters.getItemStackConverter();
-      for (int i = 0; i < slotItemPairList.size(); i++) {
-        Pair<?, ?> pair = slotItemPairList.get(i)
-          .mapSecond(o -> converter.getGeneric(stripFromData(converter.getSpecific(o))));
-        slotItemPairList.set(i, pair);
-      }
-    }
+//    if(packet.getItemModifier().readSafely(0) != null) {
+//      // 1.8 - 1.15
+//      ItemStack itemStack = packet.getItemModifier().readSafely(0);
+//      ItemStack newItemStack = stripFromData(itemStack);
+//      packet.getItemModifier().write(0, newItemStack);
+//    } else {
+//      // 1.16+
+//      //noinspection unchecked
+//      List<Pair<?, ?>> slotItemPairList = (List<Pair<?, ?>>) packet.getModifier().readSafely(1);
+//      EquivalentConverter<ItemStack> converter = BukkitConverters.getItemStackConverter();
+//      for (int i = 0; i < slotItemPairList.size(); i++) {
+//        Pair<?, ?> pair = slotItemPairList.get(i)
+//          .mapSecond(o -> converter.getGeneric(stripFromData(converter.getSpecific(o))));
+//        slotItemPairList.set(i, pair);
+//      }
+//    }
   }
 
   private ItemStack stripFromData(ItemStack itemStack) {
@@ -92,5 +88,10 @@ public final class EquipmentFilter extends Filter {
       meta.removeItemFlags(meta.getItemFlags().toArray(new ItemFlag[0]));
     }
     return itemStack;
+  }
+
+  @Override
+  protected boolean enabled() {
+    return false;
   }
 }

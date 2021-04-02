@@ -50,7 +50,7 @@ public final class ConfigurationService {
 
   public void setupConfiguration(String requiredState) {
     if(IntaveControl.DISABLE_LICENSE_CHECK) {
-      if (AccessHelper.now() - loader().configurationCache().lastModified() > 1000 * 60 * 60 * 2) {
+      if (IntaveControl.USE_EXTERNAL_CONFIGURATION_FILE || AccessHelper.now() - loader().configurationCache().lastModified() > 1000 * 60 * 60 * 2) {
         loader.loadConfigurationUpdatedForcefully();
         return;
       }

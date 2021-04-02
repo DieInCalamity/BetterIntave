@@ -140,8 +140,8 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     if (event.getPacketType() == PacketType.Play.Server.SPAWN_ENTITY) {
       // dead entities
       hitBoxBoundaries = HitBoxBoundaries.of(0, 0);
-      livingEntity = false;
       entityName = "DeadEntity";
+      livingEntity = false;
     } else {
       // player
       Object entity = entityOfDataWatcher(packet.getDataWatcherModifier().read(0));
@@ -221,7 +221,9 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
       registerEntity(event);
       entity = entityByIdentifier(user, entityId);
       if(entity == null) {
-        throw new NullPointerException("entity could not be created");
+//        IntaveLogger.logger().info("Failed to reference entity (id " + entityId + ")");
+//        throw new NullPointerException("entity could not be created");
+        return;
       }
     }
     if (entity.isEntityLiving && entity.tracingEnabled()) {

@@ -5,6 +5,7 @@ import de.jpx3.intave.command.CommandStage;
 import de.jpx3.intave.command.SubCommand;
 import de.jpx3.intave.detect.CheckStatistics;
 import de.jpx3.intave.detect.IntaveCheck;
+import de.jpx3.intave.diagnostics.KeyPressStudy;
 import de.jpx3.intave.diagnostics.timings.Timing;
 import de.jpx3.intave.diagnostics.timings.Timings;
 import de.jpx3.intave.tools.MathHelper;
@@ -13,8 +14,7 @@ import de.jpx3.intave.user.User;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public final class IntaveRootStage extends CommandStage {
   private static IntaveRootStage singletonInstance;
@@ -81,6 +81,74 @@ public final class IntaveRootStage extends CommandStage {
       String message = String.format("Check/%s: %s::%s%% / vio %s%%", check.name(), passed, failedRate, violatedRate);
       player.sendMessage(ChatColor.WHITE + message);
     }
+  }
+
+  @SubCommand(
+    selectors = "biasec",
+    usage = "",
+    description = "",
+    permission = "sibyl"
+  )
+  @Native
+  public void outputBiasSuccess(User user) {
+    Player player = user.player();
+
+    long biasCalls = Timings.CHECK_PHYSICS_PROC_BIA.getRecordedCalls();
+    long failedCalls = Timings.CHECK_PHYSICS_PROC_ITR.getRecordedCalls();
+    long successfulCalls = biasCalls - failedCalls;
+
+    double percentage = ((double) successfulCalls / (double) biasCalls) * 100;
+
+    player.sendMessage(biasCalls + " biased with " + failedCalls + " fails");
+    player.sendMessage(MathHelper.formatDouble(percentage, 2) + "% movements bias simulated");
+    double estimatedTimeIfAllBiasCallsWereIterative = biasCalls * Timings.CHECK_PHYSICS_PROC_ITR.getAverageCallDurationInNanos();
+    double savedTime = (estimatedTimeIfAllBiasCallsWereIterative - Timings.CHECK_PHYSICS_PROC_BIA.getTotalDurationNanos()) / 1000000d;
+
+    player.sendMessage("Saved " + (savedTime > 0 ? ChatColor.GREEN : ChatColor.RED) + MathHelper.formatDouble(savedTime, 2) + ChatColor.WHITE + "ms");
+  }
+
+  @SubCommand(
+    selectors = "keys",
+    usage = "",
+    description = "",
+    permission = "sibyl"
+  )
+  @Native
+  public void outputKeyStatistic(User user) {
+    Player player = user.player();
+    player.sendMessage(ChatColor.RED + "Loading key study..");
+    Map<String, Double> studyResult = KeyPressStudy.resultShare();
+    Map<String, Double> sortedStudy = sortHashMapByValues(studyResult);
+
+    sortedStudy.forEach((keys, percentage) -> {
+      if(keys.trim().isEmpty()) {
+        keys = "N";
+      }
+      player.sendMessage("Key " + keys + " " + MathHelper.formatDouble(percentage * 100, 4) + "%");
+    });
+  }
+
+  public <K extends Comparable<? super K>, V extends Comparable<? super V>> Map<K, V> sortHashMapByValues(
+    Map<K, V> passedMap
+  ) {
+    List<K> mapKeys = new ArrayList<>(passedMap.keySet());
+    List<V> mapValues = new ArrayList<>(passedMap.values());
+    Collections.sort(mapValues);
+    Collections.reverse(mapValues);
+    Collections.sort(mapKeys);
+    Map<K, V> sortedMap = new LinkedHashMap<>();
+    for (V val : mapValues) {
+      Iterator<K> keyIt = mapKeys.iterator();
+      while (keyIt.hasNext()) {
+        K key = keyIt.next();
+        if (passedMap.get(key).equals(val)) {
+          keyIt.remove();
+          sortedMap.put(key, val);
+          break;
+        }
+      }
+    }
+    return sortedMap;
   }
 
   public static IntaveRootStage singletonInstance() {

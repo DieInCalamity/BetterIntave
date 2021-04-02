@@ -44,9 +44,9 @@ public final class BukkitBlockAccess implements BukkitEventSubscriber {
     return invalidRequestBlockMap.get(blockAccess);
   }
 
-  public static Material cacheAppliedTypeAccess(User user, World blockAccess, int x, int y, int z) {
-    if (isInLoadedChunk(blockAccess, x, z) || Bukkit.isPrimaryThread()) {
-      return user.boundingBoxAccess().resolveType(blockAccess.getChunkAt(x >> 4, z >> 4), x, y, z);
+  public static Material cacheAppliedTypeAccess(User user, World blockAccess, int blockX, int blockY, int blockZ) {
+    if (isInLoadedChunk(blockAccess, blockX, blockZ) || Bukkit.isPrimaryThread()) {
+      return user.boundingBoxAccess().resolveType(blockX >> 4, blockZ >> 4, blockX, blockY, blockZ);
     }
     return invalidRequestBlockMap.get(blockAccess).getType();
   }
@@ -56,14 +56,14 @@ public final class BukkitBlockAccess implements BukkitEventSubscriber {
     int blockY = WrappedMathHelper.floor(y);
     int blockZ = WrappedMathHelper.floor(z);
     if (isInLoadedChunk(blockAccess, blockX, blockZ) || Bukkit.isPrimaryThread()) {
-      return user.boundingBoxAccess().resolveType(blockAccess.getChunkAt(blockX >> 4, blockZ >> 4), blockX, blockY, blockZ);
+      return user.boundingBoxAccess().resolveType(blockX >> 4, blockZ >> 4,blockX, blockY, blockZ);
     }
     return invalidRequestBlockMap.get(blockAccess).getType();
   }
 
-  public static int cacheAppliedDataAccess(User user, World blockAccess, int x, int y, int z) {
-    if (isInLoadedChunk(blockAccess, x, z) || Bukkit.isPrimaryThread()) {
-      return user.boundingBoxAccess().resolveData(blockAccess.getChunkAt(x >> 4, z >> 4), x, y, z);
+  public static int cacheAppliedDataAccess(User user, World blockAccess, int blockX, int blockY, int blockZ) {
+    if (isInLoadedChunk(blockAccess, blockX, blockZ) || Bukkit.isPrimaryThread()) {
+      return user.boundingBoxAccess().resolveData(blockX >> 4, blockZ >> 4, blockX, blockY, blockZ);
     }
     return invalidRequestBlockMap.get(blockAccess).getData();
   }
@@ -73,7 +73,7 @@ public final class BukkitBlockAccess implements BukkitEventSubscriber {
     int blockY = WrappedMathHelper.floor(y);
     int blockZ = WrappedMathHelper.floor(z);
     if (isInLoadedChunk(blockAccess, blockX, blockZ) || Bukkit.isPrimaryThread()) {
-      return user.boundingBoxAccess().resolveData(blockAccess.getChunkAt(blockX >> 4, blockZ >> 4), blockX, blockY, blockZ);
+      return user.boundingBoxAccess().resolveData(blockX >> 4, blockZ >> 4, blockX, blockY, blockZ);
     }
     return invalidRequestBlockMap.get(blockAccess).getData();
   }

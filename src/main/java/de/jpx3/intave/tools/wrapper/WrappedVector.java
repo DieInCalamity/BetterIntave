@@ -1,6 +1,7 @@
 package de.jpx3.intave.tools.wrapper;
 
 import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.wrapper.link.WrapperLinkage;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -110,6 +111,20 @@ public class WrappedVector {
     double d0 = vec.xCoord - this.xCoord;
     double d1 = vec.yCoord - this.yCoord;
     double d2 = vec.zCoord - this.zCoord;
+    return WrappedMathHelper.sqrt_double(d0 * d0 + d1 * d1 + d2 * d2);
+  }
+
+  public double distanceToBox(WrappedAxisAlignedBB boundingBox) {
+    double xDist = MathHelper.minmax(0, boundingBox.minX - xCoord, xCoord - boundingBox.maxX);
+    double yDist = MathHelper.minmax(0, boundingBox.minY - yCoord, yCoord - boundingBox.maxY);
+    double zDist = MathHelper.minmax(0, boundingBox.minZ - zCoord, zCoord - boundingBox.maxZ);
+    return distanceTo(new WrappedVector(xDist, yDist, zDist));
+  }
+
+  public double distanceTo(Vector vector) {
+    double d0 = vector.getX() - this.xCoord;
+    double d1 = vector.getY() - this.yCoord;
+    double d2 = vector.getZ() - this.zCoord;
     return WrappedMathHelper.sqrt_double(d0 * d0 + d1 * d1 + d2 * d2);
   }
 

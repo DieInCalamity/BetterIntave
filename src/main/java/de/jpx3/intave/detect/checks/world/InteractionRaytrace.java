@@ -23,10 +23,7 @@ import de.jpx3.intave.tools.annotate.DispatchCrossCall;
 import de.jpx3.intave.tools.client.MaterialLogic;
 import de.jpx3.intave.tools.items.InventoryUseItemHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
-import de.jpx3.intave.tools.wrapper.WrappedBlockPosition;
-import de.jpx3.intave.tools.wrapper.WrappedEnumDirection;
-import de.jpx3.intave.tools.wrapper.WrappedMovingObjectPosition;
-import de.jpx3.intave.tools.wrapper.WrappedVector;
+import de.jpx3.intave.tools.wrapper.*;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserCustomCheckMeta;
 import de.jpx3.intave.user.UserMetaInventoryData;
@@ -209,12 +206,13 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     playerLocationmdf.setYaw(movementData.lastRotationYaw);
 
     for (Interaction interaction : interactionList) {
-      processTraceReport(interaction, playerLocation, playerLocationmdf);
+      processTraceReport(event, interaction, playerLocation, playerLocationmdf);
     }
     interactionList.clear();
   }
 
   private void processTraceReport(
+    PacketEvent event,
     Interaction interaction,
     Location playerLocation,
     Location playerLocationmdf
@@ -223,7 +221,6 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
       return;
     }
     interaction.enter();
-
 
     World world = interaction.world();
     Player player = interaction.player();
@@ -271,6 +268,42 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
       decrementer.decrement(user, 0.25);
     }
 
+    boolean atLeastLookingAtBlock = false;
+    WrappedMovingObjectPosition movingObjectPosition = estimateMouseDelayFix ? raycastResultmdf : raycastResult;
+    if(movingObjectPosition != null && invalid) {
+      WrappedVector hitVec = movingObjectPosition.hitVec;
+//      player.playEffect(hitVec.toLocation(world), Effect.HAPPY_VILLAGER, 100);
+
+      WrappedAxisAlignedBB targetBlockBox = new WrappedAxisAlignedBB(
+        targetLocation.getBlockX(),
+        targetLocation.getBlockY(),
+        targetLocation.getBlockZ(),
+        targetLocation.getBlockX() + 1,
+        targetLocation.getBlockY() + 1,
+        targetLocation.getBlockZ() + 1
+      ).grow(0.1);
+
+      Location location = estimateMouseDelayFix ? playerLocationmdf : playerLocation;
+      WrappedVector origin = Raytracer.resolvePositionEyes(location, location, 1.0f, user.meta().movementData().eyeHeight());
+      WrappedVector directionVector = hitVec.subtract(origin).normalize().scale(0.2);
+      WrappedVector itrVector = origin.scale(1);
+
+      if(targetBlockBox.isVecInside(hitVec)) {
+        atLeastLookingAtBlock = true;
+      } else {
+        int i = 0;
+        while (origin.distanceTo(itrVector) < 4 && i < 50) {
+          itrVector = itrVector.add(directionVector);
+          if(targetBlockBox.isVecInside(itrVector)) {
+            atLeastLookingAtBlock = true;
+            break;
+          }
+          i++;
+        }
+      }
+    }
+
+
     boolean emulationFailed = false;
 
     /* emulate placement */
@@ -287,7 +320,11 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
       return;
     }
 
-    boolean flag = invalid && !interaction.ignoreFlags && performFlag(interaction, raycastResult, targetLocation, raycastLocation, hitMiss, invalidFacing);
+//    if(invalid) {
+//      player.sendMessage(String.valueOf(event.getPacketType()));
+//    }
+
+    boolean flag = invalid && !interaction.ignoreFlags && performFlag(interaction, raycastResult, targetLocation, raycastLocation, hitMiss, invalidFacing, atLeastLookingAtBlock);
     emulatePacket(interaction, raycastResult, targetLocation, raycastLocation, hitMiss, flag, invalidFacing);
   }
 
@@ -480,6 +517,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     boolean punishment,
     boolean invalidFacing
   ) {
+
     Player player = interaction.player();
     User user = userOf(player);
     ResponseType response = interaction.type().response();
@@ -487,6 +525,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     if (invalidFacing) {
       response = ResponseType.CANCEL;
     }
+//    interaction.player.sendMessage("Emulation " + interaction.type + " " + punishment + " -> " + response);
     boolean canRefreshBlocks = interaction.type != InteractionType.INTERACT;
     if (response == ResponseType.RAYTRACE_CAST) {
       if (hitMiss || raycastResult == null) {
@@ -639,11 +678,11 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     Location targetLocation,
     Location raycastLocation,
     boolean hitMiss,
-    boolean invalidFacing
+    boolean invalidFacing,
+    boolean lookingAtBlock
   ) {
     Player player = interaction.player();
     User user = userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
     InteractionType type = interaction.type();
 
     Block targetLocationBlock = BukkitBlockAccess.blockAccess(targetLocation);
@@ -675,7 +714,6 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
         append = "invalid block face";
         vl = longBreakDuration ? 20 : 15;
       }
-
       message = "performed invalid break";// +" -" + append;
       details = typeName + " block, " + append;
     } else if (type == InteractionType.PLACE) {
@@ -685,20 +723,23 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
       String append = "";
       if (hitMiss || (raycastLocation.getBlockX() == 0 && raycastLocation.getBlockY() == 0 && raycastLocation.getBlockZ() == 0)) {
         append = "looking in air";
-        vl = 2.5;
+        vl = 5;
       } else if (raycastLocation.distance(targetLocation) > 0 && raycastLocationBlock.getType() != Material.AIR) {
         String blockName = shortenTypeName(raycastLocationBlock.getType());
         if (raycastLocationBlock.getType() == targetLocationBlock.getType()) {
           blockName = "a different " + blockName;
         }
         append = "looking at " + blockName + " block";
-        vl = 5;
+        vl = 2.5;
       } else if (interaction.targetDirection != raycastResult.sideHit.getIndex()) {
         append = "invalid block face";
         vl = 2.5;
       }
+      if(lookingAtBlock) {
+        vl *= 0.5;
+      }
       message = "performed invalid placement";
-      details = typeName + " block on " + typeAgainstName + " block";
+      details = typeName + " block on " + typeAgainstName + " block, " + append;
     } else {
       String typeAgainstName = shortenTypeName(targetLocationBlock.getType());
       message = "invalid interaction";
@@ -713,6 +754,9 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
 //    }
 //    details += ", fly: " + user.meta().movementData().pastFlyingPacketAccurate();
 
+//    if(metaOf(player).estimateMouseDelayFix) {
+//      details += ", mdfa";
+//    }
     return plugin.violationProcessor().processViolation(player, vl, name(), message, details) || mustFlag;
   }
 

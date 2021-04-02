@@ -25,7 +25,7 @@ public final class CheckService {
   private final IntavePlugin plugin;
   private List<IntaveCheck> checks = new ArrayList<>();
   private List<String> checkNames = new ArrayList<>();
-  private Map<Class<?>, IntaveCheck> requestCache = new HashMap<>();
+  private Map<Class<?>, IntaveCheck> classRequestCache = new HashMap<>();
   private Map<String, IntaveCheck> nameRequestCache = new HashMap<>();
 
   public CheckService(IntavePlugin plugin) {
@@ -51,7 +51,8 @@ public final class CheckService {
   }
 
   public void reset() {
-    requestCache.clear();
+    checks.clear();
+    classRequestCache.clear();
     nameRequestCache.clear();
 
     resetQuickAccess();
@@ -80,21 +81,22 @@ public final class CheckService {
   }
 
   public void bakeQuickAccess() {
-    requestCache = new HashMap<>();
+    classRequestCache = new HashMap<>();
     nameRequestCache = new HashMap<>();
     checkNames = new ArrayList<>();
     for (IntaveCheck check : checks) {
       checkNames.add(check.name());
-      requestCache.put(check.getClass(), check);
+      classRequestCache.put(check.getClass(), check);
       nameRequestCache.put(check.name().toLowerCase(Locale.ROOT), check);
     }
-    requestCache = ImmutableMap.copyOf(requestCache);
+    classRequestCache = ImmutableMap.copyOf(classRequestCache);
     nameRequestCache = ImmutableMap.copyOf(nameRequestCache);
     checkNames = ImmutableList.copyOf(checkNames);
+    checks = ImmutableList.copyOf(checks);
   }
 
   public void resetQuickAccess() {
-    requestCache = new HashMap<>();
+    classRequestCache = new HashMap<>();
     nameRequestCache = new HashMap<>();
     checkNames = new ArrayList<>();
   }
@@ -164,7 +166,7 @@ public final class CheckService {
   }
 
   public <T extends IntaveCheck> T searchCheck(Class<T> checkClass) {
-    IntaveCheck check = requestCache.get(checkClass);
+    IntaveCheck check = classRequestCache.get(checkClass);
     if (check == null) {
       throw new IllegalStateException("Unable to find check " + checkClass);
     }

@@ -30,6 +30,11 @@ public final class ViaVersion3Access implements ViaVersionAccess {
   }
 
   @Override
+  public boolean ignoreBlocking(Player player) {
+    return false;
+  }
+
+  @Override
   public boolean available() {
     try {
       Class.forName("us.myles.ViaVersion.api.Via");

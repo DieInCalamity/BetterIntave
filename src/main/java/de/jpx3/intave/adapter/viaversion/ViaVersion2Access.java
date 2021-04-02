@@ -11,6 +11,7 @@ public final class ViaVersion2Access implements ViaVersionAccess {
   private static Object viaVersionInstance;
   private static Method getPlayerVersionMethod;
 
+  @Override
   public void setup() {
     try {
       Class<?> viaVersion = Class.forName("us.myles.ViaVersion.api.ViaVersion");
@@ -21,6 +22,7 @@ public final class ViaVersion2Access implements ViaVersionAccess {
     }
   }
 
+  @Override
   public int protocolVersionOf(Player player) {
     if (!available()) {
       return -1;
@@ -32,6 +34,12 @@ public final class ViaVersion2Access implements ViaVersionAccess {
     }
   }
 
+  @Override
+  public boolean ignoreBlocking(Player player) {
+    return false;
+  }
+
+  @Override
   public boolean available() {
     if (!checkedViaVersion) {
       checkedViaVersion = true;

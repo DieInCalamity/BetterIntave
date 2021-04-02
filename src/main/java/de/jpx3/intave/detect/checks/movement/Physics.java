@@ -48,11 +48,9 @@ import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_AQUATIC_UP
 @Relocate
 public final class Physics extends IntaveCheck {
   private final static double VL_DECREMENT_PER_VALID_MOVE = 0.05;
-
   private final IntavePlugin plugin;
   private final CheckViolationLevelDecrementer decrementer;
   private MethodHandle fallDamageInvokeMethod;
-
   private final SimulationProcessor simulationService;
 
   public Physics(IntavePlugin plugin) {
@@ -501,7 +499,7 @@ public final class Physics extends IntaveCheck {
     }
   }
 
-  public static String resolveKeysFromInput(int forward, int strafe) {
+  private static String resolveKeysFromInput(int forward, int strafe) {
     String key = "";
     if (forward == 1) {
       key += "W";

@@ -8,14 +8,12 @@ import de.jpx3.intave.reflect.ReflectiveMaterialAccess;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.collision.patches.BoundingBoxPatcher;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -67,31 +65,29 @@ public final class BoundingBoxAccess {
   private final Map<Long, CacheEntry> frequencyCache = new ConcurrentHashMap<>(256);
   private final Map<Location, CacheEntry> globalReplacements = new ConcurrentHashMap<>(64);
 
-  private WeakReference<Chunk> activeChunk = new WeakReference<>(null);
   private int chunkXPos;
+  private int chunkX;
   private int chunkZPos;
-
-  private long chunkResetCounter;
-  private long lastChunkResetCounterReset;
+  private int chunkZ;
 
   public BoundingBoxAccess(Player player) {
     this.player = player;
   }
 
-  public List<WrappedAxisAlignedBB> resolve(Chunk chunk, int posX, int posY, int posZ) {
+  public List<WrappedAxisAlignedBB> resolveBoxes(int chunkX, int chunkZ, int posX, int posY, int posZ) {
     if (posY < 0 || 255 < posY) {
       posY = 256;
     }
 
-    Chunk chunkX = activeChunk.get();
-    if (chunkX == null || (chunk.getX() != chunkX.getX() || chunk.getZ() != chunkX.getZ())) {
-      activeChunk = new WeakReference<>(chunk);
-      chunkXPos = chunk.getX() << 4;
-      chunkZPos = chunk.getZ() << 4;
+    if ((chunkX != this.chunkX || chunkZ != this.chunkZ)) {
+      this.chunkXPos = (chunkX) << 4;
+      this.chunkZPos = (chunkZ) << 4;
+      this.chunkX = chunkX;
+      this.chunkZ = chunkZ;
       blockCache.clear();
     }
 
-    byte dx = (byte) (chunkXPos - posX), dz = (byte) (chunkZPos - posZ);
+    byte dx = (byte) (this.chunkXPos - posX), dz = (byte) (this.chunkZPos - posZ);
     int blockPositionKey = (posY & 0x1FF) << 16 | (dx & 0x0FF) << 8 | (dz & 0x0FF);
 
     // global replacements (escape current-chunk constrain)
@@ -109,7 +105,7 @@ public final class BoundingBoxAccess {
     CacheEntry cacheEntry = blockCache.get(blockPositionKey);
     if (cacheEntry == null) {
       List<WrappedAxisAlignedBB> boundingBoxes;
-      World world = chunk.getWorld();
+      World world = player.getWorld();
       Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
       Material type = block.getType();
       if(type == Material.AIR) {
@@ -129,27 +125,30 @@ public final class BoundingBoxAccess {
     return cacheEntry.boundingBoxes();
   }
 
-  public Material resolveType(Chunk chunk, int posX, int posY, int posZ) {
+  public Material resolveType(int chunkX, int chunkZ, int posX, int posY, int posZ) {
     if (posY < 0 || 255 < posY) {
       posY = 256;
     }
 
-    Chunk chunkX = activeChunk.get();
-    if (chunkX == null || (chunk.getX() != chunkX.getX() || chunk.getZ() != chunkX.getZ())) {
-      activeChunk = new WeakReference<>(chunk);
-      chunkXPos = chunk.getX() << 4;
-      chunkZPos = chunk.getZ() << 4;
+    if ((chunkX != this.chunkX || chunkZ != this.chunkZ)) {
+      this.chunkXPos = (chunkX) << 4;
+      this.chunkZPos = (chunkZ) << 4;
+      this.chunkX = chunkX;
+      this.chunkZ = chunkZ;
       blockCache.clear();
     }
 
-    byte dx = (byte) (chunkXPos - posX), dz = (byte) (chunkZPos - posZ);
+    byte dx = (byte) (this.chunkXPos - posX), dz = (byte) (this.chunkZPos - posZ);
     int blockPositionKey = (posY & 0x1FF) << 16 | (dx & 0x0FF) << 8 | (dz & 0x0FF);
 
     // global replacements (escape current-chunk constrain)
     if (!globalReplacements.isEmpty()) {
       for (Location location : globalReplacements.keySet()) {
         if (location.getX() == posX && location.getZ() == posZ && location.getY() == posY) {
-          return globalReplacements.get(location).type();
+          CacheEntry cacheEntry = globalReplacements.get(location);
+          if(cacheEntry != null) {
+            return cacheEntry.type();
+          }
         }
       }
     }
@@ -157,7 +156,7 @@ public final class BoundingBoxAccess {
     CacheEntry cacheEntry = blockCache.get(blockPositionKey);
     if (cacheEntry == null) {
       List<WrappedAxisAlignedBB> boundingBoxes;
-      World world = chunk.getWorld();
+      World world = player.getWorld();
       Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
       Material type = block.getType();
       if(type == Material.AIR) {
@@ -177,27 +176,30 @@ public final class BoundingBoxAccess {
     return cacheEntry.type();
   }
 
-  public int resolveData(Chunk chunk, int posX, int posY, int posZ) {
+  public int resolveData(int chunkX, int chunkZ, int posX, int posY, int posZ) {
     if (posY < 0 || 255 < posY) {
       posY = 256;
     }
 
-    Chunk chunkX = activeChunk.get();
-    if (chunkX == null || (chunk.getX() != chunkX.getX() || chunk.getZ() != chunkX.getZ())) {
-      activeChunk = new WeakReference<>(chunk);
-      chunkXPos = chunk.getX() << 4;
-      chunkZPos = chunk.getZ() << 4;
+    if ((chunkX != this.chunkX || chunkZ != this.chunkZ)) {
+      this.chunkXPos = (chunkX) << 4;
+      this.chunkZPos = (chunkZ) << 4;
+      this.chunkX = chunkX;
+      this.chunkZ = chunkZ;
       blockCache.clear();
     }
 
-    byte dx = (byte) (chunkXPos - posX), dz = (byte) (chunkZPos - posZ);
+    byte dx = (byte) (this.chunkXPos - posX), dz = (byte) (this.chunkZPos - posZ);
     int blockPositionKey = (posY & 0x1FF) << 16 | (dx & 0x0FF) << 8 | (dz & 0x0FF);
 
     // global replacements (escape current-chunk constrain)
     if (!globalReplacements.isEmpty()) {
       for (Location location : globalReplacements.keySet()) {
         if (location.getX() == posX && location.getZ() == posZ && location.getY() == posY) {
-          return globalReplacements.get(location).data();
+          CacheEntry cacheEntry = globalReplacements.get(location);
+          if(cacheEntry != null) {
+            return cacheEntry.data();
+          }
         }
       }
     }
@@ -205,7 +207,7 @@ public final class BoundingBoxAccess {
     CacheEntry cacheEntry = blockCache.get(blockPositionKey);
     if (cacheEntry == null) {
       List<WrappedAxisAlignedBB> boundingBoxes;
-      World world = chunk.getWorld();
+      World world = player.getWorld();
       Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
       Material type = block.getType();
       if(type == Material.AIR) {

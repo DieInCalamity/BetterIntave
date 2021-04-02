@@ -179,7 +179,12 @@ public final class IntavePlugin extends JavaPlugin {
       // stage 7
       configurationService = new ConfigurationService(this);
       String configurationKey = configurationService.configurationKey();
-      logger.info("Using the \"" + configurationKey + "\" configuration");
+
+      if(IntaveControl.USE_EXTERNAL_CONFIGURATION_FILE) {
+        logger.info("Using the file configuration");
+      } else {
+        logger.info("Using the \"" + configurationKey + "\" configuration");
+      }
 
       // license check call
 
@@ -487,7 +492,7 @@ public final class IntavePlugin extends JavaPlugin {
           }
         });
     } catch (IOException exception) {
-      exception.printStackTrace();
+//      exception.printStackTrace();
     }
   }
 
@@ -519,7 +524,7 @@ public final class IntavePlugin extends JavaPlugin {
         .filter(file -> (AccessHelper.now() - file.lastModified()) > FILE_EXPIRE)
         .forEach(File::delete);
     } catch (IOException exception) {
-      exception.printStackTrace();
+//      exception.printStackTrace();
     }
   }
 

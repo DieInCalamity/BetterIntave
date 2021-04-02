@@ -161,7 +161,7 @@ public final class Raytracer {
     return versionRaytracer.raytrace(world, player, eyeVector, targetVector);
   }
 
-  private static WrappedVector resolvePositionEyes(Location location, Location prevLocation, double eyeHeight, float partialTicks) {
+  public static WrappedVector resolvePositionEyes(Location location, Location prevLocation, double eyeHeight, float partialTicks) {
     double posX = location.getX();
     double posY = location.getY();
     double posZ = location.getZ();
