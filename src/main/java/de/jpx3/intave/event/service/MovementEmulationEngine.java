@@ -37,10 +37,24 @@ import java.util.Set;
 public final class MovementEmulationEngine {
   private final IntavePlugin plugin;
   private final Physics physicsCheck;
+  private final Set<Object> teleportFlags = new HashSet<>();
 
   public MovementEmulationEngine(IntavePlugin plugin) {
     this.plugin = plugin;
     this.physicsCheck = plugin.checkService().searchCheck(Physics.class);
+    this.loadTeleportFlags();
+  }
+
+  private void loadTeleportFlags() {
+    try {
+      Class<?> teleportFlagsClass = ReflectiveAccess.lookupServerClass("PacketPlayOutPosition$EnumPlayerTeleportFlags");
+      if (teleportFlags.isEmpty()) {
+        teleportFlags.add(teleportFlagsClass.getField("X_ROT").get(null));
+        teleportFlags.add(teleportFlagsClass.getField("Y_ROT").get(null));
+      }
+    } catch (IllegalAccessException | NoSuchFieldException e) {
+      throw new IntaveInternalException(e);
+    }
   }
 
   public void emulationSetBack(Player player, Vector motion, int ticks) {
@@ -296,23 +310,8 @@ public final class MovementEmulationEngine {
     movementData.inWater = MovementContextHelper.isAnyLiquid(world, movementData.boundingBox());
   }
 
-  private final static Set<Object> teleportFlags = new HashSet<>();
-
   private synchronized void rotationlessTeleport(Player player, Location to, float nativeYaw, float nativePitch) {
-    PlayerTeleportEvent event = new PlayerTeleportEvent(player, player.getLocation().clone(), to.clone(), PlayerTeleportEvent.TeleportCause.NETHER_PORTAL) {
-      @Override
-      public void setCancelled(boolean cancel) {
-        if(IntaveControl.DEBUG_INTAVE_TELEPORT_EVENT_CANCELS && cancel) {
-          PluginInvocation pluginInvocation = CallerResolver.callerPluginInfo();
-          if(pluginInvocation == null) {
-            System.out.println("[Intave] Intaves teleport event was cancelled by an unknown struct");
-          } else {
-            System.out.println("[Intave] " + pluginInvocation.pluginName() + " cancelled Intaves teleport event (" + pluginInvocation.className() + ": " + pluginInvocation.methodName() + ")");
-          }
-        }
-        super.setCancelled(cancel);
-      }
-    };
+    PlayerTeleportEvent event = constructTeleportEvent(player, to);
     plugin.eventLinker().fireEvent(event);
     if (player.isDead() || player.getHealth() <= 0 || player.getPassenger() != null || !player.isOnline() || !UserRepository.hasUser(player)) {
       return;
@@ -328,7 +327,7 @@ public final class MovementEmulationEngine {
         }
         Location dest = event.getTo();
         if (dest == null) {
-          throw new IntaveException("Setback location can't be null");
+          throw new IntaveException("Setback location cannot be null");
         }
         if (Math.abs(nativeYaw) > 360f) {
           internalTeleport.invoke(playerConnection, dest.getX(), dest.getY(), dest.getZ(), nativeYaw % 360f, nativePitch, Collections.emptySet());
@@ -340,11 +339,6 @@ public final class MovementEmulationEngine {
           float pitch = (float) pitchField.get(playerHandle);
           yawField.set(playerHandle, 0f);
           pitchField.set(playerHandle, 0f);
-          if (teleportFlags.isEmpty()) {
-            Class<?> playerTeleportFlags = ReflectiveAccess.lookupServerClass("PacketPlayOutPosition$EnumPlayerTeleportFlags");
-            teleportFlags.add(playerTeleportFlags.getField("X_ROT").get(null));
-            teleportFlags.add(playerTeleportFlags.getField("Y_ROT").get(null));
-          }
           internalTeleport.invoke(playerConnection, dest.getX(), dest.getY(), dest.getZ(), 0, 0, teleportFlags);
           yawField.set(playerHandle, yaw);
           pitchField.set(playerHandle, pitch);
@@ -353,6 +347,23 @@ public final class MovementEmulationEngine {
         throw new IntaveInternalException(e);
       }
     }
+  }
+
+  private PlayerTeleportEvent constructTeleportEvent(Player player, Location to) {
+    return new PlayerTeleportEvent(player, player.getLocation().clone(), to.clone(), PlayerTeleportEvent.TeleportCause.NETHER_PORTAL) {
+      @Override
+      public void setCancelled(boolean cancel) {
+        if (IntaveControl.DEBUG_INTAVE_TELEPORT_EVENT_CANCELS && cancel) {
+          PluginInvocation pluginInvocation = CallerResolver.callerPluginInfo();
+          if (pluginInvocation == null) {
+            System.out.println("[Intave] Intave's teleport event was cancelled by an unknown struct");
+          } else {
+            System.out.println("[Intave] " + pluginInvocation.pluginName() + " cancelled Intave's teleport event (" + pluginInvocation.className() + ": " + pluginInvocation.methodName() + ")");
+          }
+        }
+        super.setCancelled(cancel);
+      }
+    };
   }
 
   public static Vector resolveCollisionVector(
