@@ -34,11 +34,7 @@ public final class FakePlayerBuilder {
   private FakePlayerAttackSubscriber fakePlayerAttackSubscriber = () -> {
   };
 
-  private FakePlayerBuilder() {
-  }
-
-  public static FakePlayerBuilder createBuilder() {
-    return new FakePlayerBuilder();
+  FakePlayerBuilder() {
   }
 
   public FakePlayerBuilder setParentPlayer(Player player) {

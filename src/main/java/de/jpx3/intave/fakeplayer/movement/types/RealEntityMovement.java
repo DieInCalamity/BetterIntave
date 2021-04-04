@@ -39,6 +39,9 @@ public final class RealEntityMovement extends Movement {
   }
 
   private void calculateMovement(Location expectedLocation, double distance) {
+    if (moveOnTopOfPlayer()) {
+      expectedLocation.add(0.0, 2.1, 0.0);
+    }
     limitSmallMovement();
     double startMotionX = this.motionX;
     double startMotionZ = this.motionZ;
@@ -49,18 +52,24 @@ public final class RealEntityMovement extends Movement {
       this.motionZ *= 0.6;
     }
     boolean movedEnoughForJump = Math.hypot(startMotionX - motionX, startMotionZ - motionZ) > 0.1;
-    if (this.onGround && ((movedEnoughForJump && ++this.lastJump > 2 && distance > 1.0) || collidedHorizontally)) {
-      this.lastJump = 0;
-      jump();
-    } else if (!this.onGround) {
-      this.motionY -= 0.08;
-      this.motionY *= 0.98f;
+    if (moveOnTopOfPlayer()) {
+      this.motionY = (expectedLocation.getY() - this.location.getY());
+    } else {
+      if (this.onGround && ((movedEnoughForJump && ++this.lastJump > 2 && distance > 1.0) || collidedHorizontally)) {
+        this.lastJump = 0;
+        jump();
+      } else if (!this.onGround) {
+        this.motionY -= 0.08;
+        this.motionY *= 0.98f;
+      }
     }
     if (this.sneaking) {
       this.motionX *= 0.2;
       this.motionZ *= 0.2;
     }
-    tryJumpBoost(expectedLocation);
+    if (!moveOnTopOfPlayer()) {
+      tryJumpBoost(expectedLocation);
+    }
   }
 
   @Override

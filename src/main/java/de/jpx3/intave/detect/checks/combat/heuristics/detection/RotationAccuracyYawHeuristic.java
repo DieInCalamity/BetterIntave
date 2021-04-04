@@ -19,6 +19,8 @@ import de.jpx3.intave.user.UserMetaAttackData;
 import de.jpx3.intave.user.UserMetaMovementData;
 import org.bukkit.entity.Player;
 
+import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.*;
+
 public final class RotationAccuracyYawHeuristic extends IntaveMetaCheckPart<Heuristics, RotationAccuracyYawHeuristic.RotationAccuracyHeuristicMeta> {
   private final IntavePlugin plugin;
 
@@ -59,7 +61,7 @@ public final class RotationAccuracyYawHeuristic extends IntaveMetaCheckPart<Heur
     ) {
       if (heuristicMeta.snapVL++ > 0) {
         String description = "suspicious rotation snap (" + yawSpeed + ")";
-        int options = Anomaly.AnomalyOption.LIMIT_4 | Anomaly.AnomalyOption.SUGGEST_MINING;
+        int options = LIMIT_4 | SUGGEST_MINING;
         Anomaly anomaly = Anomaly.anomalyOf("86", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, options);
         parentCheck().saveAnomaly(player, anomaly);
         plugin.eventService().attackCancelService().requestDamageCancel(user, AttackCancelType.MEDIUM);
@@ -83,7 +85,7 @@ public final class RotationAccuracyYawHeuristic extends IntaveMetaCheckPart<Heur
 
           if (heuristicMeta.followBalance > 25) {
             String description = "follows entity movement too precisely";
-            int options = Anomaly.AnomalyOption.LIMIT_4 | Anomaly.AnomalyOption.SUGGEST_MINING;
+            int options = LIMIT_4 | SUGGEST_MINING;
             Anomaly anomaly = Anomaly.anomalyOf("81", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, options);
             parentCheck().saveAnomaly(player, anomaly);
             heuristicMeta.followBalance -= 20;
@@ -95,7 +97,7 @@ public final class RotationAccuracyYawHeuristic extends IntaveMetaCheckPart<Heur
         // Check perfect yaw
         if (distanceToPerfectYaw == 0) {
           String description = "rotated yaw too precisely (0.0)";
-          int options = Anomaly.AnomalyOption.LIMIT_2 | Anomaly.AnomalyOption.DELAY_128s | Anomaly.AnomalyOption.SUGGEST_MINING;
+          int options = LIMIT_2 | DELAY_128s | SUGGEST_MINING;
           Anomaly anomaly = Anomaly.anomalyOf("82", Confidence.LIKELY, Anomaly.Type.KILLAURA, description, options);
           parentCheck().saveAnomaly(player, anomaly);
           plugin.eventService().attackCancelService().requestDamageCancel(user, AttackCancelType.MEDIUM);
@@ -110,7 +112,7 @@ public final class RotationAccuracyYawHeuristic extends IntaveMetaCheckPart<Heur
           if (suspiciousLevel > 8) {
             if (heuristicMeta.rotationAccuracyVL++ > 3) {
               String description = "high accuracy rotation yaw vl:" + suspiciousLevel;
-              int options = Anomaly.AnomalyOption.LIMIT_2 | Anomaly.AnomalyOption.DELAY_32s | Anomaly.AnomalyOption.SUGGEST_MINING;
+              int options = LIMIT_2 | DELAY_32s | SUGGEST_MINING;
               Anomaly anomaly = Anomaly.anomalyOf("83", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, options);
               parentCheck().saveAnomaly(player, anomaly);
               plugin.eventService().attackCancelService().requestDamageCancel(user, AttackCancelType.MEDIUM);
@@ -125,7 +127,7 @@ public final class RotationAccuracyYawHeuristic extends IntaveMetaCheckPart<Heur
           heuristicMeta.balanceYawAccuracyOther = 0;
         } else if (heuristicMeta.balanceYawAccuracyOther++ > 50) {
           String description = "high accuracy rotation yaw (2) vl:" + heuristicMeta.balanceYawAccuracyOther;
-          int options = Anomaly.AnomalyOption.LIMIT_2 | Anomaly.AnomalyOption.DELAY_32s | Anomaly.AnomalyOption.SUGGEST_MINING;
+          int options = LIMIT_2 | DELAY_32s | SUGGEST_MINING;
           Anomaly anomaly = Anomaly.anomalyOf("84", Confidence.MAYBE, Anomaly.Type.KILLAURA, description, options);
           parentCheck().saveAnomaly(player, anomaly);
           heuristicMeta.balanceYawAccuracyOther = 0;
@@ -150,7 +152,7 @@ public final class RotationAccuracyYawHeuristic extends IntaveMetaCheckPart<Heur
       double increase = MathHelper.minmax(-0.2, (1 - deviation) * 4, 4);
       heuristicMeta.bitBoxCornerBalance = (int) MathHelper.minmax(0, heuristicMeta.bitBoxCornerBalance + increase, 100);
       if (heuristicMeta.bitBoxCornerBalance > 30) {
-        int options = Anomaly.AnomalyOption.SUGGEST_MINING | Anomaly.AnomalyOption.DELAY_16s;
+        int options = SUGGEST_MINING | DELAY_16s;
         Anomaly anomaly = Anomaly.anomalyOf("85", Confidence.MAYBE, Anomaly.Type.KILLAURA, "high accuracy rotation yaw on hit-box corners", options);
         parentCheck().saveAnomaly(player, anomaly);
         heuristicMeta.bitBoxCornerBalance -= 20;

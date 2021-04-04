@@ -89,6 +89,10 @@ public final class FakePlayer implements TickTaskScheduler {
     user.meta().attackData().setFakePlayer(this);
   }
 
+  public static FakePlayerBuilder builder() {
+    return new FakePlayerBuilder();
+  }
+
   private List<RandomAction> loadActions() {
     List<RandomAction> actions = Lists.newArrayList(
       new SwingAnimationAction(parentPlayer, this),
@@ -447,6 +451,10 @@ public final class FakePlayer implements TickTaskScheduler {
       RandomAction.findAndProcessAction(actions, ActionType.HURT_ANIMATION);
       this.lastHurtAction = AccessHelper.now();
     }
+  }
+
+  public void moveOnTopOfPlayer() {
+    this.movement.moveOnTopOfPlayerTime = AccessHelper.now();
   }
 
   public int fakePlayerEntityId() {

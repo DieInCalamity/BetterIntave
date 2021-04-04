@@ -8,18 +8,17 @@ import org.bukkit.Location;
  */
 public final class ConvertEntityMovement extends Movement {
   private final static double MOVE_MULTIPLIER = 0.91f;
-  private boolean fallPart = false;
 
   @Override
   public void move(Location parentLocation) {
     Location expectedLocation = LocationUtils.locationBehind(parentLocation, this.botDistance);
+    if (moveOnTopOfPlayer()) {
+      expectedLocation.add(0.0, 2.1, 0.0);
+    }
     if (this.velocityChanged) {
       expectedLocation.add(this.velocityX, this.velocityY, this.velocityZ);
     } else {
       expectedLocation.add(this.velocityX, 0.0, this.velocityZ);
-    }
-    if (this.onGround && this.fallPart) {
-      this.fallPart = false;
     }
     this.motionX = expectedLocation.getX() - this.location.getX();
     this.motionY = expectedLocation.getY() - this.location.getY();

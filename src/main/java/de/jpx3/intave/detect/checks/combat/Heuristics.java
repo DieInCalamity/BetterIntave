@@ -11,6 +11,7 @@ import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.detect.checks.combat.heuristics.MiningStrategy;
 import de.jpx3.intave.detect.checks.combat.heuristics.detection.*;
+import de.jpx3.intave.detect.checks.combat.heuristics.mining.MiningStrategyContainer;
 import de.jpx3.intave.detect.checks.combat.heuristics.mining.MiningStrategyExecutor;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.event.packet.PacketDescriptor;
@@ -18,6 +19,7 @@ import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.annotate.Native;
+import de.jpx3.intave.tools.annotate.Nullable;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserCustomCheckMeta;
@@ -32,6 +34,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> {
@@ -46,7 +49,7 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
 
   private void setupEvaluationScheduler(IntavePlugin plugin) {
     //noinspection deprecation
-    Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, this::evaluateAll, 0, 400);
+    Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, this::evaluateAll, 0, 500);
   }
 
   @Native
@@ -73,17 +76,13 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
 
   public void saveAnomaly(Player player, Anomaly anomaly) {
     metaOf(player).anomalies.add(anomaly);
-    performMiningStrategy(player);
     Synchronizer.synchronize(() -> debug(player, anomaly));
   }
 
   @Native
   private void debug(Player player, Anomaly anomaly) {
-    HeuristicMeta heuristicMeta = metaOf(player);
-    List<Anomaly> anomalies = heuristicMeta.anomalies;
-    anomalies.removeIf(Anomaly::expired);
-    anomalies = new ArrayList<>(anomalies);
-
+    User user = userOf(player);
+    List<Anomaly> anomalies = catchAnomaliesOf(user, false);
     List<Confidence> allConfidences = resolveConfidencesOf(anomalies);
     Confidence overallConfidence = computeOverallConfidence(allConfidences);
 
@@ -115,16 +114,38 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
       return;
     }
 
-    HeuristicMeta heuristicMeta = metaOf(player);
-    List<Anomaly> anomalies = heuristicMeta.anomalies;
-    anomalies.removeIf(Anomaly::expired);
-    anomalies = new ArrayList<>(anomalies);
+    User user = userOf(player);
+    UserMetaAttackData attackData = user.meta().attackData();
 
-    // filter non active (delay)
-    anomalies.removeIf(anomaly -> !anomaly.active());
-
+    // External confidence
+    List<Anomaly> anomalies = catchAnomaliesOf(user, true);
     List<Confidence> allConfidences = resolveConfidencesOf(anomalies);
     Confidence overallConfidence = computeOverallConfidence(allConfidences);
+
+    // Internal confidence
+    List<Anomaly> anomaliesWithoutDelay = catchAnomaliesOf(user, false);
+    List<Confidence> allConfidencesWithoutDelay = resolveConfidencesOf(anomaliesWithoutDelay);
+    Confidence overallConfidenceWithoutDelay = computeOverallConfidence(allConfidencesWithoutDelay);
+
+    if (attackData.activeMiningStrategy != null) {
+      this.tryRemoveMiningStrategy(attackData.activeMiningStrategy);
+    }
+
+    boolean suitableConfidence = overallConfidenceWithoutDelay.level() >= Confidence.MAYBE.level() && overallConfidenceWithoutDelay.level() < Confidence.CERTAIN.level();
+    if (suitableConfidence && !enforceDecision) {
+      // perform mining strategies
+      if (attackData.activeMiningStrategy == null) {
+        MiningStrategy strategy = findSuitableMiningStrategy(
+          anomaliesWithoutDelay,
+          overallConfidenceWithoutDelay,
+          attackData.lastMiningStrategy
+        );
+        if (strategy != null) {
+          performMiningStrategy(user, strategy);
+        }
+      }
+    }
+
     if (overallConfidence.level() >= Confidence.LIKELY.level()) {
       Anomaly.Type type = findDominantType(anomalies);
       String identifier;
@@ -136,6 +157,17 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
       String details = type.details() + ": " + overallConfidence.name().toLowerCase().replace("_", " ") + " / " + identifier;
       plugin.violationProcessor().processViolation(player, 25, this.name(), "is fighting suspiciously", details, "confidence-thresholds." + overallConfidence.output());
     }
+  }
+
+  private List<Anomaly> catchAnomaliesOf(User user, boolean delay) {
+    List<Anomaly> anomalies = new ArrayList<>(metaOf(user).anomalies);
+    anomalies.removeIf(Anomaly::expired);
+    if (delay) {
+      // filter non active (delay)
+      anomalies.removeIf(anomaly -> !anomaly.active());
+    }
+    anomalies = new ArrayList<>(anomalies);
+    return anomalies;
   }
 
   private List<Confidence> resolveConfidencesOf(List<Anomaly> anomalies) {
@@ -161,37 +193,35 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
       .getKey();
   }
 
-  private void performMiningStrategy(Player player) {
-    User user = userOf(player);
-    UserMetaAttackData attackData = user.meta().attackData();
-    HeuristicMeta heuristicMeta = metaOf(player);
-    List<Anomaly> anomalies = heuristicMeta.anomalies;
-    List<Confidence> allConfidences = resolveConfidencesOf(anomalies);
-    Confidence overallConfidence = computeOverallConfidence(allConfidences);
-    Set<MiningStrategy> activeMiningStrategies = attackData.activeMiningStrategies.keySet();
-    if (overallConfidence.level() >= Confidence.PROBABLE.level()) {
-      // perform mining strategies
-      MiningStrategy suitableMiningStrategy = findSuitableMiningStrategy(activeMiningStrategies, anomalies, overallConfidence);
-      if (suitableMiningStrategy != null) {
-        performMiningStrategy(user, suitableMiningStrategy);
-      }
+  @Nullable
+  private MiningStrategy findSuitableMiningStrategy(
+    List<Anomaly> anomalies,
+    Confidence overallConfidence,
+    MiningStrategy lastMiningStrategy
+  ) {
+    boolean miningSuggested = anomalies.stream().anyMatch(Anomaly::miningSuggested);
+    if (!miningSuggested) {
+      return null;
     }
+    MiningStrategy strategy = null;
+    boolean triedEmulationLight = lastMiningStrategy == MiningStrategy.EMULATION_LIGHT;
+    switch (overallConfidence) {
+      case MAYBE:
+      case VERY_LIKELY:
+        strategy = MiningStrategy.EMULATION_LIGHT;
+        break;
+      case PROBABLE:
+        strategy = random() && !triedEmulationLight ? MiningStrategy.EMULATION_LIGHT : MiningStrategy.EMULATION_MODERATE;
+        break;
+      case LIKELY:
+        strategy = random() && !triedEmulationLight ? MiningStrategy.EMULATION_LIGHT : MiningStrategy.EMULATION_HEAVY;
+        break;
+    }
+    return strategy;
   }
 
-  private MiningStrategy findSuitableMiningStrategy(
-    Collection<MiningStrategy> activeStrategies,
-    List<Anomaly> anomalies,
-    Confidence overallConfidence
-  ) {
-    List<MiningStrategy> availableMiningStrategies = Arrays.stream(MiningStrategy.values()).collect(Collectors.toList());
-    availableMiningStrategies.removeAll(activeStrategies);
-    List<MiningStrategy> sorted = availableMiningStrategies
-      .stream()
-      .filter(miningStrategy -> overallConfidence.level() >= miningStrategy.detectionConfidence().level())
-      .sorted().collect(Collectors.toList());
-    boolean requiresHeavyCombat = anomalies.stream().anyMatch(Anomaly::requiresHeavyCombat);
-    sorted.removeIf(miningStrategy -> miningStrategy == MiningStrategy.EMULATION_HEAVY && !requiresHeavyCombat);
-    return sorted.isEmpty() ? null : sorted.get(sorted.size() - 1);
+  private boolean random() {
+    return ThreadLocalRandom.current().nextBoolean();
   }
 
   private void performMiningStrategy(User user, MiningStrategy miningStrategy) {
@@ -233,29 +263,46 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
     Player player = (Player) damager;
     User user = userOf(player);
     UserMetaAttackData attackData = user.meta().attackData();
-    if (!attackData.activeMiningStrategies.isEmpty()) {
-      removeExpiredStrategies(attackData.activeMiningStrategies);
-      submitAttackToExecutors(event, attackData.activeMiningStrategies.values());
+    if (attackData.activeMiningStrategy != null) {
+      MiningStrategyExecutor executor = attackData.activeMiningStrategy.executor();
+      executor.receiveAttackOfPlayer(event);
     }
   }
 
-  private void submitAttackToExecutors(
-    EntityDamageByEntityEvent event,
-    Iterable<MiningStrategyExecutor> activeMiningStrategies
+  private void tryRemoveMiningStrategy(
+    MiningStrategyContainer miningStrategyContainer
   ) {
-    for (MiningStrategyExecutor miningStrategy : activeMiningStrategies) {
-      miningStrategy.receiveAttackOfPlayer(event);
+    MiningStrategyExecutor executor = miningStrategyContainer.executor();
+    boolean expired = executor.expired();
+    if (expired) {
+      executor.unregisterStrategy();
     }
   }
 
-  private void removeExpiredStrategies(
-    Map<MiningStrategy, MiningStrategyExecutor> activeMiningStrategies
-  ) {
-    Collection<MiningStrategyExecutor> executors = activeMiningStrategies.values();
-    executors.stream()
-      .filter(MiningStrategyExecutor::expired)
-      .forEach(MiningStrategyExecutor::stopStrategy);
-    executors.removeIf(MiningStrategyExecutor::expired);
+  @PacketSubscription(
+    packets = {
+      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
+      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
+      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
+      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING"),
+      @PacketDescriptor(sender = Sender.CLIENT, packetName = "VEHICLE_MOVE")
+    }
+  )
+  public void receiveMovement(PacketEvent event) {
+    if (event.isCancelled()) {
+      return;
+    }
+    Player player = event.getPlayer();
+    User user = userOf(player);
+    UserMetaAttackData attackData = user.meta().attackData();
+    MiningStrategyContainer activeMiningStrategy = attackData.activeMiningStrategy;
+    if (activeMiningStrategy == null) {
+      return;
+    }
+    MiningStrategyExecutor executor = activeMiningStrategy.executor();
+    if (executor.threshold > 0) {
+      executor.threshold -= 0.002;
+    }
   }
 
   @BukkitEventSubscription

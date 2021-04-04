@@ -52,7 +52,7 @@ public final class RotationModuloResetHeuristic extends IntaveMetaCheckPart<Heur
         float penaltyYaw = movementData.lastRotationYaw;
         if (penaltyYaw != 0) {
           String description = "possible rotation modulo clamp";
-          int options = Anomaly.AnomalyOption.LIMIT_4 | Anomaly.AnomalyOption.DELAY_128s;
+          int options = Anomaly.AnomalyOption.LIMIT_4 | Anomaly.AnomalyOption.DELAY_128s | Anomaly.AnomalyOption.SUGGEST_MINING;
           Anomaly anomaly = Anomaly.anomalyOf("100", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, options);
           parentCheck().saveAnomaly(player, anomaly);
           plugin.eventService().attackCancelService().requestDamageCancel(user, AttackCancelType.MEDIUM);

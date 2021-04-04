@@ -16,6 +16,8 @@ import de.jpx3.intave.user.UserMetaAttackData;
 import de.jpx3.intave.user.UserMetaMovementData;
 import org.bukkit.entity.Player;
 
+import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.*;
+
 public final class RotationAccuracyPitchHeuristic extends IntaveMetaCheckPart<Heuristics, RotationAccuracyPitchHeuristic.RotationAccuracyHeuristicMeta> {
   public RotationAccuracyPitchHeuristic(Heuristics parentCheck) {
     super(parentCheck, RotationAccuracyPitchHeuristic.RotationAccuracyHeuristicMeta.class);
@@ -48,7 +50,7 @@ public final class RotationAccuracyPitchHeuristic extends IntaveMetaCheckPart<He
         // Check perfect yaw
         if (distanceToPerfectPitch == 0) {
           String description = "rotated pitch too precisely (0.0)";
-          int options = Anomaly.AnomalyOption.LIMIT_2 | Anomaly.AnomalyOption.DELAY_128s | Anomaly.AnomalyOption.SUGGEST_MINING;
+          int options = LIMIT_2 | DELAY_128s | SUGGEST_MINING;
           Anomaly anomaly = Anomaly.anomalyOf("71", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, options);
           parentCheck().saveAnomaly(player, anomaly);
         }

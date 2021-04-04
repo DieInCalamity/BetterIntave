@@ -2,6 +2,7 @@ package de.jpx3.intave.fakeplayer.movement.types;
 
 import de.jpx3.intave.fakeplayer.movement.HeadRotationMovement;
 import de.jpx3.intave.fakeplayer.movement.LocationUtils;
+import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.world.collider.Collider;
 import de.jpx3.intave.world.collider.result.QuickColliderSimulationResult;
 import org.bukkit.Location;
@@ -24,6 +25,7 @@ public abstract class Movement extends HeadRotationMovement {
   public double botDistance = 0.0;
   private Location prevParentLocation;
   private int lastCombatEvent = 100;
+  public long moveOnTopOfPlayerTime;
 
   Movement() {
   }
@@ -125,5 +127,9 @@ public abstract class Movement extends HeadRotationMovement {
 
   public double maxBotDistance() {
     return 10.0;
+  }
+
+  public boolean moveOnTopOfPlayer() {
+    return AccessHelper.now() - this.moveOnTopOfPlayerTime < 7000;
   }
 }

@@ -29,6 +29,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.util.Vector;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -80,7 +81,15 @@ public final class AttackDispatcher implements EventProcessor {
         fakePlayer.onAttack();
         if (fakePlayer.fakePlayerEntityId() == entityId) {
           FakePlayerAttackSubscriber attackSubscriber = fakePlayer.attackSubscriber();
-          attackSubscriber.receive();
+          Vector location = fakePlayer.movement().location.toVector();
+          Vector actualLocation = new Vector(
+            attackData.fakePlayerLastReportedX,
+            attackData.fakePlayerLastReportedY,
+            attackData.fakePlayerLastReportedZ
+          );
+          if (location.distance(actualLocation) < 0.1) {
+            attackSubscriber.receive();
+          }
         }
       }
     }

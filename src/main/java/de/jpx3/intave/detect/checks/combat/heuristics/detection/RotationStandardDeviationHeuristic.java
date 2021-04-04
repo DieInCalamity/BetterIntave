@@ -23,6 +23,8 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
+import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.*;
+
 public final class RotationStandardDeviationHeuristic extends IntaveMetaCheckPart<Heuristics, RotationStandardDeviationHeuristic.RotationStandardDeviationMeta> {
   private final IntavePlugin plugin;
 
@@ -84,7 +86,8 @@ public final class RotationStandardDeviationHeuristic extends IntaveMetaCheckPar
     if (standardDeviation < 1.0) {
       if (heuristicMeta.rotationBalanceYaw++ >= 2) {
         String description = "standard deviation (yaw) (" + standardDeviation + ")";
-        Anomaly anomaly = Anomaly.anomalyOf("121", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, Anomaly.AnomalyOption.LIMIT_2);
+        int options = LIMIT_2 | SUGGEST_MINING;
+        Anomaly anomaly = Anomaly.anomalyOf("121", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, options);
         parentCheck().saveAnomaly(player, anomaly);
         heuristicMeta.rotationBalanceYaw--;
         plugin.eventService().attackCancelService().requestDamageCancel(user, AttackCancelType.MEDIUM);
@@ -102,7 +105,8 @@ public final class RotationStandardDeviationHeuristic extends IntaveMetaCheckPar
     if (standardDeviation < 3.0) {
       if (heuristicMeta.rotationBalancePitch++ >= 4) {
         String description = "standard deviation (pitch) (" + standardDeviation + ")";
-        Anomaly anomaly = Anomaly.anomalyOf("122", Confidence.MAYBE, Anomaly.Type.KILLAURA, description, Anomaly.AnomalyOption.LIMIT_2);
+        int options = LIMIT_2 | SUGGEST_MINING;
+        Anomaly anomaly = Anomaly.anomalyOf("122", Confidence.MAYBE, Anomaly.Type.KILLAURA, description, options);
         parentCheck().saveAnomaly(player, anomaly);
         heuristicMeta.rotationBalancePitch -= 2;
         plugin.eventService().attackCancelService().requestDamageCancel(user, AttackCancelType.LIGHT);

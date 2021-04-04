@@ -23,6 +23,8 @@ import de.jpx3.intave.user.UserRepository;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.*;
+
 public final class BlockingHeuristic extends IntaveMetaCheckPart<Heuristics, BlockingHeuristic.BlockingMeta> {
   private final IntavePlugin plugin;
 
@@ -80,7 +82,7 @@ public final class BlockingHeuristic extends IntaveMetaCheckPart<Heuristics, Blo
         int ticksBetweenBlockAndUnblock = meta.ticksBetweenBlockAndUnblock;
         if (ticksBetweenBlockAndUnblock == 0) {
           String description = "unblocked too quickly (" + ticksBetweenBlockAndUnblock + ")";
-          int options = Anomaly.AnomalyOption.DELAY_128s | Anomaly.AnomalyOption.LIMIT_2;
+          int options = DELAY_128s | LIMIT_2 | SUGGEST_MINING;
           Anomaly anomaly = Anomaly.anomalyOf("143", Confidence.MAYBE, Anomaly.Type.KILLAURA, description, options);
           parentCheck().saveAnomaly(player, anomaly);
           plugin.eventService().attackCancelService().requestDamageCancel(user, AttackCancelType.BLOCKING);
@@ -95,7 +97,7 @@ public final class BlockingHeuristic extends IntaveMetaCheckPart<Heuristics, Blo
 
       if (meta.releasedItemAfterClientTick) {
         String description = "sent multiple blocking interactions between client tick";
-        int options = Anomaly.AnomalyOption.DELAY_128s;
+        int options = DELAY_128s | SUGGEST_MINING;
         Anomaly anomaly = Anomaly.anomalyOf("141", Confidence.CERTAIN, Anomaly.Type.KILLAURA, description, options);
         parentCheck().saveAnomaly(player, anomaly);
         plugin.eventService().attackCancelService().requestDamageCancel(user, AttackCancelType.BLOCKING);
@@ -114,7 +116,7 @@ public final class BlockingHeuristic extends IntaveMetaCheckPart<Heuristics, Blo
           meta.acaBlockingVL++;
           if (meta.acaBlockingVL > 2) {
             String description = "sent too few packets between block-toggle packets (vl: " + meta.acaBlockingVL + ")";
-            int options = Anomaly.AnomalyOption.DELAY_128s;
+            int options = DELAY_128s | SUGGEST_MINING;
             Anomaly anomaly = Anomaly.anomalyOf("142", Confidence.CERTAIN, Anomaly.Type.KILLAURA, description, options);
             parentCheck().saveAnomaly(player, anomaly);
             plugin.eventService().attackCancelService().requestDamageCancel(user, AttackCancelType.BLOCKING);

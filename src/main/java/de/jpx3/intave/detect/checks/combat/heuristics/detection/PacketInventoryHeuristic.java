@@ -16,6 +16,8 @@ import de.jpx3.intave.event.punishment.AttackCancelType;
 import de.jpx3.intave.user.*;
 import org.bukkit.entity.Player;
 
+import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.*;
+
 public final class PacketInventoryHeuristic extends IntaveMetaCheckPart<Heuristics, PacketInventoryHeuristic.PacketInventoryMeta> {
   private final IntavePlugin plugin;
 
@@ -54,7 +56,7 @@ public final class PacketInventoryHeuristic extends IntaveMetaCheckPart<Heuristi
     UserMetaClientData clientData = user.meta().clientData();
 
     if (clientData.flyingPacketStream() && meta.inventoryTicks <= 1 && meta.performedInventoryOpenOperation) {
-      int options = Anomaly.AnomalyOption.SUGGEST_MINING | Anomaly.AnomalyOption.DELAY_128s;
+      int options = SUGGEST_MINING | DELAY_128s | SUGGEST_MINING;
       String details = "closed inventory too quickly (" + meta.inventoryTicks + ")";
       Anomaly anomaly = Anomaly.anomalyOf("131", Confidence.PROBABLE, Anomaly.Type.KILLAURA, details, options);
       parentCheck().saveAnomaly(player, anomaly);
@@ -94,7 +96,7 @@ public final class PacketInventoryHeuristic extends IntaveMetaCheckPart<Heuristi
 
     if (inventoryOpen && hasRotation && movementData.lastTeleport > 20) {
       if (meta.rotationsInInventory++ > 1) {
-        int options = Anomaly.AnomalyOption.SUGGEST_MINING | Anomaly.AnomalyOption.DELAY_32s;
+        int options = SUGGEST_MINING | DELAY_32s | SUGGEST_MINING;
         String details = "sent rotations in inventory (" + meta.rotationsInInventory + " rotations)";
         Anomaly anomaly = Anomaly.anomalyOf("132", Confidence.NONE, Anomaly.Type.KILLAURA, details, options);
         parentCheck().saveAnomaly(player, anomaly);
