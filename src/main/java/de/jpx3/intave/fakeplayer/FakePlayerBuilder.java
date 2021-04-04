@@ -12,8 +12,8 @@ public final class FakePlayerBuilder {
   private int entityID = -1;
   private String name;
   private UUID uuid = null;
-  private String tabListPrefix;
-  private String prefix;
+  private String tabListPrefix = "";
+  private String prefix = "";
   private Movement movement = null;
   private int timeout = 10_000;
   private boolean invisible = false;
@@ -106,8 +106,8 @@ public final class FakePlayerBuilder {
       this.movement,
       this.parentPlayer,
       new WrappedGameProfile(this.uuid, this.name),
-      this.tabListPrefix == null ? this.name : this.tabListPrefix,
-      this.prefix == null ? this.name : this.prefix,
+      this.tabListPrefix,
+      this.prefix,
       this.entityID,
       this.timeout,
       this.invisible,

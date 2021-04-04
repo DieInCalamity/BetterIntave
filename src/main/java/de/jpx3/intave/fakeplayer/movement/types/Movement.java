@@ -52,22 +52,20 @@ public abstract class Movement extends HeadRotationMovement {
     move(parentLocation);
     double startMotionX = this.motionX;
     double startMotionZ = this.motionZ;
+    QuickColliderSimulationResult result = Collider.simulateQuickCollision(
+      location.getWorld(),
+      location.getX(), location.getY(), location.getZ(),
+      motionX, motionY, motionZ
+    );
     if (doBlockCollisions()) {
-      QuickColliderSimulationResult result = Collider.simulateQuickCollision(
-        location.getWorld(),
-        location.getX(), location.getY(), location.getZ(),
-        motionX, motionY, motionZ
-      );
-
       this.motionX = result.motionX();
       this.motionY = result.motionY();
       this.motionZ = result.motionZ();
-      this.onGround = result.onGround();
-
       if (this.velocityChanged) {
         this.velocityChanged = false;
       }
     }
+    this.onGround = result.onGround();
 
     // Renew location
     this.prevLocation = this.location.clone();
