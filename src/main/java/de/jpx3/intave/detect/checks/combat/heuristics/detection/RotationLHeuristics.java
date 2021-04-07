@@ -83,7 +83,7 @@ public final class RotationLHeuristics extends IntaveMetaCheckPart<Heuristics, R
     }
 
 
-    if (entity.moving(0.1)) {
+    if (entity.moving(0.05)) {
       heuristicMeta.distancesToPerfectYaw.add(distanceToPerfectYaw);
       heuristicMeta.yawSpeeds.add((double) yawSpeed);
     }

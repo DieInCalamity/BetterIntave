@@ -138,7 +138,7 @@ public final class RotationAccuracyYawHeuristic extends IntaveMetaCheckPart<Heur
 
     if (Math.hypot(movementData.motionX(), movementData.motionZ()) < 0.05
       || attackData.lastReach() < 1
-      || !entity.moving(0.1)) {
+      || !entity.moving(0.05)) {
       return;
     }
 

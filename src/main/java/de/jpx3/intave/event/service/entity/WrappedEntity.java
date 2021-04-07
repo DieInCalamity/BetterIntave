@@ -224,7 +224,7 @@ public class WrappedEntity implements Cloneable {
 
   public boolean moving(double distance) {
     EntityPositionContext positions = this.position;
-    return Math.hypot(positions.newPosX - positions.prevPosX, positions.newPosZ - positions.prevPosZ) >= distance;
+    return Math.hypot(positions.newPosX - positions.posX, positions.newPosZ - positions.posZ) >= distance;
   }
 
   public boolean tracingEnabled() {
