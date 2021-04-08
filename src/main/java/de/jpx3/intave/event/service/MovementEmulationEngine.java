@@ -162,11 +162,11 @@ public final class MovementEmulationEngine {
     futurePosition.setPitch(movementData.rotationPitch);
 
     int nextTick = ticks - 1;
-    if (nextTick <= 0 || motion.length() < 0.01) {
+    if (nextTick <= 0 || motion.lengthSquared() < 0.01) {
       teleport(player, futurePosition);
       // velocity
       WrappedAxisAlignedBB boundingBox = WrappedAxisAlignedBB.createFromPosition(user, futurePosition);
-      Vector futureMotion = motionProceed(motion, user, boundingBox);
+      Vector futureMotion = motionProceed(motion, user, boundingBox, true);
       movementData.willReceiveSetbackVelocity = true;
       player.setVelocity(futureMotion);
       movementData.physicsMotionX = futureMotion.getX();
@@ -184,28 +184,28 @@ public final class MovementEmulationEngine {
       WrappedAxisAlignedBB boundingBox = WrappedAxisAlignedBB.createFromPosition(user, futurePosition);
       Vector emulationVelocity = movementData.emulationVelocity;
       if (emulationVelocity != null) {
-        motion = motionProceed(emulationVelocity, user, boundingBox);
+        motion = motionProceed(emulationVelocity, user, boundingBox, false);
         movementData.emulationVelocity = null;
       } else {
-        motion = motionProceed(motion, user, boundingBox);
+        motion = motionProceed(motion, user, boundingBox, false);
       }
       // teleport
       teleport(player, futurePosition);
       if (IntaveControl.DEBUG_EMULATION) {
-        String s = "[E/] " + MathHelper.formatMotion(motion) + " at " + MathHelper.formatPosition(futurePosition) + " (" + ticks + " ticks remaining)";
+        String s = "[E/] " + MathHelper.formatMotion(motion) + " at " + MathHelper.formatPosition(futurePosition) + " (" + nextTick + " ticks remaining)";
         player.sendMessage(s);
       }
       Vector finalMotion = motion;
-      Synchronizer.synchronizeDelayed(() -> proceedEmulationTick(player, finalMotion, nextTick), 1);
       // velocity
-      Vector futureMotion = motionProceed(motion, user, boundingBox);
+      Vector futureMotion = motionProceed(motion, user, boundingBox, true);
       movementData.willReceiveSetbackVelocity = true;
       movementData.setbackOverrideVelocity = futureMotion;
       player.setVelocity(new Vector(0, 0, 0));
+      Synchronizer.synchronizeDelayed(() -> proceedEmulationTick(player, finalMotion, nextTick), 1);
     }
   }
 
-  private Vector motionProceed(Vector lastMotion, User user, WrappedAxisAlignedBB boundingBox) {
+  private Vector motionProceed(Vector lastMotion, User user, WrappedAxisAlignedBB boundingBox, boolean updateUser) {
     Player player = user.player();
     UserMetaMovementData movementData = user.meta().movementData();
     lastMotion = lastMotion.clone();
@@ -241,8 +241,10 @@ public final class MovementEmulationEngine {
       motionY *= 0.05f;
       motionZ *= 0.25D;
     }
-    movementData.lastOnGround = movementData.onGround;
-    movementData.onGround = onGround;
+    if (updateUser) {
+      movementData.lastOnGround = movementData.onGround;
+      movementData.onGround = onGround;
+    }
     collisionVector = resolveCollisionVector(player, boundingBox, motionX, motionY, motionZ);
 
     // webs, water
