@@ -323,13 +323,11 @@ public final class Physics extends IntaveCheck {
 
     if (distance > 1e-3) {
       movementData.suspiciousMovement = true;
-      if (violationLevelData.physicsVL > 50 && distance > 0.3) {
-        ComplexColliderSimulationResult entityCollisionResult = simulationService.simulateMovementWithoutKeyPress(user);
-        MotionVector setbackContext = entityCollisionResult.context();
-        predictedX = setbackContext.motionX;
-        predictedY = setbackContext.motionY;
-        predictedZ = setbackContext.motionZ;
-      }
+      ComplexColliderSimulationResult entityCollisionResult = simulationService.simulateMovementWithoutKeyPress(user);
+      MotionVector setbackContext = entityCollisionResult.context();
+      predictedX = setbackContext.motionX;
+      predictedY = setbackContext.motionY;
+      predictedZ = setbackContext.motionZ;
     }
 
     if (flying || spectator) {
