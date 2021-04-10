@@ -99,9 +99,6 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
       facing.setY(floatStructureModifier.read(1));
       facing.setZ(floatStructureModifier.read(2));
     }
-    Location playerLocation = movementData.verifiedLocation().clone();
-    playerLocation.setYaw(movementData.rotationYaw);
-    playerLocation.setPitch(movementData.rotationPitch);
     Material clickedType = BukkitBlockAccess.blockAccess(blockPosition.toLocation(player.getWorld())).getType();
     boolean clickable = BlockDataAccess.isClickable(clickedType);
     Material itemTypeInHand = user.meta().inventoryData().heldItemType();
