@@ -12,7 +12,6 @@ import de.jpx3.intave.detect.checks.movement.physics.Pose;
 import de.jpx3.intave.detect.checks.movement.physics.SimulationProcessor;
 import de.jpx3.intave.detect.checks.movement.physics.simulators.PoseSimulator;
 import de.jpx3.intave.diagnostics.timings.Timings;
-import de.jpx3.intave.event.service.entity.LazyEntityCollisionService;
 import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.annotate.DispatchCrossCall;
@@ -50,6 +49,8 @@ import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_AQUATIC_UP
 @Relocate
 public final class Physics extends IntaveCheck {
   private final static double VL_DECREMENT_PER_VALID_MOVE = 0.05;
+  private final static double VELOCITY_VL_THRESHOLD = 3;
+
   private final IntavePlugin plugin;
   private final CheckViolationLevelDecrementer decrementer;
   private MethodHandle fallDamageInvokeMethod;
@@ -304,16 +305,14 @@ public final class Physics extends IntaveCheck {
       movementData.artificialFallDistance = 0;
     }
 
+    boolean velocityDetected = false;
     if (!skipVLCalculation && movementData.pastExternalVelocity < 10 && !movementData.recentlyEncounteredFlyingPacket(2)) {
-      if (horizontalViolationIncrease > 0) {
-        horizontalViolationIncrease = Math.max(horizontalViolationIncrease, 1.0);
-      }
-      // Could be smaller (testing required)
       if (distance > 0.0005) {
-        boolean aggressive = violationLevelData.physicsVelocityVL++ > 2;
+        boolean aggressive = violationLevelData.physicsVelocityVL++ >= VELOCITY_VL_THRESHOLD;
         if (aggressive || distance > 0.01) {
           if (aggressive) {
             horizontalViolationIncrease = Math.max(2, horizontalViolationIncrease);
+            velocityDetected = true;
           }
           horizontalViolationIncrease *= 10.0;
         }
@@ -443,6 +442,10 @@ public final class Physics extends IntaveCheck {
       Vector emulationMotion = new Vector(predictedX, predictedY, predictedZ);
       String message = "moved incorrectly";
       String details = received + " pred: " + expected;
+
+      if (velocityDetected) {
+        details += ", velocity";
+      }
 
       user.boundingBoxAccess().identityInvalidate();
 
