@@ -67,7 +67,11 @@ public final class MovementEmulationEngine {
     }
 
     // starting conditions
-    motion = resolveCollisionVector(player, movementData.boundingBox(), motion.getX(), motion.getY(), motion.getZ());
+    double positionX = movementData.verifiedPositionX;
+    double positionY = movementData.verifiedPositionY;
+    double positionZ = movementData.verifiedPositionZ;
+    WrappedAxisAlignedBB boundingBox = WrappedAxisAlignedBB.createFromPosition(user, positionX, positionY, positionZ);
+    motion = resolveCollisionVector(player, boundingBox, motion.getX(), motion.getY(), motion.getZ());
     violationLevelData.isInActiveTeleportBundle = true;
     if (IntaveControl.DEBUG_EMULATION) {
       player.sendMessage("[E+] " + MathHelper.formatMotion(motion) + " (" + ticks + " ticks)");
@@ -184,10 +188,10 @@ public final class MovementEmulationEngine {
       WrappedAxisAlignedBB boundingBox = WrappedAxisAlignedBB.createFromPosition(user, futurePosition);
       Vector emulationVelocity = movementData.emulationVelocity;
       if (emulationVelocity != null) {
-        motion = motionProceed(emulationVelocity, user, boundingBox, false);
+        motion = motionProceed(emulationVelocity, user, boundingBox, true);
         movementData.emulationVelocity = null;
       } else {
-        motion = motionProceed(motion, user, boundingBox, false);
+        motion = motionProceed(motion, user, boundingBox, true);
       }
       // teleport
       teleport(player, futurePosition);
@@ -197,11 +201,11 @@ public final class MovementEmulationEngine {
       }
       Vector finalMotion = motion;
       // velocity
-      Vector futureMotion = motionProceed(motion, user, boundingBox, true);
+      Synchronizer.synchronizeDelayed(() -> proceedEmulationTick(player, finalMotion, nextTick), 1);
+      Vector futureMotion = motionProceed(motion, user, boundingBox, false);
       movementData.willReceiveSetbackVelocity = true;
       movementData.setbackOverrideVelocity = futureMotion;
       player.setVelocity(new Vector(0, 0, 0));
-      Synchronizer.synchronizeDelayed(() -> proceedEmulationTick(player, finalMotion, nextTick), 1);
     }
   }
 
