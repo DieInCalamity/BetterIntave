@@ -121,7 +121,6 @@ public final class MovementEmulationEngine {
       double motionY = (boundingBox.minY + boundingBox.maxY) / 2.0;
       double motionZ = (boundingBox.minZ + boundingBox.maxZ) / 2.0;
       Vector pushVector = resolvePushVector(player, motionX, motionY, motionZ);
-      pushVector.setY(Math.min(0, pushVector.getY()));
 
       Location location = movementData.verifiedLocation().clone().add(pushVector);
       teleport(player, location);
@@ -403,6 +402,9 @@ public final class MovementEmulationEngine {
     }
     if (i == 5) {
       vector.setZ(f);
+    }
+    if (isOpenBlockSpace(player, blockPosition.up())) {
+      vector.setY(f);
     }
     return vector;
   }

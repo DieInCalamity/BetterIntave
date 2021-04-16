@@ -4,6 +4,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.CheckViolationLevelDecrementer;
 import de.jpx3.intave.detect.IntaveMetaCheck;
+import de.jpx3.intave.detect.checks.movement.physics.SimulationProcessor;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
@@ -15,6 +16,7 @@ import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.*;
+import de.jpx3.intave.world.collider.result.ComplexColliderSimulationResult;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -27,6 +29,7 @@ import java.util.Map;
 
 public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
   private final IntavePlugin plugin;
+  private final SimulationProcessor simulationProcessor;
   private final CheckViolationLevelDecrementer decrementer;
 
   private final boolean highToleranceMode;
@@ -35,7 +38,8 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
     super("Timer", "timer", TimerData.class);
     this.plugin = plugin;
     this.decrementer = new CheckViolationLevelDecrementer(this, 0.2);
-    highToleranceMode = configuration().settings().boolBy("high-tolerance", false);
+    this.simulationProcessor = plugin.checkService().searchCheck(Physics.class).simulationService();
+    this.highToleranceMode = configuration().settings().boolBy("high-tolerance", false);
     if (highToleranceMode) {
       IntaveLogger.logger().info("Enabled high ping tolerance");
     }
@@ -92,14 +96,14 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
 
     int allowedLagInSeconds = trustFactorSetting("buffer-size", player);
 
-    if(highToleranceMode) {
+    if (highToleranceMode) {
       allowedLagInSeconds *= 1.5;
     }
 
     if (AccessHelper.now() - timerData.lastRespawn < 6000) {
       allowedLagInSeconds = Math.max(allowedLagInSeconds, 8);
     }
-    if(AccessHelper.now() - timerData.lastLagSpike < 12000 && !highToleranceMode) {
+    if (AccessHelper.now() - timerData.lastLagSpike < 12000 && !highToleranceMode) {
       allowedLagInSeconds = Math.max(allowedLagInSeconds / 2, 1);
     }
 
@@ -138,14 +142,12 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
       ViolationContext violationContext = plugin.violationProcessor().processViolation(violation);
 
       if (violationContext.shouldCounterThreat()) {
-        UserMetaMovementData movementData = user.meta().movementData();
-        plugin.eventService().emulationEngine().emulationSetBack(player, new Vector(movementData.physicsMotionX, movementData.physicsMotionY, movementData.physicsMotionZ), 12);
-        if (timerData.timerBalance > 50) {
-          event.setCancelled(true);
-        }
-        // packet removed
-//        timerData.timerBalance -= 5.0;
+        ComplexColliderSimulationResult result = simulationProcessor.simulateMovementWithoutKeyPress(user);
+        Vector motionVector = result.context().toBukkitVector();
+        plugin.eventService().emulationEngine().emulationSetBack(player, motionVector, 8);
+        user.meta().movementData().invalidMovement = true;
       }
+
       timerData.lastTimerFlag = AccessHelper.now();
       // leniency
       timerData.timerBalance -= highToleranceMode || timerData.timerBalance > overflowLimit ? 2.5 : 0.5;
@@ -200,18 +202,6 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
     }
   }
 
-  public void checkSetback(PacketEvent event) {
-    Player player = event.getPlayer();
-    User user = UserRepository.userOf(player);
-    TimerData timerData = metaOf(user);
-
-    if (timerData.flagTick) {
-      UserMetaMovementData movementData = user.meta().movementData();
-      plugin.eventService().emulationEngine().emulationSetBack(player, new Vector(movementData.physicsMotionX, movementData.physicsMotionY, movementData.physicsMotionZ), 6);
-      event.setCancelled(true);
-    }
-  }
-
   @Override
   public boolean enabled() {
     return true;
@@ -223,6 +213,5 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
     public long lastTimerFlag;
     public long lastLagSpike;
     public long lastRespawn;
-    public boolean flagTick;
   }
 }
