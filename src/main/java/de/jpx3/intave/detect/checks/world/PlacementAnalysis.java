@@ -18,7 +18,7 @@ public final class PlacementAnalysis extends IntaveCheck {
   public void processViolation(Player player) {
     Violation violation = Violation.fromType(PlacementAnalysis.class)
       .withPlayer(player).withMessage("suspicious block-placement")
-      .withDefaultThreshold().withVL(1)
+      .withVL(1)
       .build();
     plugin.violationProcessor().processViolation(violation);
   }

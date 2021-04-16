@@ -377,7 +377,7 @@ public final class Physics extends IntaveCheck {
 
         Violation violation = Violation.fromType(Physics.class)
           .withPlayer(player).withMessage(message).withDetails(details)
-          .withDefaultThreshold().withVL(0)
+          .withVL(0)
           .build();
         plugin.violationProcessor().processViolation(violation);
 
@@ -415,7 +415,7 @@ public final class Physics extends IntaveCheck {
           String details = (multipleBoxes ? intersectionBoundingBoxesCurrent.size() : "one") + " box" + (multipleBoxes ? "es" : "");
           Violation violation = Violation.fromType(Physics.class)
             .withPlayer(player).withMessage(message).withDetails(details)
-            .withDefaultThreshold().withVL(0)
+            .withVL(0)
             .build();
           plugin.violationProcessor().processViolation(violation);
           WrappedAxisAlignedBB startPhaseBoundingBox = WrappedAxisAlignedBB.createFromPosition(user, movementData.verifiedLocation());
@@ -462,7 +462,7 @@ public final class Physics extends IntaveCheck {
 
       Violation violation = Violation.fromType(Physics.class)
         .withPlayer(player).withMessage(message).withDetails(details)
-        .withDefaultThreshold().withVL(violationLevelIncrease / 10d)
+        .withVL(violationLevelIncrease / 10d)
         .build();
       ViolationContext violationContext = plugin.violationProcessor().processViolation(violation);
 

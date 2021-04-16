@@ -228,7 +228,7 @@ public final class MovementDispatcher implements EventProcessor {
       String details = "moved " + MathHelper.formatDouble(distance, 2) + " blocks";
       Violation violation = Violation.fromType(Physics.class)
         .withPlayer(player).withMessage(message).withDetails(details)
-        .withDefaultThreshold().withVL(25)
+        .withVL(25)
         .build();
       plugin.violationProcessor().processViolation(violation);
       return;

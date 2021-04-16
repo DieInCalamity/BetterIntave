@@ -136,9 +136,8 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
       String balanceAsString = MathHelper.formatDouble(timerData.timerBalance / 10, 2);
       statistics().increaseFails();
 
-      Violation violation = Violation.fromType(Timer.class)
-        .withPlayer(player).withMessage("moved too frequently").withDetails(balanceAsString + " ticks ahead")
-        .withDefaultThreshold().withVL(0.5)
+      Violation violation = Violation.fromType(Timer.class).withPlayer(player)
+        .withMessage("moved too frequently").withDetails(balanceAsString + " ticks ahead").withVL(0.5)
         .build();
       ViolationContext violationContext = plugin.violationProcessor().processViolation(violation);
 

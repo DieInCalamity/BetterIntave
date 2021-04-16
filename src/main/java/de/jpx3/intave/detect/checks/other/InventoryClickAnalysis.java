@@ -35,7 +35,7 @@ public final class InventoryClickAnalysis extends IntaveCheck {
       String message = "insufficient inventory-click (inventory not open)";
       Violation violation = Violation.fromType(InventoryClickAnalysis.class)
         .withPlayer(player).withMessage(message)
-        .withDefaultThreshold().withVL(1)
+        .withVL(1)
         .build();
       plugin.violationProcessor().processViolation(violation);
       event.setCancelled(true);

@@ -36,7 +36,7 @@ public final class ProtocolScanner extends IntaveMetaCheck<ProtocolScanner.Proto
       String details = "pitch at " + MathHelper.formatDouble(rotationPitch, 4);
       Violation violation = Violation.fromType(ProtocolScanner.class)
         .withPlayer(player).withMessage(message).withDetails(details)
-        .withDefaultThreshold().withVL(100)
+        .withVL(100)
         .build();
       plugin.violationProcessor().processViolation(violation);
     }
@@ -56,7 +56,7 @@ public final class ProtocolScanner extends IntaveMetaCheck<ProtocolScanner.Proto
     if (meta.lastSlot == slot && slot > 0) {
       Violation violation = Violation.fromType(ProtocolScanner.class)
         .withPlayer(player).withMessage("sent slot twice").withDetails("slot " + slot)
-        .withDefaultThreshold().withVL(meta.slotPacketsSent > 4 ? 100 : 0)
+        .withVL(meta.slotPacketsSent > 4 ? 100 : 0)
         .build();
       plugin.violationProcessor().processViolation(violation);
     }

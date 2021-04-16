@@ -1,13 +1,9 @@
 package de.jpx3.intave.command;
 
-import com.google.common.collect.Lists;
 import de.jpx3.intave.command.translator.*;
 import org.bukkit.command.CommandSender;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class TypeTranslators {
   private final static Map<Class<?>, TypeTranslator<?>> typeTranslatorMap = new HashMap<>();
@@ -31,10 +27,15 @@ public final class TypeTranslators {
   }
 
   public static Object tryTranslate(CommandSender player, Class<?> type, String element, String forward) {
-  /*  while (type.isArray()) {
-      type = type.getComponentType();
+    if(type.isEnum()) {
+      Enum<?>[] enumConstants = (Enum<?>[]) type.getEnumConstants();
+      for (Enum<?> enumConstant : enumConstants) {
+        if(enumConstant.name().equalsIgnoreCase(element) || niceifyEnumName(enumConstant.name()).equalsIgnoreCase(element)) {
+          return enumConstant;
+        }
+      }
+      return ("Could not find " + type + " in " + type.getSimpleName());
     }
-*/
     TypeTranslator<?> typeTranslator = typeTranslatorMap.get(type);
     if(typeTranslator == null) {
       return ("Invalid type: " + type);
@@ -43,7 +44,19 @@ public final class TypeTranslators {
   }
 
   public static List<String> findTabCompletes(CommandSender player, Class<?> type, String element, String forward) {
+    if(type.isEnum()) {
+      Enum<?>[] enumConstants = (Enum<?>[]) type.getEnumConstants();
+      List<String> strings = new ArrayList<>();
+      for (Enum<?> enumConstant : enumConstants) {
+        strings.add(niceifyEnumName(enumConstant.name()));
+      }
+      return strings;
+    }
     TypeTranslator<?> typeTranslator = typeTranslatorMap.get(type);
     return typeTranslator == null ? Collections.emptyList() : typeTranslator.settingConstrains(player);
+  }
+
+  private static String niceifyEnumName(String input) {
+    return input.toLowerCase(Locale.ROOT).replace("_", "");
   }
 }
