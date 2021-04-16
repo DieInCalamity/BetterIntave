@@ -161,7 +161,7 @@ public final class MovementEmulationEngine {
     Vector emulationVelocity = movementData.emulationVelocity;
     if (emulationVelocity != null) {
 //      Bukkit.broadcastMessage(player.getName() + ": velocity midair apply " + emulationVelocity);
-      motion = motionProceed(emulationVelocity, user, boundingBox, false);
+      motion = motionProceed(emulationVelocity, user, boundingBox, true);
       movementData.emulationVelocity = null;
     } else {
       motion = motionProceed(motion, user, boundingBox, startingTicks > ticks);
