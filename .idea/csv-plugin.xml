@@ -3,6 +3,13 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="\src\main\java\de\jpx3\intave\IntaveControl.java">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\src\main\java\de\jpx3\intave\IntavePlugin.java">
           <value>
             <Attribute>
@@ -158,6 +165,13 @@
           </value>
         </entry>
         <entry key="\src\main\java\de\jpx3\intave\event\service\violation\ViolationProcessor.java">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\src\main\java\de\jpx3\intave\filter\HealthFilter.java">
           <value>
             <Attribute>
               <option name="separator" value=";" />

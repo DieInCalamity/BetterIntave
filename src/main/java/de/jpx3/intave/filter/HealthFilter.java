@@ -25,6 +25,9 @@ public final class HealthFilter extends Filter {
     }
   )
   public void depriveHealth(PacketEvent event) {
+    if(!enabled()) {
+      return;
+    }
     try {
       if (event.getPacket().getIntegers().getValues().isEmpty()) {
         return;
@@ -51,5 +54,11 @@ public final class HealthFilter extends Filter {
     if (watcher != null && watcher.getObject(6) != null && watcher.getFloat(6) != 0.0F) {
       watcher.setObject(6, Float.NaN);
     }
+  }
+
+  @Override
+  protected boolean enabled() {
+    return false;
+//    return super.enabled();
   }
 }

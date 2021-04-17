@@ -468,7 +468,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     for (WrappedWatchableObject watchableObject : watchableObjects) {
       int index = watchableObject.getIndex();
       if (index == 6) {
-        return (Float) watchableObject.getValue();
+        return (Float) watchableObject.getRawValue();
       }
     }
     return null;
