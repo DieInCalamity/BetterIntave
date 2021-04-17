@@ -130,7 +130,7 @@ public final class RotationModuloResetHeuristic extends IntaveMetaCheckPart<Heur
 
     double yawMotion = Math.abs(movementData.lastRotationYaw - movementData.rotationYaw);
 
-    if (meta.lastLastYawMotion < 7 && meta.lastYawMotion > 50 && yawMotion < 3) {
+    if (meta.lastLastYawMotion < 7 && meta.lastYawMotion > 50 && yawMotion < 6) {
       // lastLastYawMotion < 7 && lastYawMotion > 50 && yawMotion < 7 && lastSwing <= 3
       String description = "rotation hop (llMotion:"
           + MathHelper.formatDouble(meta.lastLastYawMotion, 2)
