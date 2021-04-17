@@ -6,14 +6,20 @@ import de.jpx3.intave.detect.IntaveMetaCheckPart;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
+import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.punishment.AttackCancelType;
 import de.jpx3.intave.event.service.entity.WrappedEntity;
+import de.jpx3.intave.tools.MathHelper;
+import de.jpx3.intave.tools.RotationMathHelper;
 import de.jpx3.intave.user.*;
 import de.jpx3.intave.world.raytrace.Raytracer;
 import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class RotationModuloResetHeuristic extends IntaveMetaCheckPart<Heuristics, RotationModuloResetHeuristic.RotationModuloResetHeuristicMeta> {
   private final IntavePlugin plugin;
@@ -22,7 +28,6 @@ public final class RotationModuloResetHeuristic extends IntaveMetaCheckPart<Heur
     super(parentCheck, RotationModuloResetHeuristicMeta.class);
     this.plugin = IntavePlugin.singletonInstance();
   }
-
   @PacketSubscription(
     packets = {
       @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
@@ -96,7 +101,63 @@ public final class RotationModuloResetHeuristic extends IntaveMetaCheckPart<Heur
     return rayTraceResult.reach != 10;
   }
 
+  @PacketSubscription(
+    packets = {
+      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
+      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
+      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING"),
+      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION")
+    }
+  )
+  public void receiveMovementPacket2(PacketEvent event) {
+    Player player = event.getPlayer();
+    User user = UserRepository.userOf(player);
+    UserMetaMovementData movementData = user.meta().movementData();
+    RotationModuloResetHeuristicMeta meta = metaOf(user);
+
+    if(movementData.lastTeleport == 0) {
+      return;
+    }
+
+    double yawMotion = Math.abs(movementData.lastRotationYaw - movementData.rotationYaw);
+
+//    if(meta.lastYawMotion > 70)
+//      player.sendMessage("n " + meta.lastLastYawMotion + " " + meta.lastYawMotion + " " + yawMotion + " " + meta.lastSwing);
+
+    if(meta.lastLastYawMotion < 6 && meta.lastYawMotion > 50 && yawMotion < 3) {
+      String description = "rotation hop (lastMotion:" +
+        MathHelper.formatDouble(meta.lastYawMotion, 2)
+        + " currentMotion:" + MathHelper.formatDouble(yawMotion, 2) + " swing:" + meta.lastSwing + ")";
+
+      int options = Anomaly.AnomalyOption.DELAY_128s;
+      Anomaly anomaly = Anomaly.anomalyOf("101", Confidence.NONE, Anomaly.Type.KILLAURA, description, options);
+      parentCheck().saveAnomaly(player, anomaly);
+    }
+
+    meta.lastLastYawMotion = meta.lastYawMotion;
+    meta.lastYawMotion = yawMotion;
+    meta.lastSwing++;
+  }
+
+  @PacketSubscription(
+    priority = ListenerPriority.HIGH,
+    packets = {
+      @PacketDescriptor(sender = Sender.CLIENT, packetName = "ARM_ANIMATION")
+    }
+  )
+  public void swing(PacketEvent event) {
+    Player player = event.getPlayer();
+    User user = userOf(player);
+    RotationModuloResetHeuristicMeta meta = metaOf(user);
+
+    meta.lastSwing = 0;
+  }
+
+
   public static final class RotationModuloResetHeuristicMeta extends UserCustomCheckMeta {
+    private int lastSwing;
     private boolean roundedRotationLooking;
+    private double lastYawMotion;
+    private double lastLastYawMotion;
   }
 }
