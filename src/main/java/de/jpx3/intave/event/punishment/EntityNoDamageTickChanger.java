@@ -6,7 +6,6 @@ import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaPunishmentData;
 import de.jpx3.intave.user.UserRepository;
-import io.netty.util.internal.ThreadLocalRandom;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
@@ -14,7 +13,7 @@ import java.lang.reflect.Field;
 public final class EntityNoDamageTickChanger {
   private static boolean hitDelayLinkageError = false;
 
-  public static void applyHurtTimeChangeTo(Player player, int durationTicks, boolean heavy) {
+  public static void applyHurtTimeChangeTo(Player player, int durationTicks, int additionalHurtTime) {
     if (hitDelayLinkageError) {
       return;
     }
@@ -28,18 +27,15 @@ public final class EntityNoDamageTickChanger {
     }
 
     int noDamageTicksBefore = resolveNoDamageTicksOf(player);
-    int newNoDamageTicks = calculateNewNoDamageTicks(noDamageTicksBefore, heavy);
+    int newNoDamageTicks = calculateNewNoDamageTicks(noDamageTicksBefore, additionalHurtTime);
     punishmentData.damageTicksBefore = noDamageTicksBefore;
     punishmentData.appliedDamageTicks = newNoDamageTicks;
     setNoDamageTicksOf(player, newNoDamageTicks);
     Synchronizer.synchronizeDelayed(() -> removeNoDamageTickChangeOf(user), durationTicks);
   }
 
-  private static int calculateNewNoDamageTicks(int noDamageTicks, boolean heavy) {
-    int subtraction = heavy
-      ? ThreadLocalRandom.current().nextInt(3, 4)
-      : ThreadLocalRandom.current().nextInt(1, 2);
-    return Math.max(0, noDamageTicks - subtraction);
+  private static int calculateNewNoDamageTicks(int noDamageTicks, int ticks) {
+    return Math.max(0, noDamageTicks + ticks);
   }
 
   private static void removeNoDamageTickChangeOf(User user) {
