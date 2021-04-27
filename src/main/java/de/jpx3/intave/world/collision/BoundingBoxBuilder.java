@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class BoundingBoxBuilder {
-  private final List<WrappedAxisAlignedBB> boundingBoxes = new ArrayList<>();
+  private final List<WrappedAxisAlignedBB> boundingBoxes = new ArrayList<>(1);
   protected double minX;
   protected double minY;
   protected double minZ;

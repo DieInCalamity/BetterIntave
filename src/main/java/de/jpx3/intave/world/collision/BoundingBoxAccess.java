@@ -32,7 +32,9 @@ public final class BoundingBoxAccess {
     String className = "de.jpx3.intave.world.collision.resolver.v8BoundingBoxResolver";
     String acClass = "de.jpx3.intave.world.collision.resolver.ac.v8AlwaysCollidingBoundingBox";
 
-    if(ProtocolLibAdapter.AQUATIC_UPDATE.atOrAbove()) {
+    if(ProtocolLibAdapter.VILLAGE_UPDATE.atOrAbove()) {
+      className = "de.jpx3.intave.world.collision.resolver.v14BoundingBoxResolver";
+    } else if(ProtocolLibAdapter.AQUATIC_UPDATE.atOrAbove()) {
       className = "de.jpx3.intave.world.collision.resolver.v13BoundingBoxResolver";
 //      acClass = "de.jpx3.intave.world.collision.resolver.ac.v13AlwaysCollidingBoundingBox";
     } else if(ProtocolLibAdapter.COLOR_UPDATE.atOrAbove()) {
