@@ -30,10 +30,7 @@ import de.jpx3.intave.world.collider.result.ComplexColliderSimulationResult;
 import de.jpx3.intave.world.collider.result.QuickColliderSimulationResult;
 import de.jpx3.intave.world.collision.Collision;
 import de.jpx3.intave.world.waterflow.Waterflow;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -619,7 +616,8 @@ public final class Physics extends IntaveCheck {
 
     if (movementData.recentlyEncounteredFlyingPacket(3) && differenceY > 1e-3) {
       boolean inLiquid = movementData.pastWaterMovement <= 10 || movementData.inLava();
-      if (inLiquid || movementData.physicsPacketRelinkFlyVL++ <= 1) {
+      int allowedPackets = Math.hypot(movementData.motionX(), movementData.motionZ()) < 0.03 ? 3 : 1;
+      if (inLiquid || movementData.physicsPacketRelinkFlyVL++ <= allowedPackets) {
         legitimateDeviation = Math.max(legitimateDeviation, inLiquid ? 0.1 : 0.03);
       }
     }
@@ -802,10 +800,10 @@ public final class Physics extends IntaveCheck {
 
     boolean movedTooQuicklyCheckable = distanceMoved > 0.3 || violationLevelData.physicsInvalidMovementsInRow >= 8;
 
-    if (movedTooQuickly && movedTooQuicklyCheckable) {
+    if (movedTooQuickly && movedTooQuicklyCheckable && !movementData.physicsUnpredictableVelocityExpected) {
       //noinspection UnnecessaryLocalVariable
       double vl = abuseHorizontally > 0.2 ? 1000 : Math.max(0.1, abuseHorizontally) * 100;
-//      Bukkit.broadcastMessage(user.player().getName() + " moved too quickly: vl+" + vl + " abuse:" + abuseHorizontally);
+//      Bukkit.broadcastMessage(user.player().getName() + " moved too quickly: vl+" + vl + " abuse:" + abuseHorizontally + " | un:" + movementData.physicsUnpredictableVelocityExpected);
       return vl;
     }
 
