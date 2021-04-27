@@ -364,6 +364,9 @@ public final class MovementDispatcher implements EventProcessor {
     } else {
       movementData.pastInventoryOpen++;
     }
+    if (movementData.physicsJumped) {
+      movementData.lastJumpTimestamps = AccessHelper.now();
+    }
     inventoryData.pastHotBarSlotChange++;
     inventoryData.pastItemUsageTransition++;
     movementData.pastWaterMovement++;
@@ -555,6 +558,7 @@ public final class MovementDispatcher implements EventProcessor {
         if (AccessHelper.now() - punishmentData.timeLastSneakToggleCancel < 1000) {
           event.setCancelled(true);
         }
+        movementData.lastSneakingTimestamps = AccessHelper.now();
         movementData.sneaking = true;
         break;
       case STOP_SNEAKING:

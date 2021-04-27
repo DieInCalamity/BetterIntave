@@ -2,14 +2,12 @@ package de.jpx3.intave.user;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
-import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.checks.movement.physics.MotionVector;
 import de.jpx3.intave.detect.checks.movement.physics.Pose;
 import de.jpx3.intave.detect.checks.movement.physics.SimulationProcessor;
 import de.jpx3.intave.reflect.ReflectiveHandleAccess;
 import de.jpx3.intave.tools.client.*;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
-import de.jpx3.intave.trustfactor.TrustFactorService;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -51,6 +49,9 @@ public final class UserMetaMovementData {
   public float lastRotationYaw, lastRotationPitch;
   private Pose movementPoseType = Pose.PLAYER;
   private final SimulationProcessor.IterativeSimulationResult iterativeSimulation = new SimulationProcessor.IterativeSimulationResult();
+
+  // Timestamps
+  public long lastSneakingTimestamps, lastJumpTimestamps;
 
   private volatile WrappedAxisAlignedBB boundingBox;
   public Vector emulationVelocity;

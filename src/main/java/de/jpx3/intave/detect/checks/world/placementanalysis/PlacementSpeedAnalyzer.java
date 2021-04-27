@@ -14,6 +14,7 @@ import de.jpx3.intave.event.service.violation.Violation;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserCustomCheckMeta;
+import de.jpx3.intave.user.UserMetaMovementData;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -65,6 +66,7 @@ public final class PlacementSpeedAnalyzer extends IntaveMetaCheckPart<PlacementA
     Player player = place.getPlayer();
     User user = userOf(player);
     PlacementSpeedMeta meta = metaOf(user);
+    UserMetaMovementData movementData = user.meta().movementData();
 
     Block block = place.getBlockPlaced();
     Block blockAgainst = place.getBlockAgainst();
@@ -88,8 +90,8 @@ public final class PlacementSpeedAnalyzer extends IntaveMetaCheckPart<PlacementA
         boolean inOneLine = isOneLine(meta.placementHistory);
 
         boolean noHardFault = AccessHelper.now() - meta.lastHardFaultClick > 8000;
-        boolean noSneaking = AccessHelper.now() - meta.lastSneakingMove > 8000;
-        boolean recentJump = AccessHelper.now() - meta.lastFullJump < 750;
+        boolean noSneaking = AccessHelper.now() - movementData.lastSneakingTimestamps > 8000;
+        boolean recentJump = AccessHelper.now() - movementData.lastJumpTimestamps < 750;
         double minAverage = (inOneLine ? ((recentJump ? 450 : noHardFault ? (noSneaking ? 500 : 300) : (noSneaking ? 300 : 200))) : 150);
 
         if(average < minAverage) {
@@ -164,7 +166,5 @@ public final class PlacementSpeedAnalyzer extends IntaveMetaCheckPart<PlacementA
     private final List<Location> placementHistory = new ArrayList<>();
     private long lastPlacement;
     private long lastHardFaultClick;
-    private long lastSneakingMove;
-    private long lastFullJump;
   }
 }
