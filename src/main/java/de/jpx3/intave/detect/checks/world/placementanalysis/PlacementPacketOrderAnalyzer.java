@@ -18,6 +18,8 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
+import static de.jpx3.intave.detect.checks.world.PlacementAnalysis.COMMON_FLAG_MESSAGE;
+
 public final class PlacementPacketOrderAnalyzer extends IntaveMetaCheckPart<PlacementAnalysis, PlacementPacketOrderAnalyzer.PlacementOrderMeta> {
   private final IntavePlugin plugin;
 
@@ -60,7 +62,7 @@ public final class PlacementPacketOrderAnalyzer extends IntaveMetaCheckPart<Plac
             if (meta.permutePacketOrderBalance++ >= 2) {
               Violation violation = Violation.fromType(PlacementAnalysis.class)
                 .withPlayer(player)
-                .withMessage("permute packet-order")
+                .withMessage(COMMON_FLAG_MESSAGE)
                 .withVL(2)
                 .build();
               plugin.violationProcessor().processViolation(violation);

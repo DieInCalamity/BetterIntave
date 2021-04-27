@@ -11,6 +11,8 @@ import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.service.violation.Violation;
 import org.bukkit.entity.Player;
 
+import static de.jpx3.intave.detect.checks.world.PlacementAnalysis.COMMON_FLAG_MESSAGE;
+
 public final class PlacementFacingAnalyzer extends IntaveCheckPart<PlacementAnalysis> {
   private final IntavePlugin plugin;
 
@@ -39,7 +41,7 @@ public final class PlacementFacingAnalyzer extends IntaveCheckPart<PlacementAnal
        */
       Violation violation = Violation.fromType(PlacementAnalysis.class)
         .withPlayer(player)
-        .withMessage("suspicious block-placement")
+        .withMessage(COMMON_FLAG_MESSAGE)
         .withVL(5)
         .build();
       plugin.violationProcessor().processViolation(violation);
