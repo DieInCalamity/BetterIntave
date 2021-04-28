@@ -207,7 +207,7 @@ public class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics, Rotat
       meta.internalViolation -= confidence.level();
       description += " conf:" + confidence.level();
 
-      player.sendMessage("" + addVL);
+//      player.sendMessage("" + addVL);
       if(addVL > 10) {
         boolean isPartner = (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
         boolean isEnterprise = (UserMetaClientData.VERSION_DETAILS & 0x200) != 0;
