@@ -93,15 +93,15 @@ public final class AttackRequiredHeuristic extends IntaveMetaCheckPart<Heuristic
       boolean cursorUponEntity = cursorUponEntity(player, user, entity);
       if (cursorUponEntity) {
         long timeToLastFlag = AccessHelper.now() - meta.lastFlag;
-        if (timeToLastFlag < 10_000 && timeToLastFlag > 50) {
+        if (timeToLastFlag < 10_000 && timeToLastFlag > 1500) {
           int vl = (meta.vl += 200) / 200;
-          int options = Anomaly.AnomalyOption.DELAY_64s | Anomaly.AnomalyOption.DELAY_128s;
-          boolean flag = vl >= 8;
-          Confidence confidence = flag ? Confidence.PROBABLE : Confidence.NONE;
-          Anomaly anomaly = Anomaly.anomalyOf("151", confidence, Anomaly.Type.KILLAURA, "missed attack packet vl:" + vl, options);
-          parentCheck().saveAnomaly(player, anomaly);
+          int options = Anomaly.AnomalyOption.DELAY_128s;
+          boolean flag = vl >= 3;
           if (flag) {
+            Anomaly anomaly = Anomaly.anomalyOf("151", Confidence.PROBABLE, Anomaly.Type.KILLAURA, "missed attack packet vl:" + vl, options);
+            parentCheck().saveAnomaly(player, anomaly);
             plugin.eventService().combatMitigator().mitigate(user, AttackNerfStrategy.HT_LIGHT);
+            plugin.eventService().combatMitigator().mitigate(user, AttackNerfStrategy.CANCEL_FIRST_HIT);
           }
         }
         meta.lastFlag = AccessHelper.now();

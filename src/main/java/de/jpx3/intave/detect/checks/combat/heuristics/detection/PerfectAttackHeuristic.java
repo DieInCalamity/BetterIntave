@@ -94,20 +94,22 @@ public final class PerfectAttackHeuristic extends IntaveMetaCheckPart<Heuristics
       double yawSpeedAverage = RotationMathHelper.averageOf(heuristicMeta.yawSpeedList);
       double failRate = (heuristicMeta.swings / heuristicMeta.attacks) * 100.0;
 
-//      String descriptor = "(" + MathHelper.formatDouble(yawSpeedAverage, 2) + ", " + MathHelper.formatDouble(distanceAverage, 2) + ")";
-
       if (failRate < 10 && (yawSpeedAverage > 10 || distanceAverage > 10)) {
+        heuristicMeta.vl++;
         String description = "maintains high attack accuracy whilst aiming at hitbox corners " +
           "(fail:" + MathHelper.formatDouble(failRate, 2)
           + "%, r:" + MathHelper.formatDouble(yawSpeedAverage, 2)
           + ", d:" + MathHelper.formatDouble(distanceAverage, 2)
-          + ")";
+          + ") vl:" + MathHelper.formatDouble(heuristicMeta.vl, 2);
         int options = Anomaly.AnomalyOption.LIMIT_4 | Anomaly.AnomalyOption.SUGGEST_MINING | Anomaly.AnomalyOption.DELAY_16s;
         Anomaly anomaly = Anomaly.anomalyOf("51", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, options);
         parentCheck().saveAnomaly(player, anomaly);
         plugin.eventService().combatMitigator().mitigate(user, AttackNerfStrategy.HT_MEDIUM);
-//      } else {
-//        player.sendMessage("failRate:" + MathHelper.formatDouble(failRate, 2) + ", " + descriptor);
+        if (heuristicMeta.vl >= 2) {
+          plugin.eventService().combatMitigator().mitigate(user, AttackNerfStrategy.CANCEL_FIRST_HIT);
+        }
+      } else if (heuristicMeta.vl > 0) {
+        heuristicMeta.vl -= 0.2;
       }
 
       heuristicMeta.attacks = 0;
@@ -123,9 +125,10 @@ public final class PerfectAttackHeuristic extends IntaveMetaCheckPart<Heuristics
   }
 
   public final static class PerfectAttackMeta extends UserCustomCheckMeta {
-    private double attacks;
-    private double swings;
-    private final List<Float> distanceToPerfectYawList = Lists.newArrayList();
-    private final List<Float> yawSpeedList = Lists.newArrayList();
+    public double vl;
+    public double attacks;
+    public double swings;
+    public final List<Float> distanceToPerfectYawList = Lists.newArrayList();
+    public final List<Float> yawSpeedList = Lists.newArrayList();
   }
 }

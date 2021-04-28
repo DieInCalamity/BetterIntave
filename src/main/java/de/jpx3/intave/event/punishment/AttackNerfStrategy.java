@@ -2,6 +2,7 @@ package de.jpx3.intave.event.punishment;
 
 public enum AttackNerfStrategy {
   CANCEL("cancel"),
+  CANCEL_FIRST_HIT("cancel/first"),
   DMG_MEDIUM("dmg/medium"),
   DMG_LIGHT("dmg/light"),
   HT_MEDIUM("ht/medium"),

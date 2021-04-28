@@ -46,8 +46,8 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
   public AttackRaytrace(IntavePlugin plugin) {
     super("AttackRaytrace", "attackraytrace", AttackRaytraceMeta.class);
     this.plugin = plugin;
-    this.hitboxDecrementer = new CheckViolationLevelDecrementer(this, "applicable-thresholds.hitbox",VL_DECREMENT_PER_ATTACK * 0.5);
-    this.reachDecrementer = new CheckViolationLevelDecrementer(this, "applicable-thresholds.reach",VL_DECREMENT_PER_ATTACK * 2);
+    this.hitboxDecrementer = new CheckViolationLevelDecrementer(this, "applicable-thresholds.hitbox", VL_DECREMENT_PER_ATTACK * 0.5);
+    this.reachDecrementer = new CheckViolationLevelDecrementer(this, "applicable-thresholds.reach", VL_DECREMENT_PER_ATTACK * 2);
   }
 
   @PacketSubscription(
@@ -65,7 +65,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
       PacketContainer packetClone = packet.deepClone();
       int entityId = packet.getIntegers().read(0);
       Attack attack = new Attack(packetClone, entityId);
-      if(attackRaytraceMeta.pendingAttacks.size() < 4) {
+      if (attackRaytraceMeta.pendingAttacks.size() < 4) {
         attackRaytraceMeta.pendingAttacks.add(attack);
       }
       event.setCancelled(true);
@@ -90,18 +90,18 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
     UserMetaClientData clientData = meta.clientData();
     UserMetaMovementData movementData = meta.movementData();
     UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
-    if(movementData.lastTeleport == 0) {
+    if (movementData.lastTeleport == 0) {
       attackRaytraceMeta.pendingAttacks.clear();
       return;
     }
     List<Attack> remainingAttacks = attackRaytraceMeta.pendingAttacks;
-    if(!remainingAttacks.isEmpty()) {
+    if (!remainingAttacks.isEmpty()) {
       for (Attack remainingAttack : remainingAttacks) {
         statistics().increaseTotal();
         WrappedEntity entity = entityByIdentifier(user, remainingAttack.entityId());
         boolean invalid = false;
         if (entity != null && entity.living() && !player.isDead()) {
-          if(clientData.protocolVersion() >= PROTOCOL_VERSION_COMBAT_UPDATE) {
+          if (clientData.protocolVersion() >= PROTOCOL_VERSION_COMBAT_UPDATE) {
             // >= 1.9.x
             if (entity.clientSynchronized
               && !movementData.recentlyEncounteredFlyingPacket(2)
@@ -114,9 +114,9 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
               invalid = processIterativeReachCheck(player, entity);
             }
           }
-          if(clientData.protocolVersion() <= PROTOCOL_VERSION_BOUNTIFUL_UPDATE) {
+          if (clientData.protocolVersion() <= PROTOCOL_VERSION_BOUNTIFUL_UPDATE) {
             // <= 1.8.9
-            if(!entity.clientSynchronized) {
+            if (!entity.clientSynchronized) {
               // 1.8.x wenn das entity nicht synchronisiert ist
               invalid = processIterativeReachCheck(player, entity);
             } else if (attackRaytraceMeta.lastFlyPacketCounterReach > 1) {
@@ -133,7 +133,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
         } else {
           statistics().increasePasses();
         }
-        if(!invalid && !violationLevelData.isInActiveTeleportBundle) {
+        if (!invalid && !violationLevelData.isInActiveTeleportBundle) {
           receiveExcludedPacket(player, remainingAttack.packet);
         }
       }
@@ -166,6 +166,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
     UserMetaAttackData attackData = meta.attackData();
     UserMetaMovementData movementData = meta.movementData();
     UserMetaClientData clientData = meta.clientData();
+    UserMetaPunishmentData punishmentData = meta.punishmentData();
 
     double blockReachDistance = reachDistance(player.getGameMode() == GameMode.CREATIVE);
     float lastRotationYaw = movementData.lastRotationYaw % 360;
@@ -217,6 +218,10 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
       default: {
         hitboxDecrementer.decrement(user, VL_DECREMENT_PER_ATTACK);
         reachDecrementer.decrement(user, VL_DECREMENT_PER_ATTACK);
+        if (punishmentData.nerferOfType(AttackNerfStrategy.CANCEL_FIRST_HIT).active()) {
+          double moved = Math.hypot(movementData.motionX(), movementData.motionZ());
+          return moved > 0.1 && distanceOfResult.reach > 2.8;
+        }
         return false;
       }
     }
@@ -243,7 +248,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
       .withCustomThreshold(thresholdKey).withVL(vl)
       .build();
     ViolationContext violationContext = plugin.violationProcessor().processViolation(violation);
-    if(violationContext.violationLevelAfter() > 50) {
+    if (violationContext.violationLevelAfter() > 50) {
       plugin.eventService().combatMitigator().mitigate(user, AttackNerfStrategy.DMG_MEDIUM);
     }
     return true;
@@ -270,12 +275,12 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
         break;
       }
     }
-    if(expandHitbox > 0.1f) {
+    if (expandHitbox > 0.1f) {
       vl /= 2;
     }
-    if(movementData.inVehicle()) {
+    if (movementData.inVehicle()) {
       vl = 0;
-    } else if(distanceOfResult.hitVec != null && attackRaytraceMeta.lastHitVec != null && distanceOfResult.hitVec.distanceTo(attackRaytraceMeta.lastHitVec) == 0) {
+    } else if (distanceOfResult.hitVec != null && attackRaytraceMeta.lastHitVec != null && distanceOfResult.hitVec.distanceTo(attackRaytraceMeta.lastHitVec) == 0) {
       vl = 0;
     }
     return vl;
@@ -335,12 +340,12 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
       minReach = Math.min(minReach, minReachInItr);
     }
     // TODO: 01/07/21 clear after last possible position
-    if(minReach > blockReachDistance) {
+    if (minReach > blockReachDistance) {
       String entityName = attackedEntity.entityName();
       String targetDescriptor = resolveIndefArticle(entityName) + " " + entityName.toLowerCase();
       String thresholdKey = "";
       String message, details;
-      if(minReach == 10) {
+      if (minReach == 10) {
         message = "attacked " + targetDescriptor + " out of sight";
         details = "estimated";
         thresholdKey = "applicable-thresholds.hitbox";
@@ -413,9 +418,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
   public enum AttackRaytraceResult {
     NORMAL,
     REACH,
-    MISS
-
-    ;
+    MISS;
 
     public static AttackRaytraceResult of(double reach, double reachLimit) {
       if (reach == 10.0) {
