@@ -14,6 +14,8 @@ import de.jpx3.intave.user.UserRepository;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+
 public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
   private final IntavePlugin plugin;
 
@@ -65,6 +67,12 @@ public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
     }
   }
 
+  private final static boolean BIT_FIELD = ProtocolLibAdapter.serverVersion().isAtLeast(ProtocolLibAdapter.NETHER_UPDATE);
+
+  private boolean requestedFlying(PacketContainer packet) {
+    return packet.getBooleans().read(BIT_FIELD ? 0 : 1);
+  }
+
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
     packets = {
@@ -109,12 +117,6 @@ public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
     abilityData.setAllowFlying(allowedFlight);
   }
 
-  private final static boolean BIT_FIELD = ProtocolLibAdapter.serverVersion().isAtLeast(ProtocolLibAdapter.BEE_UPDATE);
-
-  private boolean requestedFlying(PacketContainer packet) {
-    return packet.getBooleans().read(BIT_FIELD ? 0 : 1);
-  }
-
   @PacketSubscription(
     priority = ListenerPriority.NORMAL,
     packets = {
@@ -124,26 +126,23 @@ public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
   public void updateGameMode(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    UserMetaAbilityData abilityData = user.meta().abilityData();
-
     PacketContainer packet = event.getPacket();
+    UserMetaAbilityData abilityData = user.meta().abilityData();
     Integer gameState = packet.getIntegers().read(0);
     Float value = packet.getFloat().read(0);
-
     // GameType state must be 3
     if (gameState != 3) {
       return;
     }
-
     int gameTypeIdentifier = WrappedMathHelper.floor_float(value + 0.5F);
     GameMode gameMode = gameModeOf(gameTypeIdentifier);
-
     abilityData.setPendingGameMode(gameMode);
     plugin.eventService().transactionFeedbackService().requestPong(
       player, gameMode,
       ((player1, target) -> UserRepository.userOf(player1).meta().abilityData().setGameMode(target))
     );
   }
+
 
   private GameMode gameModeOf(int id) {
     for (GameMode value : GameMode.values()) {
