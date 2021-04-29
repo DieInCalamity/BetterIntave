@@ -73,7 +73,7 @@ public final class UserMetaMovementData {
   public boolean invalidMovement, suspiciousMovement;
   public double physicsMotionX, physicsMotionY, physicsMotionZ;
   public double physicsMotionXBeforeVelocity, physicsMotionYBeforeVelocity, physicsMotionZBeforeVelocity;
-  public int pastRiptideSpin;
+  public int pastRiptideSpin = 100;
   public int pastPlayerAttackPhysics = 100;
   public boolean physicsResetMotionX, physicsResetMotionZ;
   public int keyForward, keyStrafe;
