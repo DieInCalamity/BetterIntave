@@ -8,7 +8,7 @@ import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.detect.IntaveMetaCheckPart;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
@@ -47,7 +47,7 @@ public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirC
     }
   )
   public void entityHit(PacketEvent event) {
-    if (ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0)) {
+    if (ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0)) {
       return;
     }
 
@@ -69,7 +69,7 @@ public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirC
     }
   )
   public void blockPlace(PacketEvent event) {
-    if (ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0)) {
+    if (ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0)) {
       return;
     }
 
@@ -100,7 +100,7 @@ public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirC
     }
   )
   public void blockDig(PacketEvent event) {
-    if (ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0)) {
+    if (ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0)) {
       return;
     }
 
@@ -133,7 +133,7 @@ public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirC
     }
   )
   public void clientTickUpdate(PacketEvent event) {
-    if (ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0)) {
+    if (ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0)) {
       return;
     }
 

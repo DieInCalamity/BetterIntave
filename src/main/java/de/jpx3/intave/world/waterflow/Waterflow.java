@@ -2,7 +2,7 @@ package de.jpx3.intave.world.waterflow;
 
 import com.comphenix.protocol.utility.MinecraftVersion;
 import de.jpx3.intave.access.IntaveInternalException;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.user.User;
 
@@ -35,7 +35,7 @@ public final class Waterflow {
   }
 
   private static void selectAppropriateEngine() {
-    MinecraftVersion currentVersion = ProtocolLibAdapter.serverVersion();
+    MinecraftVersion currentVersion = ProtocolLibraryAdapter.serverVersion();
     engine = availableEngines.stream().filter(availableEngine -> availableEngine.appliesToAtLeast(currentVersion)).findFirst().orElse(engine);
     try {
       engine.setup();

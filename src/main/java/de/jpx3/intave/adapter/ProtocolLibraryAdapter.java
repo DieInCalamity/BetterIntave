@@ -8,7 +8,7 @@ import de.jpx3.intave.access.InvalidDependencyException;
 
 import java.util.Arrays;
 
-public final class ProtocolLibAdapter {
+public final class ProtocolLibraryAdapter {
   public static MinecraftVersion serverVersion() {
     return ProtocolLibrary.getProtocolManager().getMinecraftVersion();
   }
@@ -26,7 +26,6 @@ public final class ProtocolLibAdapter {
         throw new InvalidDependencyException("Your version of ProtocolLib is outdated (missing MOP packet access)");
       }
     }
-
   }
 
   private static boolean methodExists(String className, String methodName) {

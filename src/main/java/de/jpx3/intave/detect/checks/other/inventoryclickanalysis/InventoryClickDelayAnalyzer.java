@@ -3,7 +3,7 @@ package de.jpx3.intave.detect.checks.other.inventoryclickanalysis;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.detect.CheckViolationLevelDecrementer;
 import de.jpx3.intave.detect.IntaveMetaCheckPart;
 import de.jpx3.intave.detect.checks.other.InventoryClickAnalysis;
@@ -29,7 +29,7 @@ public final class InventoryClickDelayAnalyzer extends IntaveMetaCheckPart<Inven
 
   public InventoryClickDelayAnalyzer(InventoryClickAnalysis parentCheck) {
     super(parentCheck, ClickDelayMeta.class);
-    invalidVersion = ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_11_0);
+    invalidVersion = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_11_0);
     plugin = IntavePlugin.singletonInstance();
   }
 

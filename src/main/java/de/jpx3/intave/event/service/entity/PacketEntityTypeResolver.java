@@ -5,7 +5,7 @@ import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.patchy.PatchyLoadingInjector;
 import de.jpx3.intave.patchy.annotate.PatchyAutoTranslation;
@@ -33,7 +33,7 @@ public final class PacketEntityTypeResolver {
   }
 
   private void registerDataWatcherEntityFieldName() {
-    com.comphenix.protocol.utility.MinecraftVersion serverVersion = ProtocolLibAdapter.serverVersion();
+    com.comphenix.protocol.utility.MinecraftVersion serverVersion = ProtocolLibraryAdapter.serverVersion();
     if (serverVersion.isAtLeast(MinecraftVersions.VER1_14_0)) {
       dataWatcherEntityFieldName = "entity";
     } else if (serverVersion.isAtLeast(MinecraftVersions.VER1_10_0)) {

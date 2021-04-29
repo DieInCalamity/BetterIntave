@@ -2,7 +2,7 @@ package de.jpx3.intave.tools.items;
 
 import com.comphenix.protocol.utility.MinecraftVersion;
 import com.google.common.collect.Lists;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.tools.annotate.Nullable;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaMovementData;
@@ -30,7 +30,7 @@ public final class InventoryUseItemHelper {
 
   public static void setup() {
     try {
-      MinecraftVersion serverVersion = ProtocolLibAdapter.serverVersion();
+      MinecraftVersion serverVersion = ProtocolLibraryAdapter.serverVersion();
       loadDefaultUseItems(serverVersion);
       loadPotions();
       loadFoodItems();

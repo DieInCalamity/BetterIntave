@@ -3,7 +3,7 @@ package de.jpx3.intave.event.service.entity;
 import com.comphenix.protocol.events.PacketContainer;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.reflect.hitbox.HitBoxBoundaries;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class WrappedEntity implements Cloneable {
-  private final static boolean NEW_POSITION_PROCESSING_1_9 = ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
-  private final static boolean NEW_POSITION_PROCESSING_1_14 = ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_14_0);
+  private final static boolean NEW_POSITION_PROCESSING_1_9 = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
+  private final static boolean NEW_POSITION_PROCESSING_1_14 = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_14_0);
   private final String entityName;
   private final int entityId;
 

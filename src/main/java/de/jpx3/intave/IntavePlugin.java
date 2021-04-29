@@ -3,7 +3,7 @@ package de.jpx3.intave;
 import de.jpx3.intave.access.IntaveAccess;
 import de.jpx3.intave.accessbackend.IntaveAccessService;
 import de.jpx3.intave.adapter.ComponentLoader;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.adapter.ViaVersionAdapter;
 import de.jpx3.intave.agent.IntaveAgentAccessor;
 import de.jpx3.intave.command.CommandProcessor;
@@ -160,7 +160,7 @@ public final class IntavePlugin extends JavaPlugin {
 
       // stage 6
 
-      ProtocolLibAdapter.checkIfOutdated();
+      ProtocolLibraryAdapter.checkIfOutdated();
 
       // stage 7
       configurationService = new ConfigurationService(this);
@@ -206,8 +206,8 @@ public final class IntavePlugin extends JavaPlugin {
           bytes[7 - i] = value;
         }
 
-        long longOne = ThreadLocalRandom.current().nextLong(0x4000000000000000L, Long.MAX_VALUE), originalLongOne = longOne;
-        long longTwo = ThreadLocalRandom.current().nextLong(0x4000000000000000L, Long.MAX_VALUE), originalLongTwo = longTwo;
+        long longOne = ThreadLocalRandom.current().nextLong(0x4000000000000000L, Long.MAX_VALUE);
+        long longTwo = ThreadLocalRandom.current().nextLong(0x4000000000000000L, Long.MAX_VALUE);
         String requestedId = String.valueOf(new UUID(longOne, longTwo));
 
         String idKey = identificationKey > 0 ? new String(bytes) : "aaaaaaaa", response = "";

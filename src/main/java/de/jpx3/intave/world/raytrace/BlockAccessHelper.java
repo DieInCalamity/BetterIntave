@@ -3,7 +3,7 @@ package de.jpx3.intave.world.raytrace;
 import de.jpx3.intave.access.IntaveException;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.reflect.ReflectiveHandleAccess;
 import de.jpx3.intave.tools.wrapper.WrappedMovingObjectPosition;
 import org.bukkit.Location;
@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
 import static de.jpx3.intave.reflect.ReflectiveAccess.lookupServerClass;
 
 public final class BlockAccessHelper {
-  private static boolean MINECRAFT_AUSRUTSCHER = ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0) && !ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_13_0);
+  private static boolean MINECRAFT_AUSRUTSCHER = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0) && !ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_13_0);
 
   private static Method getChunkAtMethod;
   private static Method getTypeMethod;

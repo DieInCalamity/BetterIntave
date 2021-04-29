@@ -2,7 +2,7 @@ package de.jpx3.intave.world.blockphysics;
 
 import com.comphenix.protocol.utility.MinecraftVersion;
 import com.google.common.collect.Lists;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.tools.annotate.Nullable;
 import de.jpx3.intave.user.User;
 import org.bukkit.Location;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class BlockPhysics {
-  private final static MinecraftVersion MINECRAFT_VERSION = ProtocolLibAdapter.serverVersion();
+  private final static MinecraftVersion MINECRAFT_VERSION = ProtocolLibraryAdapter.serverVersion();
   private final static List<BlockPhysic> blocks = Lists.newArrayList();
   private final static Map<Material, BlockPhysic> blockAccessCache = new HashMap<>();
 

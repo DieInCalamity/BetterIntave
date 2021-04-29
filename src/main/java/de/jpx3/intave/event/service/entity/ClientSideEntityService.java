@@ -6,7 +6,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.event.packet.*;
 import de.jpx3.intave.fakeplayer.FakePlayer;
 import de.jpx3.intave.reflect.hitbox.HitBoxBoundaries;
@@ -30,9 +30,9 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
   private final IntavePlugin plugin;
   private final PacketEntityTypeResolver entityTypeResolver;
 
-  private final static boolean NEW_POSITION_PROCESSING = ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
-  private final static boolean HEALTH_PROCESSING_1_10 = ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_10_0);
-  private final static boolean HEALTH_PROCESSING_1_14 = ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_14_0);
+  private final static boolean NEW_POSITION_PROCESSING = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
+  private final static boolean HEALTH_PROCESSING_1_10 = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_10_0);
+  private final static boolean HEALTH_PROCESSING_1_14 = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_14_0);
 
   public ClientSideEntityService(IntavePlugin plugin) {
     this.plugin = plugin;

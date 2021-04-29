@@ -3,7 +3,7 @@ package de.jpx3.intave.world.waterflow;
 import com.comphenix.protocol.utility.MinecraftVersion;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.tools.wrapper.WrappedVector;
@@ -30,7 +30,7 @@ final class NetherUpdateWaterflowEngine extends AbstractWaterflowEngine {
 
   @Override
   public void setup() throws Exception {
-    MinecraftVersion minecraftVersion = ProtocolLibAdapter.serverVersion();
+    MinecraftVersion minecraftVersion = ProtocolLibraryAdapter.serverVersion();
     if (minecraftVersion.isAtLeast(MinecraftVersions.VER1_13_0)) {
       loadFluidMethodHandle();
       loadFluidTaggedMethodHandle();

@@ -4,7 +4,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.event.packet.*;
 import de.jpx3.intave.event.service.entity.ClientSideEntityService;
 import de.jpx3.intave.reflect.ReflectiveAccess;
@@ -69,7 +69,7 @@ public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
     }
   }
 
-  private final static boolean BIT_FIELD = ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_16_0);
+  private final static boolean BIT_FIELD = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_16_0);
 
   private boolean requestedFlying(PacketContainer packet) {
     return packet.getBooleans().read(BIT_FIELD ? 0 : 1);

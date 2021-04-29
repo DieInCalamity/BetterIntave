@@ -7,7 +7,7 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscriber;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.event.packet.*;
@@ -226,7 +226,7 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
     }
   }
 
-  private final static boolean NEW_ITEM_REQUEST = ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
+  private final static boolean NEW_ITEM_REQUEST = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
 
   private boolean requestedItemUse(PacketContainer packet) {
     if (NEW_ITEM_REQUEST) {
