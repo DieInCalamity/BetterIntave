@@ -317,9 +317,19 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     boolean isEntityLiving = !bukkitEntity.isDead();
     HitBoxBoundaries boundaries = bukkitEntity.isDead() ? HitBoxBoundaries.zero() : ReflectiveEntityHitBoxAccess.boundariesOf(bukkitEntity);
     int entityID = bukkitEntity.getEntityId();
-    int serverPosX = WrappedMathHelper.floor(location.getX() * 32d);
-    int serverPosY = WrappedMathHelper.floor(location.getY() * 32d);
-    int serverPosZ = WrappedMathHelper.floor(location.getZ() * 32d);
+    long serverPosX;
+    long serverPosY;
+    long serverPosZ;
+    if(NEW_POSITION_PROCESSING) {
+      serverPosX = WrappedMathHelper.getPositionLong(location.getX());
+      serverPosY = WrappedMathHelper.getPositionLong(location.getY());
+      serverPosZ = WrappedMathHelper.getPositionLong(location.getZ());
+    } else {
+      serverPosX = WrappedMathHelper.floor(location.getX() * 32d);
+      serverPosY = WrappedMathHelper.floor(location.getY() * 32d);
+      serverPosZ = WrappedMathHelper.floor(location.getZ() * 32d);
+    }
+
     WrappedEntity entity = processEntitySpawn(
       user,
       entityName, isEntityLiving, entityID,
@@ -404,7 +414,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
   private WrappedEntity processEntitySpawn(
     User user, String entityName,
     boolean isEntityLiving, int entityId,
-    int serverPosX, int serverPosY, int serverPosZ,
+    long serverPosX, long serverPosY, long serverPosZ,
     HitBoxBoundaries boundaries
   ) {
     UserMetaSynchronizeData synchronizeData = user.meta().synchronizeData();
