@@ -15,7 +15,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.InvocationTargetException;
 
-final class NetherUpdateWaterflow extends AbstractWaterflow {
+final class AquaticUpdateWaterflowEngine extends AbstractWaterflowEngine {
   private MethodHandle fluidMethodHandle;
   private MethodHandle fluidTaggedMethodHandle;
   private MethodHandle fluidHeightMethodHandle;
@@ -24,7 +24,7 @@ final class NetherUpdateWaterflow extends AbstractWaterflow {
   private Object fluidTagWater;
   private Class<?> blockPositionClass;
 
-  public NetherUpdateWaterflow() {
+  public AquaticUpdateWaterflowEngine() {
   }
 
   @Override
@@ -82,17 +82,17 @@ final class NetherUpdateWaterflow extends AbstractWaterflow {
     Class<?> fluidClass = ReflectiveAccess.lookupServerClass("Fluid");
     fluidHeightMethodHandle = MethodHandles
       .lookup()
-      .findVirtual(fluidClass, "d", MethodType.methodType(Float.TYPE));
+      .findVirtual(fluidClass, "getHeight", MethodType.methodType(Float.TYPE));
   }
 
   private void loadFluidFlowMethodHandle() throws NoSuchMethodException, IllegalAccessException {
     Class<?> fluidClass = ReflectiveAccess.lookupServerClass("Fluid");
     Class<?> vector = ReflectiveAccess.lookupServerClass("Vec3D");
     Class<?> blockPosition = ReflectiveAccess.lookupServerClass("BlockPosition");
-    Class<?> blockAccess = ReflectiveAccess.lookupServerClass("IBlockAccess");
+    Class<?> worldReader = ReflectiveAccess.lookupServerClass("IWorldReader");
     fluidFlowMethodHandle = MethodHandles
       .lookup()
-      .findVirtual(fluidClass, "c", MethodType.methodType(vector, blockAccess, blockPosition));
+      .findVirtual(fluidClass, "a", MethodType.methodType(vector, worldReader, blockPosition));
   }
 
   private void loadWorldTypeMethodHandle() throws NoSuchMethodException, IllegalAccessException {
@@ -108,7 +108,7 @@ final class NetherUpdateWaterflow extends AbstractWaterflow {
     Class<?> fluidClass = ReflectiveAccess.lookupServerClass("Fluid");
     worldTypeMethodHandle = MethodHandles
       .lookup()
-      .findVirtual(fluidClass, "isEmpty", MethodType.methodType(Boolean.TYPE));
+      .findVirtual(fluidClass, "e", MethodType.methodType(Boolean.TYPE));
   }
 
   @Override
@@ -176,6 +176,6 @@ final class NetherUpdateWaterflow extends AbstractWaterflow {
 
   @Override
   public boolean appliesToAtLeast(MinecraftVersion currentVersion) {
-    return currentVersion.isAtLeast(de.jpx3.intave.adapter.MinecraftVersion.VER1_16_0);
+    return currentVersion.isAtLeast(de.jpx3.intave.adapter.MinecraftVersion.VER1_13_0);
   }
 }

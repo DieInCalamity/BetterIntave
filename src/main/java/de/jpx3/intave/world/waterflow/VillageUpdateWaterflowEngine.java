@@ -15,7 +15,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.InvocationTargetException;
 
-final class VillageUpdateWaterflow extends AbstractWaterflow {
+final class VillageUpdateWaterflowEngine extends AbstractWaterflowEngine {
   private MethodHandle fluidMethodHandle;
   private MethodHandle fluidTaggedMethodHandle;
   private MethodHandle fluidHeightMethodHandle;
@@ -24,7 +24,7 @@ final class VillageUpdateWaterflow extends AbstractWaterflow {
   private Object fluidTagWater;
   private Class<?> blockPositionClass;
 
-  public VillageUpdateWaterflow() {
+  public VillageUpdateWaterflowEngine() {
   }
 
   @Override
