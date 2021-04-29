@@ -36,12 +36,12 @@ public class ViaVersionAdapter {
     if(access != null) {
       access.setup();
     } else {
-      IntaveLogger.logger().error("Failed to link ViaVersion: Unable to find accessor");
+      IntaveLogger.logger().error("Unknown ViaVersion version, linkage failed");
     }
   }
 
   public static boolean ignoreBlocking(Player player) {
-    return access != null && access.ignoreBlocking(player);
+    return foundLinkage() && access.ignoreBlocking(player);
   }
 
   public static int protocolVersionOf(Player player) {
