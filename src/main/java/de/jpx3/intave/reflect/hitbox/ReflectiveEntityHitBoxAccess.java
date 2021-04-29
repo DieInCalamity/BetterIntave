@@ -1,7 +1,7 @@
 package de.jpx3.intave.reflect.hitbox;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.MinecraftVersion;
 import de.jpx3.intave.patchy.PatchyLoadingInjector;
 import de.jpx3.intave.patchy.annotate.PatchyAutoTranslation;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
@@ -11,7 +11,7 @@ public final class ReflectiveEntityHitBoxAccess {
   private static EntityHitBoxResolver resolver;
 
   public static void setup() {
-    boolean useNewResolver = ProtocolLibAdapter.VILLAGE_UPDATE.atOrAbove();
+    boolean useNewResolver = MinecraftVersion.VER1_14_0.atOrAbove();
     String className = useNewResolver
       ? "de.jpx3.intave.reflect.hitbox.ReflectiveEntityHitBoxAccess$HitBoxAccessNew"
       : "de.jpx3.intave.reflect.hitbox.ReflectiveEntityHitBoxAccess$HitBoxAccessLegacy";

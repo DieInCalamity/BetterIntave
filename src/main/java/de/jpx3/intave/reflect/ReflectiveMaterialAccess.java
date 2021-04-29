@@ -1,7 +1,7 @@
 package de.jpx3.intave.reflect;
 
 import com.google.common.collect.Maps;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.MinecraftVersion;
 import org.bukkit.Material;
 
 import java.util.Map;
@@ -9,7 +9,7 @@ import java.util.Map;
 public final class ReflectiveMaterialAccess {
   @Deprecated
   public static Material materialById(int id) {
-    if (ProtocolLibAdapter.EXPLORATION_UPDATE.atOrAbove()) {
+    if (MinecraftVersion.VER1_11_0.atOrAbove()) {
       return resolveIterative(id);
     } else {
       return Material.getMaterial(id);

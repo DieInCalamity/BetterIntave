@@ -9,7 +9,7 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.MinecraftVersion;
 import de.jpx3.intave.connect.sibyl.LabyModChannelHelper;
 import de.jpx3.intave.connect.sibyl.LabymodClientListener;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscriber;
@@ -200,7 +200,7 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
       Synchronizer.synchronize(() -> System.exit(0));
     }
     PacketContainer packetContainer = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.CUSTOM_PAYLOAD);
-    if(ProtocolLibAdapter.AQUATIC_UPDATE.atOrAbove()) {
+    if(MinecraftVersion.VER1_13_0.atOrAbove()) {
       if(channel.startsWith("MC|")) {
         channel = channel.substring(3);
       }

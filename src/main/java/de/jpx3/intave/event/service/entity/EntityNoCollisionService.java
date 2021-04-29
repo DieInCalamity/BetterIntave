@@ -6,7 +6,7 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.PlayerInfoData;
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.MinecraftVersion;
 import de.jpx3.intave.event.packet.*;
 import de.jpx3.intave.reflect.ReflectiveScoreboardAccess;
 import de.jpx3.intave.tools.sync.Synchronizer;
@@ -16,7 +16,7 @@ import java.util.List;
 
 public final class EntityNoCollisionService implements PacketEventSubscriber {
   private final static String SCOREBOARD_NAME = "INTAVE";
-  private final static int COLLISION_RULE_FIELD = ProtocolLibAdapter.AQUATIC_UPDATE.atOrAbove() ? 2 : 5;
+  private final static int COLLISION_RULE_FIELD = MinecraftVersion.VER1_13_0.atOrAbove() ? 2 : 5;
 
   public EntityNoCollisionService(IntavePlugin plugin) {
     plugin.packetSubscriptionLinker().linkSubscriptionsIn(this);

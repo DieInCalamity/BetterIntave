@@ -3,6 +3,7 @@ package de.jpx3.intave.detect.checks.combat.heuristics.detection;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.adapter.MinecraftVersion;
 import de.jpx3.intave.adapter.ProtocolLibAdapter;
 import de.jpx3.intave.detect.IntaveMetaCheckPart;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
@@ -88,7 +89,7 @@ public class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics, Rotat
     }
   )
   public void receiveMovementPacket(PacketEvent event) {
-    if (ProtocolLibAdapter.serverVersion().isAtLeast(ProtocolLibAdapter.COMBAT_UPDATE)) {
+    if (ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersion.VER1_9_0)) {
       return;
     }
     Player player = event.getPlayer();

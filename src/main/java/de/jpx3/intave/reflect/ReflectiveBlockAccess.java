@@ -1,7 +1,7 @@
 package de.jpx3.intave.reflect;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.MinecraftVersion;
 import de.jpx3.intave.patchy.PatchyLoadingInjector;
 import de.jpx3.intave.patchy.annotate.PatchyAutoTranslation;
 import net.minecraft.server.v1_8_R3.Block;
@@ -10,7 +10,7 @@ public final class ReflectiveBlockAccess {
   private static BlockAccess blockAccess;
 
   static void setup() {
-    boolean useNewResolver = ProtocolLibAdapter.AQUATIC_UPDATE.atOrAbove();
+    boolean useNewResolver = MinecraftVersion.VER1_13_0.atOrAbove();
     String className = useNewResolver
       ? "de.jpx3.intave.reflect.ReflectiveBlockAccess$BlockAccessNew"
       : "de.jpx3.intave.reflect.ReflectiveBlockAccess$BlockAccessLegacy";

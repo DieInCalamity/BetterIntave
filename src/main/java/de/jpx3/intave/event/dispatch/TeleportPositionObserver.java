@@ -5,6 +5,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.utility.MinecraftReflection;
 import com.comphenix.protocol.wrappers.EnumWrappers;
+import de.jpx3.intave.adapter.MinecraftVersion;
 import de.jpx3.intave.adapter.ProtocolLibAdapter;
 import de.jpx3.intave.event.packet.*;
 import de.jpx3.intave.logging.IntaveLogger;
@@ -24,7 +25,7 @@ import java.util.Set;
 
 public final class TeleportPositionObserver implements PacketEventSubscriber {
   private final static boolean TELEPORTATION_DEBUG = false;
-  final static boolean NEW_TELEPORTATION = ProtocolLibAdapter.serverVersion().isAtLeast(ProtocolLibAdapter.COMBAT_UPDATE);
+  final static boolean NEW_TELEPORTATION = ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersion.VER1_9_0);
 
   @PacketSubscription(
     priority = ListenerPriority.LOWEST,

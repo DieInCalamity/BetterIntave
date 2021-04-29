@@ -7,7 +7,7 @@ import com.comphenix.protocol.wrappers.MinecraftKey;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.MinecraftVersion;
 import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.tools.sync.Synchronizer;
@@ -80,7 +80,7 @@ public final class LabymodShadowIntegration {
   private void performShadowUpdate(Player player, ShadowStatus update) {
     String channel = "SHADOW";
     PacketContainer packetContainer = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.CUSTOM_PAYLOAD);
-    if(ProtocolLibAdapter.AQUATIC_UPDATE.atOrAbove()) {
+    if(MinecraftVersion.VER1_13_0.atOrAbove()) {
       packetContainer.getSpecificModifier(MinecraftKey.class).write(0, new MinecraftKey(channel));
     } else {
       packetContainer.getStrings().write(0, channel);

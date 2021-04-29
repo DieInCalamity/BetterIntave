@@ -3,7 +3,7 @@ package de.jpx3.intave.detect.checks.other;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.MinecraftVersion;
 import de.jpx3.intave.detect.IntaveMetaCheck;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
@@ -70,7 +70,7 @@ public final class ProtocolScanner extends IntaveMetaCheck<ProtocolScanner.Proto
     meta.slotPacketsSent++;
   }
 
-  private final static boolean HAS_OFF_HAND = ProtocolLibAdapter.COMBAT_UPDATE.atOrAbove();
+  private final static boolean HAS_OFF_HAND = MinecraftVersion.VER1_9_0.atOrAbove();
 
   private static Class<?> enumMainHandClass;
 

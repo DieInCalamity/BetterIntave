@@ -1,7 +1,7 @@
 package de.jpx3.intave.tools.wrapper.link;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.MinecraftVersion;
 import de.jpx3.intave.patchy.PatchyLoadingInjector;
 import de.jpx3.intave.patchy.annotate.PatchyAutoTranslation;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
@@ -9,7 +9,7 @@ import net.minecraft.server.v1_8_R3.AxisAlignedBB;
 
 public final class BoundingBoxLinkage {
   static ClassLinker<WrappedAxisAlignedBB> resolveBoundingBoxLinker() {
-    boolean atLeastAquaticUpdate = ProtocolLibAdapter.AQUATIC_UPDATE.atOrAbove();
+    boolean atLeastAquaticUpdate = MinecraftVersion.VER1_13_0.atOrAbove();
     String boundingBoxResolverClass = atLeastAquaticUpdate
       ? "de.jpx3.intave.tools.wrapper.link.BoundingBoxLinkage$BoundingBoxAquaticResolver"
       : "de.jpx3.intave.tools.wrapper.link.BoundingBoxLinkage$BoundingBoxLegacyResolver";

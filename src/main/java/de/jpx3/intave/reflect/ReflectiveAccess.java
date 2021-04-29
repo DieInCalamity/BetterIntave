@@ -36,6 +36,14 @@ public final class ReflectiveAccess {
     }
   }
 
+  public static Field searchDeclaredFieldIn(Class<?> clazz, String name) {
+    try {
+      return clazz.getDeclaredField(name);
+    } catch (NoSuchFieldException e) {
+      throw new IntaveInternalException(e);
+    }
+  }
+
   public static Field ensureAccessible(Field field) {
     if (!field.isAccessible()) {
       field.setAccessible(true);

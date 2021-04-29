@@ -1,5 +1,6 @@
 package de.jpx3.intave.tools.client;
 
+import de.jpx3.intave.adapter.MinecraftVersion;
 import de.jpx3.intave.adapter.ProtocolLibAdapter;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaClientData;
@@ -10,7 +11,7 @@ import org.bukkit.entity.Player;
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_AQUATIC_UPDATE;
 
 public final class PoseHelper {
-  private final static boolean ELYTRA_ENABLED = ProtocolLibAdapter.serverVersion().isAtLeast(ProtocolLibAdapter.COMBAT_UPDATE);
+  private final static boolean ELYTRA_ENABLED = ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersion.VER1_9_0);
 
   public static boolean flyingWithElytra(Player player) {
     return ELYTRA_ENABLED && player.isGliding();

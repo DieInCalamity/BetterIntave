@@ -1,7 +1,6 @@
 package de.jpx3.intave.world.blockphysics;
 
 import com.comphenix.protocol.utility.MinecraftVersion;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaClientData;
 import de.jpx3.intave.user.UserMetaMovementData;
@@ -20,7 +19,7 @@ final class BlockPhysicBed implements BlockPhysic {
 
   @Override
   public void setup(MinecraftVersion serverVersion) {
-    if (serverVersion.isAtLeast(ProtocolLibAdapter.COLOR_UPDATE)) {
+    if (serverVersion.isAtLeast(de.jpx3.intave.adapter.MinecraftVersion.VER1_12_0)) {
       materials = resolveBedMaterials();
     } else {
       materials = Collections.singletonList(Material.getMaterial("BED_BLOCK"));

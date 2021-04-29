@@ -5,7 +5,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.MinecraftKey;
 import com.google.gson.JsonElement;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.MinecraftVersion;
 import de.jpx3.intave.connect.sibyl.LabyModChannelHelper;
 import de.jpx3.intave.connect.sibyl.auth.SibylAuthentication;
 import de.jpx3.intave.connect.sibyl.data.packet.SibylPacket;
@@ -39,7 +39,7 @@ public final class SibylPacketTransmitter {
       return;
     }
     PacketContainer packetContainer = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.CUSTOM_PAYLOAD);
-    if(ProtocolLibAdapter.AQUATIC_UPDATE.atOrAbove()) {
+    if(MinecraftVersion.VER1_13_0.atOrAbove()) {
       packetContainer.getSpecificModifier(MinecraftKey.class).write(0, new MinecraftKey(channel));
     } else {
       packetContainer.getStrings().write(0, channel);

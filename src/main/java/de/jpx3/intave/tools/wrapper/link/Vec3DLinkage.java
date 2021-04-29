@@ -1,7 +1,7 @@
 package de.jpx3.intave.tools.wrapper.link;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.MinecraftVersion;
 import de.jpx3.intave.patchy.PatchyLoadingInjector;
 import de.jpx3.intave.patchy.annotate.PatchyAutoTranslation;
 import de.jpx3.intave.tools.wrapper.WrappedVector;
@@ -9,7 +9,7 @@ import net.minecraft.server.v1_8_R3.Vec3D;
 
 public final class Vec3DLinkage {
   static ClassLinker<WrappedVector> resolveVec3DLinker() {
-    boolean atLeastCombatUpdate = ProtocolLibAdapter.COMBAT_UPDATE.atOrAbove();
+    boolean atLeastCombatUpdate = MinecraftVersion.VER1_9_0.atOrAbove();
     String vec3DResolverClass = atLeastCombatUpdate
       ? "de.jpx3.intave.tools.wrapper.link.Vec3DLinkage$Vec3DCombatUpdateResolver"
       : "de.jpx3.intave.tools.wrapper.link.Vec3DLinkage$Vec3DLegacyResolver";

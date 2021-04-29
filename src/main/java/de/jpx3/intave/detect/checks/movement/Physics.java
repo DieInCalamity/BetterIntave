@@ -3,7 +3,7 @@ package de.jpx3.intave.detect.checks.movement;
 import com.google.common.collect.ImmutableList;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.MinecraftVersion;
 import de.jpx3.intave.detect.CheckViolationLevelDecrementer;
 import de.jpx3.intave.detect.IntaveCheck;
 import de.jpx3.intave.detect.checks.movement.physics.LegacyWaterPhysics;
@@ -68,16 +68,16 @@ public final class Physics extends IntaveCheck {
     Class<?> entityLivingClass = ReflectiveAccess.lookupServerClass("EntityLiving");
     // Search method name
     String methodName = "e";
-    if (ProtocolLibAdapter.VILLAGE_UPDATE.atOrAbove()) {
+    if (MinecraftVersion.VER1_14_0.atOrAbove()) {
       // >= 1.14
       methodName = "b";
-    } else if (ProtocolLibAdapter.AQUATIC_UPDATE.atOrAbove()) {
+    } else if (MinecraftVersion.VER1_13_0.atOrAbove()) {
       // 1.13
       methodName = "c";
     }
     // Search method descriptor
     MethodType methodType;
-    if (ProtocolLibAdapter.BEE_UPDATE.atOrAbove()) {
+    if (MinecraftVersion.VER1_15_0.atOrAbove()) {
       // >= 1.15
       methodType = MethodType.methodType(Boolean.TYPE, Float.TYPE, Float.TYPE);
     } else {

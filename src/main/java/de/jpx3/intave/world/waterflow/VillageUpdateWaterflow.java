@@ -30,7 +30,7 @@ final class VillageUpdateWaterflow extends AbstractWaterflow {
   @Override
   public void setup() throws Exception {
     MinecraftVersion minecraftVersion = ProtocolLibAdapter.serverVersion();
-    if (minecraftVersion.isAtLeast(ProtocolLibAdapter.AQUATIC_UPDATE)) {
+    if (minecraftVersion.isAtLeast(de.jpx3.intave.adapter.MinecraftVersion.VER1_13_0)) {
       loadFluidMethodHandle();
       loadFluidTaggedMethodHandle();
       loadFluidTagWater();
@@ -176,6 +176,6 @@ final class VillageUpdateWaterflow extends AbstractWaterflow {
 
   @Override
   public boolean appliesToAtLeast(MinecraftVersion currentVersion) {
-    return currentVersion.isAtLeast(ProtocolLibAdapter.VILLAGE_UPDATE);
+    return currentVersion.isAtLeast(de.jpx3.intave.adapter.MinecraftVersion.VER1_14_0);
   }
 }

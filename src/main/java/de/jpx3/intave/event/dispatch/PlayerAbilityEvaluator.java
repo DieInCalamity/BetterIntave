@@ -3,9 +3,11 @@ package de.jpx3.intave.event.dispatch;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.adapter.MinecraftVersion;
 import de.jpx3.intave.adapter.ProtocolLibAdapter;
 import de.jpx3.intave.event.packet.*;
 import de.jpx3.intave.event.service.entity.ClientSideEntityService;
+import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaAbilityData;
@@ -14,7 +16,7 @@ import de.jpx3.intave.user.UserRepository;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
-import java.util.List;
+import java.lang.reflect.Field;
 
 public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
   private final IntavePlugin plugin;
@@ -67,7 +69,7 @@ public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
     }
   }
 
-  private final static boolean BIT_FIELD = ProtocolLibAdapter.serverVersion().isAtLeast(ProtocolLibAdapter.NETHER_UPDATE);
+  private final static boolean BIT_FIELD = ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersion.VER1_16_0);
 
   private boolean requestedFlying(PacketContainer packet) {
     return packet.getBooleans().read(BIT_FIELD ? 0 : 1);
@@ -128,12 +130,10 @@ public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
     User user = UserRepository.userOf(player);
     PacketContainer packet = event.getPacket();
     UserMetaAbilityData abilityData = user.meta().abilityData();
-    Integer gameState = packet.getIntegers().read(0);
-    Float value = packet.getFloat().read(0);
-    // GameType state must be 3
-    if (gameState != 3) {
+    if (!gameModeUpdateState(packet)) {
       return;
     }
+    Float value = packet.getFloat().read(0);
     int gameTypeIdentifier = WrappedMathHelper.floor_float(value + 0.5F);
     GameMode gameMode = gameModeOf(gameTypeIdentifier);
     abilityData.setPendingGameMode(gameMode);
@@ -143,6 +143,24 @@ public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
     );
   }
 
+  private final static boolean NEW_GAME_STATE_CHANGE_PACKET = MinecraftVersion.VER1_16_0.atOrAbove();
+  private final static Class<?> GAME_STATE_CLASS = !NEW_GAME_STATE_CHANGE_PACKET ? null : ReflectiveAccess.lookupServerClass("PacketPlayOutGameStateChange$a");
+
+  private boolean gameModeUpdateState(PacketContainer packet) {
+    if (NEW_GAME_STATE_CHANGE_PACKET) {
+      try {
+        Object obj = packet.getModifier().withType(GAME_STATE_CLASS).read(0);
+        Field field = obj.getClass().getDeclaredField("b");
+        field.setAccessible(true);
+        return (int) field.get(obj) == 3;
+      } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+      }
+    } else {
+      return packet.getIntegers().read(0) == 3;
+    }
+  }
 
   private GameMode gameModeOf(int id) {
     for (GameMode value : GameMode.values()) {
@@ -158,8 +176,7 @@ public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
     SURVIVAL(0),
     CREATIVE(1),
     ADVENTURE(2),
-    SPECTATOR(3)
-    ;
+    SPECTATOR(3);
 
     private final int id;
 

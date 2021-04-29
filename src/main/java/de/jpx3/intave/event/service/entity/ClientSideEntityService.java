@@ -3,17 +3,11 @@ package de.jpx3.intave.event.service.entity;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.utility.MinecraftVersion;
-import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.ProtocolLibAdapter;
 import de.jpx3.intave.event.packet.*;
 import de.jpx3.intave.fakeplayer.FakePlayer;
-import de.jpx3.intave.logging.IntaveLogger;
-import de.jpx3.intave.reflect.ReflectiveAccess;
-import de.jpx3.intave.reflect.ReflectiveHandleAccess;
 import de.jpx3.intave.reflect.hitbox.HitBoxBoundaries;
 import de.jpx3.intave.reflect.hitbox.ReflectiveEntityHitBoxAccess;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
@@ -26,7 +20,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -34,52 +27,23 @@ import java.util.Map;
 
 public final class ClientSideEntityService implements PacketEventSubscriber {
   private final IntavePlugin plugin;
-  private String dataWatcherEntityFieldName;
+  private final PacketEntityTypeResolver entityTypeResolver;
 
-  private final static boolean NEW_POSITION_PROCESSING = ProtocolLibAdapter.serverVersion().isAtLeast(ProtocolLibAdapter.COMBAT_UPDATE);
-  private final static boolean HEALTH_PROCESSING_1_10 = ProtocolLibAdapter.serverVersion().isAtLeast(ProtocolLibAdapter.FROSTBURN_UPDATE);
-  private final static boolean HEALTH_PROCESSING_1_14 = ProtocolLibAdapter.serverVersion().isAtLeast(ProtocolLibAdapter.VILLAGE_UPDATE);
+  private final static boolean NEW_POSITION_PROCESSING = ProtocolLibAdapter.serverVersion().isAtLeast(de.jpx3.intave.adapter.MinecraftVersion.VER1_9_0);
+  private final static boolean HEALTH_PROCESSING_1_10 = ProtocolLibAdapter.serverVersion().isAtLeast(de.jpx3.intave.adapter.MinecraftVersion.VER1_10_0);
+  private final static boolean HEALTH_PROCESSING_1_14 = ProtocolLibAdapter.serverVersion().isAtLeast(de.jpx3.intave.adapter.MinecraftVersion.VER1_14_0);
 
   public ClientSideEntityService(IntavePlugin plugin) {
     this.plugin = plugin;
+    this.entityTypeResolver = new PacketEntityTypeResolver(plugin);
     plugin.packetSubscriptionLinker().linkSubscriptionsIn(this);
     this.setupSynchronizer();
-    this.registerDataWatcherEntityFieldName();
   }
 
   private void setupSynchronizer() {
     // async required?
     //noinspection deprecation
     Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, this::reevaluateTracingEntities, 0, 20);
-  }
-
-  private void registerDataWatcherEntityFieldName() {
-    MinecraftVersion serverVersion = ProtocolLibAdapter.serverVersion();
-    if (serverVersion.isAtLeast(ProtocolLibAdapter.VILLAGE_UPDATE)) {
-      dataWatcherEntityFieldName = "entity";
-    } else if (serverVersion.isAtLeast(ProtocolLibAdapter.FROSTBURN_UPDATE)) {
-      dataWatcherEntityFieldName = "c";
-    } else if (serverVersion.isAtLeast(ProtocolLibAdapter.COMBAT_UPDATE)) {
-      dataWatcherEntityFieldName = "b";
-    } else {
-      dataWatcherEntityFieldName = "a";
-    }
-
-    // search field
-
-    Class<?> entityClass = ReflectiveAccess.NMS_ENTITY_CLASS;
-    Class<?> dataWatcherClass = ReflectiveAccess.lookupServerClass("DataWatcher");
-
-    for (Field declaredField : dataWatcherClass.getDeclaredFields()) {
-      if (declaredField.getType() == entityClass) {
-        String fieldName = declaredField.getName();
-        if (!dataWatcherEntityFieldName.equals(fieldName)) {
-          IntaveLogger.logger().globalPrintLn("[Intave] Conflicting in access pool: \"" + dataWatcherEntityFieldName + "\" expected but found \"" + fieldName + "\"");
-        }
-        dataWatcherEntityFieldName = fieldName;
-        break;
-      }
-    }
   }
 
   private void reevaluateTracingEntities() {
@@ -150,9 +114,9 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
       livingEntity = false;
     } else if (packetType == PacketType.Play.Server.SPAWN_ENTITY_LIVING) {
       // entities
-      Object entity = entityOfDataWatcher(packet.getDataWatcherModifier().read(0));
-      hitBoxBoundaries = ReflectiveEntityHitBoxAccess.boundariesOf(entity);
-      entityName = entityNameOf(entity);
+      PacketEntityTypeResolver.EntitySpawn entitySpawn = entityTypeResolver.spawnInformationOf(packet);
+      entityName = entitySpawn.entityName();
+      hitBoxBoundaries = entitySpawn.hitBoxBoundaries();
       livingEntity = true;
     } else {
       // player
@@ -167,33 +131,6 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
       livingEntity = true;
     }
     processPacketSpawnMob(user, event.getPacketType(), entityName, packet, livingEntity, hitBoxBoundaries);
-  }
-
-  private String entityNameOf(Object entity) {
-    String entityName = entity.getClass().getSimpleName();
-    if (entityName.startsWith("Entity")) {
-      entityName = entityName.substring("Entity".length());
-    }
-    return entityName;
-  }
-
-  private Object entityOfDataWatcher(WrappedDataWatcher dataWatcher) {
-    Object handle = dataWatcher.getHandle();
-    Class<?> handleClass = handle.getClass();
-    try {
-      return entityByHandle(handle, handleClass.getDeclaredField(dataWatcherEntityFieldName));
-    } catch (NoSuchFieldException e) {
-      throw new IntaveInternalException(e);
-    }
-  }
-
-  private Object entityByHandle(Object handle, Field entityField) {
-    try {
-      ReflectiveAccess.ensureAccessible(entityField);
-      return entityField.get(handle);
-    } catch (Exception e) {
-      throw new IntaveInternalException(e);
-    }
   }
 
   @PacketSubscription(
@@ -312,7 +249,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
   }
 
   private void spawnMobByBukkitEntity(User user, Entity bukkitEntity) {
-    String entityName = entityNameByBukkitEntity(bukkitEntity);
+    String entityName = entityTypeResolver.entityNameByBukkitEntity(bukkitEntity);
     Location location = bukkitEntity.getLocation();
     boolean isEntityLiving = !bukkitEntity.isDead();
     HitBoxBoundaries boundaries = bukkitEntity.isDead() ? HitBoxBoundaries.zero() : ReflectiveEntityHitBoxAccess.boundariesOf(bukkitEntity);
@@ -320,7 +257,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     long serverPosX;
     long serverPosY;
     long serverPosZ;
-    if(NEW_POSITION_PROCESSING) {
+    if (NEW_POSITION_PROCESSING) {
       serverPosX = WrappedMathHelper.getPositionLong(location.getX());
       serverPosY = WrappedMathHelper.getPositionLong(location.getY());
       serverPosZ = WrappedMathHelper.getPositionLong(location.getZ());
@@ -341,10 +278,6 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
       LivingEntity livingEntity = (LivingEntity) bukkitEntity;
       entity.health = (float) livingEntity.getHealth();
     }
-  }
-
-  private String entityNameByBukkitEntity(Entity entity) {
-    return entityNameOf(ReflectiveHandleAccess.handleOf(entity));
   }
 
   private void processPacketSpawnMob(
@@ -480,7 +413,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     if (entity == null) {
       return;
     }
-    if(!entity.isEntityLiving) {
+    if (!entity.isEntityLiving) {
       return;
     }
     Float health = readHealthOf(packet.getWatchableCollectionModifier().read(0));

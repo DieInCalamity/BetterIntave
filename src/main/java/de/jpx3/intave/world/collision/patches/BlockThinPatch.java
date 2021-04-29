@@ -1,7 +1,7 @@
 package de.jpx3.intave.world.collision.patches;
 
 import com.google.common.collect.Lists;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.MinecraftVersion;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
@@ -52,7 +52,7 @@ public final class BlockThinPatch extends BoundingBoxPatch {
   @Override
   protected List<WrappedAxisAlignedBB> patch(World world, Player player, Material type, int blockState, List<WrappedAxisAlignedBB> bbs) {
     User user = UserRepository.userOf(player);
-    if (ProtocolLibAdapter.COMBAT_UPDATE.atOrAbove()) {
+    if (MinecraftVersion.VER1_9_0.atOrAbove()) {
       if (!user.meta().clientData().combatUpdate()) {
         // update 1.9 to 1.8
         int[] indices = new int[bbs.size()];

@@ -1,6 +1,6 @@
 package de.jpx3.intave.tools.wrapper;
 
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.MinecraftVersion;
 import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.tools.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.tools.wrapper.link.WrapperLinkage;
@@ -11,7 +11,7 @@ import org.bukkit.entity.Entity;
 import java.lang.reflect.Field;
 
 public class WrappedMovingObjectPosition {
-  private final static boolean NEW_RESOLVER = ProtocolLibAdapter.VILLAGE_UPDATE.atOrAbove();
+  private final static boolean NEW_RESOLVER = MinecraftVersion.VER1_14_0.atOrAbove();
 
   private WrappedBlockPosition blockPos;
 

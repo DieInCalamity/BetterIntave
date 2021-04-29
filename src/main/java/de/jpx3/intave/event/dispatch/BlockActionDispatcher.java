@@ -6,7 +6,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.*;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
+import de.jpx3.intave.adapter.MinecraftVersion;
 import de.jpx3.intave.detect.EventProcessor;
 import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketDescriptor;
@@ -129,7 +129,7 @@ public final class BlockActionDispatcher implements EventProcessor {
     }
   }
 
-  private final static boolean USE_MBP_FOR_BC = ProtocolLibAdapter.AQUATIC_UPDATE.atOrAbove();
+  private final static boolean USE_MBP_FOR_BC = MinecraftVersion.VER1_13_0.atOrAbove();
 
   private BlockPosition readBlockPositionFrom(PacketContainer container) {
     if(USE_MBP_FOR_BC) {

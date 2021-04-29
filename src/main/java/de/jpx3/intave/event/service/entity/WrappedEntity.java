@@ -2,6 +2,7 @@ package de.jpx3.intave.event.service.entity;
 
 import com.comphenix.protocol.events.PacketContainer;
 import de.jpx3.intave.access.IntaveInternalException;
+import de.jpx3.intave.adapter.MinecraftVersion;
 import de.jpx3.intave.adapter.ProtocolLibAdapter;
 import de.jpx3.intave.reflect.hitbox.HitBoxBoundaries;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
@@ -11,8 +12,8 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class WrappedEntity implements Cloneable {
-  private final static boolean NEW_POSITION_PROCESSING_1_9 = ProtocolLibAdapter.serverVersion().isAtLeast(ProtocolLibAdapter.COMBAT_UPDATE);
-  private final static boolean NEW_POSITION_PROCESSING_1_14 = ProtocolLibAdapter.serverVersion().isAtLeast(ProtocolLibAdapter.VILLAGE_UPDATE);
+  private final static boolean NEW_POSITION_PROCESSING_1_9 = ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersion.VER1_9_0);
+  private final static boolean NEW_POSITION_PROCESSING_1_14 = ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersion.VER1_14_0);
   private final String entityName;
   private final int entityId;
 
