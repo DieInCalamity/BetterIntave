@@ -639,6 +639,13 @@ public final class Physics extends IntaveCheck {
       legitimateDeviation = resolveRiptideDeviation(movementData);
     }
 
+    //TODO: Bad fix
+    if (clientData.applyNewEntityCollisions() && Math.abs(differenceY - 0.2) < 1e-5 && movementData.lastOnGround && !movementData.onGround) {
+      if (!Collision.hasNoCollisions(player, movementData.boundingBox().addCoord(movementData.motionX(), 0.201, movementData.motionZ()))) {
+        differenceY = 0;
+      }
+    }
+
     if (movementData.recentlyEncounteredFlyingPacket(3) && differenceY > 1e-3) {
       boolean inLiquid = movementData.pastWaterMovement <= 10 || movementData.inLava();
       int allowedPackets = Math.hypot(movementData.motionX(), movementData.motionZ()) < 0.03 ? 3 : 1;
@@ -826,7 +833,7 @@ public final class Physics extends IntaveCheck {
     }
 
     double abuseHorizontally = Math.max(0, distance - legitimateDeviation);
-    boolean movedTooQuickly = distanceMoved > predictedDistanceMoved * 1.0005;
+    boolean movedTooQuickly = distanceMoved > predictedDistanceMoved * 1.0005 && abuseHorizontally > 0;
 
     if (inLiquid) {
       movedTooQuickly = movedTooQuickly && distanceMoved > baseMoveSpeed;
