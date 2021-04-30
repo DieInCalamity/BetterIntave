@@ -3,6 +3,7 @@ package de.jpx3.intave.world.collision;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.MinecraftVersions;
+import de.jpx3.intave.diagnostics.BoundingBoxAccessFlowStudy;
 import de.jpx3.intave.patchy.PatchyLoadingInjector;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
@@ -23,8 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static de.jpx3.intave.IntaveControl.DISABLE_BLOCK_CACHING_ENTIRELY;
 
 public final class BoundingBoxAccess {
-  private final static CacheEntry EMPTY_CACHE_ENTRY = new CacheEntry(Collections.emptyList(), Material.AIR, 0);
-  private final static int REQUIRED_CHUNK_RESETS_FOR_FREQUENCY_SWITCH = Integer.MAX_VALUE;// 4 default, but currently deactivated;
+  private final static int FREQUENCY_OVERFLOW = 2;
   private static BoundingBoxResolver globalBoundingBoxResolver;
 
   public static void setup() {
@@ -51,7 +51,7 @@ public final class BoundingBoxAccess {
 
     PatchyLoadingInjector.loadUnloadedClassPatched(IntavePlugin.class.getClassLoader(), acClass);
     PatchyLoadingInjector.loadUnloadedClassPatched(IntavePlugin.class.getClassLoader(), className);
-    globalBoundingBoxResolver = new CubicBoundingBoxResolverFilter(instanceOf(className));
+    globalBoundingBoxResolver = new DynamicForwardingCubeResolver(instanceOf(className));
   }
 
   private static <T> T instanceOf(String className) {
@@ -65,8 +65,13 @@ public final class BoundingBoxAccess {
 
   private final Player player;
   private final Map<Integer, CacheEntry> blockCache = new ConcurrentHashMap<>(4096);
+  private final Map<Long, CacheEntry> frequencyCache = new ConcurrentHashMap<>(4096);
+
   private final Map<Location, CacheEntry> locatedReplacements = new ConcurrentHashMap<>(64);
   private final Map<Long, CacheEntry> indexedReplacements = new ConcurrentHashMap<>(64);
+
+  private int frequencyCounter;
+  private long frequencyCheckReset;
 
   private int chunkXPos;
   private int chunkX;
@@ -82,6 +87,8 @@ public final class BoundingBoxAccess {
       posY = 256;
     }
 
+    BoundingBoxAccessFlowStudy.REQUEST++;
+
     if ((chunkX != this.chunkX || chunkZ != this.chunkZ)) {
       this.chunkXPos = (chunkX) << 4;
       this.chunkZPos = (chunkZ) << 4;
@@ -89,6 +96,13 @@ public final class BoundingBoxAccess {
       this.chunkZ = chunkZ;
       blockCache.clear();
       purgeOverrides();
+
+      if(AccessHelper.now() - frequencyCheckReset > 1000) {
+        frequencyCache.clear();
+        frequencyCounter = 0;
+        frequencyCheckReset = AccessHelper.now();
+      }
+      frequencyCounter++;
     }
 
     byte dx = (byte) (this.chunkXPos - posX), dz = (byte) (this.chunkZPos - posZ);
@@ -102,19 +116,29 @@ public final class BoundingBoxAccess {
       }
     }
 
+    if(frequencyCounter > FREQUENCY_OVERFLOW) {
+      long daBigKey = bigKey(posX, posY, posZ);
+      CacheEntry cacheEntry = frequencyCache.get(daBigKey);
+      if (cacheEntry == null) {
+        World world = player.getWorld();
+        Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
+        if ((cacheEntry = blockCache.get(blockPositionKey)) == null) {
+          cacheEntry = lookup(world, block, posX, posY, posZ);
+        }
+        boolean cacheType = /* to avoid saving unloaded chunk data*/ block.getY() >= 0;
+        if (!DISABLE_BLOCK_CACHING_ENTIRELY && cacheType) {
+          frequencyCache.put(daBigKey, cacheEntry);
+        }
+      }
+      return cacheEntry.boundingBoxes();
+    }
+
     CacheEntry cacheEntry = blockCache.get(blockPositionKey);
     if (cacheEntry == null) {
       World world = player.getWorld();
       Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
-      Material type = block.getType();
-      if(type == Material.AIR) {
-        cacheEntry = EMPTY_CACHE_ENTRY;
-      } else {
-        List<WrappedAxisAlignedBB> boundingBoxes = globalBoundingBoxResolver.resolve(world, type, posX, posY, posZ);
-        boundingBoxes = BoundingBoxPatcher.patch(world, player, block, boundingBoxes);
-        cacheEntry = new CacheEntry(boundingBoxes, type, BlockDataAccess.dataIndexOf(block));
-      }
       boolean cacheType = block.getY() >= 0;
+      cacheEntry = lookup(world, block, posX, posY, posZ);
       if (!DISABLE_BLOCK_CACHING_ENTIRELY && cacheType) {
         blockCache.put(blockPositionKey, cacheEntry);
       }
@@ -127,6 +151,8 @@ public final class BoundingBoxAccess {
       posY = 256;
     }
 
+    BoundingBoxAccessFlowStudy.REQUEST++;
+
     if ((chunkX != this.chunkX || chunkZ != this.chunkZ)) {
       this.chunkXPos = (chunkX) << 4;
       this.chunkZPos = (chunkZ) << 4;
@@ -134,6 +160,13 @@ public final class BoundingBoxAccess {
       this.chunkZ = chunkZ;
       blockCache.clear();
       purgeOverrides();
+
+      if(AccessHelper.now() - frequencyCheckReset > 1000) {
+        frequencyCache.clear();
+        frequencyCounter = 0;
+        frequencyCheckReset = AccessHelper.now();
+      }
+      frequencyCounter++;
     }
 
     byte dx = (byte) (this.chunkXPos - posX), dz = (byte) (this.chunkZPos - posZ);
@@ -147,19 +180,29 @@ public final class BoundingBoxAccess {
       }
     }
 
+    if(frequencyCounter > FREQUENCY_OVERFLOW) {
+      long daBigKey = bigKey(posX, posY, posZ);
+      CacheEntry cacheEntry = frequencyCache.get(daBigKey);
+      if (cacheEntry == null) {
+        World world = player.getWorld();
+        Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
+        if ((cacheEntry = blockCache.get(blockPositionKey)) == null) {
+          cacheEntry = lookup(world, block, posX, posY, posZ);
+        }
+        boolean cacheType = /* to avoid saving unloaded chunk data*/ block.getY() >= 0;
+        if (!DISABLE_BLOCK_CACHING_ENTIRELY && cacheType) {
+          frequencyCache.put(daBigKey, cacheEntry);
+        }
+      }
+      return cacheEntry.type();
+    }
+
     CacheEntry cacheEntry = blockCache.get(blockPositionKey);
     if (cacheEntry == null) {
       World world = player.getWorld();
       Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
-      Material type = block.getType();
-      if(type == Material.AIR) {
-        cacheEntry = EMPTY_CACHE_ENTRY;
-      } else {
-        List<WrappedAxisAlignedBB> boundingBoxes = globalBoundingBoxResolver.resolve(world, type, posX, posY, posZ);
-        boundingBoxes = BoundingBoxPatcher.patch(world, player, block, boundingBoxes);
-        cacheEntry = new CacheEntry(boundingBoxes, type, BlockDataAccess.dataIndexOf(block));
-      }
       boolean cacheType = block.getY() >= 0;
+      cacheEntry = lookup(world, block, posX, posY, posZ);
       if (!DISABLE_BLOCK_CACHING_ENTIRELY && cacheType) {
         blockCache.put(blockPositionKey, cacheEntry);
       }
@@ -172,6 +215,8 @@ public final class BoundingBoxAccess {
       posY = 256;
     }
 
+    BoundingBoxAccessFlowStudy.REQUEST++;
+
     if ((chunkX != this.chunkX || chunkZ != this.chunkZ)) {
       this.chunkXPos = (chunkX) << 4;
       this.chunkZPos = (chunkZ) << 4;
@@ -179,6 +224,13 @@ public final class BoundingBoxAccess {
       this.chunkZ = chunkZ;
       blockCache.clear();
       purgeOverrides();
+
+      if(AccessHelper.now() - frequencyCheckReset > 1000) {
+        frequencyCache.clear();
+        frequencyCounter = 0;
+        frequencyCheckReset = AccessHelper.now();
+      }
+      frequencyCounter++;
     }
 
     byte dx = (byte) (this.chunkXPos - posX), dz = (byte) (this.chunkZPos - posZ);
@@ -192,25 +244,49 @@ public final class BoundingBoxAccess {
       }
     }
 
+    if(frequencyCounter > FREQUENCY_OVERFLOW) {
+      long daBigKey = bigKey(posX, posY, posZ);
+      CacheEntry cacheEntry = frequencyCache.get(daBigKey);
+      if (cacheEntry == null) {
+        World world = player.getWorld();
+        Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
+        if ((cacheEntry = blockCache.get(blockPositionKey)) == null) {
+          cacheEntry = lookup(world, block, posX, posY, posZ);
+        }
+        boolean cacheType = /* to avoid saving unloaded chunk data*/ block.getY() >= 0;
+        if (!DISABLE_BLOCK_CACHING_ENTIRELY && cacheType) {
+          frequencyCache.put(daBigKey, cacheEntry);
+        }
+      }
+      return cacheEntry.data();
+    }
+
     CacheEntry cacheEntry = blockCache.get(blockPositionKey);
     if (cacheEntry == null) {
       World world = player.getWorld();
       Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
-      Material type = block.getType();
-      if(type == Material.AIR) {
-        cacheEntry = EMPTY_CACHE_ENTRY;
-      } else {
-        List<WrappedAxisAlignedBB> boundingBoxes;
-        boundingBoxes = globalBoundingBoxResolver.resolve(world, type, posX, posY, posZ);
-        boundingBoxes = BoundingBoxPatcher.patch(world, player, block, boundingBoxes);
-        cacheEntry = new CacheEntry(boundingBoxes, type, BlockDataAccess.dataIndexOf(block));
-      }
       boolean cacheType = block.getY() >= 0;
+      cacheEntry = lookup(world, block, posX, posY, posZ);
       if (!DISABLE_BLOCK_CACHING_ENTIRELY && cacheType) {
         blockCache.put(blockPositionKey, cacheEntry);
       }
     }
     return cacheEntry.data();
+  }
+
+  private final static CacheEntry EMPTY_CACHE_ENTRY = new CacheEntry(Collections.emptyList(), Material.AIR, 0);
+
+  private CacheEntry lookup(World world, Block block, int posX, int posY, int posZ) {
+    Material type = block.getType();
+    if(type == Material.AIR) {
+      return EMPTY_CACHE_ENTRY;
+    } else {
+      BoundingBoxAccessFlowStudy.LOOKUP++;
+      List<WrappedAxisAlignedBB> boundingBoxes;
+      boundingBoxes = globalBoundingBoxResolver.resolve(world, type, posX, posY, posZ);
+      boundingBoxes = BoundingBoxPatcher.patch(world, player, block, boundingBoxes);
+      return new CacheEntry(boundingBoxes, type, BlockDataAccess.dataIndexOf(block));
+    }
   }
 
   public void identityInvalidate() {
@@ -221,6 +297,7 @@ public final class BoundingBoxAccess {
 
   public void invalidate() {
     blockCache.clear();
+    frequencyCache.clear();
   }
 
   public void invalidate(int posX, int posY, int posZ) {
@@ -242,6 +319,7 @@ public final class BoundingBoxAccess {
     byte dx = (byte) (chunkXPos - posX), dz = (byte) (chunkZPos - posZ);
     int blockPositionKey = (posY & 0x1FF) << 16 | (dx & 0x0FF) << 8 | (dz & 0x0FF);
     blockCache.remove(blockPositionKey);
+    frequencyCache.remove(bigKey(posX, posY, posZ));
   }
 
   public void override(World world, int posX, int posY, int posZ, Material type, int blockState) {

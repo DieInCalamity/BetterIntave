@@ -10,6 +10,7 @@ import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.detect.checks.combat.heuristics.MiningStrategy;
+import de.jpx3.intave.diagnostics.BoundingBoxAccessFlowStudy;
 import de.jpx3.intave.diagnostics.KeyPressStudy;
 import de.jpx3.intave.diagnostics.timings.Timing;
 import de.jpx3.intave.diagnostics.timings.Timings;
@@ -137,6 +138,21 @@ public final class IntaveRootStage extends CommandStage {
       }
       player.sendMessage("Key " + keys + " " + MathHelper.formatDouble(percentage * 100, 4) + "%");
     });
+  }
+
+  @SubCommand(
+    selectors = "bbaf",
+    usage = "",
+    description = "",
+    permission = "sibyl"
+  )
+  @Native
+  public void outputBBAF(User user) {
+    Player player = user.player();
+    player.sendMessage(ChatColor.RED + "Loading bounding box access flow study..");
+
+    player.sendMessage(ChatColor.GRAY + "" + BoundingBoxAccessFlowStudy.REQUEST + " requests required " + BoundingBoxAccessFlowStudy.LOOKUP + " lookups, from which " + BoundingBoxAccessFlowStudy.DYNAMIC + " were resolved dynamically");
+
   }
 
   @SubCommand(

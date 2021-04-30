@@ -1,5 +1,6 @@
 package de.jpx3.intave.world.collision;
 
+import de.jpx3.intave.diagnostics.BoundingBoxAccessFlowStudy;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -9,21 +10,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public final class CubicBoundingBoxResolverFilter implements BoundingBoxResolver {
+public final class DynamicForwardingCubeResolver implements BoundingBoxResolver {
   private final BoundingBoxResolver forward;
   private final Set<Material> solidMaterials = new HashSet<>();
   private final Set<Material> otherMaterials = new HashSet<>();
 
-  public CubicBoundingBoxResolverFilter(BoundingBoxResolver forward) {
+  public DynamicForwardingCubeResolver(BoundingBoxResolver forward) {
     this.forward = forward;
   }
 
   @Override
   public List<WrappedAxisAlignedBB> resolve(World world, Material advanceType, int posX, int posY, int posZ) {
     if (solidMaterials.contains(advanceType)) {
-      return Collections.singletonList(
-        new WrappedAxisAlignedBB(posX, posY, posZ, posX + 1, posY + 1, posZ + 1)
-      );
+      BoundingBoxAccessFlowStudy.DYNAMIC++;
+      return Collections.singletonList(new WrappedAxisAlignedBB(posX, posY, posZ, posX + 1, posY + 1, posZ + 1));
     } else if (otherMaterials.contains(advanceType)) {
       return forward.resolve(world, advanceType, posX, posY, posZ);
     }

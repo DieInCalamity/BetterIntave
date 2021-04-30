@@ -18,10 +18,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public final class BlockDataAccess {
   private static BlockAccessor blockAccessor;
@@ -29,8 +26,8 @@ public final class BlockDataAccess {
 
   private final static boolean ALL_BLOCKS_LEGACY = !MinecraftVersions.VER1_14_0.atOrAbove();
 
-  private final static HashSet<Material> clickableMaterials = new HashSet<>();
-  private final static HashSet<Material> legacyMaterials = new HashSet<>();
+  private final static Set<Material> clickableMaterials = new HashSet<>();
+  private final static Set<Material> legacyMaterials = new HashSet<>();
 
   public static void setup() {
     String resolverName = "de.jpx3.intave.world.blockaccess.v8BlockAccessor";
@@ -100,13 +97,13 @@ public final class BlockDataAccess {
 
   private static void loadMaterials() {
     if(MinecraftVersions.VER1_14_0.atOrAbove()) {
-      modernLoad();
+      modernMaterialLoad();
     } else {
-      legacyLoad();
+      legacyMaterialLoad();
     }
   }
 
-  private static void modernLoad() {
+  private static void modernMaterialLoad() {
     Method isInteractable, isLegacy;
     try {
       isInteractable = Material.class.getMethod("isInteractable");
@@ -134,7 +131,7 @@ public final class BlockDataAccess {
     }
   }
 
-  private static void legacyLoad() {
+  private static void legacyMaterialLoad() {
     for (Material material : Material.values()) {
       if(!material.isBlock()) {
         continue;
@@ -157,7 +154,7 @@ public final class BlockDataAccess {
     }
   }
 
-  public static List<Method> allMethodsIn(Class<?> clazz) {
+  private static List<Method> allMethodsIn(Class<?> clazz) {
     List<Method> methods = new ArrayList<>();
     do {
       Class<?> finalClazz = clazz;
