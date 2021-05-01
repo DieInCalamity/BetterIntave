@@ -44,12 +44,12 @@ public final class BoundingBoxPatcher {
 
   public static List<WrappedAxisAlignedBB> patch(World world, Player player, Block block, List<WrappedAxisAlignedBB> bbs) {
     BoundingBoxPatch boundingBoxPatch = patches.get(block.getType());
-    return boundingBoxPatch == null ? bbs : transpose(boundingBoxPatch.patch(world, player, block, checkRepose(boundingBoxPatch, bbs, block.getX(), block.getY(), block.getZ())), block.getX(), block.getY(), block.getZ());
+    return boundingBoxPatch == null ? bbs : transpose(boundingBoxPatch.patch(world, player, block, reposeIfRequired(boundingBoxPatch, bbs, block.getX(), block.getY(), block.getZ())), block.getX(), block.getY(), block.getZ());
   }
 
   public static List<WrappedAxisAlignedBB> patch(World world, Player player, int blockX, int blockY, int blockZ, Material type, int blockState, List<WrappedAxisAlignedBB> boxes) {
     BoundingBoxPatch boundingBoxPatch = patches.get(type);
-    return boundingBoxPatch == null ? boxes : transpose(boundingBoxPatch.patch(world, player, type, blockState, checkRepose(boundingBoxPatch, boxes, blockX, blockY, blockZ)), blockX, blockY, blockZ);
+    return boundingBoxPatch == null ? boxes : transpose(boundingBoxPatch.patch(world, player, type, blockState, reposeIfRequired(boundingBoxPatch, boxes, blockX, blockY, blockZ)), blockX, blockY, blockZ);
   }
 
   public static List<WrappedAxisAlignedBB> transpose(List<WrappedAxisAlignedBB> boundingBoxes, int posX, int posY, int posZ) {
@@ -65,7 +65,7 @@ public final class BoundingBoxPatcher {
     return boundingBoxes;
   }
 
-  public static List<WrappedAxisAlignedBB> checkRepose(BoundingBoxPatch patch, List<WrappedAxisAlignedBB> boundingBoxes, int posX, int posY, int posZ) {
+  public static List<WrappedAxisAlignedBB> reposeIfRequired(BoundingBoxPatch patch, List<WrappedAxisAlignedBB> boundingBoxes, int posX, int posY, int posZ) {
     if(!patch.requireRepose() || boundingBoxes.isEmpty()) {
       return boundingBoxes;
     }

@@ -16,10 +16,16 @@ public final class UserMetaClientData {
   public static int PROTOCOL_VERSION_COMBAT_UPDATE = 107; // 1.9
   public static int VERSION_DETAILS = 97; // secret integer for security - DO NOT MODIFY
   public static int PROTOCOL_VERSION_BOUNTIFUL_UPDATE = 47; // 1.8
-  private final int protocolVersion;
-  private final String versionString;
+  private String versionString;
+  private int protocolVersion;
+  private final User user;
 
-  public UserMetaClientData(Player player) {
+  public UserMetaClientData(Player player, User user) {
+    this.user = user;
+    this.refresh(player);
+  }
+
+  public void refresh(Player player) {
     this.protocolVersion = player == null ? -1 : ViaVersionAdapter.protocolVersionOf(player);
     this.versionString = versionAsString();
   }
@@ -90,7 +96,12 @@ public final class UserMetaClientData {
   }
 
   public float cameraSneakOffset() {
-    return protocolVersion >= SOMETHING_BETWEEN ? 0.35f : 0.08f;
+    boolean override = user.customClientSupport().isLegacySneakHeight();
+    if (protocolVersion >= SOMETHING_BETWEEN && !override) {
+      return 0.35f;
+    } else {
+      return 0.08f;
+    }
   }
 
   public float hitBoxHeightWhenSneaking() {

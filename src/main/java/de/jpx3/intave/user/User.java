@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.access.player.trust.TrustFactor;
+import de.jpx3.intave.connect.customclient.CustomClientSupport;
 import de.jpx3.intave.connect.shadow.ShadowPacketDataLink;
 import de.jpx3.intave.event.punishment.AttackNerfStrategy;
 import de.jpx3.intave.event.punishment.EntityNoDamageTickChanger;
@@ -42,6 +43,7 @@ public final class User {
   private boolean ignoreNextPacket;
   private boolean ignoreNextOutboundPacket;
   private boolean hasShadow;
+  private CustomClientSupport customClientSupport = CustomClientSupport.createDefault();
   private ShadowPacketDataLink shadowRepo = null;
   private final long birthTimestamp = AccessHelper.now();
 
@@ -101,6 +103,14 @@ public final class User {
 
   public BukkitPermissionCache permissionCache() {
     return permissionCache;
+  }
+
+  public CustomClientSupport customClientSupport() {
+    return customClientSupport;
+  }
+
+  public void setCustomClientSupport(CustomClientSupport customClientSupport) {
+    this.customClientSupport = customClientSupport;
   }
 
   public boolean shouldIgnoreNextPacket() {
@@ -257,7 +267,7 @@ public final class User {
 
     public UserMeta(Player player, User user) {
       this.violationLevelData = new UserMetaViolationLevelData();
-      this.clientData = new UserMetaClientData(player);
+      this.clientData = new UserMetaClientData(player, user);
       this.abilityData = new UserMetaAbilityData(player);
       this.potionData = new UserMetaPotionData(player);
       this.inventoryData = new UserMetaInventoryData(player);

@@ -51,6 +51,9 @@ public final class ClientWarningService implements PacketEventSubscriber {
     } else {
       tag = packet.getStrings().getValues().get(0);
     }
+    if(tag.startsWith("minecraft:")) {
+      tag = tag.substring(10);
+    }
     if(tag.endsWith("Brand")) {
       ByteBuf bytes = (ByteBuf) packet.getSpecificModifier(ReflectiveAccess.lookupServerClass("PacketDataSerializer")).getValues().get(0);
       try {
