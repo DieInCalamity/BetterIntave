@@ -111,6 +111,16 @@ public class DefaultPoseSimulator extends PoseSimulator {
       tryRelinkFlyingPosition(user, context);
     }
 
+    Vector motionMultiplier = movementData.motionMultiplier();
+    if (motionMultiplier != null) {
+      context.motionX *= motionMultiplier.getX();
+      context.motionY *= motionMultiplier.getY();
+      context.motionZ *= motionMultiplier.getZ();
+      movementData.physicsMotionX = 0;
+//      movementData.physicsMotionY = 0;
+      movementData.physicsMotionZ = 0;
+    }
+
     ComplexColliderSimulationResult collisionResult = Collider.simulateComplexCollision(
       user, context, movementData.inWeb,
       positionX, positionY, positionZ
@@ -343,6 +353,7 @@ public class DefaultPoseSimulator extends PoseSimulator {
       motionVector.motionZ = 0.0;
     }
 
+    movementData.resetMotionMultiplier();
     simulateMovementOfCollidedBlocks(user, motionVector, boundingBox);
     updateFallState(user, motionY, movementData.onGround);
 

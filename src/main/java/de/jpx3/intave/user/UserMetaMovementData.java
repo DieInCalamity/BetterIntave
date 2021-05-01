@@ -6,6 +6,7 @@ import de.jpx3.intave.detect.checks.movement.physics.MotionVector;
 import de.jpx3.intave.detect.checks.movement.physics.Pose;
 import de.jpx3.intave.detect.checks.movement.physics.SimulationProcessor;
 import de.jpx3.intave.reflect.ReflectiveHandleAccess;
+import de.jpx3.intave.tools.annotate.Nullable;
 import de.jpx3.intave.tools.client.*;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
@@ -62,6 +63,8 @@ public final class UserMetaMovementData {
   public Vector emulationVelocity;
   public Vector setbackOverrideVelocity = new Vector(0,0,0);
   public Vector lastVelocity = new Vector();
+  @Nullable
+  private Vector motionMultiplier = null;
   public boolean canResetMotion;
   private double jumpMotion;
   private int pastClientFlyingPacket, pastFlyingPacketAccurate;
@@ -450,11 +453,25 @@ public final class UserMetaMovementData {
     return frictionPosSubtraction;
   }
 
+  @Nullable
+  public Vector motionMultiplier() {
+    return motionMultiplier;
+  }
+
   public void setBoundingBox(WrappedAxisAlignedBB entityBoundingBox) {
     if (this.boundingBox == null) {
       setupDefaults();
     }
     this.boundingBox = entityBoundingBox;
+  }
+
+  public void setMotionMultiplier(Vector motionMultiplier) {
+    this.artificialFallDistance = 0f;
+    this.motionMultiplier = motionMultiplier;
+  }
+
+  public void resetMotionMultiplier() {
+    this.motionMultiplier = null;
   }
 
   public void setVerifiedLocation(Location verifiedLocation, @SuppressWarnings("unused") String reason) {

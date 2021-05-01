@@ -2,6 +2,7 @@ package de.jpx3.intave.world.blockphysics;
 
 import com.comphenix.protocol.utility.MinecraftVersion;
 import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserMetaMovementData;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.util.Vector;
@@ -22,7 +23,9 @@ final class BlockPhysicBerryBush implements BlockPhysic {
 
   @Override
   public Vector entityCollidedWithBlock(User user, Location location, Location from, double motionX, double motionY, double motionZ) {
-    return new Vector(motionX * 0.8f, motionY * 0.75, motionZ * 0.8f);
+    UserMetaMovementData movementData = user.meta().movementData();
+    movementData.setMotionMultiplier(new Vector(0.8f, 0.75, 0.8f));
+    return null;
   }
 
   @Override
