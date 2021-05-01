@@ -206,6 +206,7 @@ public final class UserMetaMovementData {
       elytraFlying = PoseHelper.flyingWithElytra(player);
       boolean falling = motionY() <= 0.0D;
       if (falling && EffectLogic.isPotionSlowFallingActive(player)) {
+        artificialFallDistance = 0f;
         gravity = 0.01D;
       } else {
         gravity = 0.08D;

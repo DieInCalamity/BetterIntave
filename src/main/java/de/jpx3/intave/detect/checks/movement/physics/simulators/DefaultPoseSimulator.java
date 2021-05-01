@@ -557,6 +557,7 @@ public class DefaultPoseSimulator extends PoseSimulator {
     if (EffectLogic.isPotionLevitationActive(player)) {
       int levitationAmplifier = EffectLogic.effectAmplifier(player, EffectLogic.EFFECT_LEVITATION);
       context.motionY += (0.05D * (double) (levitationAmplifier + 1) - context.motionY) * 0.2D;
+      user.meta().movementData().artificialFallDistance = 0f;
     } else {
       context.motionY -= gravity;
     }
