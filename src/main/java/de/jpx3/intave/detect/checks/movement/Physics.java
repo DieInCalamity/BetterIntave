@@ -750,6 +750,7 @@ public final class Physics extends IntaveCheck {
     boolean onLadder,
     boolean collidedWithBoat
   ) {
+    Player player = user.player();
     User.UserMeta meta = user.meta();
     UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
     UserMetaMovementData movementData = meta.movementData();
@@ -772,8 +773,20 @@ public final class Physics extends IntaveCheck {
       }
     }
 
+    double distance = MathHelper.resolveHorizontalDistance(predictedX, predictedZ, motionX, motionZ);
     boolean pushedByWaterFlow = movementData.pastPushedByWaterFlow <= 20;
-    double legitimateDeviation = movementData.pastPlayerAttackPhysics <= 1 ? 0.01 : 0.0007;
+    double legitimateDeviation;
+    if (movementData.pastPlayerAttackPhysics <= 1) {
+      legitimateDeviation = 0.01;
+    } else {
+      legitimateDeviation = 0.0007;
+      if (distance > 0.0007) {
+        boolean collides = Collision.nearBySolidBlock(player.getWorld(), movementData.boundingBox().growHorizontally(0.001));
+        if (collides) {
+          legitimateDeviation = distanceMoved < 0.04 ? 0.04 : 0.001;
+        }
+      }
+    }
 
     if (movementData.collidedHorizontally && movementData.pastVelocity < 20) {
       legitimateDeviation = 0.027;
@@ -823,7 +836,6 @@ public final class Physics extends IntaveCheck {
       legitimateDeviation = Math.max(legitimateDeviation, 0.4);
     }
 
-    double distance = MathHelper.resolveHorizontalDistance(predictedX, predictedZ, motionX, motionZ);
     if (movementData.physicsUnpredictableVelocityExpected) {
       Vector lastVelocity = movementData.lastVelocity;
       double velocityDistance = Math.hypot(lastVelocity.getX(), lastVelocity.getZ());

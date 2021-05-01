@@ -88,6 +88,10 @@ public class WrappedAxisAlignedBB {
     return expand(value, value, value);
   }
 
+  public WrappedAxisAlignedBB growHorizontally(double value) {
+    return expand(value, 0, value);
+  }
+
   public WrappedAxisAlignedBB shrink(double value) {
     return grow(-value);
   }
