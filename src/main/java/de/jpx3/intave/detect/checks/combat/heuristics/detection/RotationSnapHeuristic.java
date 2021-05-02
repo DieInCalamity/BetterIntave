@@ -4,7 +4,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.IntaveControl;
-import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.detect.IntaveMetaCheckPart;
@@ -33,11 +32,9 @@ import java.util.Map;
 import static de.jpx3.intave.world.raytrace.Raytracer.distanceOf;
 
 public class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics, RotationSnapHeuristic.RotationSnapHeuristicMeta> {
-  private final IntavePlugin plugin;
 
   public RotationSnapHeuristic(Heuristics parentCheck) {
     super(parentCheck, RotationSnapHeuristicMeta.class);
-    this.plugin = IntavePlugin.singletonInstance();
   }
 
   @PacketSubscription(
@@ -141,8 +138,14 @@ public class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics, Rotat
     if (movementData.lastTeleport == 0) {
       return;
     }
-
     RotationSnapHeuristicMeta meta = metaOf(user);
+
+    if(movementData.motionX() != 0 && movementData.motionZ() != 0) {
+      meta.internalViolation -= 0.01;
+      if(meta.internalViolation < 0)
+        meta.internalViolation = 0;
+    }
+
     double yawMotion = Math.abs(movementData.lastRotationYaw - movementData.rotationYaw);
     UserMetaAttackData attackData = user.meta().attackData();
 
@@ -198,7 +201,6 @@ public class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics, Rotat
       }
 
       boolean changedLookToEntity = false;
-
       if (attackData.lastAttackedEntity() != null && attackData.lastAttackedEntity().positionHistory.size() > 2) {
         WrappedEntity wrappedEntity = attackData.lastAttackedEntity();
 
@@ -237,17 +239,22 @@ public class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics, Rotat
         }
       }
 
-      double vl = calculateViolation(valueOfSnap, changedLookToEntity, meta);
+      double vl = calculateViolation(valueOfSnap, changedLookToEntity, user);
 
       if (vl >= 40) {
         user.applyAttackNerfer(AttackNerfStrategy.HT_MEDIUM);
       }
       Confidence confidence = Confidence.confidenceFrom((int) (vl + meta.internalViolation));
       meta.internalViolation += vl;
-      meta.internalViolation -= confidence.level();
-      description += " conf:" + confidence.level();
 
-      if (vl > 10) {
+      if (confidence.level() >= 30) {
+        meta.internalViolation -= confidence.level();
+        description += " conf:" + confidence.level();
+
+        if(user.meta().clientData().protocolVersion() > 47) {
+          description += " " + user.meta().clientData().protocolVersion();
+        }
+
         boolean isPartner = (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
         boolean isEnterprise = (UserMetaClientData.VERSION_DETAILS & 0x200) != 0;
 
@@ -270,7 +277,9 @@ public class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics, Rotat
     prepareNextTick(meta, yawMotion, user);
   }
 
-  private double calculateViolation(double valueOfSnap, boolean channgedLookToEntity, RotationSnapHeuristicMeta meta) {
+  private double calculateViolation(double valueOfSnap, boolean channgedLookToEntity, User user) {
+    RotationSnapHeuristicMeta meta = metaOf(user);
+
     double vl = 7;
     if (valueOfSnap > 360) {
       vl = 120;
@@ -294,6 +303,10 @@ public class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics, Rotat
       vl *= 3;
     } else if (meta.silentMovements[1] == KeyStates.CHANGED) {
       vl *= 1.7;
+    }
+
+    if(user.meta().clientData().protocolVersion() <= UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE) {
+      vl /= 3;
     }
 
     return Math.min(160, vl);
