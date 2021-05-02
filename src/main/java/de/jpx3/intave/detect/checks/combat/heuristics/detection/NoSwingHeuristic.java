@@ -57,7 +57,7 @@ public final class NoSwingHeuristic extends IntaveMetaCheckPart<Heuristics, NoSw
 //  }
 
   @PacketSubscription(
-    priority = ListenerPriority.HIGH,
+    priority = ListenerPriority.NORMAL,
     packets = {
       @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ENTITY")
     }
@@ -80,7 +80,7 @@ public final class NoSwingHeuristic extends IntaveMetaCheckPart<Heuristics, NoSw
   }
 
   @PacketSubscription(
-    priority = ListenerPriority.HIGH,
+    priority = ListenerPriority.NORMAL,
     packets = {
       @PacketDescriptor(sender = Sender.CLIENT, packetName = "ARM_ANIMATION")
     }
@@ -94,7 +94,7 @@ public final class NoSwingHeuristic extends IntaveMetaCheckPart<Heuristics, NoSw
   }
 
   @PacketSubscription(
-    priority = ListenerPriority.HIGH,
+    priority = ListenerPriority.NORMAL,
     packets = {
       @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
       @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
