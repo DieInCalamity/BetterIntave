@@ -1,32 +1,23 @@
 package de.jpx3.intave.reflect;
 
-import de.jpx3.intave.patchy.annotate.PatchyAutoTranslation;
-import net.minecraft.server.v1_8_R3.DataWatcher;
-import net.minecraft.server.v1_8_R3.Entity;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
+import de.jpx3.intave.adapter.MinecraftVersions;
+import de.jpx3.intave.reflect.datawatcher.DataWatcherAccess;
+import de.jpx3.intave.reflect.datawatcher.LegacyDataWatcherAccess;
+import de.jpx3.intave.reflect.datawatcher.NewDataWatcherAccess;
 import org.bukkit.entity.Player;
 
-@PatchyAutoTranslation
-public final class ReflectiveDataWatcherAccess {
-  public static final int DATA_WATCHER_BLOCKING_ID = 4;
-  public static final int DATA_WATCHER_SNEAK_ID = 1;
+import static de.jpx3.intave.reflect.ReflectiveAccess.DATA_WATCHER_NEW_ACCESS_VER;
 
-  @PatchyAutoTranslation
-  public static void setDataWatcherFlag(Player player, int i, boolean flag) {
-    Entity handle = ((CraftEntity) player).getHandle();
-    DataWatcher dataWatcher = handle.getDataWatcher();
-    byte b0 = dataWatcher.getByte(0);
-    if (flag) {
-      dataWatcher.watch(0, (byte) (b0 | 1 << i));
-    } else {
-      dataWatcher.watch(0, (byte) (b0 & ~(1 << i)));
-    }
+public final class ReflectiveDataWatcherAccess  {
+  public static final int DATA_WATCHER_BLOCKING_ID = MinecraftVersions.VER1_9_0.atOrAbove() ? 1 : 4;
+  public static final int DATA_WATCHER_SNEAK_ID = 1;
+  private final static DataWatcherAccess nativeDataWatcherAccess = DATA_WATCHER_NEW_ACCESS_VER ? new NewDataWatcherAccess() : new LegacyDataWatcherAccess();
+
+  public static void setDataWatcherFlag(Player player, int key, boolean flag) {
+    nativeDataWatcherAccess.setDataWatcherFlag(player, key, flag);
   }
 
-  @PatchyAutoTranslation
-  public static boolean getDataWatcherFlag(Player player, int i) {
-    Entity handle = ((CraftEntity) player).getHandle();
-    DataWatcher dataWatcher = handle.getDataWatcher();
-    return (dataWatcher.getByte(0) & 1 << i) != 0;
+  public static boolean getDataWatcherFlag(Player player, int key) {
+    return nativeDataWatcherAccess.getDataWatcherFlag(player, key);
   }
 }
