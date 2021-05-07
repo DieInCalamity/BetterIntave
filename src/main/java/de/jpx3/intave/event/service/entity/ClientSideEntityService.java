@@ -424,12 +424,14 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
     List<WrappedWatchableObject> watchableObjects = packet.getWatchableCollectionModifier().read(0);
 
-    Integer age = readAgeOf(watchableObjects);
-    if(age != null && !NEW_POSITION_PROCESSING) {
-      Entity bukkitEntity = serverEntityByIdentifier(player, entityID);
+    if(!NEW_POSITION_PROCESSING) {
+      Integer age = readAgeOf(watchableObjects);
+      if (age != null) {
+        Entity bukkitEntity = serverEntityByIdentifier(player, entityID);
 
-      if(bukkitEntity != null) {
-        entity.hitBoxBoundaries = hitBoxBoundariesByBukkitEntity(bukkitEntity);
+        if (bukkitEntity != null) {
+          entity.hitBoxBoundaries = hitBoxBoundariesByBukkitEntity(bukkitEntity);
+        }
       }
     }
 
