@@ -1,5 +1,6 @@
 package de.jpx3.intave.world.collision;
 
+import de.jpx3.intave.tools.annotate.DoNotFlowObfuscate;
 import de.jpx3.intave.tools.annotate.Relocate;
 import de.jpx3.intave.tools.client.MaterialLogic;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.function.Function;
 
 @Relocate
+@DoNotFlowObfuscate
 public final class Collision {
   private final static BoundingBoxResolvePipeline boundingBoxResolver = BoundingBoxResolverFactory.resolver();
 

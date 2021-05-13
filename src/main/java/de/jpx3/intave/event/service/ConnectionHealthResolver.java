@@ -33,7 +33,7 @@ public final class ConnectionHealthResolver implements PacketEventSubscriber {
         long dur = AccessHelper.now() - lastKeepAliveResponse(user);
         if(TIMEOUT_DURATION < dur) {
           Synchronizer.synchronize(() -> {
-            System.out.println("[Intave] " + player.getName() + " was not responding to any packets for 30 seconds");
+            System.out.println("[Intave] " + player.getName() + " was not responding to keep-alive packets for at least 30 seconds");
             player.kickPlayer("Timed out");
           });
         }
@@ -90,6 +90,7 @@ public final class ConnectionHealthResolver implements PacketEventSubscriber {
     }
 
     if(!remainingPingPackets.containsKey(id)) {
+      System.out.println("[Intave] Player " + player + " sent kai " + id + ", but expected " + remainingPingPackets);
       Synchronizer.synchronize(() -> player.kickPlayer("Unknown keep-alive identifier"));
       return;
     }

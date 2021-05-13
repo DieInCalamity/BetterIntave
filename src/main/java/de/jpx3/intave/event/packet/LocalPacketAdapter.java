@@ -8,16 +8,16 @@ import de.jpx3.intave.diagnostics.timings.Timings;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.user.UserRepository;
 
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class LocalPacketAdapter extends IntavePacketAdapter implements Comparable<LocalPacketAdapter> {
   private final String methodName;
   private final ListenerPriority priority;
   private final PacketEventSubscriber subscriber;
   private final PacketSubscriptionMethodExecutor executor;
-  private final Map<PacketType, Timing> localTimings = new HashMap<>();
+  private final Map<PacketType, Timing> localTimings = new ConcurrentHashMap<>();
 
   public LocalPacketAdapter(
     IntavePlugin plugin,

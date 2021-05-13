@@ -40,8 +40,8 @@ public final class ViolationProcessor {
     if(!optionalPlayer.isPresent()) {
       return violationContext.counterThreatBecause("Player is not reachable").complete();
     }
-    Player player = optionalPlayer.get();
 
+    Player player = optionalPlayer.get();
     User user = UserRepository.userOf(player);
     if(user.justJoined() || !user.hasOnlinePlayer()) {
       return violationContext.counterThreatBecause("Player is not reachable").complete();
@@ -179,12 +179,15 @@ public final class ViolationProcessor {
     if(violationContext.completed()) {
       return;
     }
-    Violation violation = violationContext.violation();
-    Player player = violation.player().orElseThrow(IllegalStateException::new);
-    String checkName = violation.check().name().toLowerCase(Locale.ROOT);
-    String threshold = violation.threshold();
-    double violationLevelAfter = violationContext.violationLevelAfter();
-    violationMapOf(player).get(checkName).put(threshold, violationLevelAfter);
+    // hehehe fix fix
+    try {
+      Violation violation = violationContext.violation();
+      Player player = violation.player().orElseThrow(IllegalStateException::new);
+      String checkName = violation.check().name().toLowerCase(Locale.ROOT);
+      String threshold = violation.threshold();
+      double violationLevelAfter = violationContext.violationLevelAfter();
+      violationMapOf(player).get(checkName).put(threshold, violationLevelAfter);
+    } catch (Exception ignored) {}
   }
 
   private void lookupThresholdCommands(ViolationContext violationContext) {

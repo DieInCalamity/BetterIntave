@@ -66,6 +66,12 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
       PacketContainer packetClone = packet.deepClone();
       int entityId = packet.getIntegers().read(0);
       Attack attack = new Attack(packetClone, entityId);
+
+      User user = userOf(player);
+      if(validReach(player, entityByIdentifier(user, entityId))) {
+        return;
+      }
+
       if (attackRaytraceMeta.pendingAttacks.size() < 4) {
         attackRaytraceMeta.pendingAttacks.add(attack);
       }
@@ -155,6 +161,37 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
     } catch (InvocationTargetException | IllegalAccessException exception) {
       exception.printStackTrace();
     }
+  }
+
+  private boolean validReach(Player player, WrappedEntity entity) {
+    User user = UserRepository.userOf(player);
+    User.UserMeta meta = user.meta();
+    UserMetaMovementData movementData = meta.movementData();
+    UserMetaClientData clientData = meta.clientData();
+
+    double blockReachDistance = reachDistance(player.getGameMode() == GameMode.CREATIVE);
+    float lastRotationYaw = movementData.lastRotationYaw % 360;
+    float rotationYaw = movementData.rotationYaw % 360;
+    boolean alternativePositionY = clientData.protocolVersion() == UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE;
+    boolean hasAlwaysMouseDelayFix = clientData.protocolVersion() >= 314;
+    // mouse delay fix
+    Raytracer.EntityInteractionRaytrace distanceOfResult = distanceOf(
+      player,
+      entity, alternativePositionY,
+      movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ,
+      rotationYaw, movementData.rotationPitch, 0.1
+    );
+    if (!hasAlwaysMouseDelayFix && distanceOfResult.reach > blockReachDistance) {
+      // normal
+      distanceOfResult = distanceOf(
+        player,
+        entity, true,
+        movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ,
+        lastRotationYaw, movementData.rotationPitch, 0.1
+      );
+    }
+    AttackRaytraceResult raytraceResult = AttackRaytraceResult.of(distanceOfResult.reach, blockReachDistance);
+    return raytraceResult == AttackRaytraceResult.NORMAL;
   }
 
   /**
@@ -286,16 +323,6 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
       vl = 0;
     }
     return vl;
-  }
-
-  private Player playerByWrappedEntity(WrappedEntity wrappedEntity) {
-    int entityId = wrappedEntity.entityId();
-    for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-      if (player.getEntityId() == entityId) {
-        return player;
-      }
-    }
-    return null;
   }
 
   private boolean processIterativeReachCheck(Player player, WrappedEntity attackedEntity) {

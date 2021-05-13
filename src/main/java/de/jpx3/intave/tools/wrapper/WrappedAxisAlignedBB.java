@@ -25,7 +25,6 @@ public class WrappedAxisAlignedBB {
     this.maxZ = Math.max(z1, z2);
   }
 
-
   public double getMin(WrappedEnumDirection.Axis axis) {
     return axis.getCoordinate(this.minX, this.minY, this.minZ);
   }

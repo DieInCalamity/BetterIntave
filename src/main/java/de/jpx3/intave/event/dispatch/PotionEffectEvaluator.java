@@ -41,7 +41,7 @@ public final class PotionEffectEvaluator implements PacketEventSubscriber {
     if (potionEffectType == null) {
       potionEffectType = 0;
     }
-    plugin.eventService().transactionFeedbackService().requestPong(player, potionEffectType, this::receiveEffectRemoval);
+    plugin.eventService().feedback().clientSynchronize(player, potionEffectType, this::receiveEffectRemoval);
   }
 
   @PacketSubscription(
@@ -77,7 +77,7 @@ public final class PotionEffectEvaluator implements PacketEventSubscriber {
       potionEffectAmplifier,
       potionEffectDuration
     );
-    plugin.eventService().transactionFeedbackService().requestPong(player, effectOutput, this::receiveEffect);
+    plugin.eventService().feedback().clientSynchronize(player, effectOutput, this::receiveEffect);
   }
 
   private void receiveEffectRemoval(Player player, int potionEffectType) {

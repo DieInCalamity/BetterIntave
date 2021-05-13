@@ -6,7 +6,7 @@ import com.comphenix.protocol.events.ConnectionSide;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.injector.packet.PacketRegistry;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.packet.pipeinject.InjectionService;
+import de.jpx3.intave.event.packet.tinyprotocol.InjectionService;
 import de.jpx3.intave.lib.asm.Type;
 import de.jpx3.intave.reflect.irx.IRXFactory;
 

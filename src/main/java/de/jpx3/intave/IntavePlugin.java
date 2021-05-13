@@ -52,6 +52,8 @@ import de.jpx3.intave.world.permission.WorldPermission;
 import de.jpx3.intave.world.raytrace.Raytracer;
 import de.jpx3.intave.world.waterflow.Waterflow;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.PluginLogger;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
@@ -65,6 +67,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.LogRecord;
 
 import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 import static de.jpx3.intave.security.InterceptorFilterPrintStream.foundInterceptor;
@@ -114,6 +117,7 @@ public final class IntavePlugin extends JavaPlugin {
     version = getDescription().getVersion();
     manifestDataFolder();
     this.logger = new IntaveLogger(this);
+    redirectOfficialLogger();
   }
 
   @Native
@@ -166,6 +170,7 @@ public final class IntavePlugin extends JavaPlugin {
       // stage 6
 
       ProtocolLibraryAdapter.checkIfOutdated();
+      ProtocolLibraryAdapter.setup();
 
       // stage 7
       configurationService = new ConfigurationService(this);
@@ -574,6 +579,22 @@ public final class IntavePlugin extends JavaPlugin {
     }
   }
 
+  public void redirectOfficialLogger() {
+    PluginLogger pluginLogger = new PluginLogger(this) {
+      @Override
+      public void log(LogRecord logRecord) {
+        logger().info(logRecord.getMessage());
+      }
+    };
+    try {
+      Field loggerField = JavaPlugin.class.getDeclaredField("logger");
+      loggerField.setAccessible(true);
+      loggerField.set(this, pluginLogger);
+    } catch (Exception exception) {
+      exception.printStackTrace();
+    }
+  }
+
   @Native
   public void displayVersionInformation() {
     Version version = versionList.versionInformation(version());
@@ -753,6 +774,11 @@ public final class IntavePlugin extends JavaPlugin {
     } catch (Exception ignored) {}
     logger().info("Intave offline");
     logger.shutdown();
+  }
+
+  @Override
+  public FileConfiguration getConfig() {
+    return configurationService().configuration();
   }
 
   public IntaveAccess access() {

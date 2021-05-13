@@ -9,10 +9,7 @@ import com.google.common.collect.Lists;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.detect.EventProcessor;
-import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketDescriptor;
-import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
+import de.jpx3.intave.event.packet.*;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserRepository;
@@ -29,6 +26,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType.*;
+import static de.jpx3.intave.event.service.TransactionFeedbackService.TransactionOptions.ENFORCE_SYNCHRONIZATION;
+import static de.jpx3.intave.event.service.TransactionFeedbackService.TransactionOptions.OPTIONAL;
 
 public final class BlockActionDispatcher implements EventProcessor {
   private final IntavePlugin plugin;
@@ -40,6 +39,7 @@ public final class BlockActionDispatcher implements EventProcessor {
   }
 
   @PacketSubscription(
+    engine = Engine.INTERNAL,
     packets = {
       @PacketDescriptor(sender = Sender.SERVER, packetName = "MAP_CHUNK"),
       @PacketDescriptor(sender = Sender.SERVER, packetName = "MAP_CHUNK_BULK")
@@ -53,20 +53,22 @@ public final class BlockActionDispatcher implements EventProcessor {
       StructureModifier<int[]> integerArrays = packet.getIntegerArrays();
       int[] xArr = integerArrays.read(0).clone();
       int[] zArr = integerArrays.read(1).clone();
-      plugin.eventService().transactionFeedbackService().requestPong(
+      plugin.eventService().feedback().clientSynchronize(
         player, null,
         (player1, target) -> {
           for (int i = 0; i < xArr.length; i++) {
             chunkInvalidate(player, xArr[i], zArr[i]);
           }
-        }
+        },
+        OPTIONAL | ENFORCE_SYNCHRONIZATION
       );
     } else {
       int x = packet.getIntegers().read(0);
       int z = packet.getIntegers().read(1);
-      plugin.eventService().transactionFeedbackService().requestPong(
+      plugin.eventService().feedback().clientSynchronize(
         player, null,
-        (player1, target) -> chunkInvalidate(player, x, z)
+        (player1, target) -> chunkInvalidate(player, x, z),
+        OPTIONAL | ENFORCE_SYNCHRONIZATION
       );
     }
   }
@@ -205,19 +207,9 @@ public final class BlockActionDispatcher implements EventProcessor {
       }
     }
 
-
-//    for (Iterator<BlockPosition> iterator = blockPositions.iterator(); iterator.hasNext(); ) {
-//      BlockPosition blockPosition = iterator.next();
-//
-//      if()
-//
-//      iterator.remove();
-//
-//    }
-
     World world = player.getWorld();
     if (transactionSynchronize) {
-      plugin.eventService().transactionFeedbackService().requestPong(player, null, (player1, target) -> {
+      plugin.eventService().feedback().clientSynchronize(player, null, (player1, target) -> {
         for (int i = 0; i < blockPositions.size(); i++) {
           BlockPosition blockPosition = blockPositions.get(i);
           WrappedBlockData blockData = blockDataList.get(i);

@@ -1,10 +1,11 @@
-package de.jpx3.intave.world.blockshape;
+package de.jpx3.intave.world.blockshape.garbage;
 
-import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.diagnostics.BoundingBoxAccessFlowStudy;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.world.blockaccess.BlockDataAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
+import de.jpx3.intave.world.blockshape.BlockShape;
+import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
 import de.jpx3.intave.world.blockshape.resolver.BoundingBoxResolvePipeline;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -39,17 +40,13 @@ public final class GlobalStaticOCBlockShapeAccess implements OCBlockShapeAccess 
     if (posY < 0 || 255 < posY) {
       return Collections.emptyList();
     }
-
     BoundingBoxAccessFlowStudy.requests++;
-
     if ((chunkX != this.chunkX || chunkZ != this.chunkZ)) {
       this.chunkX = chunkX;
       this.chunkZ = chunkZ;
       purgeOverrides();
     }
-
     long key = bigKey(posX, posY, posZ);
-
     BlockShape blockShape = globalBlockCache.computeIfAbsent(player.getWorld(), x -> new HashMap<>()).get(key);
     if (blockShape == null) {
       World world = player.getWorld();
@@ -67,17 +64,13 @@ public final class GlobalStaticOCBlockShapeAccess implements OCBlockShapeAccess 
     if (posY < 0 || 255 < posY) {
       return Material.AIR;
     }
-
     BoundingBoxAccessFlowStudy.requests++;
-
     if ((chunkX != this.chunkX || chunkZ != this.chunkZ)) {
       this.chunkX = chunkX;
       this.chunkZ = chunkZ;
       purgeOverrides();
     }
-
     long key = bigKey(posX, posY, posZ);
-
     BlockShape blockShape = globalBlockCache.computeIfAbsent(player.getWorld(), x -> new HashMap<>()).get(key);
     if (blockShape == null) {
       World world = player.getWorld();
@@ -95,17 +88,13 @@ public final class GlobalStaticOCBlockShapeAccess implements OCBlockShapeAccess 
     if (posY < 0 || 255 < posY) {
       return 0;
     }
-
     BoundingBoxAccessFlowStudy.requests++;
-
     if ((chunkX != this.chunkX || chunkZ != this.chunkZ)) {
       this.chunkX = chunkX;
       this.chunkZ = chunkZ;
       purgeOverrides();
     }
-
     long key = bigKey(posX, posY, posZ);
-
     BlockShape blockShape = globalBlockCache.computeIfAbsent(player.getWorld(), x -> new HashMap<>()).get(key);
     if (blockShape == null) {
       World world = player.getWorld();
@@ -122,15 +111,12 @@ public final class GlobalStaticOCBlockShapeAccess implements OCBlockShapeAccess 
     if (posY < 0 || 255 < posY) {
       return EMPTY_CACHE_ENTRY;
     }
-
     BoundingBoxAccessFlowStudy.requests++;
-
     if ((chunkX != this.chunkX || chunkZ != this.chunkZ)) {
       this.chunkX = chunkX;
       this.chunkZ = chunkZ;
       purgeOverrides();
     }
-
     long key = bigKey(posX, posY, posZ);
     BlockShape blockShape = globalBlockCache.computeIfAbsent(player.getWorld(), x -> new HashMap<>()).get(key);
     if (blockShape == null) {
@@ -151,7 +137,7 @@ public final class GlobalStaticOCBlockShapeAccess implements OCBlockShapeAccess 
     if(type == Material.AIR) {
       return EMPTY_CACHE_ENTRY;
     } else {
-      BoundingBoxAccessFlowStudy.increaseLookups();
+      BoundingBoxAccessFlowStudy.incremLookups();
       int data = BlockDataAccess.dataIndexOf(block);
       List<WrappedAxisAlignedBB> boundingBoxes = resolver.customResolve(world, player, type, data, posX, posY, posZ);
       return new BlockShape(boundingBoxes, type, data);
@@ -188,7 +174,7 @@ public final class GlobalStaticOCBlockShapeAccess implements OCBlockShapeAccess 
     BlockShape originalShape = resolveOriginalShape(posX >> 4, posZ >> 4, posX, posY, posZ);
     boolean shapeRemains = (blockShape.boundingBoxes().equals(originalShape.boundingBoxes()));
     if(!shapeRemains) {
-      IntavePlugin.singletonInstance().eventService().disableGlobalStaticBlockAccess();
+//      IntavePlugin.singletonInstance().eventService().disableGlobalStaticBlockAccess();
     }
     long key = bigKey(posX, posY, posZ);
     indexedReplacements.put(key, blockShape);
@@ -198,10 +184,8 @@ public final class GlobalStaticOCBlockShapeAccess implements OCBlockShapeAccess 
   @Override
   public void invalidateOverridesInBounds(int chunkXMinPos, int chunkXMaxPos, int chunkZMinPos, int chunkZMaxPos) {
     for (Location location : locatedReplacements.keySet()) {
-      if(
-        location.getX() >= chunkXMinPos && location.getX() < chunkXMaxPos &&
-          location.getZ() >= chunkZMinPos && location.getZ() < chunkZMaxPos
-      ) {
+      if(location.getX() >= chunkXMinPos && location.getX() < chunkXMaxPos &&
+          location.getZ() >= chunkZMinPos && location.getZ() < chunkZMaxPos) {
         long key = bigKey(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         locatedReplacements.remove(location);
         indexedReplacements.remove(key);
@@ -223,7 +207,7 @@ public final class GlobalStaticOCBlockShapeAccess implements OCBlockShapeAccess 
 
   @Override
   public List<WrappedAxisAlignedBB> constructBlock(World world, int posX, int posY, int posZ, Material type, int blockState) {
-    BoundingBoxAccessFlowStudy.increaseLookups();
+    BoundingBoxAccessFlowStudy.incremLookups();
     return resolver.customResolve(world, player, type, blockState, posX, posY, posZ);
   }
 

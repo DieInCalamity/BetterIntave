@@ -32,6 +32,9 @@ public final class ProtocolLibraryAdapter {
     }
   }
 
+  public static void setup() {
+  }
+
   private static boolean methodExists(String className, String methodName) {
     try {
       Class.forName(className).getDeclaredMethod(methodName);

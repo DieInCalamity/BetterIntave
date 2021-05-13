@@ -10,7 +10,6 @@ import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.detect.checks.combat.heuristics.MiningStrategy;
-import de.jpx3.intave.diagnostics.BoundingBoxAccessFlowStudy;
 import de.jpx3.intave.diagnostics.KeyPressStudy;
 import de.jpx3.intave.diagnostics.timings.Timing;
 import de.jpx3.intave.diagnostics.timings.Timings;
@@ -27,6 +26,8 @@ import org.bukkit.entity.Player;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+
+import static de.jpx3.intave.diagnostics.BoundingBoxAccessFlowStudy.*;
 
 @Relocate
 public final class IntaveRootStage extends CommandStage {
@@ -235,8 +236,8 @@ public final class IntaveRootStage extends CommandStage {
     Player player = user.player();
     player.sendMessage(ChatColor.RED + "Loading bounding box access flow study..");
 
-    player.sendMessage(ChatColor.GRAY + "" + BoundingBoxAccessFlowStudy.requests + " requests required " + BoundingBoxAccessFlowStudy.lookups + " lookups, from which " + BoundingBoxAccessFlowStudy.dynamic + " were resolved dynamically");
-
+    String colorScheme = ChatColor.GREEN + "" + green + " " + ChatColor.YELLOW + yellow + " " + ChatColor.RED + red + "" + ChatColor.GRAY;
+    player.sendMessage(ChatColor.GRAY + "" + requests + " requests required " + lookups + " lookups ("+colorScheme+"), " + ChatColor.AQUA + ((lookups) - dynamic) + ChatColor.GRAY + " by server");
   }
 
   @SubCommand(

@@ -65,7 +65,7 @@ public final class FileArchiver {
       out.setLevel(Deflater.BEST_COMPRESSION);
       int count;
       byte[] buffer = new byte[1024];
-      while ((count = in.read(buffer)) != 0) {
+      while ((count = in.read(buffer)) != -1) {
         out.write(buffer, 0, count);
       }
     } catch (IOException exception) {

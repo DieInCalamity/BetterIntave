@@ -165,12 +165,12 @@ public final class IntaveLogger {
     for (Map.Entry<File, File> file : filesToArchive.entrySet()) {
       File originalFile = file.getKey();
       File archiveFile = file.getValue();
-      BackgroundExecutor.execute(() -> {
+//      BackgroundExecutor.execute(() -> {
         if(originalFile.exists() && !archiveFile.exists()) {
           archiver.archiveAndDeleteFile(originalFile, archiveFile);
           info("Compressed \"" + originalFile + "\"");
         }
-      });
+//      });
     }
   }
 

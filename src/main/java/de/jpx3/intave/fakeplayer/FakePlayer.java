@@ -377,8 +377,8 @@ public final class FakePlayer implements TickTaskScheduler {
     }
 
     plugin.eventService()
-      .transactionFeedbackService()
-      .requestPong(parentPlayer, to, (player, target) -> {
+      .feedback()
+      .clientSynchronize(parentPlayer, to, (player, target) -> {
         User user = UserRepository.userOf(player);
         UserMetaAttackData attackData = user.meta().attackData();
         attackData.fakePlayerLastReportedX = target.getX();
@@ -414,8 +414,8 @@ public final class FakePlayer implements TickTaskScheduler {
     }
     movement.registerTeleport(to);
     plugin.eventService()
-      .transactionFeedbackService()
-      .requestPong(parentPlayer, to, (player, target) -> {
+      .feedback()
+      .clientSynchronize(parentPlayer, to, (player, target) -> {
         User user = UserRepository.userOf(player);
         UserMetaAttackData attackData = user.meta().attackData();
         attackData.fakePlayerLastReportedX = target.getX();

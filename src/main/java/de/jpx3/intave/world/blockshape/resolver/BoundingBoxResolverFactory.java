@@ -4,6 +4,7 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.patchy.PatchyLoadingInjector;
+import de.jpx3.intave.world.blockshape.resolver.pipeline.DynamicCorruptedBlockFilter;
 import de.jpx3.intave.world.blockshape.resolver.pipeline.DynamicCubePreFilter;
 import de.jpx3.intave.world.blockshape.resolver.pipeline.DynamicEmptyBlockPreFilter;
 import de.jpx3.intave.world.blockshape.resolver.pipeline.DynamicPatcherReshaper;
@@ -38,6 +39,8 @@ public final class BoundingBoxResolverFactory {
 
     // server resolver
     resolver = instanceOf(className);
+    // corrupted filter
+    resolver = new DynamicCorruptedBlockFilter(resolver);
     // empty prefilter
     resolver = new DynamicEmptyBlockPreFilter(resolver);
     // cube prefilter

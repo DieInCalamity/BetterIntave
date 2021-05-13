@@ -25,7 +25,7 @@ public final class DynamicCubePreFilter implements BoundingBoxResolvePipeline {
   @Deprecated
   public List<WrappedAxisAlignedBB> nativeResolve(World world, Player player, Material type, int blockState, int posX, int posY, int posZ) {
     if (solidMaterials.contains(type)) {
-      BoundingBoxAccessFlowStudy.increaseDynamic();
+      BoundingBoxAccessFlowStudy.incremDynamic();
       return Collections.singletonList(new WrappedAxisAlignedBB(posX, posY, posZ, posX + 1, posY + 1, posZ + 1));
     } else if (otherMaterials.contains(type)) {
       return forward.nativeResolve(world, player, type, blockState, posX, posY, posZ);
@@ -40,7 +40,7 @@ public final class DynamicCubePreFilter implements BoundingBoxResolvePipeline {
   @Override
   public List<WrappedAxisAlignedBB> customResolve(World world, Player player, Material type, int blockState, int posX, int posY, int posZ) {
     if (solidMaterials.contains(type)) {
-      BoundingBoxAccessFlowStudy.increaseDynamic();
+      BoundingBoxAccessFlowStudy.incremDynamic();
       return Collections.singletonList(new WrappedAxisAlignedBB(posX, posY, posZ, posX + 1, posY + 1, posZ + 1));
     } else if (otherMaterials.contains(type)) {
       return forward.customResolve(world, player, type, blockState, posX, posY, posZ);

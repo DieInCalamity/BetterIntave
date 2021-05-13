@@ -214,7 +214,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     }
     if (entity.isEntityLiving && entity.tracingEnabled()) {
       WrappedEntity finalEntity = entity;
-      plugin.eventService().transactionFeedbackService().requestPong(player, event, (player1, event1) -> {
+      plugin.eventService().feedback().clientSynchronize(player, event, (player1, event1) -> {
         processEntityMovement(event1, finalEntity);
         if (event1.getPacketType() == PacketType.Play.Server.ENTITY_TELEPORT) {
           finalEntity.clientSynchronized = true;
@@ -388,7 +388,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     }
     boolean synchronize = entity.clientSynchronized && entity.tracingEnabled();
     if (synchronize) {
-      plugin.eventService().transactionFeedbackService().requestPong(player, entity, (p, e) -> updateDeadState(e));
+      plugin.eventService().feedback().clientSynchronize(player, entity, (p, e) -> updateDeadState(e));
     } else {
       updateDeadState(entity);
     }
@@ -439,7 +439,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     if (health != null) {
       boolean synchronize = entity.clientSynchronized && entity.tracingEnabled();
       if (synchronize) {
-        plugin.eventService().transactionFeedbackService().requestPong(player, entity, (p, e) -> updateHealthState(e, health));
+        plugin.eventService().feedback().clientSynchronize(player, entity, (p, e) -> updateHealthState(e, health));
       } else {
         updateHealthState(entity, health);
       }
@@ -449,7 +449,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
   private void synchronizePlayerHealth(Player player, PacketContainer packet) {
     Float health = readHealthOf(packet.getWatchableCollectionModifier().read(0));
     if (health != null) {
-      plugin.eventService().transactionFeedbackService().requestPong(player, health, (p, retrievedHealth) -> {
+      plugin.eventService().feedback().clientSynchronize(player, health, (p, retrievedHealth) -> {
         UserMetaAbilityData abilityData = UserRepository.userOf(p).meta().abilityData();
         abilityData.health = retrievedHealth;
         abilityData.ticksToLastHealthUpdate = 0;

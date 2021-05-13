@@ -132,8 +132,8 @@ public final class MovementDispatcher implements EventProcessor {
   private void synchronizeRespawn(Player player) {
     User user = UserRepository.userOf(player);
     plugin.eventService()
-      .transactionFeedbackService()
-      .requestPong(player, user.meta().movementData(), (p, movementData) -> {
+      .feedback()
+      .clientSynchronize(player, user.meta().movementData(), (p, movementData) -> {
         movementData.sneaking = false;
         movementData.sprinting = false;
         movementData.physicsMotionX = 0;
@@ -153,7 +153,7 @@ public final class MovementDispatcher implements EventProcessor {
   public void sentExplosion(PacketEvent event) {
     Player player = event.getPlayer();
     PacketContainer packet = event.getPacket();
-    plugin.eventService().transactionFeedbackService().requestPong(player, packet.getFloat(), (player1, floats) -> {
+    plugin.eventService().feedback().clientSynchronize(player, packet.getFloat(), (player1, floats) -> {
       User user = UserRepository.userOf(player1);
       UserMetaMovementData movementData = user.meta().movementData();
       Float motionX = floats.read(1);
@@ -494,7 +494,7 @@ public final class MovementDispatcher implements EventProcessor {
       }
 
       movementData.emulationVelocity = velocity.clone();
-      plugin.eventService().transactionFeedbackService().requestPong(player, velocity, this::receiveVelocity);
+      plugin.eventService().feedback().clientSynchronize(player, velocity, this::receiveVelocity);
     }
   }
 

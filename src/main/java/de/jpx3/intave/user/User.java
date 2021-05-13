@@ -17,8 +17,7 @@ import de.jpx3.intave.tools.annotate.Relocate;
 import de.jpx3.intave.tools.placeholder.PlayerContext;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.world.blockshape.BlankUserOCBlockShapeAccess;
-import de.jpx3.intave.world.blockshape.GlobalStaticOCBlockShapeAccess;
-import de.jpx3.intave.world.blockshape.MultiChunkKeyOCBlockShapeAccess;
+import de.jpx3.intave.world.blockshape.FallbackMultiChunkKeyOCBlockShapeAccess;
 import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
 import de.jpx3.intave.world.blockshape.resolver.BoundingBoxResolverFactory;
 import de.jpx3.intave.world.collider.Collider;
@@ -65,10 +64,8 @@ public final class User {
     this.permissionCache = new BukkitPermissionCache();
     if(!hasPlayer) {
       useBlankBlockShapeAccess();
-    } else if(USE_GLOBAL_STATIC_BLOCK_SHAPE_ACCESS) {
-      useGlobalStaticBlockShapeAccess();
     } else {
-      useMultiChunkBlockShapeAccess();
+      useFallbackMultiChunkBlockShapeAccess();
     }
     this.colliderProcessor = Collider.suitableComplexColliderProcessorFor(this);
     if(hasPlayer) {
@@ -169,12 +166,8 @@ public final class User {
     setBlockShapeAccess(new BlankUserOCBlockShapeAccess());
   }
 
-  public void useGlobalStaticBlockShapeAccess() {
-    setBlockShapeAccess(new GlobalStaticOCBlockShapeAccess(player(), BoundingBoxResolverFactory.resolver()));
-  }
-
-  public void useMultiChunkBlockShapeAccess() {
-    setBlockShapeAccess(new MultiChunkKeyOCBlockShapeAccess(player(), BoundingBoxResolverFactory.resolver()));
+  public void useFallbackMultiChunkBlockShapeAccess() {
+    setBlockShapeAccess(new FallbackMultiChunkKeyOCBlockShapeAccess(player(), BoundingBoxResolverFactory.resolver()));
   }
 
   public void setBlockShapeAccess(OCBlockShapeAccess newBlockShapeAccess) {

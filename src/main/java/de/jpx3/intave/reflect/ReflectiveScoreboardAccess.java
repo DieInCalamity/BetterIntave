@@ -1,30 +1,37 @@
 package de.jpx3.intave.reflect;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import de.jpx3.intave.patchy.annotate.PatchyAutoTranslation;
 import net.minecraft.server.v1_9_R2.*;
 import org.bukkit.craftbukkit.v1_9_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
-public final class ReflectiveScoreboardAccess {
-  private static Object scoreboardTeam;
+import java.util.List;
+import java.util.UUID;
 
+public final class ReflectiveScoreboardAccess {
   @PatchyAutoTranslation
   public static void applyNoCollisionRule(
     Player player,
     String teamName,
     String teamContent
   ) {
-    if (scoreboardTeam == null) {
-      scoreboardTeam = new ScoreboardTeam(new Scoreboard(), teamName);
-      ((ScoreboardTeam) (scoreboardTeam)).setCollisionRule(ScoreboardTeamBase.EnumTeamPush.NEVER);
-    }
-
+    ScoreboardTeam team = new ScoreboardTeam(new Scoreboard(), teamName + findTeamName());
+    team.setCollisionRule(ScoreboardTeamBase.EnumTeamPush.NEVER);
     PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
-    ImmutableList<String> teamList = ImmutableList.of(teamContent);
-    PacketPlayOutScoreboardTeam packet = new PacketPlayOutScoreboardTeam((ScoreboardTeam) scoreboardTeam, teamList, 3);
-    connection.sendPacket(packet);
-    ((ScoreboardTeam)(scoreboardTeam)).setCollisionRule(ScoreboardTeamBase.EnumTeamPush.NEVER);
-    connection.sendPacket(new PacketPlayOutScoreboardTeam((ScoreboardTeam) scoreboardTeam, 0));
+    connection.sendPacket(new PacketPlayOutScoreboardTeam(team, ImmutableList.of(teamContent), 3));
+    connection.sendPacket(new PacketPlayOutScoreboardTeam(team, 0));
+  }
+
+  private final static List<String> createdTeamNames = Lists.newArrayList();
+
+  private static synchronized String findTeamName() {
+    String randomTeamName;
+    do {
+      randomTeamName = UUID.randomUUID().toString().replaceAll("-", "").toUpperCase().substring(0, 8);
+    } while (createdTeamNames.contains(randomTeamName));
+    createdTeamNames.add(randomTeamName);
+    return randomTeamName;
   }
 }

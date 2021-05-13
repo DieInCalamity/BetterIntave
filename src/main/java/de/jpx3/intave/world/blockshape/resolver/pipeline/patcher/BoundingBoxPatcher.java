@@ -45,6 +45,10 @@ public final class BoundingBoxPatcher {
     return patch == null ? boxes : transpose(patch.patch(world, player, type, blockState, reposeIfRequired(patch, boxes, blockX, blockY, blockZ)), blockX, blockY, blockZ);
   }
 
+  public static boolean requiresPatch(Material material) {
+    return patches.containsKey(material);
+  }
+
   private static List<WrappedAxisAlignedBB> transpose(List<WrappedAxisAlignedBB> boundingBoxes, int posX, int posY, int posZ) {
     if(boundingBoxes.isEmpty()) {
       return boundingBoxes;

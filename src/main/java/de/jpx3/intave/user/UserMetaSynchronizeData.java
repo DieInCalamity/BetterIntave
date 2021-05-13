@@ -3,7 +3,7 @@ package de.jpx3.intave.user;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import de.jpx3.intave.event.service.entity.WrappedEntity;
-import de.jpx3.intave.event.service.transaction.TransactionCallBackData;
+import de.jpx3.intave.event.service.transaction.TFRequest;
 import de.jpx3.intave.tools.annotate.Relocate;
 import org.bukkit.entity.Player;
 
@@ -13,10 +13,10 @@ import java.util.Map;
 @Relocate
 public final class UserMetaSynchronizeData {
   private final Player player;
-  private final Map<Short, TransactionCallBackData<?>> transactionFeedBackMap = Maps.newConcurrentMap();
+  private final Map<Short, TFRequest<?>> transactionFeedBackMap = Maps.newConcurrentMap();
   private final Map<Integer, WrappedEntity> synchronizedEntityMap = Maps.newConcurrentMap();
   private final Map<Long, Long> remainingPingPacketTimestamps = Maps.newConcurrentMap();
-  private final List<Long> latencyDifferenceBalance = Lists.newArrayList();
+  private final List<Long> latencyDifferenceBalance = Lists.newCopyOnWriteArrayList();
 
   // Client Synchronization
   public int latency;
@@ -30,7 +30,7 @@ public final class UserMetaSynchronizeData {
     this.player = player;
   }
 
-  public Map<Short, TransactionCallBackData<?>> transactionFeedBackMap() {
+  public Map<Short, TFRequest<?>> transactionFeedBackMap() {
     return transactionFeedBackMap;
   }
 

@@ -339,6 +339,10 @@ public class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics, Rotat
       vl += 10;
     }
 
+    if(!IntaveControl.GOMME_MODE) {
+      vl /= 2;
+    }
+
     return Math.min(160, vl);
   }
 

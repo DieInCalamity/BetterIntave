@@ -4,13 +4,12 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.packet.*;
-import de.jpx3.intave.event.service.transaction.TransactionCallBackData;
-import de.jpx3.intave.event.service.transaction.TransactionFeedbackCallback;
+import de.jpx3.intave.event.packet.PacketEventSubscriber;
+import de.jpx3.intave.event.service.transaction.TFCallback;
+import de.jpx3.intave.event.service.transaction.TFRequest;
+import de.jpx3.intave.event.service.transaction.TransactionResponseLocker;
 import de.jpx3.intave.logging.IntaveLogger;
-import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaSynchronizeData;
@@ -18,40 +17,43 @@ import de.jpx3.intave.user.UserRepository;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Locale;
 import java.util.Map;
 
+import static de.jpx3.intave.event.service.TransactionFeedbackService.TransactionOptions.ENFORCE_SYNCHRONIZATION;
+import static de.jpx3.intave.event.service.TransactionFeedbackService.TransactionOptions.OPTIONAL;
+
 public final class TransactionFeedbackService implements PacketEventSubscriber {
-  private final static long TRANSACTION_TIMEOUT = 3000;
-  private final static long TRANSACTION_TIMEOUT_KICK = 12000;
-  public final static short TRANSACTION_MIN_CODE = -22222;//-32768;
+  public final static long TRANSACTION_TIMEOUT = 3000;
+  public final static long TRANSACTION_TIMEOUT_KICK = 12000;
+  public final static short TRANSACTION_MIN_CODE = -32768;
   public final static short TRANSACTION_MAX_CODE = -16370;
+
+  public final static long OPTIONAL_LIMIT = 100;
+
   private final static ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
+
+  private final TransactionResponseLocker responseLocker;
 
   public TransactionFeedbackService(IntavePlugin plugin) {
     plugin.packetSubscriptionLinker().linkSubscriptionsIn(this);
-    plugin.getServer().getScheduler().scheduleAsyncRepeatingTask(plugin, this::checkTransactionTimeout, 20 * 2, 20 * 2);
+    responseLocker = new TransactionResponseLocker(plugin);
   }
 
-  private void checkTransactionTimeout() {
-    for (Player player : Bukkit.getOnlinePlayers()) {
-      checkTransactionTimeoutFor(player);
+  public <T> void clientSynchronize(Player player, T target, TFCallback<T> callback) {
+    clientSynchronize(player, target, callback, 0);
+  }
+
+  public <T> void clientSynchronize(Player player, T target, TFCallback<T> callback, int options) {
+    if(TransactionOptions.matches(ENFORCE_SYNCHRONIZATION, options) && !Bukkit.isPrimaryThread()) {
+      Synchronizer.synchronize(() -> clientSynchronize(player, target, callback, options));
+      return;
     }
-  }
-
-  private void checkTransactionTimeoutFor(Player player) {
-    User user = UserRepository.userOf(player);
-    if (oldestPendingTransaction(user) > TRANSACTION_TIMEOUT_KICK) {
-      Synchronizer.synchronize(() -> {
-        System.out.println("[Intave] " + player.getName() + " is not responding to validation packets");
-        player.kickPlayer("Timed out");
-      });
+    if(TransactionOptions.matches(OPTIONAL, options)) {
+      if(pendingTransactions(userOf(player)) > OPTIONAL_LIMIT) {
+        return;
+      }
     }
-  }
-
-  public <T> void requestPong(Player player, T target, TransactionFeedbackCallback<T> callback) {
     Short id = acquireNewId(player, target, callback);
     if (id != null) {
       sendTransactionPacket(player, id);
@@ -60,7 +62,7 @@ public final class TransactionFeedbackService implements PacketEventSubscriber {
 
   private final static Object FALLBACK_OBJECT = new Object();
 
-  private /* synchronized (is already always sync) */ <T> Short acquireNewId(Player player, T obj, TransactionFeedbackCallback<T> callback) {
+  private /* synchronized (is already always sync) */ <T> Short acquireNewId(Player player, T obj, TFCallback<T> callback) {
     User user = UserRepository.userOf(player);
     if (user == null || !user.hasOnlinePlayer()) {
       return null;
@@ -75,7 +77,7 @@ public final class TransactionFeedbackService implements PacketEventSubscriber {
       //noinspection unchecked
       obj = (T) FALLBACK_OBJECT;
     }
-    TransactionCallBackData<T> feedbackEntry = new TransactionCallBackData<>(callback, obj, transactionNumCounter);
+    TFRequest<T> feedbackEntry = new TFRequest<>(callback, obj, transactionNumCounter);
     synchronizeData.transactionFeedBackMap().put(transactionCounter, feedbackEntry);
     return transactionCounter;
   }
@@ -83,8 +85,8 @@ public final class TransactionFeedbackService implements PacketEventSubscriber {
   private synchronized short findAvailableTransactionIdFor(Player player) {
     User user = UserRepository.userOf(player);
     UserMetaSynchronizeData synchronizeData = user.meta().synchronizeData();
-    Map<Short, TransactionCallBackData<?>> transactionFeedBackMap = synchronizeData.transactionFeedBackMap();
-    short counter = (short) (TRANSACTION_MIN_CODE /*+ transactionFeedBackMap.size()*/);
+    Map<Short, TFRequest<?>> transactionFeedBackMap = synchronizeData.transactionFeedBackMap();
+    short counter = TRANSACTION_MIN_CODE;
     while (transactionFeedBackMap.containsKey(counter)) counter++;
     return counter;
   }
@@ -108,119 +110,21 @@ public final class TransactionFeedbackService implements PacketEventSubscriber {
     }
   }
 
-  @PacketSubscription(
-    priority = ListenerPriority.LOWEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "TRANSACTION")
-    }
-  )
-  public void onPacketReceiving(PacketEvent event) {
-    Player player = event.getPlayer();
-    User user = UserRepository.userOf(player);
-    if (user == null) {
-      return;
-    }
-    UserMetaSynchronizeData synchronizeData = user.meta().synchronizeData();
-    Map<Short, TransactionCallBackData<?>> transactionFeedBackMap = synchronizeData.transactionFeedBackMap();
-    Short transactionIdentifier = event.getPacket().getShorts().readSafely(0);
-    if (transactionIdentifier <= TRANSACTION_MAX_CODE) {
-      TransactionCallBackData<?> transactionResponse = transactionFeedBackMap.remove(transactionIdentifier);
-      if (transactionResponse == null) {
-        return;
-      }
-
-      // order verification
-      long expected = synchronizeData.lastReceivedTransactionNum + 1;
-      if (transactionResponse.num() != expected && !user.justJoined()) {
-        Synchronizer.synchronize(() -> {
-          System.out.println("[Intave] " + player.getName() + " sent invalid validation response (received " + transactionResponse.num() + ", but expected " + expected + ")");
-          player.kickPlayer("Timed out");
-        });
-      }
-
-      synchronizeData.lastReceivedTransactionNum = transactionResponse.num();
-      transactionResponse.transactionFeedbackCallback().success(
-        player,
-        convertInstanceOfObject(transactionResponse.obj())
-      );
-      event.setCancelled(true);
-    }
+  private static long pendingTransactions(User user) {
+    return user.meta().synchronizeData().transactionFeedBackMap().size();
   }
 
-  @PacketSubscription(
-    priority = ListenerPriority.LOWEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ENTITY")
-    }
-  )
-  public void cancelAttacksIfTransactionMissing(PacketEvent event) {
-    Player player = event.getPlayer();
-    User user = UserRepository.userOf(player);
-    PacketContainer packet = event.getPacket();
-    if (oldestPendingTransaction(user) > TRANSACTION_TIMEOUT) {
-      event.setCancelled(true);
-    }
+  public User userOf(Player player) {
+    return UserRepository.userOf(player);
   }
 
-  private void nettyThreadDump() {
-    Thread.getAllStackTraces().forEach((thread, stackTraceElements) -> {
-      if(thread.getName().toLowerCase(Locale.ROOT).contains("netty")) {
-        Exception exception = new Exception();
-        System.out.println("[Intave/ThreadDump] Thread " + thread.getName() + " " + thread.getState() + " at execution point");
-        exception.setStackTrace(stackTraceElements);
-        exception.printStackTrace(new PrintStream(System.err) {
-          @Override
-          public void println(String x) {
-            super.println("[Intave/ThreadDump] " + x);
-          }
-        });
-      }
-    });
-  }
+  public static class TransactionOptions {
+    public static int ENFORCE_SYNCHRONIZATION = 1;
+    public static int OPTIONAL = 2;
+    public static int DONT_ENFORCE_LOCKING = 4;
 
-  @PacketSubscription(
-    priority = ListenerPriority.HIGHEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ENTITY"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_DIG"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_PLACE"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ITEM")
+    public static boolean matches(int option, int options) {
+      return (options & option) != 0;
     }
-  )
-  public void on(PacketEvent event) {
-    Player player = event.getPlayer();
-    User user = UserRepository.userOf(player);
-    if (transactionResponseTimeout(user)) {
-      event.setCancelled(true);
-    }
-  }
-
-  private <T> T convertInstanceOfObject(Object o) {
-    try {
-      //noinspection unchecked
-      return (T) o;
-    } catch (ClassCastException e) {
-      return null;
-    }
-  }
-
-  private static boolean transactionResponseTimeout(User user) {
-    UserMetaSynchronizeData synchronizeData = user.meta().synchronizeData();
-    Map<Short, TransactionCallBackData<?>> transactionFeedBackMap = synchronizeData.transactionFeedBackMap();
-    long duration = 0;
-    for (TransactionCallBackData<?> value : transactionFeedBackMap.values()) {
-      duration = Math.max(duration, value.requested());
-    }
-    return duration != 0 && AccessHelper.now() - duration > TRANSACTION_TIMEOUT_KICK;
-  }
-
-  private static long oldestPendingTransaction(User user) {
-    UserMetaSynchronizeData synchronizeData = user.meta().synchronizeData();
-    Map<Short, TransactionCallBackData<?>> transactionFeedBackMap = synchronizeData.transactionFeedBackMap();
-    long duration = AccessHelper.now();
-    for (TransactionCallBackData<?> value : transactionFeedBackMap.values()) {
-      duration = Math.min(duration, value.requested());
-    }
-    return duration == 0 ? 0 : AccessHelper.now() - duration;
   }
 }
