@@ -54,7 +54,7 @@ public final class CombatMitigator implements BukkitEventSubscriber {
       return;
     }
     Player player = user.player();
-    String message = ChatColor.RED + "[DC] Performed " + attackNerfer.name() + " damage cancel on " + player.getName() + "by " + checkId;
+    String message = ChatColor.RED + "[DC] Performed " + attackNerfer.name() + " damage cancel on " + player.getName() + " (" + checkId + ")";
     if (IntaveControl.DEBUG_HEURISTICS && !plugin.sibylIntegrationService().isAuthenticated(player)) {
       player.sendMessage(message);
     }
