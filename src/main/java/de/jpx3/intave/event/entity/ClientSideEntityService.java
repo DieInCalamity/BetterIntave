@@ -488,8 +488,12 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
           Boolean isChild = (Boolean) object;
           return isChild;
         } else if(object instanceof Byte) {
-          byte isChild = (byte) object;
-          return isChild < 0;
+          if(!NEW_POSITION_PROCESSING_1_9) {
+            byte isChild = (byte) object;
+            return isChild < 0;
+          } else {
+            // packet here should be ignored because for other vanilla use cases (for example when a bat is hanging on the ceiling)
+          }
         } else {
           IntaveLogger.logger().info("Failed to read EntityMetaData packet. " + object.getClass());
           return null;
