@@ -1,7 +1,6 @@
 package de.jpx3.intave.world.raytrace;
 
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.detect.checks.combat.AttackRaytrace;
 import de.jpx3.intave.diagnostics.timings.Timings;
 import de.jpx3.intave.event.entity.WrappedEntity;
 import de.jpx3.intave.patchy.PatchyLoadingInjector;
@@ -44,6 +43,45 @@ public final class Raytracer {
     } catch (InstantiationException | IllegalAccessException | ClassNotFoundException exception) {
       throw new IllegalStateException(exception);
     }
+  }
+
+  public static float reachDistance(boolean creative) {
+    return creative ? 5.0F : 3.0F;
+  }
+
+  /**
+   * Calculates the reach with and without mouse delay fix and returns the smallest calculated reach
+   * @return
+   */
+  public static  EntityInteractionRaytrace distanceOfCombo(
+    Player player, WrappedEntity entity, boolean alternativePositionY,
+    double lastPositionX, double lastPositionY, double lastPositionZ,
+    float lastRotationYaw,
+    float rotationYaw, float rotationPitch,
+    double expandHitbox, boolean withoutMouseDelayFix) {
+    double blockReachDistance = reachDistance(player.getGameMode() == GameMode.CREATIVE);
+//    float rotationYaw = movementData.rotationYaw % 360;
+
+    // mouse delay fix
+    Raytracer.EntityInteractionRaytrace distanceOfResult = distanceOf(
+      player,
+      entity, alternativePositionY,
+      lastPositionX, lastPositionY, lastPositionZ,
+      rotationYaw, rotationPitch,
+      expandHitbox
+    );
+    if (withoutMouseDelayFix && distanceOfResult.reach > blockReachDistance && rotationYaw != lastRotationYaw) {
+      // normal
+      distanceOfResult = distanceOf(
+        player,
+        entity, alternativePositionY,
+        lastPositionX, lastPositionY, lastPositionZ,
+        lastRotationYaw, rotationPitch,
+        expandHitbox
+      );
+    }
+
+    return distanceOfResult;
   }
 
   /**
@@ -107,7 +145,7 @@ public final class Raytracer {
     Timings.SERVICE_RAYTRACER_ENTITY.start();
     WrappedVector eyeVector = positionEyes(player, prevPosX, prevPosY, prevPosZ);
     double blockReachDistance = 6d;
-    double attackReachDistance = AttackRaytrace.reachDistance(UserRepository.userOf(player).meta().abilityData().inGameMode(GameMode.CREATIVE));
+    double attackReachDistance = reachDistance(UserRepository.userOf(player).meta().abilityData().inGameMode(GameMode.CREATIVE));
     double lastReach = 10;
     WrappedVector lastHitVec = null;
     for(boolean fastMath : BOOLEANSTATES) {

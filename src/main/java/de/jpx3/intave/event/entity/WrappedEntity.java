@@ -27,7 +27,6 @@ public class WrappedEntity implements Cloneable {
   /**
    * This value is used to interpolate the positions of the Entity
    */
-  public int newPosRotationIncrements;
   public long serverPosX, serverPosY, serverPosZ;
 
   public EntityPositionContext position;
@@ -65,6 +64,7 @@ public class WrappedEntity implements Cloneable {
     public double prevPosX, prevPosY, prevPosZ;
     public double posX, posY, posZ;
     public double newPosX, newPosY, newPosZ;
+    public int newPosRotationIncrements;
 
     @Override
     public EntityPositionContext clone()  {
@@ -93,14 +93,14 @@ public class WrappedEntity implements Cloneable {
    */
   private void onLivingUpdate() {
     if (isEntityLiving) {
-      if (this.newPosRotationIncrements > 0) {
-        double newPosX = position.posX + (position.newPosX - position.posX) / (double) this.newPosRotationIncrements;
-        double newPosY = position.posY + (position.newPosY - position.posY) / (double) this.newPosRotationIncrements;
-        double alternativeNewPosY = alternativePosition.posY + (alternativePosition.newPosY - alternativePosition.posY) / (double) this.newPosRotationIncrements;
-        double newPosZ = position.posZ + (position.newPosZ - position.posZ) / (double) this.newPosRotationIncrements;
+      if (position.newPosRotationIncrements > 0) {
+        double newPosX = position.posX + (position.newPosX - position.posX) / (double) position.newPosRotationIncrements;
+        double newPosY = position.posY + (position.newPosY - position.posY) / (double) position.newPosRotationIncrements;
+        double alternativeNewPosY = alternativePosition.posY + (alternativePosition.newPosY - alternativePosition.posY) / (double) position.newPosRotationIncrements;
+        double newPosZ = position.posZ + (position.newPosZ - position.posZ) / (double) position.newPosRotationIncrements;
 
-        --this.newPosRotationIncrements;
-        setPosition(newPosX, newPosY, newPosZ, true);
+        --position.newPosRotationIncrements;
+        setPosition(newPosX, newPosY, newPosZ);
         setPosition(alternativeNewPosY);
       }
     }
@@ -221,25 +221,15 @@ public class WrappedEntity implements Cloneable {
     alternativePosition.prevPosY = alternativePosition.posY = alternativeY;
     position.prevPosZ = position.posZ = z;
 
-    setPosition(position.posX, position.posY, position.posZ, false);
+    setPosition(position.posX, position.posY, position.posZ);
     setPosition(alternativePosition.posY);
   }
 
   /**
    * Sets the position of the entity.
    */
-  public void setPosition(double x, double y, double z, boolean onLivingUpdate) {
-    if(!isClone
-      && !onLivingUpdate
-    ) {
-      if(positionHistory.size() > 20) {
-        positionHistory.remove(0);
-      }
-      if(lastPosition.posX != position.posX || lastPosition.posY != position.posY || lastPosition.posZ != position.posZ)
-      {
-        positionHistory.add(position.clone());
-      }
-    }
+  public void setPosition(double x, double y, double z) {
+    updatePositionHistory();
     lastPosition.posX = position.posX;
     lastPosition.posY = position.posY;
     lastPosition.posZ = position.posZ;
@@ -247,6 +237,16 @@ public class WrappedEntity implements Cloneable {
     position.posY = y;
     position.posZ = z;
     boundingBox = null;
+  }
+
+  private void updatePositionHistory() {
+    if(!isClone) {
+      if(positionHistory.size() > 25) {
+        positionHistory.remove(0);
+      }
+
+      positionHistory.add(position.clone());
+    }
   }
 
   public void setPosition(double alternativeNewPosY) {
@@ -261,13 +261,14 @@ public class WrappedEntity implements Cloneable {
    */
   public void setPositionAndRotationEntityLiving(double x, double y, double z, int newPosRotationIncrements) {
     if (!isEntityLiving) {
-      setPosition(x, y, z, false);
+      setPosition(x, y, z);
       return;
     }
     position.newPosX = x;
     position.newPosY = y;
     position.newPosZ = z;
-    this.newPosRotationIncrements = newPosRotationIncrements;
+    updatePositionHistory();
+    position.newPosRotationIncrements = newPosRotationIncrements;
   }
 
   public void setPositionAndRotationEntityLiving(double alternativeY) {
@@ -311,7 +312,8 @@ public class WrappedEntity implements Cloneable {
     if(boundingBox != null) {
       return boundingBox;
     }
-    return boundingBox = entityBoundingBoxFrom(position, this);
+    boundingBox = entityBoundingBoxFrom(position, this);
+    return boundingBox;
   }
 
   @Override
@@ -321,7 +323,6 @@ public class WrappedEntity implements Cloneable {
     clone.position = position.clone();
     clone.alternativePosition = alternativePosition.clone();
     clone.positionHistory = new CopyOnWriteArrayList<> (positionHistory);
-    clone.newPosRotationIncrements = newPosRotationIncrements;
     return clone;
   }
 
