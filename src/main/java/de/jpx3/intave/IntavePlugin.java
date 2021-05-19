@@ -554,6 +554,8 @@ public final class IntavePlugin extends JavaPlugin {
       return;
     }
 
+    ViaVersionAdapter.patchConfiguration();
+
     GarbageCollector.setup();
     BackgroundExecutor.execute(this::clearIntegrityGarbage);
     BackgroundExecutor.execute(this::clearSaveFolderGarbage);

@@ -173,14 +173,13 @@ public final class BlockActionDispatcher implements EventProcessor {
         int expectedOutputLength = blockInfos.length;
         blockPositions = new ArrayList<>(expectedOutputLength);
         blockDataList = new ArrayList<>(expectedOutputLength);
-        int index = 0;
-        for (short relativePosition : relativePositions) {
+        for (int i = 0; i < relativePositions.length; i++) {
+          short relativePosition = relativePositions[i];
           int posX = chunkXBase + (relativePosition >>> 8 & 0xF);
-          int posY = chunkYBase + (relativePosition       & 0xF);
+          int posY = chunkYBase + (relativePosition & 0xF);
           int posZ = chunkZBase + (relativePosition >>> 4 & 0xF);
           blockPositions.add(new BlockPosition(posX, posY, posZ));
-          blockDataList.add(blockInfos[index]);
-          index++;
+          blockDataList.add(blockInfos[i]);
         }
       } else {
         MultiBlockChangeInfo[] multiBlockChangeInfos = packet.getMultiBlockChangeInfoArrays().readSafely(0);
@@ -217,7 +216,7 @@ public final class BlockActionDispatcher implements EventProcessor {
           blockShapeAccess.override(world, blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(), material, blockData.getData());
           blockShapeAccess.invalidate(blockPosition.getX(), blockPosition.getY(), blockPosition.getZ());
         }
-      });
+      }, OPTIONAL);
     } else {
       for (int i = 0; i < blockPositions.size(); i++) {
         BlockPosition blockPosition = blockPositions.get(i);

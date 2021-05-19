@@ -48,7 +48,7 @@ public final class RuntimeBlockDataIndexer {
     try {
       return blockDataRegister.get(type).get(blockState);
     } catch (Exception exception) {
-      System.out.println("[Intave] Failed to correctly emulate data structure of block type " + type + " (requested state " + blockState + ")");
+      IntaveLogger.logger().pushPrintln("[Intave] Failed to correctly emulate data structure of block type " + type + " (requested state " + blockState + ")");
       exception.printStackTrace();
       return blockDataRegister.get(type).get(0);
     }

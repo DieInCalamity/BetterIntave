@@ -39,40 +39,40 @@ public final class IntaveLogger {
   }
 
   public void info(String infoMessage) {
-    globalPrintLn("[Intave] " + infoMessage);
+    pushPrintln("[Intave] " + infoMessage);
     logToFile("(INF) " + infoMessage);
   }
 
   public void error(String errorMessage) {
-    globalPrintLn("[Intave] ERROR: " + errorMessage);
+    pushPrintln("[Intave] ERROR: " + errorMessage);
     logToFile("(ERR) " + errorMessage);
   }
 
   public void violation(String violation) {
     if(CONSOLE_OUTPUT) {
-      globalPrintLn("[Intave] Violation: " + violation);
+      pushPrintln("[Intave] Violation: " + violation);
     }
     logToFile("(DET) " + violation);
   }
 
   public void commandExecution(String command) {
-    globalPrintLn("[Intave] Issued server command /" + ChatColor.stripColor(command));
+    pushPrintln("[Intave] Issued server command /" + ChatColor.stripColor(command));
     command = ChatColor.stripColor(command);
     logToFile("(EXE) " + command);
   }
 
   public void exception(Throwable throwable) {
-    globalPrintLn("[Intave] Caught an "+throwable.getClass().getSimpleName()+" exception");
+    pushPrintln("[Intave] Caught an "+throwable.getClass().getSimpleName()+" exception");
     for (PrintStream outputStream : outputStreams) {
       throwable.printStackTrace(outputStream);
     }
   }
 
-  public void globalPrintLn(Object object) {
-    globalPrintLn(object.toString());
+  public void pushPrintln(Object object) {
+    pushPrintln(object.toString());
   }
 
-  public void globalPrintLn(String message) {
+  public void pushPrintln(String message) {
     for (PrintStream outputStream : outputStreams) {
       outputStream.println(message);
     }

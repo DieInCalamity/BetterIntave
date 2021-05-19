@@ -7,6 +7,7 @@ public enum AttackNerfStrategy {
   DMG_LIGHT("dmg/light"),
   HT_MEDIUM("ht/medium"),
   HT_LIGHT("ht/light"),
+  GARBAGE_HITS("garbage-hits"),
   BLOCKING("blocking");
 
   private final String typeName;

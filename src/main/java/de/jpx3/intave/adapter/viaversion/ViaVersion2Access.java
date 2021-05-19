@@ -1,5 +1,6 @@
 package de.jpx3.intave.adapter.viaversion;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Method;
@@ -17,6 +18,18 @@ public final class ViaVersion2Access implements ViaVersionAccess {
       getPlayerVersionMethod = viaVersionInstance.getClass().getMethod("getPlayerVersion", UUID.class);
     } catch (Exception exception) {
       throw new IllegalStateException("Invalid ViaVersion linkage", exception);
+    }
+  }
+
+  @Override
+  public void patchConfiguration() {
+    try {
+      Class<?> viaVersion = Class.forName("us.myles.ViaVersion.ViaVersionPlugin");
+      Object configuration = viaVersion.getMethod("getConfigurationProvider").invoke(Bukkit.getPluginManager().getPlugin("ViaVersion"));
+      Class<?> configurationClass = Class.forName("us.myles.ViaVersion.api.configuration.ConfigurationProvider");
+      configurationClass.getMethod("set", String.class, Object.class).invoke(configuration,"tracking-warning-pps", 300);
+    } catch (Exception exception) {
+      throw new IllegalStateException("Failed to alter ViaVersion configuration", exception);
     }
   }
 

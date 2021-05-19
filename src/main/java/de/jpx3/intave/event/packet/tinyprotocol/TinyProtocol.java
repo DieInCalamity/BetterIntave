@@ -3,6 +3,8 @@ package de.jpx3.intave.event.packet.tinyprotocol;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MapMaker;
 import com.mojang.authlib.GameProfile;
+import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import io.netty.channel.*;
 import org.bukkit.Bukkit;
@@ -35,7 +37,7 @@ public class TinyProtocol {
   private static final Class<Object> serverConnectionClass = getUntypedClass("{nms}.ServerConnection");
   private static final FieldAccessor<Object> getMinecraftServer = getField("{obc}.CraftServer", minecraftServerClass, 0);
   private static final FieldAccessor<Object> getServerConnection = getField(minecraftServerClass, serverConnectionClass, 0);
-  private static final MethodInvoker getNetworkMarkers = getTypedMethod(serverConnectionClass, null, List.class, serverConnectionClass);
+  private static final FieldAccessor<List> getNetworkMarkers = getField(serverConnectionClass, List.class, 1);
 
   // Packets we have to intercept
   private static final Class<?> PACKET_LOGIN_IN_START = getMinecraftClass("PacketLoginInStart");
@@ -65,7 +67,7 @@ public class TinyProtocol {
    *
    * @param plugin - the plugin.
    */
-  public TinyProtocol(final Plugin plugin) {
+  public TinyProtocol(IntavePlugin plugin) {
     this.plugin = plugin;
 
     // Compute handler name
@@ -160,7 +162,7 @@ public class TinyProtocol {
     boolean looking = true;
 
     // We need to synchronize against this list
-    networkManagers = (List<Object>) getNetworkMarkers.invoke(null, serverConnection);
+    networkManagers = (List<Object>) getNetworkMarkers.get(serverConnection);
     createServerChannelHandler();
 
     // Find the correct list, or implicitly throw an exception
@@ -442,7 +444,7 @@ public class TinyProtocol {
       try {
         msg = onPacketOutAsync(player, ctx.channel(), msg);
       } catch (Exception exception) {
-        System.out.println("[Intave] Exception in channel write handle");
+        IntaveLogger.logger().pushPrintln("[Intave] Exception in channel write handle");
         exception.printStackTrace();
       }
       if (msg != null) {

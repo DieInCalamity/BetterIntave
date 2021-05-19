@@ -119,7 +119,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     Location playerLocationmdf = playerLocation.clone();
     playerLocationmdf.setYaw(movementData.lastRotationYaw);
 
-    boolean mustPostValidate = interactionMeta.remainingBlockStart > 0 || interactionMeta.isBreakingBlock;
+    boolean mustPostValidate = interactionMeta.remainingBlockStart > 0 || interactionMeta.isBreakingBlock || movementData.awaitTeleport;
     if(!mustPostValidate && prevalidateInteraction(interaction, playerLocation, playerLocationmdf)) {
       emulate(interaction);
     } else {
@@ -174,8 +174,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     Location playerLocationmdf = playerLocation.clone();
     playerLocationmdf.setYaw(movementData.lastRotationYaw);
 
-
-    boolean mustPostValidate = interactionMeta.remainingBlockStart > 0 || interactionMeta.isBreakingBlock;
+    boolean mustPostValidate = interactionMeta.remainingBlockStart > 0 || interactionMeta.isBreakingBlock || movementData.awaitTeleport;
     if(!mustPostValidate && prevalidateInteraction(interaction, playerLocation, playerLocationmdf)) {
       emulate(interaction);
     } else {
@@ -207,6 +206,8 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     Location playerLocation = new Location(world, movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ);
     playerLocation.setYaw(movementData.rotationYaw);
     playerLocation.setPitch(movementData.rotationPitch);
+
+    Location playerVerifiedLocation = new Location(world, movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ);
 
     Location playerLocationmdf = playerLocation.clone();
     playerLocationmdf.setYaw(movementData.lastRotationYaw);
@@ -305,7 +306,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
       }
     }
 
-    boolean flag = invalid && !interaction.ignoreFlags && performFlag(interaction, raycastResult, targetLocation, raycastLocation, hitMiss, atLeastLookingAtBlock);
+    boolean flag = enabled && invalid && !interaction.ignoreFlags && performFlag(interaction, raycastResult, targetLocation, raycastLocation, hitMiss, atLeastLookingAtBlock);
     emulatePacket(interaction, raycastResult, targetLocation, raycastLocation, hitMiss, flag, false);
   }
 
@@ -543,6 +544,9 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     if (enforceCancel) {
       response = ResponseType.CANCEL;
     }
+    if(user.meta().movementData().awaitTeleport) {
+      punishment = true;
+    }
     boolean canRefreshBlocks = interaction.type != InteractionType.INTERACT;
 //    interaction.player().sendMessage((punishment ? ChatColor.RED : ChatColor.GREEN) + "" + interaction.type + ": " + ChatColor.GRAY + response + "/" + canRefreshBlocks);
     if (response == ResponseType.RAYTRACE_CAST) {
@@ -682,6 +686,9 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     }
     if(user.trustFactor().atLeast(TrustFactor.BYPASS)) {
       mustFlag = false;
+    }
+    if(user.meta().movementData().awaitTeleport) {
+      mustFlag = true;
     }
     Violation violation = Violation.builderFor(InteractionRaytrace.class)
       .withPlayer(player).withMessage(message).withDetails(details).withVL(vl)

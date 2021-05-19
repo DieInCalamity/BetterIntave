@@ -78,7 +78,7 @@ public final class CustomClientSupportService implements EventProcessor {
         CustomClientSupport customClientSupport = CustomClientSupport.createFrom(jsonElement);
         UserRepository.userOf(player).setCustomClientSupport(customClientSupport);
         sendCustomDataPacket(player, "clientconfig","received");
-        System.out.println("[Intave] " + player.getName() + " has sent a custom client configuration (client has special Intave support)");
+        IntaveLogger.logger().pushPrintln("[Intave] " + player.getName() + " has sent a custom client configuration (client has special Intave support)");
       }
     } catch (RuntimeException exception) {
       Synchronizer.synchronize(() -> player.kickPlayer("Invalid Intave client support payload packet"));

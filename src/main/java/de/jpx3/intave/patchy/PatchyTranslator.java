@@ -32,7 +32,7 @@ final class PatchyTranslator {
   public static byte[] translateClass(byte[] inputBytes) {
     ClassNode classNode = classNodeOf(inputBytes);
     if(IntaveControl.OUTPUT_PATCHY_RESULT) {
-      IntaveLogger.logger().globalPrintLn("[Intave/Patchy] Translating " + classNode.name);
+      IntaveLogger.logger().pushPrintln("[Intave/Patchy] Translating " + classNode.name);
     }
     translateClassDependencies(classNode);
 //    IntaveLogger.logger().globalPrintLn("Translating methods..");
@@ -40,20 +40,20 @@ final class PatchyTranslator {
 
 
     if(IntaveControl.OUTPUT_PATCHY_RESULT) {
-      IntaveLogger.logger().globalPrintLn(classNode.name + " " + classNode.superName);
-      IntaveLogger.logger().globalPrintLn(classNode.name + " " + classNode.superName);
+      IntaveLogger.logger().pushPrintln(classNode.name + " " + classNode.superName);
+      IntaveLogger.logger().pushPrintln(classNode.name + " " + classNode.superName);
       for (MethodNode method : classNode.methods) {
-        IntaveLogger.logger().globalPrintLn(method.name);
+        IntaveLogger.logger().pushPrintln(method.name);
 
         Textifier textifier;
         MethodVisitor methodVisitor = new TraceMethodVisitor(textifier = new Textifier());
         method.accept(methodVisitor);
-        IntaveLogger.logger().globalPrintLn(textifier.text);
+        IntaveLogger.logger().pushPrintln(textifier.text);
       }
     }
 
     if(IntaveControl.OUTPUT_PATCHY_RESULT) {
-      IntaveLogger.logger().globalPrintLn("[Intave/Patchy] Done");
+      IntaveLogger.logger().pushPrintln("[Intave/Patchy] Done");
     }
 
     return byteArrayOf(classNode);

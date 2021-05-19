@@ -62,12 +62,12 @@ public final class TeleportPositionObserver implements PacketEventSubscriber {
     UserMetaMovementData movementData = user.meta().movementData();
     if (movementData.awaitTeleport) {
       if (TELEPORTATION_DEBUG) {
-        IntaveLogger.logger().globalPrintLn("[Intave] Cancel packet (Awaiting teleportation accept)");
+        IntaveLogger.logger().pushPrintln("[Intave] Cancel packet (Awaiting teleportation accept)");
       }
 //      event.setCancelled(true);
       if (movementData.teleportResendCountdown-- < 0) {
         if (TELEPORTATION_DEBUG) {
-          IntaveLogger.logger().globalPrintLn("[Intave] UPDATE POSITION BECAUSE OLD IS OUTDATED");
+          IntaveLogger.logger().pushPrintln("[Intave] UPDATE POSITION BECAUSE OLD IS OUTDATED");
         }
         Synchronizer.synchronize(() -> {
           Location location = movementData.teleportLocation;
@@ -139,7 +139,7 @@ public final class TeleportPositionObserver implements PacketEventSubscriber {
 
 //    player.sendMessage("Requested teleportation on ");
     if (TELEPORTATION_DEBUG) {
-      IntaveLogger.logger().globalPrintLn("[Intave] Sent teleportation request to " + player.getName() + ": " + MathHelper.formatPosition(movementData.teleportLocation));
+      IntaveLogger.logger().pushPrintln("[Intave] Sent teleportation request to " + player.getName() + ": " + MathHelper.formatPosition(movementData.teleportLocation));
     }
     awaitTeleport(player);
   }

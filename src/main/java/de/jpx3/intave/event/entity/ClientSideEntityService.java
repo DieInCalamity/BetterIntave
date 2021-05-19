@@ -198,7 +198,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
       @PacketDescriptor(sender = Sender.SERVER, packetName = "ENTITY_LOOK")
     }
   )
-  public void receiveEntityMovementPacket(PacketEvent event) {
+  public void receiveUpstreamEntityMovement(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
     PacketContainer packet = event.getPacket();
@@ -208,8 +208,6 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
       entity = createEntityByMovePacket(event);
     }
     if (entity == null) {
-      IntaveLogger.logger().info("Unable to create entity (id " + entityId + ")");
-//        throw new NullPointerException("entity could not be created");
       return;
     }
     if (entity.isEntityLiving && entity.tracingEnabled()) {

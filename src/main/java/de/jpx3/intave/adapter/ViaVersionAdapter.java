@@ -40,6 +40,12 @@ public class ViaVersionAdapter {
     }
   }
 
+  public static void patchConfiguration() {
+    if(foundLinkage()) {
+      access.patchConfiguration();
+    }
+  }
+
   public static boolean ignoreBlocking(Player player) {
     return foundLinkage() && access.ignoreBlocking(player);
   }

@@ -61,11 +61,16 @@ public final class Physics extends IntaveCheck {
   private MethodHandle fallDamageInvokeMethod;
   private final SimulationProcessor simulationService;
 
+  private final boolean highToleranceMode;
+
   public Physics(IntavePlugin plugin) {
     super("Physics", "physics");
     this.plugin = plugin;
     this.decrementer = new CheckViolationLevelDecrementer(this, VL_DECREMENT_PER_VALID_MOVE * 20);
     this.simulationService = new SimulationProcessor();
+
+    highToleranceMode = configuration().settings().boolBy("high-tolerance", false);
+
     searchFallDamageApplier();
     linkCheckToPoseSimulators();
   }
@@ -480,14 +485,14 @@ public final class Physics extends IntaveCheck {
 
       Violation violation = Violation.builderFor(Physics.class)
         .withPlayer(player).withMessage(message).withDetails(details)
-        .withVL(violationLevelIncrease / 50d).build();
+        .withVL(violationLevelIncrease / (highToleranceMode ? 75d : 50d)).build();
       ViolationContext violationContext = plugin.violationProcessor().processViolation(violation);
 
-      boolean overrideSetbackSuggestion = violationLevelData.physicsVL > trustFactorSetting("pa-override-threshold", player);
-      boolean setback = violationContext.shouldCounterThreat() || overrideSetbackSuggestion;
+      boolean deepPitchViolationOverflow = violationContext.shouldCounterThreat();
+      boolean highPitchViolationOverflow = violationLevelData.physicsVL > trustFactorSetting("pa-override-threshold", player);
 
-      // to limit the worst
-      if(distance > 1 && !user.trustFactor().atLeast(TrustFactor.BYPASS)) {
+      boolean setback = deepPitchViolationOverflow || (!highToleranceMode && highPitchViolationOverflow);
+      if(distance > 0.75 && !user.trustFactor().atLeast(TrustFactor.BYPASS)) {
         setback = true;
       }
 

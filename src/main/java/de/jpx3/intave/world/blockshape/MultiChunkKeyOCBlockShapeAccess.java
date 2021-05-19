@@ -1,77 +1,24 @@
 package de.jpx3.intave.world.blockshape;
 
-import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.diagnostics.BoundingBoxAccessFlowStudy;
-import de.jpx3.intave.executor.BackgroundExecutor;
-import de.jpx3.intave.tools.annotate.DoNotFlowObfuscate;
-import de.jpx3.intave.tools.annotate.Native;
-import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.world.blockaccess.BlockDataAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.blockshape.resolver.BoundingBoxResolvePipeline;
-import de.jpx3.intave.world.blockshape.resolver.pipeline.patcher.BoundingBoxPatcher;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static de.jpx3.intave.IntaveControl.DISABLE_BLOCK_CACHING_ENTIRELY;
 
-@DoNotFlowObfuscate
-public final class FallbackMultiChunkKeyOCBlockShapeAccess implements OCBlockShapeAccess {
-  private final static BlockShape SERVER_LOOKUP_REQUIRED = new BlockShape(Collections.emptyList(), Material.AIR, 0);
-  private final static Map<World, Map<Long, BlockShape>> globalFallbackCache = new ConcurrentHashMap<>(4096 * 8);
-
-  static {
-    Synchronizer.synchronize(FallbackMultiChunkKeyOCBlockShapeAccess::registerPurgeGlobalFallbackCacheTask);
-  }
-
-  private static void registerPurgeGlobalFallbackCacheTask() {
-    Bukkit.getScheduler().scheduleSyncRepeatingTask(IntavePlugin.singletonInstance(), () -> {
-      BackgroundExecutor.execute(FallbackMultiChunkKeyOCBlockShapeAccess::purgeGlobalFallbackCache);
-    }, 0, 20 * 60 * 10);
-  }
-
-  private final static long REQUIRED_LIMIT = 512 * 64;
-  private final static long MAXIMUM_LIMIT = 512 * 512;
-  private final static double DEATH_RATIO = 0.333;
-
-  @Native
-  private static void purgeGlobalFallbackCache() {
-    boolean deletedStuff = false;
-    for (Map.Entry<World, Map<Long, BlockShape>> worldMapEntry : globalFallbackCache.entrySet()) {
-      Map<Long, BlockShape> globalWorldCache = worldMapEntry.getValue();
-      if(globalWorldCache.size() < REQUIRED_LIMIT) {
-        continue;
-      }
-      long deletedEntries = 0;
-      do {
-        List<BlockShape> blockShapes = new ArrayList<>(globalWorldCache.values());
-        blockShapes.sort(Comparator.comparing(BlockShape::successfulLookups).reversed());
-        int oldSize = blockShapes.size();
-        int newSize = (int) (((double) oldSize) * (1 - DEATH_RATIO));
-        deletedEntries = oldSize - newSize;
-        List<BlockShape> newShapes = blockShapes.subList(0, newSize);
-        globalWorldCache.values().removeIf(blockShape -> !newShapes.contains(blockShape));
-        deletedStuff = true;
-      } while (globalWorldCache.size() > MAXIMUM_LIMIT);
-
-      for (Player player : Bukkit.getOnlinePlayers()) {
-        if (IntavePlugin.singletonInstance().sibylIntegrationService().isAuthenticated(player)) {
-          long finalDeletedEntries = deletedEntries;
-          Synchronizer.synchronize(() -> player.sendMessage(ChatColor.GRAY + "[BBA] Purged " + finalDeletedEntries + " from global box cache in world" + worldMapEntry.getKey().getName()));
-        }
-      }
-    }
-    if(deletedStuff) {
-      // why not
-      System.gc();
-    }
-  }
-
+public final class MultiChunkKeyOCBlockShapeAccess implements OCBlockShapeAccess {
   private final Player player;
   private final BoundingBoxResolvePipeline resolver;
   private final Map<Long, BlockShape> blockCache = new ConcurrentHashMap<>(4096);
@@ -82,7 +29,7 @@ public final class FallbackMultiChunkKeyOCBlockShapeAccess implements OCBlockSha
   private int chunkX;
   private int chunkZ;
 
-  public FallbackMultiChunkKeyOCBlockShapeAccess(Player player, BoundingBoxResolvePipeline resolver) {
+  public MultiChunkKeyOCBlockShapeAccess(Player player, BoundingBoxResolvePipeline resolver) {
     this.player = player;
     this.resolver = resolver;
   }
@@ -118,7 +65,7 @@ public final class FallbackMultiChunkKeyOCBlockShapeAccess implements OCBlockSha
     if (blockShape == null) {
       World world = player.getWorld();
       Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
-      blockShape = cachedLookup(world, block, posX, posY, posZ);
+      blockShape = lookup(world, block, posX, posY, posZ);
       if (!DISABLE_BLOCK_CACHING_ENTIRELY && block.getY() >= 0) {
         blockCache.put(key, blockShape);
       }
@@ -157,7 +104,7 @@ public final class FallbackMultiChunkKeyOCBlockShapeAccess implements OCBlockSha
     if (blockShape == null) {
       World world = player.getWorld();
       Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
-      blockShape = cachedLookup(world, block, posX, posY, posZ);
+      blockShape = lookup(world, block, posX, posY, posZ);
       if (!DISABLE_BLOCK_CACHING_ENTIRELY && block.getY() >= 0) {
         blockCache.put(key, blockShape);
       }
@@ -196,7 +143,7 @@ public final class FallbackMultiChunkKeyOCBlockShapeAccess implements OCBlockSha
     if (blockShape == null) {
       World world = player.getWorld();
       Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
-      blockShape = cachedLookup(world, block, posX, posY, posZ);
+      blockShape = lookup(world, block, posX, posY, posZ);
       if (!DISABLE_BLOCK_CACHING_ENTIRELY && block.getY() >= 0) {
         blockCache.put(key, blockShape);
       }
@@ -204,68 +151,18 @@ public final class FallbackMultiChunkKeyOCBlockShapeAccess implements OCBlockSha
     return blockShape.data();
   }
 
-  private BlockShape resolveOriginalShape(int chunkX, int chunkZ, int posX, int posY, int posZ) {
-    if (posY < 0 || 255 < posY) {
-      return EMPTY_CACHE_ENTRY;
-    }
-    BoundingBoxAccessFlowStudy.requests++;
-    if ((chunkX != this.chunkX || chunkZ != this.chunkZ)) {
-      this.chunkX = chunkX;
-      this.chunkZ = chunkZ;
-      purgeOverrides();
-    }
-    long key = bigKey(posX, posY, posZ);
-    BlockShape blockShape = blockCache.get(key);
-    if (blockShape == null) {
-      World world = player.getWorld();
-      Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
-      blockShape = lookup(world, block, posX, posY, posZ);
-      if (!DISABLE_BLOCK_CACHING_ENTIRELY && block.getY() >= 0) {
-        blockCache.put(key, blockShape);
-      }
-    }
-    return blockShape;
-  }
-
   private final static BlockShape EMPTY_CACHE_ENTRY = new BlockShape(Collections.emptyList(), Material.AIR, 0);
 
-  private BlockShape cachedLookup(World world, Block block, int posX, int posY, int posZ) {
+  private BlockShape lookup(World world, Block block, int posX, int posY, int posZ) {
     Material type = block.getType();
     if(type == Material.AIR) {
       return EMPTY_CACHE_ENTRY;
     } else {
       BoundingBoxAccessFlowStudy.incremLookups();
-      boolean typeIsIntavePatched = BoundingBoxPatcher.requiresPatch(type);
-      if(!typeIsIntavePatched && block.getY() >= 0 && globalKeyValid(posX, posY, posZ)) {
-        Map<Long, BlockShape> worldFallbackCache = globalFallbackCache.computeIfAbsent(world, x -> new ConcurrentHashMap<>());
-        long key = bigKey(posX, posY, posZ);
-        boolean lookup = false;
-        BlockShape resolve;
-        if((resolve = worldFallbackCache.get(key)) == null) {
-          resolve = lookup(world, block, posX, posY, posZ);
-          worldFallbackCache.put(key, resolve);
-          BoundingBoxAccessFlowStudy.incremYellowLookups();
-          lookup = true;
-        }
-        if(resolve == SERVER_LOOKUP_REQUIRED) {
-          BoundingBoxAccessFlowStudy.incremRedLookups();
-          resolve = lookup(world, block, posX, posY, posZ);
-        } else if(!lookup){
-          resolve.successfullFallbackLookup();
-          BoundingBoxAccessFlowStudy.incremGreenLookups();
-        }
-        return resolve;
-      }
-      BoundingBoxAccessFlowStudy.incremRedLookups();
-      return lookup(world, block, posX, posY, posZ);
+      int data = BlockDataAccess.dataIndexOf(block);
+      List<WrappedAxisAlignedBB> boundingBoxes = resolver.customResolve(world, player, type, data, posX, posY, posZ);
+      return new BlockShape(boundingBoxes, type, data);
     }
-  }
-
-  private BlockShape lookup(World world, Block block, int posX, int posY, int posZ) {
-    Material type = block.getType();
-    int data = BlockDataAccess.dataIndexOf(block);
-    List<WrappedAxisAlignedBB> boundingBoxes = resolver.customResolve(world, player, type, data, posX, posY, posZ);
-    return new BlockShape(boundingBoxes, type, data);
   }
 
   @Override
@@ -282,34 +179,29 @@ public final class FallbackMultiChunkKeyOCBlockShapeAccess implements OCBlockSha
 
   @Override
   public void invalidate0(int posX, int posY, int posZ) {
+//    int chunkX = this.originChunkX;
+//    int chunkZ = this.originChunkZ;
+//    if (posX < chunkX || posZ < chunkZ || chunkX + 16 <= posX || chunkZ + 16 <= posZ) {
+//      return;
+//    }
     blockCache.remove(bigKey(posX, posY, posZ));
   }
 
   @Override
   public void override(World world, int posX, int posY, int posZ, Material type, int blockState) {
     invalidateOverride(posX, posY, posZ);
-    BlockShape blockShape;
+    BlockShape BlockShape;
     if(type == Material.AIR) {
-      blockShape = EMPTY_CACHE_ENTRY;
+      BlockShape = EMPTY_CACHE_ENTRY;
     } else {
-      blockShape = new BlockShape(
+      BlockShape = new BlockShape(
         constructBlock(world, posX, posY, posZ, type, blockState),
         type, blockState
       );
     }
-    BlockShape originalShape = resolveOriginalShape(posX >> 4, posZ >> 4, posX, posY, posZ);
-    boolean shapeRemains = (blockShape.equals(originalShape));
     long key = bigKey(posX, posY, posZ);
-    if(!shapeRemains) {
-      if(type.name().contains("DOOR")) {
-        globalFallbackCache.computeIfAbsent(world, x -> new ConcurrentHashMap<>()).put(bigKey(posX, posY - 1, posZ), SERVER_LOOKUP_REQUIRED);
-        globalFallbackCache.computeIfAbsent(world, x -> new ConcurrentHashMap<>()).put(bigKey(posX, posY + 1, posZ), SERVER_LOOKUP_REQUIRED);
-      }
-      globalFallbackCache.computeIfAbsent(world, x -> new ConcurrentHashMap<>()).put(key, SERVER_LOOKUP_REQUIRED);
-    }
-
-    indexedReplacements.put(key, blockShape);
-    locatedReplacements.put(new Location(world, posX, posY, posZ), blockShape);
+    indexedReplacements.put(key, BlockShape);
+    locatedReplacements.put(new Location(world, posX, posY, posZ), BlockShape);
   }
 
   @Override
@@ -338,7 +230,7 @@ public final class FallbackMultiChunkKeyOCBlockShapeAccess implements OCBlockSha
 
   @Override
   public List<WrappedAxisAlignedBB> constructBlock(World world, int posX, int posY, int posZ, Material type, int blockState) {
-//    BoundingBoxAccessFlowStudy.increaseLookups();
+    BoundingBoxAccessFlowStudy.incremLookups();
     return resolver.customResolve(world, player, type, blockState, posX, posY, posZ);
   }
 
@@ -366,10 +258,6 @@ public final class FallbackMultiChunkKeyOCBlockShapeAccess implements OCBlockSha
   @Deprecated
   public Map<Long, BlockShape> indexedReplacements() {
     return indexedReplacements;
-  }
-
-  private boolean globalKeyValid(int posX, int posY, int posZ) {
-    return Math.abs(posX) < 0x1fffffL && posY >= 0 && posY <= 256 && Math.abs(posZ) < 0x1fffffL;
   }
 
   private long bigKey(int posX, int posY, int posZ) {

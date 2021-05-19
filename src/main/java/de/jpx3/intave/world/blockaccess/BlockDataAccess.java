@@ -138,7 +138,7 @@ public final class BlockDataAccess {
       }
       Object block = ReflectiveBlockAccess.blockById(material.getId());
       if (block == null) {
-        IntaveLogger.logger().globalPrintLn("No block found for id " + material.getId());
+        IntaveLogger.logger().pushPrintln("No block found for id " + material.getId());
         continue;
       }
       List<Method> methods = allMethodsIn(block.getClass());

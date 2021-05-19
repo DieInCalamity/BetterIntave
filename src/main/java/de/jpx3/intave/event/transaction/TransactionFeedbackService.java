@@ -22,19 +22,19 @@ import static de.jpx3.intave.event.transaction.TransactionFeedbackService.Transa
 
 public final class TransactionFeedbackService implements PacketEventSubscriber {
   public final static long TRANSACTION_TIMEOUT = 3000;
-  public final static long TRANSACTION_TIMEOUT_KICK = 12000;
+  public final static long TRANSACTION_TIMEOUT_KICK = 20000;
   public final static short TRANSACTION_MIN_CODE = -32768;
   public final static short TRANSACTION_MAX_CODE = -16370;
 
-  public final static long OPTIONAL_LIMIT = 100;
+  public final static long OPTIONAL_LIMIT = 120;
 
   private final static ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
 
-  private final TransactionResponseLocker responseLocker;
+  private final TransactionResponseEnforcingProcessor responseLocker;
 
   public TransactionFeedbackService(IntavePlugin plugin) {
     plugin.packetSubscriptionLinker().linkSubscriptionsIn(this);
-    responseLocker = new TransactionResponseLocker(plugin);
+    responseLocker = new TransactionResponseEnforcingProcessor(plugin);
   }
 
   public <T> void clientSynchronize(Player player, T target, TFCallback<T> callback) {
@@ -43,10 +43,10 @@ public final class TransactionFeedbackService implements PacketEventSubscriber {
 
   public <T> void clientSynchronize(Player player, T target, TFCallback<T> callback, int options) {
     if(!Bukkit.isPrimaryThread()) {
-      if(TransactionOptions.matches(ENFORCE_SYNCHRONIZATION, options) ) {
+      if(TransactionOptions.matches(ENFORCE_SYNCHRONIZATION, options)) {
         Synchronizer.synchronize(() -> clientSynchronize(player, target, callback, options));
       } else {
-        IntaveLogger.logger().error("Can't perform tick-validation off main thread.");
+        IntaveLogger.logger().error("Can't perform tick-validation off main thread");
         IntaveLogger.logger().error("Please check if you sent a packet / performed a bukkit player action asynchronously in the following trace:");
         Thread.dumpStack();
         callback.success(player, target);

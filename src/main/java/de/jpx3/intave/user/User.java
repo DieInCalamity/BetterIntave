@@ -17,7 +17,7 @@ import de.jpx3.intave.tools.annotate.Relocate;
 import de.jpx3.intave.tools.placeholder.PlayerContext;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.world.blockshape.BlankUserOCBlockShapeAccess;
-import de.jpx3.intave.world.blockshape.FallbackMultiChunkKeyOCBlockShapeAccess;
+import de.jpx3.intave.world.blockshape.MultiChunkKeyOCBlockShapeAccess;
 import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
 import de.jpx3.intave.world.blockshape.resolver.BoundingBoxResolverFactory;
 import de.jpx3.intave.world.collider.Collider;
@@ -65,7 +65,7 @@ public final class User {
     if(!hasPlayer) {
       useBlankBlockShapeAccess();
     } else {
-      useFallbackMultiChunkBlockShapeAccess();
+      useDefaultBlockShapeAccess();
     }
     this.colliderProcessor = Collider.suitableComplexColliderProcessorFor(this);
     if(hasPlayer) {
@@ -166,8 +166,8 @@ public final class User {
     setBlockShapeAccess(new BlankUserOCBlockShapeAccess());
   }
 
-  public void useFallbackMultiChunkBlockShapeAccess() {
-    setBlockShapeAccess(new FallbackMultiChunkKeyOCBlockShapeAccess(player(), BoundingBoxResolverFactory.resolver()));
+  public void useDefaultBlockShapeAccess() {
+    setBlockShapeAccess(new MultiChunkKeyOCBlockShapeAccess(player(), BoundingBoxResolverFactory.resolver()));
   }
 
   public void setBlockShapeAccess(OCBlockShapeAccess newBlockShapeAccess) {

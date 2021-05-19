@@ -4,11 +4,11 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.injector.packet.PacketRegistry;
+import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.event.packet.LocalPacketAdapter;
 import de.jpx3.intave.tools.annotate.DoNotFlowObfuscate;
 import io.netty.channel.Channel;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 import java.util.Collection;
 
@@ -16,7 +16,7 @@ import java.util.Collection;
 public final class EventTinyProtocol extends TinyProtocol {
   private final InjectionService injectionService;
 
-  public EventTinyProtocol(Plugin plugin, InjectionService injectionService) {
+  public EventTinyProtocol(IntavePlugin plugin, InjectionService injectionService) {
     super(plugin);
     this.injectionService = injectionService;
   }
@@ -29,8 +29,9 @@ public final class EventTinyProtocol extends TinyProtocol {
       if(subscriptions != null && !subscriptions.isEmpty()) {
         PacketEvent packetEvent = PacketEvent.fromServer(packet, PacketContainer.fromPacket(packet), receiver);
         subscriptions.forEach(subscription -> subscription.onPacketSending(packetEvent));
+        packet = packetEvent.getPacket().getHandle();
         if(packetEvent.isCancelled()) {
-          return packet;
+          return null;
         }
       }
     }

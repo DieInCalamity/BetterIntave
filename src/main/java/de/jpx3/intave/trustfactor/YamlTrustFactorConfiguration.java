@@ -41,7 +41,7 @@ public final class YamlTrustFactorConfiguration implements TrustFactorConfigurat
     try {
       return trustFactorIntegerEnumMap.get(trustFactor);
     } catch (NullPointerException exception) {
-      IntaveLogger.logger().globalPrintLn(key + " " + settingsMap);
+      IntaveLogger.logger().pushPrintln(key + " " + settingsMap);
       throw exception;
     }
   }

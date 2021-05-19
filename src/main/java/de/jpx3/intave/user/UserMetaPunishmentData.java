@@ -26,6 +26,8 @@ public final class UserMetaPunishmentData {
   private final static long DAMAGE_CANCEL_FIRST_HIT_DURATION = 60_000;
   private final static long ENTITY_HURT_TIME_CHANGE_DURATION = 5_000;
 
+  private final static long GARBAGE_HITS_DURATION = 60_000;
+
   private final Map<AttackNerfStrategy, AttackNerfer> attackNerfersMap = new HashMap<>();
   private final List<AttackNerfer> attackNerfers;
 
@@ -33,6 +35,8 @@ public final class UserMetaPunishmentData {
   public int appliedDamageTicks = -1;
   public long timeLastBlockCancel;
   public long timeLastSneakToggleCancel;
+
+  private long lastTimeValidHurttimeAttack = 0;
 
   public UserMetaPunishmentData(Player player) {
     this.attackNerfers = Lists.newArrayList(
@@ -68,6 +72,14 @@ public final class UserMetaPunishmentData {
         double blockingDamageAbsorption = event.getDamage(EntityDamageEvent.DamageModifier.BLOCKING);
         if (blockingDamageAbsorption != 0) {
           event.setDamage(EntityDamageEvent.DamageModifier.BLOCKING, 0);
+        }
+      }),
+      new AttackNerfer(AttackNerfStrategy.GARBAGE_HITS, GARBAGE_HITS_DURATION, event -> {
+        long lastValidAttack = AccessHelper.now() - lastTimeValidHurttimeAttack;
+        if(lastValidAttack < 575) {
+          event.setCancelled(true);
+        } else {
+          lastTimeValidHurttimeAttack = AccessHelper.now();
         }
       })
     );

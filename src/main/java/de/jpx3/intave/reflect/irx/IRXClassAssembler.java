@@ -196,7 +196,11 @@ final class IRXClassAssembler {
   ) {
     try {
       Method defineClass = ClassLoader.class.getDeclaredMethod("defineClass", byte[].class, int.class, int.class);
-      defineClass.setAccessible(true);
+      try {
+        defineClass.setAccessible(true);
+      } catch (Exception exception) {
+        throw new IntaveInternalException("Failed to acquire class-loading permissions from the JVM. If you are running Intave on Java 16, add \"--add-opens java.base/java.lang=ALL-UNNAMED\" to your startup arguments", exception);
+      }
       defineClass.invoke(classLoader, classBytes, 0, classBytes.length);
     } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
       throw new IntaveInternalException(e);

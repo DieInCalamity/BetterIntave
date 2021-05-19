@@ -77,7 +77,6 @@ final class TinyProtocolReflection {
 
         // A function for retrieving a specific field value
         return new FieldAccessor<T>() {
-
           @Override
           @SuppressWarnings("unchecked")
           public T get(Object target) {
@@ -150,26 +149,26 @@ final class TinyProtocolReflection {
    * @throws IllegalStateException If we cannot find this method.
    */
   public static MethodInvoker getTypedMethod(Class<?> clazz, String methodName, Class<?> returnType, Class<?>... params) {
-    for (final Method method : clazz.getDeclaredMethods()) {
+    for (Method method : clazz.getDeclaredMethods()) {
       if ((methodName == null || method.getName().equals(methodName))
         && (returnType == null || method.getReturnType().equals(returnType))
-        && Arrays.equals(method.getParameterTypes(), params)) {
+        && Arrays.equals(method.getParameterTypes(), params)
+      ) {
         method.setAccessible(true);
-
         return (target, arguments) -> {
           try {
             return method.invoke(target, arguments);
-          } catch (Exception e) {
-            throw new RuntimeException("Cannot invoke method " + method, e);
+          } catch (Exception exception) {
+            throw new RuntimeException("Cannot invoke method " + method, exception);
           }
         };
       }
     }
 
     // Search in every superclass
-    if (clazz.getSuperclass() != null)
+    if (clazz.getSuperclass() != null) {
       return getMethod(clazz.getSuperclass(), methodName, params);
-
+    }
     throw new IllegalStateException(String.format("Unable to find method %s (%s).", methodName, Arrays.asList(params)));
   }
 
@@ -218,7 +217,6 @@ final class TinyProtocolReflection {
    *
    * @param lookupName - the class name with variables.
    * @return The class.
-   * @see {@link #getClass()} for more information.
    */
   public static Class<Object> getUntypedClass(String lookupName) {
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -336,7 +334,7 @@ final class TinyProtocolReflection {
      * @param arguments - the arguments to pass to the constructor.
      * @return The constructed object.
      */
-    public Object invoke(Object... arguments);
+    Object invoke(Object... arguments);
   }
 
   /**
@@ -350,7 +348,7 @@ final class TinyProtocolReflection {
      * @param arguments - the arguments to pass to the method.
      * @return The return value, or NULL if is void.
      */
-    public Object invoke(Object target, Object... arguments);
+    Object invoke(Object target, Object... arguments);
   }
 
   /**
@@ -365,7 +363,7 @@ final class TinyProtocolReflection {
      * @param target - the target object, or NULL for a static field.
      * @return The value of the field.
      */
-    public T get(Object target);
+    T get(Object target);
 
     /**
      * Set the content of a field.
@@ -373,7 +371,7 @@ final class TinyProtocolReflection {
      * @param target - the target object, or NULL for a static field.
      * @param value  - the new value of the field.
      */
-    public void set(Object target, Object value);
+    void set(Object target, Object value);
 
     /**
      * Determine if the given object has this field.
@@ -381,6 +379,6 @@ final class TinyProtocolReflection {
      * @param target - the object to test.
      * @return TRUE if it does, FALSE otherwise.
      */
-    public boolean hasField(Object target);
+    boolean hasField(Object target);
   }
 }

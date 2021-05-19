@@ -4,6 +4,7 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscriber;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
+import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
@@ -15,6 +16,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 
 public final class CombatMitigator implements BukkitEventSubscriber {
   private final IntavePlugin plugin;
@@ -27,7 +29,7 @@ public final class CombatMitigator implements BukkitEventSubscriber {
   @BukkitEventSubscription
   public void receiveAttack(EntityDamageByEntityEvent event) {
     Entity attacker = event.getDamager();
-    if (!(attacker instanceof Player)) {
+    if (!(attacker instanceof Player) || event.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
       return;
     }
     Player player = (Player) attacker;
@@ -53,11 +55,18 @@ public final class CombatMitigator implements BukkitEventSubscriber {
     if (attackNerfer.active()) {
       return;
     }
+
     Player player = user.player();
-    String message = ChatColor.RED + "[DC] Performed " + attackNerfer.name() + " damage cancel on " + player.getName() + " (" + checkId + ")";
+    String message = ChatColor.RED + "[CM] Applied " + attackNerfer.name() + " combat nerfer on " + player.getName() + " (dmc" + checkId + ")";
+
     if (IntaveControl.DEBUG_HEURISTICS && !plugin.sibylIntegrationService().isAuthenticated(player)) {
       player.sendMessage(message);
     }
+
+    if (IntaveControl.GOMME_MODE) {
+      IntaveLogger.logger().pushPrintln("[Intave] " + ChatColor.stripColor(message));
+    }
+
     for (Player authenticatedPlayer : Bukkit.getOnlinePlayers()) {
       if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
         authenticatedPlayer.sendMessage(message);

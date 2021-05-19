@@ -3,6 +3,7 @@ package de.jpx3.intave.event.packet;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.diagnostics.timings.Timing;
 import de.jpx3.intave.diagnostics.timings.Timings;
 import de.jpx3.intave.logging.IntaveLogger;
@@ -37,13 +38,15 @@ public final class LocalPacketAdapter extends IntavePacketAdapter implements Com
     if(!validateEvent(event)) {
       return;
     }
-
     Timing timing = localTimings.computeIfAbsent(event.getPacketType(), Timings::packetTimingOf);
-
     try {
       Timings.EXE_NETTY.start();
       timing.start();
       executor.invoke(subscriber, event);
+    } catch (IntaveInternalException internalException) {
+      if(!internalException.getMessage().contains("Unable to reference player")) {
+        processException(event.getPacketType(), internalException);
+      }
     } catch (RuntimeException exception) {
       processException(event.getPacketType(), exception);
     } finally {
@@ -59,6 +62,10 @@ public final class LocalPacketAdapter extends IntavePacketAdapter implements Com
     }
     try {
       executor.invoke(subscriber, event);
+    } catch (IntaveInternalException internalException) {
+      if(!internalException.getMessage().contains("Unable to reference player")) {
+        processException(event.getPacketType(), internalException);
+      }
     } catch (RuntimeException exception) {
       exception.getStackTrace();
       processException(event.getPacketType(), exception);
@@ -84,7 +91,7 @@ public final class LocalPacketAdapter extends IntavePacketAdapter implements Com
 
   private void processException(PacketType packetType, RuntimeException exception) {
     String simpleName = exception.getClass().getSimpleName();
-    IntaveLogger.logger().globalPrintLn("[Intave] " + resolveIndefArticle(simpleName) + " " + simpleName + " occurred while processing a "+packetType+" packet ("+subscriber.getClass().getSimpleName()+"."+methodName+")");
+    IntaveLogger.logger().pushPrintln("[Intave] " + resolveIndefArticle(simpleName) + " " + simpleName + " occurred while processing a "+packetType+" packet ("+subscriber.getClass().getSimpleName()+"."+methodName+")");
     exception.printStackTrace();
   }
 

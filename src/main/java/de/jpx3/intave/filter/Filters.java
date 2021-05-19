@@ -19,6 +19,7 @@ public final class Filters {
   public void setup() {
     setup(EquipmentFilter.class);
     setup(HealthFilter.class);
+//    setup(ChatWordFilter.class);
 
     linkEnabled();
   }

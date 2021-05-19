@@ -14,6 +14,7 @@ import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;
+import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedMovingObjectPosition;
 import de.jpx3.intave.tools.wrapper.WrappedVector;
@@ -203,6 +204,10 @@ public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirC
           "swings in air (cps " + meta.maxCPS + ") (sum " + meta.flaggCounter + ")", Anomaly.AnomalyOption.DELAY_128s
         );
         parentCheck().saveAnomaly(player, anomaly);
+
+        if(meta.flaggCounter > 20 && meta.maxCPS > 18) {
+          user.applyAttackNerfer(AttackNerfStrategy.GARBAGE_HITS, "26");
+        }
 
         meta.lastFlagTimeStamp = System.currentTimeMillis();
         meta.maxCPS = 0;

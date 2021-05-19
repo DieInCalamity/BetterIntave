@@ -50,7 +50,7 @@ public final class PacketEntityTypeResolver {
       if (declaredField.getType() == entityClass) {
         String fieldName = declaredField.getName();
         if (!dataWatcherEntityFieldName.equals(fieldName)) {
-          IntaveLogger.logger().globalPrintLn("[Intave] Conflicting method name: \"" + dataWatcherEntityFieldName + "\" expected but found \"" + fieldName + "\" for entity-from-dw access");
+          IntaveLogger.logger().pushPrintln("[Intave] Conflicting method name: \"" + dataWatcherEntityFieldName + "\" expected but found \"" + fieldName + "\" for entity-from-dw access");
         }
         dataWatcherEntityFieldName = fieldName;
         break;

@@ -6,6 +6,7 @@ import de.jpx3.intave.access.IntaveException;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.detect.checks.movement.Physics;
+import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.reflect.caller.CallerResolver;
 import de.jpx3.intave.reflect.caller.PluginInvocation;
@@ -241,8 +242,10 @@ public final class MovementEmulationEngine {
 //      movementData.physicsMotionX = futureMotion.getX();
 //      movementData.physicsMotionY = futureMotion.getY();
 //      movementData.physicsMotionZ = futureMotion.getZ();
+
       movementData.willReceiveSetbackVelocity = true;
       movementData.setbackOverrideVelocity = futureMotion;
+      // this is not the real setback motion motion - velocity will be altered later
       player.setVelocity(new Vector(0, 0, 0));
     }
   }
@@ -374,9 +377,9 @@ public final class MovementEmulationEngine {
         if (IntaveControl.DEBUG_INTAVE_TELEPORT_EVENT_CANCELS && cancel) {
           PluginInvocation pluginInvocation = CallerResolver.callerPluginInfo();
           if (pluginInvocation == null) {
-            System.out.println("[Intave] Intave's teleport event was cancelled by an unknown struct");
+            IntaveLogger.logger().pushPrintln("[Intave] Intave's teleport event was cancelled by an unknown struct");
           } else {
-            System.out.println("[Intave] " + pluginInvocation.pluginName() + " cancelled Intave's teleport event (" + pluginInvocation.className() + ": " + pluginInvocation.methodName() + ")");
+            IntaveLogger.logger().pushPrintln("[Intave] " + pluginInvocation.pluginName() + " cancelled Intave's teleport event (" + pluginInvocation.className() + ": " + pluginInvocation.methodName() + ")");
           }
         }
         super.setCancelled(cancel);
