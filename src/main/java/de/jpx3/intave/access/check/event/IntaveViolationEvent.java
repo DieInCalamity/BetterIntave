@@ -3,6 +3,7 @@ package de.jpx3.intave.access.check.event;
 import com.google.common.base.Preconditions;
 import de.jpx3.intave.IntaveAccessor;
 import de.jpx3.intave.access.IntaveEvent;
+import de.jpx3.intave.access.check.Check;
 import de.jpx3.intave.access.player.PlayerAccess;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -40,6 +41,14 @@ public final class IntaveViolationEvent extends IntaveEvent implements Cancellab
 
   public String check() {
     return checkName;
+  }
+
+  public String checkName() {
+    return checkName;
+  }
+
+  public Check checkEnum() {
+    return Check.fromString(checkName);
   }
 
   public String message() {
@@ -92,7 +101,7 @@ public final class IntaveViolationEvent extends IntaveEvent implements Cancellab
     return new IntaveViolationEvent();
   }
 
-    public enum Reaction {
+  public enum Reaction {
     IGNORE,
     INTERRUPT,
     INTERRUPT_AND_REPORT

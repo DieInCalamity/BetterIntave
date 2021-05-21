@@ -22,12 +22,12 @@ public final class UserMetaPunishmentData {
   public final static long DAMAGE_CANCEL_LIGHT_DURATION = 40_000;
   private final static long DAMAGE_CANCEL_MEDIUM_DURATION = 40_000;
   private final static long DAMAGE_CANCEL_HEAVY_DURATION = 5_000;
-  private final static long BLOCKING_DAMAGE_CANCEL_DURATION = 5_000;
+  private final static long BLOCKING_DAMAGE_CANCEL_DURATION = 10_000;
 
   private final static long DAMAGE_CANCEL_FIRST_HIT_DURATION = 60_000;
   private final static long ENTITY_HURT_TIME_CHANGE_DURATION = 5_000;
 
-  private final static long GARBAGE_HITS_DURATION = 60_000;
+  private final static long GARBAGE_HITS_DURATION = 120_000;
 
   private final Map<AttackNerfStrategy, AttackNerfer> attackNerfersMap = new HashMap<>();
   private final List<AttackNerfer> attackNerfers;
@@ -38,6 +38,7 @@ public final class UserMetaPunishmentData {
   public long timeLastSneakToggleCancel;
 
   private Map<Integer, Long> lastTimeValidHurttimeAttack = new ConcurrentHashMap<>();
+  private long delay = 600;
 
   public UserMetaPunishmentData(Player player) {
     this.attackNerfers = Lists.newArrayList(
@@ -74,13 +75,14 @@ public final class UserMetaPunishmentData {
         if (blockingDamageAbsorption != 0) {
           event.setDamage(EntityDamageEvent.DamageModifier.BLOCKING, 0);
         }
-      }),
+      }, true),
       new AttackNerfer(AttackNerfStrategy.GARBAGE_HITS, GARBAGE_HITS_DURATION, event -> {
         int entityId = event.getEntity().getEntityId();
         long lastValidAttack = AccessHelper.now() - lastTimeValidHurttimeAttack.computeIfAbsent(entityId, x -> 0L);
-        if(lastValidAttack < 600) {
+        if(lastValidAttack < delay) {
           event.setCancelled(true);
         } else {
+          delay = ThreadLocalRandom.current().nextInt(550, 600);
           lastTimeValidHurttimeAttack.put(entityId, AccessHelper.now());
         }
       })
@@ -111,6 +113,7 @@ public final class UserMetaPunishmentData {
     private final AttackNerfStrategy type;
     private final Consumer<EntityDamageByEntityEvent> executor;
     private final long duration;
+    private final boolean inverseEvent;
     private long activated;
 
     public AttackNerfer(
@@ -118,9 +121,19 @@ public final class UserMetaPunishmentData {
       long duration,
       Consumer<EntityDamageByEntityEvent> executor
     ) {
+      this(type, duration, executor, false);
+    }
+
+    public AttackNerfer(
+      AttackNerfStrategy type,
+      long duration,
+      Consumer<EntityDamageByEntityEvent> executor,
+      boolean inverseEvent
+    ) {
       this.type = type;
       this.duration = duration;
       this.executor = executor;
+      this.inverseEvent = inverseEvent;
     }
 
     public void activate() {
@@ -129,6 +142,10 @@ public final class UserMetaPunishmentData {
 
     public boolean active() {
       return AccessHelper.now() - activated < duration;
+    }
+
+    public boolean inverseEvent() {
+      return inverseEvent;
     }
 
     public Consumer<EntityDamageByEntityEvent> executor() {

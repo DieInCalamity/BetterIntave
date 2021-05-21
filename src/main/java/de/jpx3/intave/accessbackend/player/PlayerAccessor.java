@@ -3,6 +3,7 @@ package de.jpx3.intave.accessbackend.player;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.access.check.Check;
 import de.jpx3.intave.access.check.UnknownCheckException;
 import de.jpx3.intave.access.player.PlayerAccess;
 import de.jpx3.intave.access.player.PlayerClicks;
@@ -60,6 +61,11 @@ public final class PlayerAccessor {
       }
 
       @Override
+      public double violationLevel(Check check, String threshold) {
+        return violationLevel(check.typeName(), threshold);
+      }
+
+      @Override
       public void addViolationPoints(String check, String threshold, double amount) {
         check = check.toLowerCase(Locale.ROOT);
         if (!plugin.checkService().hasCheck(check)) {
@@ -69,12 +75,22 @@ public final class PlayerAccessor {
       }
 
       @Override
+      public void addViolationPoints(Check check, String threshold, double amount) {
+        addViolationPoints(check.typeName(), threshold, amount);
+      }
+
+      @Override
       public void resetViolationLevel(String check, String threshold) {
         check = check.toLowerCase(Locale.ROOT);
         if (!plugin.checkService().hasCheck(check)) {
           throw new UnknownCheckException("Unable to locale check \"" + check + "\"");
         }
         violationLevel.getOrDefault(check, DEFAULT_RETURN).remove(threshold);
+      }
+
+      @Override
+      public void resetViolationLevel(Check check, String threshold) {
+        resetViolationLevel(check.typeName(), threshold);
       }
 
       @Override

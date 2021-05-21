@@ -35,7 +35,18 @@ public final class CombatMitigator implements BukkitEventSubscriber {
     Player player = (Player) attacker;
     UserMetaPunishmentData punishmentData = UserRepository.userOf(player).meta().punishmentData();
     for (AttackNerfer attackNerfer : punishmentData.availableAttackNervers()) {
-      if (attackNerfer.active()) {
+      if (attackNerfer.active() && !attackNerfer.inverseEvent()) {
+        attackNerfer.executor().accept(event);
+      }
+    }
+    Entity attacked = event.getEntity();
+    if(!(attacked instanceof Player)) {
+      return;
+    }
+    Player attackedPlayer = (Player) attacked;
+    punishmentData = UserRepository.userOf(attackedPlayer).meta().punishmentData();
+    for (AttackNerfer attackNerfer : punishmentData.availableAttackNervers()) {
+      if (attackNerfer.active() && attackNerfer.inverseEvent()) {
         attackNerfer.executor().accept(event);
       }
     }

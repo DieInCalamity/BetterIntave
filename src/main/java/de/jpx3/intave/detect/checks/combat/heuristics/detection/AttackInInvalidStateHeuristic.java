@@ -12,6 +12,7 @@ import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;
+import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.user.*;
 import org.bukkit.entity.Player;
@@ -45,7 +46,8 @@ public final class AttackInInvalidStateHeuristic extends IntaveMetaCheckPart<Heu
     if(user.meta().inventoryData().handActive()) {
       Anomaly anomaly = Anomaly.anomalyOf("162", Confidence.NONE, Anomaly.Type.KILLAURA, "attacked whilst using an item");
       parentCheck().saveAnomaly(player, anomaly);
-      event.setCancelled(true);
+      //dmc28
+      user.applyAttackNerfer(AttackNerfStrategy.BLOCKING, "28");
     }
   }
 

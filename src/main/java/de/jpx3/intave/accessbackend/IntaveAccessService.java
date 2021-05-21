@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveAccess;
 import de.jpx3.intave.access.IntaveEvent;
+import de.jpx3.intave.access.check.Check;
 import de.jpx3.intave.access.check.CheckAccess;
 import de.jpx3.intave.access.check.UnknownCheckException;
 import de.jpx3.intave.access.player.PlayerAccess;
@@ -94,6 +95,11 @@ public final class IntaveAccessService {
       @Override
       public CheckAccess check(String checkName) throws UnknownCheckException {
         return checkAccessor.checkMirrorOf(checkName);
+      }
+
+      @Override
+      public CheckAccess check(Check check) {
+        return check(check.typeName());
       }
     };
   }

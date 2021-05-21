@@ -1,5 +1,6 @@
 package de.jpx3.intave.adapter.viaversion;
 
+import de.jpx3.intave.logging.IntaveLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -19,6 +20,7 @@ public final class ViaVersion2Access implements ViaVersionAccess {
     } catch (Exception exception) {
       throw new IllegalStateException("Invalid ViaVersion linkage", exception);
     }
+    IntaveLogger.logger().info("You are running a very old, outdated version of ViaVersion");
   }
 
   @Override

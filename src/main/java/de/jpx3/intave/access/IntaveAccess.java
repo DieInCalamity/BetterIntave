@@ -1,5 +1,6 @@
 package de.jpx3.intave.access;
 
+import de.jpx3.intave.access.check.Check;
 import de.jpx3.intave.access.check.CheckAccess;
 import de.jpx3.intave.access.check.UnknownCheckException;
 import de.jpx3.intave.access.player.PlayerAccess;
@@ -23,4 +24,5 @@ public interface IntaveAccess {
   PlayerAccess player(Player player);
   ServerAccess server();
   CheckAccess check(String checkName) throws UnknownCheckException;
+  CheckAccess check(Check check);
 }
