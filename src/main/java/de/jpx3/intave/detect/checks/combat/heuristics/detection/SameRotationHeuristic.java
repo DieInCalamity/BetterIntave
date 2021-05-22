@@ -40,7 +40,6 @@ public class SameRotationHeuristic extends IntaveMetaCheckPart<Heuristics, SameR
     if (ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0)) {
       return;
     }
-
     Player player = event.getPlayer();
     User user = userOf(player);
     SameRotationHeuristicMeta meta = metaOf(user);
@@ -57,9 +56,9 @@ public class SameRotationHeuristic extends IntaveMetaCheckPart<Heuristics, SameR
     if (meta.lastLastTick.rotationMotion < 10 && meta.lastTick.rotationMotion > 40 && rotationMotion < 10 && movementData.lastTeleport > 5 && isPartner) {
       checkSameRotation(meta, player);
 
-      checkWholeRotationMotion(meta, player);
+      checkExactRotationMotion(meta, player);
 
-      checkWholeRotation(meta, player);
+      checkExactRotation(meta, player);
 
       meta.yawRotations.add(meta.lastLastTick.yaw);
       meta.yawRotations.add(meta.lastTick.yaw);
@@ -71,29 +70,31 @@ public class SameRotationHeuristic extends IntaveMetaCheckPart<Heuristics, SameR
     prepareNextTick(user, rotationMotion);
   }
 
-  private void checkWholeRotation(SameRotationHeuristicMeta meta, Player player) {
+  private void checkExactRotation(SameRotationHeuristicMeta meta, Player player) {
     // Guckt ob die alte Rotation Yaw oder Pitch eine ganze Zahl ist
     // Wird genutzt um false flaggs zu vermeiden wenn die alte Rotation eine Ganzezahl war und man sich mit einer ganzen Zahl rotiert hat.
     boolean lastYawMotionExactNumber = meta.lastLastTick.yawMotion % 1 == 0;
     boolean lastPitchMotionExactNumber = meta.lastLastTick.pitchMotion % 1 == 0;
 
     // Guckt ob die rotation Yaw oder Pitch eine ganze Zahl ist
-    boolean yawWholeExactNumber = meta.lastTick.yaw % 1 == 0;
-    boolean pitchWholeExactNumber = meta.lastTick.pitch % 1 == 0;
+    boolean yawExactNumber = meta.lastTick.yaw % 1 == 0;
+    boolean pitchExactNumber = meta.lastTick.pitch % 1 == 0;
 
+    String description = "exact rotation (";
     boolean flag = false;
-    if(yawWholeExactNumber && meta.lastTick.yawMotion != 0 && !lastYawMotionExactNumber) {
+    if(yawExactNumber && meta.lastTick.yawMotion != 0 && !lastYawMotionExactNumber) {
       flag = true;
+      description += "yaw:" + meta.lastTick.yaw;
     }
-    if(pitchWholeExactNumber && Math.abs(meta.lastTick.pitchMotion) != 90 && meta.lastTick.pitchMotion != 0 && !lastPitchMotionExactNumber) {
+    if(pitchExactNumber && Math.abs(meta.lastTick.pitchMotion) != 90 && meta.lastTick.pitchMotion != 0 && !lastPitchMotionExactNumber) {
+      if(flag)
+        description += ", ";
       flag = true;
+      description += "pitch:" + meta.lastTick.pitch;
     }
+    description += ")";
 
     if (flag) {
-      String description = "whole exact rotation ("
-        + "yaw: " + yawWholeExactNumber + ", " + meta.lastTick.yaw
-        + ", pitch: " + pitchWholeExactNumber + ", " + meta.lastTick.pitch + ")";
-
       Anomaly anomaly = Anomaly.anomalyOf("183", Confidence.NONE, Anomaly.Type.KILLAURA, description, getOptions(true));
       parentCheck().saveAnomaly(player, anomaly);
     }
@@ -104,45 +105,44 @@ public class SameRotationHeuristic extends IntaveMetaCheckPart<Heuristics, SameR
     boolean containedYaw = meta.yawRotations.contains(meta.lastLastTick.yaw) || meta.yawRotations.contains(meta.lastTick.yaw);
     boolean containedPitch = meta.pitchRotations.contains(meta.lastLastTick.pitch) || meta.pitchRotations.contains(meta.lastTick.pitch);
 
+    String description = "same rotation (";
     boolean flag = false;
     if (containedYaw && meta.lastTick.yawMotion != 0) {
       flag = true;
+      description += "yaw:" + meta.lastTick.yaw;
     }
     if(containedPitch && meta.lastTick.pitchMotion != 0) {
+      if(flag)
+        description += ", ";
       flag = true;
+      description += "pitch:" + meta.lastTick.pitch + ")";
     }
 
     if(flag) {
-      String description = "same rotation (" +
-        MathHelper.formatDouble(meta.lastTick.rotationMotion, 4) + ", " +
-        "yaw:" + containedYaw +
-        ", pitch:" + containedPitch + ")";
-//          user.applyAttackNerfer(AttackNerfStrategy.HT_MEDIUM);
-//          user.applyAttackNerfer(AttackNerfStrategy.CANCEL_FIRST_HIT);
-
       Anomaly anomaly = Anomaly.anomalyOf("181", Confidence.NONE, Anomaly.Type.KILLAURA, description, getOptions(true));
       parentCheck().saveAnomaly(player, anomaly);
     }
   }
 
-  private void checkWholeRotationMotion(SameRotationHeuristicMeta meta, Player player) {
-    // Guckt ob die rotation des Spielers eine ganze Zahl war wenn er sich schnell rotiert hat.
-    boolean yawMotionWholeNumber = meta.lastTick.yawMotion % 1 == 0;
-    boolean pitchMotionWholeNumber = meta.lastTick.pitchMotion % 1 == 0;
+  private void checkExactRotationMotion(SameRotationHeuristicMeta meta, Player player) {
+    // Guckt ob die Rotation Bewegung des Spielers eine ganze Zahl war wenn er sich schnell rotiert hat.
+    boolean yawMotionExactNumber = meta.lastTick.yawMotion % 1 == 0;
+    boolean pitchMotionExactNumber = meta.lastTick.pitchMotion % 1 == 0;
 
+    String description = "exact rotation (";
     boolean flag = false;
-    if(pitchMotionWholeNumber) {
+    if(yawMotionExactNumber) {
       flag = true;
+      description += "yaw:" + meta.lastTick.yawMotion;
     }
-    if(yawMotionWholeNumber) {
+    if(pitchMotionExactNumber) {
+      if(flag)
+        description += ", ";
       flag = true;
+      description += "pitch:" + meta.lastTick.pitchMotion + ")";
     }
 
     if (flag) {
-      String description = "whole rotation ("
-        + "yaw: " + yawMotionWholeNumber + ", " + meta.lastTick.yawMotion
-        + ", pitch: " + pitchMotionWholeNumber + ", " + meta.lastTick.pitchMotion + ")";
-
       Anomaly anomaly = Anomaly.anomalyOf("182", Confidence.NONE, Anomaly.Type.KILLAURA, description, getOptions(true));
       parentCheck().saveAnomaly(player, anomaly);
     }
