@@ -59,7 +59,10 @@ public final class SimulationProcessor {
       movementData.ignoredAttackReduce = true;
     }
     if (inventoryData.handActive() && !iterativeResult.handActive()) {
-      releaseHandOf(user);
+      boolean releaseHandConditions = Math.hypot(movementData.motionX(), movementData.motionZ()) > 0.2 || movementData.lastTeleport >= 2;
+      if (releaseHandConditions) {
+        releaseHandOf(user);
+      }
     }
     movementData.keyForward = iterativeResult.forward();
     movementData.keyStrafe = iterativeResult.strafe();
