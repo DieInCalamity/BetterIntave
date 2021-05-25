@@ -17,6 +17,7 @@ import de.jpx3.intave.reflect.hitbox.ReflectiveEntityHitBoxAccess;
 import de.jpx3.intave.reflect.hitbox.typeaccess.DualEntityTypeAccess;
 import de.jpx3.intave.reflect.hitbox.typeaccess.EntityTypeData;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -27,7 +28,7 @@ public final class PacketEntityTypeResolver {
   private final static boolean AT_OR_ABOVE_1_14 = MinecraftVersions.VER1_14_0.atOrAbove();
   private final static boolean AT_OR_ABOVE_1_15 = MinecraftVersions.VER1_15_0.atOrAbove();
   private static final boolean DATA_WATCHER_ACCESS_UNDER_1_15 = !MinecraftVersions.VER1_15_0.atOrAbove();
-  private static final boolean ENTITY_TYPE_ACCESS_1_14 = !MinecraftVersions.VER1_14_0.atOrAbove();
+  private static final boolean ENTITY_TYPE_ACCESS_UNDER_1_14 = !MinecraftVersions.VER1_14_0.atOrAbove();
   private String dataWatcherEntityFieldName;
 
   public PacketEntityTypeResolver(IntavePlugin plugin) {
@@ -74,16 +75,19 @@ public final class PacketEntityTypeResolver {
     if (entity != null) {
       return entityTypeDataOfBukkitEntity(entity);
     } else {
-      if (ENTITY_TYPE_ACCESS_1_14) {
+      if (ENTITY_TYPE_ACCESS_UNDER_1_14) {
         int deadEntityType = packet.getIntegers().read(9);
         String name = nameByDeadEntityType(deadEntityType);
         HitBoxBoundaries boundaries = hitboxBoundariesByDeadEntityType(deadEntityType);
         return new EntityTypeData(name, boundaries, -1);
       } else {
+        EntityType entityType = packet.getEntityTypeModifier().read(0);
+        Class<? extends Entity> entityClass = entityType.getEntityClass();
+        String entityClassName = entityClass.getSimpleName();
         if(IntaveControl.DISABLE_LICENSE_CHECK) {
           IntaveLogger.logger().info("Zero BoundingBox 2");
         }
-        return new EntityTypeData("null", HitBoxBoundaries.zero(), -2);
+        return new EntityTypeData(entityClassName, HitBoxBoundaries.zero(), -2);
       }
     }
   }

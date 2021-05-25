@@ -8,6 +8,7 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.event.packet.*;
+import de.jpx3.intave.event.transaction.TransactionFeedbackService;
 import de.jpx3.intave.fakeplayer.FakePlayer;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.reflect.hitbox.HitBoxBoundaries;
@@ -143,12 +144,12 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
   public void receiveEntityDestroy(PacketEvent event) {
     Player player = event.getPlayer();
     int[] entityIDs = event.getPacket().getIntegerArrays().read(0);
-    /* IMPORTANT: If the entity destroy packet gets synchronized the player could be spammed with transaction packets
-     *   which could cause a too many packets kick
-     */
-    // plugin.eventService().transactionFeedbackService().requestPong(player, entityIDs, this::processEntityDestroy);
-
-    processEntityDestroy(player, entityIDs);
+     plugin.eventService().feedback().clientSynchronize(
+       player,
+       entityIDs,
+       this::processEntityDestroy,
+       TransactionFeedbackService.TransactionOptions.OPTIONAL
+     );
   }
 
   private void processEntityDestroy(Player player, int[] entityIDs) {
@@ -329,7 +330,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
   ) {
     UserMetaConnectionData synchronizeData = user.meta().connectionData();
     Map<Integer, WrappedEntity> synchronizedEntityMap = synchronizeData.synchronizedEntityMap();
-    WrappedEntity entity = new WrappedEntity(entityId, entityTypeData, isEntityLiving);
+    WrappedEntity entity = createEntityOf(user, entityId, isEntityLiving, entityTypeData);
     entity.serverPosX = WrappedMathHelper.getPositionLong(posX);
     entity.serverPosY = WrappedMathHelper.getPositionLong(posY);
     entity.serverPosZ = WrappedMathHelper.getPositionLong(posZ);
@@ -347,13 +348,28 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     double posX = serverPosX / 32d;
     double posY = serverPosY / 32d;
     double posZ = serverPosZ / 32d;
-    WrappedEntity entity = new WrappedEntity(entityId, entityTypeData, isEntityLiving);
+    WrappedEntity entity = createEntityOf(user, entityId, isEntityLiving, entityTypeData);
     entity.serverPosX = serverPosX;
     entity.serverPosY = serverPosY;
     entity.serverPosZ = serverPosZ;
     entity.setPositionAndRotationSpawnMob(posX, posY, posZ, posY);
     synchronizedEntityMap.put(entityId, entity);
 
+    return entity;
+  }
+
+  private WrappedEntity createEntityOf(
+    User user,
+    int entityId,
+    boolean isEntityLiving,
+    EntityTypeData entityTypeData
+  ) {
+    WrappedEntity entity;
+    if (entityTypeData.entityName().equals("Firework")) {
+      entity = new WrappedEntityFirework(user, entityId, entityTypeData);
+    } else {
+      entity = new WrappedEntity(entityId, entityTypeData, isEntityLiving);
+    }
     return entity;
   }
 

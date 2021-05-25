@@ -380,6 +380,7 @@ public final class MovementDispatcher implements EventProcessor {
     movementData.step = false;
     movementData.lastSprinting = movementData.sprintingAllowed();
     movementData.lastSneaking = movementData.sneaking;
+    movementData.fireworkTolerant = false;
 
     if (!inventoryData.handActive() && inventoryData.pastHandActiveTicks > 2) {
       movementData.physicsEatingSlotSwitchVL = 0;

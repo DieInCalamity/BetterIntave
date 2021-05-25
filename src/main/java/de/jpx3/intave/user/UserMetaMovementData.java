@@ -5,6 +5,7 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import de.jpx3.intave.detect.checks.movement.physics.MotionVector;
 import de.jpx3.intave.detect.checks.movement.physics.Pose;
 import de.jpx3.intave.detect.checks.movement.physics.SimulationProcessor;
+import de.jpx3.intave.event.entity.WrappedEntity;
 import de.jpx3.intave.reflect.ReflectiveHandleAccess;
 import de.jpx3.intave.tools.annotate.Nullable;
 import de.jpx3.intave.tools.client.*;
@@ -18,6 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.List;
+import java.util.Map;
 
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_BEE_UPDATE;
 
@@ -33,7 +35,7 @@ public final class UserMetaMovementData {
   public double widthRounded, heightRounded;
   private double resetMotion, frictionPosSubtraction;
 
-  public boolean swimming, elytraFlying;
+  public boolean swimming, elytraFlying, fireworkTolerant;
 
   public boolean onGround, lastOnGround, step;
   public boolean collidedHorizontally, collidedVertically;
@@ -43,7 +45,7 @@ public final class UserMetaMovementData {
   public boolean outsideBorder = true;
 
   public MotionVector motionVector = new MotionVector();
-  public Vector lookVector;
+  public Vector lookVector = new Vector();
   public double verifiedPositionX, verifiedPositionY, verifiedPositionZ;
   public double lastPositionX, lastPositionY, lastPositionZ;
   public double positionX, positionY, positionZ;
@@ -227,6 +229,16 @@ public final class UserMetaMovementData {
       lookVector = RotationHelper.vectorForRotation(rotationPitch, rotationYaw);
       yawSine = SinusCache.sin(rotationYaw * (float) Math.PI / 180.0F, false);
       yawCosine = SinusCache.cos(rotationYaw * (float) Math.PI / 180.0F, false);
+    }
+    updateEntityMovement();
+  }
+
+  private void updateEntityMovement() {
+    UserMetaConnectionData userMetaConnectionData = user.meta().connectionData();
+    Map<Integer, WrappedEntity> entityMap = userMetaConnectionData.synchronizedEntityMap();
+    for (Map.Entry<Integer, WrappedEntity> entry : entityMap.entrySet()) {
+      WrappedEntity entity = entry.getValue();
+      entity.entityPlayerMoveUpdate();
     }
   }
 

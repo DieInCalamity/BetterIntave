@@ -524,7 +524,7 @@ public final class Physics extends IntaveCheck {
 
     violationLevelData.physicsVL = MathHelper.minmax(0, violationLevelData.physicsVL, 100);
 
-    if (movementData.onLadderLast) {
+    if (movementData.onLadderLast || movementData.elytraFlying) {
       movementData.artificialFallDistance = 0;
     }
 
@@ -658,6 +658,11 @@ public final class Physics extends IntaveCheck {
       legitimateDeviation = resolveRiptideDeviation(movementData);
     }
 
+    // Firework
+    if (movementData.fireworkTolerant) {
+      legitimateDeviation = Math.max(legitimateDeviation, 0.8);
+    }
+
     //TODO: Bad fix
     if (clientData.applyNewEntityCollisions() && Math.abs(differenceY - 0.2) < 1e-5 && movementData.lastOnGround && !movementData.onGround) {
       if (!Collision.isNotInsideBlocks(player, movementData.boundingBox().addCoord(movementData.motionX(), 0.201, movementData.motionZ()))) {
@@ -727,11 +732,12 @@ public final class Physics extends IntaveCheck {
     }
 
     double abuseVertically = Math.max(0, differenceY - legitimateDeviation);
+    boolean allowDeviation = movementData.elytraFlying || movementData.swimming || movementData.inLava();
     double multiplier;
 
-    if (abuseVertically > 0.1) {
+    if (abuseVertically > 0.1 && !allowDeviation) {
       multiplier = 5000;
-    } else if (abuseVertically > 0.009) {
+    } else if (abuseVertically > 0.009 && !allowDeviation) {
       abuseVertically = Math.max(abuseVertically, 0.1);
       multiplier = 200;
     } else {
@@ -812,6 +818,11 @@ public final class Physics extends IntaveCheck {
 
     if (movementData.currentlyInBlock && predictedDistanceMoved < distanceMoved * 1.3) {
       legitimateDeviation = predictedDistanceMoved;
+    }
+
+    // Firework
+    if (movementData.fireworkTolerant) {
+      legitimateDeviation = Math.max(legitimateDeviation, 0.8);
     }
 
     // Flying packet

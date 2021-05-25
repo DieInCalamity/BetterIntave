@@ -247,22 +247,68 @@ public final class MovementEmulationEngine {
   private Vector motionProceed(Vector lastMotion, User user, WrappedAxisAlignedBB boundingBox, boolean applyPhysics) {
     Player player = user.player();
     UserMetaMovementData movementData = user.meta().movementData();
-    double motionY = lastMotion.getY();
-    if (applyPhysics) {
-      // TODO: 01/07/21 ladder/vines
+    float rotationPitch = movementData.rotationPitch;
+    Vector lookVector = movementData.lookVector;
 
-      if (movementData.inWater) {
-        motionY = lastMotion.getY() * 0.8f;
-        motionY -= 0.02;
+    //
+    // Pre Emulation
+    //
+
+    double motionX = lastMotion.getX();
+    double motionY = lastMotion.getY();
+    double motionZ = lastMotion.getZ();
+
+    if (applyPhysics) {
+      if (movementData.elytraFlying) {
+        float f = rotationPitch * 0.017453292F;
+        double rotationVectorDistance = Math.sqrt(lookVector.getX() * lookVector.getX() + lookVector.getZ() * lookVector.getZ());
+        double dist2 = Math.sqrt(motionX * motionX + motionZ * motionZ);
+        double rotationVectorLength = Math.sqrt(lookVector.lengthSquared());
+        float pitchCosine = WrappedMathHelper.cos(f);
+        pitchCosine = (float) ((double) pitchCosine * (double) pitchCosine * Math.min(1.0D, rotationVectorLength / 0.4D));
+        motionY += movementData.gravity * (-1 + pitchCosine * 0.75);
+
+        if (motionY < 0.0D && rotationVectorDistance > 0.0D) {
+          double d2 = motionY * -0.1D * (double) pitchCosine;
+          motionY += d2;
+          motionX += lookVector.getX() * d2 / rotationVectorDistance;
+          motionZ += lookVector.getZ() * d2 / rotationVectorDistance;
+        }
+
+        if (f < 0.0F && rotationVectorDistance > 0.0D) {
+          double d9 = dist2 * (double) (-WrappedMathHelper.sin(f)) * 0.04D;
+          motionY += d9 * 3.2D;
+          motionX += -lookVector.getX() * d9 / rotationVectorDistance;
+          motionZ += -lookVector.getZ() * d9 / rotationVectorDistance;
+        }
+
+        if (rotationVectorDistance > 0.0D) {
+          motionX += (lookVector.getX() / rotationVectorDistance * dist2 - motionX) * 0.1D;
+          motionZ += (lookVector.getZ() / rotationVectorDistance * dist2 - motionZ) * 0.1D;
+        }
+
+        motionX *= 0.99f;
+        motionY *= 0.98f;
+        motionZ *= 0.99f;
       } else {
-        motionY = (lastMotion.getY() - movementData.gravity) * 0.98f;
+        if (movementData.inWater) {
+          motionY = lastMotion.getY() * 0.8f;
+          motionY -= 0.02;
+        } else {
+          motionY = (lastMotion.getY() - movementData.gravity) * 0.98f;
+        }
       }
     }
+
+    //
+    // Prepare next tick
+    //
+
     Vector collisionVector = resolveCollisionVector(player, boundingBox, lastMotion.getX(), motionY, lastMotion.getZ());
     boolean onGround = motionY != collisionVector.getY() && motionY < 0.0;
     motionY = collisionVector.getY();
     double multiplier;
-    if (applyPhysics) {
+    if (applyPhysics && !movementData.elytraFlying) {
       if (movementData.inWater) {
         multiplier = 0.8f;
       } else {
@@ -274,8 +320,8 @@ public final class MovementEmulationEngine {
     if (movementData.lastOnGround && !movementData.onGround) {
       multiplier *= 0.6f;
     }
-    double motionX = lastMotion.getX() * multiplier;
-    double motionZ = lastMotion.getZ() * multiplier;
+    motionX *= multiplier;
+    motionZ *= multiplier;
     if (applyPhysics) {
       if (movementData.inWeb) {
         motionX *= 0.25D;

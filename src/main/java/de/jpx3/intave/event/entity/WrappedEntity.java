@@ -35,6 +35,7 @@ public class WrappedEntity implements Cloneable {
   public List<EntityPositionContext> positionHistory = new CopyOnWriteArrayList<>();
   public boolean dead, fakeDead;
   public float health;
+  public int ticksAlive;
   private int deathTime;
 
   private WrappedAxisAlignedBB boundingBox;
@@ -82,9 +83,17 @@ public class WrappedEntity implements Cloneable {
   }
 
   public void onUpdate() {
+    this.ticksAlive++;
     this.onEntityUpdate();
     this.onLivingUpdate();
   }
+
+  /**
+   * Updated after a player sends his movement.
+   * This method is required because the client is using a player's rotationYaw and rotationPitch
+   * which will be sent in the next tick and therefore is not accessible at this moment.
+   */
+  public void entityPlayerMoveUpdate() {}
 
   /**
    * Interpolates the position of the entity between the position and the new position to make the entity move smoothly.
