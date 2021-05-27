@@ -512,10 +512,9 @@ public class DefaultPoseSimulator extends PoseSimulator {
     if (f3 > 0.0F) {
       f1 += (0.54600006F - f1) * f3 / 3.0F;
     }
-    //fixme
-//        if (this.isPotionActive(MobEffects.DOLPHINS_GRACE)) {
-//          f1 = 0.96F;
-//        }
+    if (EffectLogic.isPotionDolphinActive(player)) {
+      f1 = 0.96F;
+    }
     motionVector.motionX *= f1;
     motionVector.motionY *= 0.8f;
     motionVector.motionZ *= f1;

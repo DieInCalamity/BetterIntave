@@ -7,9 +7,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_AQUATIC_UPDATE;
+
 public final class EffectLogic {
   public final static PotionEffectType EFFECT_LEVITATION = PotionEffectType.getByName("LEVITATION");
   private final static PotionEffectType EFFECT_SLOW_FALLING = PotionEffectType.getByName("SLOW_FALLING");
+  private final static PotionEffectType EFFECT_DOLPHIN = PotionEffectType.getByName("DOLPHINS_GRACE");
 
   public static int effectAmplifier(Player player, PotionEffectType type) {
     for (PotionEffect activeEffect : player.getActivePotionEffects()) {
@@ -27,6 +30,15 @@ public final class EffectLogic {
       return false;
     }
     return isPotionActive(player, EFFECT_LEVITATION);
+  }
+
+  public static boolean isPotionDolphinActive(Player player) {
+    User user = UserRepository.userOf(player);
+    UserMetaClientData clientData = user.meta().clientData();
+    if (EFFECT_DOLPHIN == null || clientData.protocolVersion() < PROTOCOL_VERSION_AQUATIC_UPDATE) {
+      return false;
+    }
+    return isPotionActive(player, EFFECT_DOLPHIN);
   }
 
   public static boolean isPotionSlowFallingActive(Player player) {
