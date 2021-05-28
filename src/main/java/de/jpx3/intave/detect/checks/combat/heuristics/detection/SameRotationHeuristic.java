@@ -76,7 +76,7 @@ public class SameRotationHeuristic extends IntaveMetaCheckPart<Heuristics, SameR
 
     if (meta.lastTick.yawMotion != 0) {
       float yaw = meta.lastLastTick.yaw;
-      if (meta.yawRotations.contains(yaw)) {
+      if (!meta.yawRotations.contains(yaw)) {
         meta.yawRotations.add(yaw);
       }
     }
