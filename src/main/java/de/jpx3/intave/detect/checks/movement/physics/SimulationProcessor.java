@@ -157,7 +157,8 @@ public final class SimulationProcessor {
     int direction = directionFrom(differenceX, differenceZ, yaw);
 
 //    boolean invalidPrediction = false;
-    if (directionPredictionError(differenceX, differenceZ, yaw) > REQUIRED_PREDICTION_ACCURACY_FOR_PRED_BIAS_PROCEED) {
+    boolean inventoryOpen = inventoryData.inventoryOpen();
+    if (!inventoryOpen && directionPredictionError(differenceX, differenceZ, yaw) > REQUIRED_PREDICTION_ACCURACY_FOR_PRED_BIAS_PROCEED) {
 //      invalidPrediction = true;
       movementData.physicsJumped = false;
       movementData.keyForward = -2;
@@ -175,7 +176,7 @@ public final class SimulationProcessor {
       keyForward = 0;
       keyStrafe = 0;
     }
-    if (inventoryData.inventoryOpen()) {
+    if (inventoryOpen) {
       keyForward = 0;
       keyStrafe = 0;
     }
