@@ -18,7 +18,9 @@ import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.user.*;
 import de.jpx3.intave.world.raytrace.Raytracer;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE;
 import static de.jpx3.intave.world.raytrace.Raytracer.distanceOf;
@@ -84,6 +86,13 @@ public final class AttackRequiredHeuristic extends IntaveMetaCheckPart<Heuristic
 
     boolean dead = entity.fakeDead || entity.dead;
     if (dead) {
+      return;
+    }
+
+    // FishingRod overrides onItemRightClick and sends an arm-animation packet
+    UserMetaInventoryData inventoryData = user.meta().inventoryData();
+    ItemStack itemStack = inventoryData.heldItem();
+    if (itemStack != null && itemStack.getType() == Material.FISHING_ROD) {
       return;
     }
 
