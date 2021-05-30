@@ -2,7 +2,9 @@ package de.jpx3.intave.event.transaction;
 
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.packet.*;
+import de.jpx3.intave.event.packet.ListenerPriority;
+import de.jpx3.intave.event.packet.PacketEventSubscriber;
+import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
@@ -14,6 +16,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Map;
 
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
 import static de.jpx3.intave.event.transaction.TransactionFeedbackService.*;
 
 public final class TransactionResponseEnforcingProcessor implements PacketEventSubscriber {
@@ -43,8 +46,8 @@ public final class TransactionResponseEnforcingProcessor implements PacketEventS
 
   @PacketSubscription(
     priority = ListenerPriority.LOWEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "TRANSACTION")
+    packetsIn = {
+      TRANSACTION
     }
   )
   public void onPacketReceiving(PacketEvent event) {
@@ -92,8 +95,8 @@ public final class TransactionResponseEnforcingProcessor implements PacketEventS
 
   @PacketSubscription(
     priority = ListenerPriority.LOWEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ENTITY")
+    packetsIn = {
+      USE_ENTITY
     }
   )
   public void cancelAttacksIfTransactionMissing(PacketEvent event) {
@@ -106,10 +109,8 @@ public final class TransactionResponseEnforcingProcessor implements PacketEventS
 
   @PacketSubscription(
     priority = ListenerPriority.HIGHEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_DIG"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_PLACE"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ITEM")
+    packetsIn = {
+      BLOCK_DIG, BLOCK_PLACE, USE_ITEM
     }
   )
   public void on(PacketEvent event) {

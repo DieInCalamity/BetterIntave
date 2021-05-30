@@ -11,9 +11,7 @@ import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedMovingObjectPosition;
@@ -30,6 +28,8 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
+
 public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirClickLimitHeuristic.AirClickLimitHeuristicMeta> {
 
   public AirClickLimitHeuristic(Heuristics parentCheck) {
@@ -38,8 +38,8 @@ public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirC
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ENTITY")
+    packetsIn = {
+      USE_ENTITY
     }
   )
   public void entityHit(PacketEvent event) {
@@ -60,8 +60,8 @@ public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirC
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_PLACE")
+    packetsIn = {
+      BLOCK_PLACE
     }
   )
   public void blockPlace(PacketEvent event) {
@@ -91,8 +91,8 @@ public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirC
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_DIG")
+    packetsIn = {
+      BLOCK_DIG
     }
   )
   public void blockDig(PacketEvent event) {
@@ -109,8 +109,7 @@ public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirC
     if (digType == EnumWrappers.PlayerDigType.START_DESTROY_BLOCK) {
       meta.isBreakingClientSide = true;
 
-      BlockPosition blockPosition = event.getPacket().getBlockPositionModifier().read(0);
-      meta.currentDiggedBlock = blockPosition;
+      meta.currentDiggedBlock = event.getPacket().getBlockPositionModifier().read(0);
     } else if (digType == EnumWrappers.PlayerDigType.ABORT_DESTROY_BLOCK) {
       meta.isBreakingClientSide = false;
     } else if (digType == EnumWrappers.PlayerDigType.STOP_DESTROY_BLOCK) {
@@ -121,11 +120,8 @@ public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirC
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK")
+    packetsIn = {
+      FLYING, LOOK, POSITION, POSITION_LOOK
     }
   )
   public void clientTickUpdate(PacketEvent event) {
@@ -248,8 +244,8 @@ public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirC
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "ARM_ANIMATION")
+    packetsIn = {
+      ARM_ANIMATION
     }
   )
   public void swing(PacketEvent event) {

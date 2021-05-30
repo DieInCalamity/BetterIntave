@@ -8,14 +8,14 @@ import de.jpx3.intave.detect.IntaveMetaCheckPart;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserCustomCheckMeta;
 import de.jpx3.intave.user.UserMetaClientData;
 import org.bukkit.entity.Player;
+
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
 
 public final class PacketOrderSwingHeuristic extends IntaveMetaCheckPart<Heuristics, PacketOrderSwingHeuristic.PacketOrderSwingHeuristicMeta> {
   private final IntavePlugin plugin;
@@ -26,12 +26,8 @@ public final class PacketOrderSwingHeuristic extends IntaveMetaCheckPart<Heurist
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "ARM_ANIMATION")
+    packetsIn = {
+      FLYING, POSITION, POSITION_LOOK, LOOK, ARM_ANIMATION
     }
   )
   public void receiveMovementPacket(PacketEvent event) {
@@ -41,8 +37,8 @@ public final class PacketOrderSwingHeuristic extends IntaveMetaCheckPart<Heurist
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ENTITY")
+    packetsIn = {
+      USE_ENTITY
     }
   )
   public void receiveUseEntity(PacketEvent event) {

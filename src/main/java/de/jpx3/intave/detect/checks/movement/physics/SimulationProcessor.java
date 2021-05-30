@@ -1,7 +1,6 @@
 package de.jpx3.intave.detect.checks.movement.physics;
 
 import de.jpx3.intave.adapter.ViaVersionAdapter;
-import de.jpx3.intave.detect.checks.movement.physics.simulators.PoseSimulator;
 import de.jpx3.intave.diagnostics.KeyPressStudy;
 import de.jpx3.intave.diagnostics.timings.Timings;
 import de.jpx3.intave.event.dispatch.AttackDispatcher;
@@ -156,10 +155,8 @@ public final class SimulationProcessor {
     float yaw = movementData.rotationYaw;
     int direction = directionFrom(differenceX, differenceZ, yaw);
 
-//    boolean invalidPrediction = false;
     boolean inventoryOpen = inventoryData.inventoryOpen();
     if (!inventoryOpen && directionPredictionError(differenceX, differenceZ, yaw) > REQUIRED_PREDICTION_ACCURACY_FOR_PRED_BIAS_PROCEED) {
-//      invalidPrediction = true;
       movementData.physicsJumped = false;
       movementData.keyForward = -2;
       movementData.keyStrafe = -2;
@@ -187,14 +184,6 @@ public final class SimulationProcessor {
     movementData.keyForward = keyForward;
     movementData.keyStrafe = keyStrafe;
     ComplexColliderSimulationResult simulationResult = simulator.performSimulation(user, motionVector, moveForward, moveStrafe, attackReduce, jumped, handActive);
-
-//    boolean simulationFailed = simulationResult.accuracy(user.meta().movementData().motion()) > 0.0001;
-//
-//    if (invalidPrediction) {
-//      Synchronizer.synchronize(() -> {
-//        user.player().sendMessage(simulationFailed ? ChatColor.GREEN + "Simulation failure predicted" : ChatColor.RED + "Unexpected simulation success");
-//      });
-//    }
 
     Timings.CHECK_PHYSICS_PROC_PRED_BIA.stop();
     Timings.CHECK_PHYSICS_PROC_BIA.stop();

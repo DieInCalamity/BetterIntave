@@ -10,8 +10,8 @@ import de.jpx3.intave.detect.CheckViolationLevelDecrementer;
 import de.jpx3.intave.detect.IntaveCheck;
 import de.jpx3.intave.detect.checks.movement.physics.MotionVector;
 import de.jpx3.intave.detect.checks.movement.physics.Pose;
+import de.jpx3.intave.detect.checks.movement.physics.PoseSimulator;
 import de.jpx3.intave.detect.checks.movement.physics.SimulationProcessor;
-import de.jpx3.intave.detect.checks.movement.physics.simulators.PoseSimulator;
 import de.jpx3.intave.diagnostics.timings.Timings;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.event.violation.ViolationContext;
@@ -185,7 +185,7 @@ public final class Physics extends IntaveCheck {
     double motionZ = movementData.motionZ();
     if (hasMovement) {
       Pose movementPoseType = movementData.movementPoseType();
-      PoseSimulator calculationPart = movementPoseType.simulator();
+      PoseSimulator simulator = movementPoseType.simulator();
       if (movementData.pastVelocity == 0) {
         if (movementData.physicsJumped && movementData.lastVelocityApplicableForJumpDenial()) {
           movementData.physicsJumpedOverrideVL++;
@@ -193,7 +193,7 @@ public final class Physics extends IntaveCheck {
           movementData.physicsJumpedOverrideVL--;
         }
       }
-      calculationPart.prepareNextTick(user, movementData.positionX, movementData.positionY, movementData.positionZ, motionX, motionY, motionZ);
+      simulator.prepareNextTick(user, movementData.positionX, movementData.positionY, movementData.positionZ, motionX, motionY, motionZ);
     }
   }
 
@@ -377,10 +377,7 @@ public final class Physics extends IntaveCheck {
 
     Location verifiedLocation = movementData.verifiedLocation();
     WrappedAxisAlignedBB verifiedBoundingBox = WrappedAxisAlignedBB.createFromPosition(user, verifiedLocation);
-
-    WrappedAxisAlignedBB currentBoundingBox = WrappedAxisAlignedBB.createFromPosition(
-      user, receivedPositionX, receivedPositionY, receivedPositionZ
-    );
+    WrappedAxisAlignedBB currentBoundingBox = WrappedAxisAlignedBB.createFromPosition(user, receivedPositionX, receivedPositionY, receivedPositionZ);
 
     boolean boundingBoxIntersectionLast = Collision.isInsideBlocks(user.player(), verifiedBoundingBox);
     List<WrappedAxisAlignedBB> intersectionBoundingBoxesCurrent = Collision.resolve(user.player(), currentBoundingBox);

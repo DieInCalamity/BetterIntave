@@ -271,7 +271,6 @@ public final class IntavePlugin extends JavaPlugin {
             response += "_";
           }
         } catch (IOException exception) {
-//          exception.printStackTrace();
           response = "timeout";
         }
 
@@ -334,7 +333,6 @@ public final class IntavePlugin extends JavaPlugin {
           requiredState = null;
         } else {
           // Intavede#key1=value1#key2=value2 ...
-
           String[] split = response.split("#");
           String licenseName = split[0];
           System.setProperty("java.net.serviceprovider.key", licenseName);
@@ -507,26 +505,20 @@ public final class IntavePlugin extends JavaPlugin {
 
       // resolve config hash
       configurationService.setupConfiguration(requiredState);
-
       prefix = configurationService.configuration().getString("layout.prefix", prefix);
       prefix = ChatColor.translateAlternateColorCodes('&', prefix);
       defaultColor = ChatColor.getLastColors(prefix);
 
       filters = new Filters(this);
       filters.setup();
-
       shadowIntegration = new LabymodShadowIntegration(this);
       shadowIntegration.setup();
-
       accessService = new IntaveAccessService(this);
       accessService.setup();
-
       clientWarningService = new ClientWarningService(this);
       clientWarningService.setup();
-
       customClientSupportService = new CustomClientSupportService(this);
       customClientSupportService.setup();
-
       customEventService = new CustomEventService(this);
       checkService = new CheckService(this);
       violationProcessor = new ViolationProcessor(this);
@@ -621,6 +613,7 @@ public final class IntavePlugin extends JavaPlugin {
         case OUTDATED:
           infoMessage = "A newer version of Intave is available (this version is " + durationAsString + " old)";
           break;
+        case DISABLED:
         case INVALID:
           logger().error("Unable to boot: This version has been deactivated");
           boolFailure();

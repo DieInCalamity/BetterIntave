@@ -7,9 +7,7 @@ import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.detect.IntaveMetaCheckPart;
 import de.jpx3.intave.detect.checks.other.InventoryClickAnalysis;
 import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.tools.AccessHelper;
@@ -25,6 +23,8 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static de.jpx3.intave.event.packet.PacketId.Client.WINDOW_CLICK;
 
 public final class InventoryClickDelayAnalyzer extends IntaveMetaCheckPart<InventoryClickAnalysis, InventoryClickDelayAnalyzer.ClickDelayMeta> {
   private final IntavePlugin plugin;
@@ -42,8 +42,8 @@ public final class InventoryClickDelayAnalyzer extends IntaveMetaCheckPart<Inven
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "WINDOW_CLICK")
+    packetsIn = {
+      WINDOW_CLICK
     }
   )
   public void windowClickPacket(PacketEvent event) {

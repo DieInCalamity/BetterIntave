@@ -7,7 +7,9 @@ import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
-import de.jpx3.intave.event.packet.*;
+import de.jpx3.intave.event.packet.ListenerPriority;
+import de.jpx3.intave.event.packet.PacketEventSubscriber;
+import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.fakeplayer.FakePlayer;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.reflect.hitbox.HitBoxBoundaries;
@@ -27,6 +29,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import static de.jpx3.intave.event.packet.PacketId.Client.POSITION;
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
+import static de.jpx3.intave.event.packet.PacketId.Server.*;
 import static de.jpx3.intave.event.transaction.TransactionFeedbackService.TransactionOptions.OPTIONAL;
 
 public final class ClientSideEntityService implements PacketEventSubscriber {
@@ -89,10 +94,8 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "SPAWN_ENTITY_LIVING"),
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "SPAWN_ENTITY"),
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "NAMED_ENTITY_SPAWN")
+    packetsOut = {
+      SPAWN_ENTITY_LIVING, SPAWN_ENTITY, NAMED_ENTITY_SPAWN
     }
   )
   public void receiveEntitySpawn(PacketEvent event) {
@@ -138,19 +141,19 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "ENTITY_DESTROY")
+    packetsOut = {
+      ENTITY_DESTROY
     }
   )
   public void receiveEntityDestroy(PacketEvent event) {
     Player player = event.getPlayer();
     int[] entityIDs = event.getPacket().getIntegerArrays().read(0);
-     plugin.eventService().feedback().clientSynchronize(
-       player,
-       entityIDs,
-       this::processEntityDestroy,
-       OPTIONAL
-     );
+    plugin.eventService().feedback().clientSynchronize(
+      player,
+      entityIDs,
+      this::processEntityDestroy,
+      OPTIONAL
+    );
   }
 
   private void processEntityDestroy(Player player, int[] entityIDs) {
@@ -168,11 +171,8 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
   @PacketSubscription(
     priority = ListenerPriority.HIGHEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING")
+    packetsIn = {
+      POSITION, POSITION_LOOK, LOOK, FLYING
     }
   )
   public void receiveMovement(PacketEvent event) {
@@ -192,11 +192,8 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "ENTITY_TELEPORT"),
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "REL_ENTITY_MOVE"),
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "REL_ENTITY_MOVE_LOOK"),
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "ENTITY_LOOK")
+    packetsOut = {
+      ENTITY_TELEPORT, REL_ENTITY_MOVE, REL_ENTITY_MOVE_LOOK, ENTITY_LOOK
     }
   )
   public void receiveUpstreamEntityMovement(PacketEvent event) {
@@ -376,8 +373,8 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "ENTITY_STATUS")
+    packetsOut = {
+      ENTITY_STATUS
     }
   )
   public void receiveEntityStatus(PacketEvent event) {
@@ -405,8 +402,8 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "ENTITY_METADATA")
+    packetsOut = {
+      ENTITY_METADATA
     }
   )
   public void receiveEntityMetaData(PacketEvent event) {

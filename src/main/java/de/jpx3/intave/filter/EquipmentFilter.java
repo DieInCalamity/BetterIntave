@@ -3,15 +3,15 @@ package de.jpx3.intave.filter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
 
 import java.util.Collections;
+
+import static de.jpx3.intave.event.packet.PacketId.Server.ENTITY_EQUIPMENT;
 
 public final class EquipmentFilter extends Filter {
   private final IntavePlugin plugin;
@@ -22,8 +22,8 @@ public final class EquipmentFilter extends Filter {
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "ENTITY_EQUIPMENT")
+    packetsOut = {
+      ENTITY_EQUIPMENT
     }
   )
   public void filterEquipment(PacketEvent event) {

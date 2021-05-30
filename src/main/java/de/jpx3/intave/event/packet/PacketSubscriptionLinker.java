@@ -10,6 +10,7 @@ import de.jpx3.intave.event.packet.tinyprotocol.InjectionService;
 import de.jpx3.intave.lib.asm.Type;
 import de.jpx3.intave.reflect.irx.IRXFactory;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -19,14 +20,13 @@ import java.util.function.IntFunction;
 import static de.jpx3.intave.IntaveControl.DISABLE_CHUNK_PACKET_HOOK;
 
 public final class PacketSubscriptionLinker {
+  private final static boolean NO_CHAT_HOOKUP = false;
   private final IntavePlugin plugin;
   private final Map<PacketType, SCOWAList<LocalPacketAdapter>> customEngineListenerMappings = new ConcurrentHashMap<>();
   private final Map<PacketType, SCOWAList<LocalPacketAdapter>> internalPacketListenerMappings = new ConcurrentHashMap<>();
   private final List<IntavePacketAdapter> internalPacketListener = new ArrayList<>();
   private final List<IntavePacketAdapter> externalPacketListener = new ArrayList<>();
-
   private final InjectionService customInjector;
-  private final static boolean NO_CHAT_HOOKUP = false;
 
   public PacketSubscriptionLinker(IntavePlugin plugin) {
     this.plugin = plugin;
@@ -119,19 +119,24 @@ public final class PacketSubscriptionLinker {
   private void linkSubscription(PacketEventSubscriber subscriber, Method method) {
     PacketSubscription metadata = method.getAnnotation(PacketSubscription.class);
     PacketSubscriptionMethodExecutor executor = assembleSubscriptionMethodCaller(subscriber, method, metadata.identifier());
-    if (metadata.engine() == Engine.INTERNAL) {
-      performCustomLinkage(plugin, subscriber, metadata.priority(), translatePacketTypes(metadata.packets()), method.getName(), executor);
+    String methodName = method.getName();
+    ListenerPriority priority = metadata.priority();
+    PacketType[] packetTypes = translatePacketTypes(metadata.packetsIn(), metadata.packetsOut());
+    if(metadata.engine() == Engine.INTERNAL) {
+      performCustomLinkage(subscriber, priority, packetTypes, methodName, executor);
     } else {
-      if (metadata.prioritySlot() == PrioritySlot.INTERNAL) {
-        performInternalLinkage(plugin, subscriber, metadata.priority(), translatePacketTypes(metadata.packets()), method.getName(), executor);
+      if(metadata.prioritySlot() == PrioritySlot.INTERNAL) {
+        performInternalLinkage(subscriber, priority, packetTypes, methodName, executor);
       } else {
-        performExternalLinkage(plugin, subscriber, metadata.priority(), translatePacketTypes(metadata.packets()), method.getName(), executor);
+        performExternalLinkage(subscriber, priority, packetTypes, methodName, executor);
       }
     }
   }
 
-  private PacketType[] translatePacketTypes(PacketDescriptor[] packetDescriptors) {
-    PacketType[] packetTypes = Arrays.stream(packetDescriptors).map(this::translatePacketType).toArray(PacketType[]::new);
+  private PacketType[] translatePacketTypes(PacketId.Client[] clientPackets, PacketId.Server[] serverPackets) {
+    PacketType[] serverPacketTypes = Arrays.stream(clientPackets).map(this::translatePacketType).toArray(PacketType[]::new);
+    PacketType[] clientPacketTypes = Arrays.stream(serverPackets).map(this::translatePacketType).toArray(PacketType[]::new);
+    PacketType[] packetTypes = merge(serverPacketTypes, clientPacketTypes);
     return distinct(excludeProblematic(packetTypes), PacketType[]::new);
   }
 
@@ -162,10 +167,14 @@ public final class PacketSubscriptionLinker {
     return false;
   }
 
-  private PacketType translatePacketType(PacketDescriptor packetDescriptor) {
-    ConnectionSide connectionSide = packetDescriptor.sender().toSide();
-    Set<PacketType> availableTypes = selectPacketTypesFor(connectionSide);
-    return searchByName(availableTypes, packetDescriptor.packetName());
+  private PacketType translatePacketType(PacketId.Server serverPacket) {
+    Set<PacketType> availableTypes = selectPacketTypesFor(ConnectionSide.SERVER_SIDE);
+    return searchByName(availableTypes, serverPacket.lookupName());
+  }
+
+  private PacketType translatePacketType(PacketId.Client clientPacket) {
+    Set<PacketType> availableTypes = selectPacketTypesFor(ConnectionSide.CLIENT_SIDE);
+    return searchByName(availableTypes, clientPacket.lookupName());
   }
 
   private Set<PacketType> selectPacketTypesFor(ConnectionSide connectionSide) {
@@ -202,8 +211,8 @@ public final class PacketSubscriptionLinker {
       PacketSubscriptionMethodExecutor.class,
       "<generated>",
       "invoke",
-      "(L"+packetSubscriberSuperClassPath+";L"+packetEventClassPath+";)V",
-      "(L"+packetSubscriberClassPath+";L"+packetEventClassPath+";)V",
+      "(L" + packetSubscriberSuperClassPath + ";L" + packetEventClassPath + ";)V",
+      "(L" + packetSubscriberClassPath + ";L" + packetEventClassPath + ";)V",
       packetSubscriberClassPath,
       calledMethod.getName(),
       Type.getMethodDescriptor(calledMethod),
@@ -228,8 +237,36 @@ public final class PacketSubscriptionLinker {
     return input.replaceAll("\\.", "/");
   }
 
+  private static <T> T[] merge(T[] array1, T[] array2) {
+    if (array1 == null) {
+      return clone(array2);
+    } else if (array2 == null) {
+      return clone(array1);
+    } else {
+      //noinspection unchecked
+      T[] joinedArray = (T[]) Array.newInstance(array1.getClass().getComponentType(), array1.length + array2.length);
+      System.arraycopy(array1, 0, joinedArray, 0, array1.length);
+      try {
+        System.arraycopy(array2, 0, joinedArray, array1.length, array2.length);
+        return joinedArray;
+      } catch (ArrayStoreException var6) {
+        Class<?> type1 = array1.getClass().getComponentType();
+        Class<?> type2 = array2.getClass().getComponentType();
+        if (!type1.isAssignableFrom(type2)) {
+          throw new IllegalArgumentException("Cannot store " + type2.getName() + " in an array of " + type1.getName());
+        } else {
+          throw var6;
+        }
+      }
+    }
+  }
+
+  public static <T> T[] clone(T[] array) {
+    return array == null ? null : array.clone();
+  }
+
   private void performCustomLinkage(
-    IntavePlugin plugin, PacketEventSubscriber subscriber,
+    PacketEventSubscriber subscriber,
     ListenerPriority priority, PacketType[] translatePacketTypes,
     String methodName, PacketSubscriptionMethodExecutor executor
   ) {
@@ -245,7 +282,7 @@ public final class PacketSubscriptionLinker {
   }
 
   private void performInternalLinkage(
-    IntavePlugin plugin, PacketEventSubscriber subscriber,
+    PacketEventSubscriber subscriber,
     ListenerPriority priority, PacketType[] translatePacketTypes,
     String methodName, PacketSubscriptionMethodExecutor executor
   ) {
@@ -259,7 +296,7 @@ public final class PacketSubscriptionLinker {
   }
 
   private void performExternalLinkage(
-    IntavePlugin plugin, PacketEventSubscriber subscriber,
+    PacketEventSubscriber subscriber,
     ListenerPriority priority, PacketType[] translatePacketTypes,
     String methodName, PacketSubscriptionMethodExecutor executor
   ) {

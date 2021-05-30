@@ -11,9 +11,7 @@ import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.reflect.ReflectiveDataWatcherAccess;
 import de.jpx3.intave.tools.AccessHelper;
@@ -27,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.*;
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_COMBAT_UPDATE;
 
 public final class BlockingHeuristic extends IntaveMetaCheckPart<Heuristics, BlockingHeuristic.BlockingMeta> {
@@ -38,12 +37,8 @@ public final class BlockingHeuristic extends IntaveMetaCheckPart<Heuristics, Blo
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "ARM_ANIMATION")
+    packetsIn = {
+      ARM_ANIMATION, FLYING, LOOK, POSITION, POSITION_LOOK
     }
   )
   public void receiveMovementAndSwingPacket(PacketEvent event) {
@@ -76,9 +71,8 @@ public final class BlockingHeuristic extends IntaveMetaCheckPart<Heuristics, Blo
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_PLACE"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_DIG")
+    packetsIn = {
+      BLOCK_PLACE, BLOCK_DIG
     }
   )
   public void receiveInteractionPacket(PacketEvent event) {
@@ -158,12 +152,8 @@ public final class BlockingHeuristic extends IntaveMetaCheckPart<Heuristics, Blo
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "VEHICLE_MOVE"),
+    packetsIn = {
+      FLYING, POSITION, POSITION_LOOK, LOOK, VEHICLE_MOVE
     }
   )
   public void receiveMovementPacket(PacketEvent event) {
@@ -195,8 +185,8 @@ public final class BlockingHeuristic extends IntaveMetaCheckPart<Heuristics, Blo
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ITEM")
+    packetsIn = {
+      USE_ITEM
     }
   )
   public void receiveUseItem(PacketEvent event) {
@@ -211,8 +201,8 @@ public final class BlockingHeuristic extends IntaveMetaCheckPart<Heuristics, Blo
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_PLACE")
+    packetsIn = {
+      BLOCK_PLACE
     }
   )
   public void receiveBlockPlace(PacketEvent event) {
@@ -227,8 +217,8 @@ public final class BlockingHeuristic extends IntaveMetaCheckPart<Heuristics, Blo
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "HELD_ITEM_SLOT")
+    packetsIn = {
+      HELD_ITEM_SLOT
     }
   )
   public void receiveHeldItemSlot(PacketEvent event) {

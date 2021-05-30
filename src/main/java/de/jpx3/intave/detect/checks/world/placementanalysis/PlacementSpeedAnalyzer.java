@@ -7,9 +7,7 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.IntaveMetaCheckPart;
 import de.jpx3.intave.detect.checks.world.PlacementAnalysis;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.event.violation.ViolationContext;
 import de.jpx3.intave.tools.AccessHelper;
@@ -29,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static de.jpx3.intave.detect.checks.world.PlacementAnalysis.COMMON_FLAG_MESSAGE;
+import static de.jpx3.intave.event.packet.PacketId.Client.BLOCK_PLACE;
+import static de.jpx3.intave.event.packet.PacketId.Client.USE_ITEM;
 
 public final class PlacementSpeedAnalyzer extends IntaveMetaCheckPart<PlacementAnalysis, PlacementSpeedAnalyzer.PlacementSpeedMeta> {
   private final static int CHECK_LENGTH = 8;
@@ -42,9 +42,8 @@ public final class PlacementSpeedAnalyzer extends IntaveMetaCheckPart<PlacementA
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_PLACE"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ITEM")
+    packetsIn = {
+      BLOCK_PLACE, USE_ITEM
     }
   )
   public void receivePlacementPacket(PacketEvent event) {

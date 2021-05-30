@@ -8,12 +8,12 @@ import com.google.gson.stream.JsonReader;
 import de.jpx3.intave.tools.CachedResource;
 
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public final class VersionList {
   private final List<Version> content = new ArrayList<>();
+  private final Map<String, Version> contentLookup = new HashMap<>();
 
   public VersionList() {
   }
@@ -33,22 +33,17 @@ public final class VersionList {
       String name = jsonObject.get("name").getAsString();
       String release = jsonObject.get("release").getAsString();
       String status = jsonObject.get("status").getAsString();
-      content.add(
-        new Version(
-          name, Long.parseLong(release),
-          Version.Status.fromName(status)
-        )
+      Version version = new Version(
+        name, Long.parseLong(release),
+        Version.Status.fromName(status)
       );
+      content.add(version);
+      contentLookup.put(version.version().toLowerCase(Locale.ROOT), version);
     }
   }
 
   public Version versionInformation(String version) {
-    for (Version versionInformation : content) {
-      if (versionInformation.version().equalsIgnoreCase(version)) {
-        return versionInformation;
-      }
-    }
-    return null;
+    return contentLookup.get(version.toLowerCase(Locale.ROOT));
   }
 
   public List<Version> content() {

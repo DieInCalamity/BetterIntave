@@ -1,7 +1,6 @@
-package de.jpx3.intave.detect.checks.movement.physics.simulators;
+package de.jpx3.intave.detect.checks.movement.physics;
 
 import de.jpx3.intave.detect.checks.movement.Physics;
-import de.jpx3.intave.detect.checks.movement.physics.MotionVector;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.world.collider.result.ComplexColliderSimulationResult;
 

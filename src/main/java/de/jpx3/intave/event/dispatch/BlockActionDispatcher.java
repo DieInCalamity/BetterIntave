@@ -9,7 +9,9 @@ import com.google.common.collect.Lists;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.detect.EventProcessor;
-import de.jpx3.intave.event.packet.*;
+import de.jpx3.intave.event.packet.Engine;
+import de.jpx3.intave.event.packet.ListenerPriority;
+import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserRepository;
@@ -26,6 +28,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType.*;
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
+import static de.jpx3.intave.event.packet.PacketId.Server.*;
 import static de.jpx3.intave.event.transaction.TransactionFeedbackService.TransactionOptions.ENFORCE_SYNCHRONIZATION;
 import static de.jpx3.intave.event.transaction.TransactionFeedbackService.TransactionOptions.OPTIONAL;
 
@@ -41,9 +45,8 @@ public final class BlockActionDispatcher implements EventProcessor {
 
   @PacketSubscription(
     engine = Engine.INTERNAL,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "MAP_CHUNK"),
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "MAP_CHUNK_BULK")
+    packetsOut = {
+      MAP_CHUNK, MAP_CHUNK_BULK
     }
   )
   public void chunkUpdate(PacketEvent event) {
@@ -83,10 +86,8 @@ public final class BlockActionDispatcher implements EventProcessor {
 
   @PacketSubscription(
     priority = ListenerPriority.LOWEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_DIG"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_PLACE"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ITEM")
+    packetsIn = {
+      BLOCK_DIG, BLOCK_PLACE, USE_ITEM
     }
   )
   public void checkInteractionTarget(PacketEvent event) {
@@ -147,10 +148,8 @@ public final class BlockActionDispatcher implements EventProcessor {
   private final static boolean USE_SELECTION_POSITION_TO_READ_MBC_PACKET = MinecraftVersions.VER1_16_2.atOrAbove();
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "BLOCK_BREAK"),
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "BLOCK_CHANGE"),
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "MULTI_BLOCK_CHANGE")
+    packetsOut = {
+      BLOCK_BREAK, BLOCK_CHANGE, MULTI_BLOCK_CHANGE
     }
   )
   public void sentBlockUpdate(PacketEvent event) {

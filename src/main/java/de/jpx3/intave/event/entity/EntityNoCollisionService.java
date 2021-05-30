@@ -7,12 +7,16 @@ import com.comphenix.protocol.wrappers.PlayerInfoData;
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.event.packet.*;
+import de.jpx3.intave.event.packet.ListenerPriority;
+import de.jpx3.intave.event.packet.PacketEventSubscriber;
+import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.reflect.ReflectiveScoreboardAccess;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+
+import static de.jpx3.intave.event.packet.PacketId.Server.*;
 
 public final class EntityNoCollisionService implements PacketEventSubscriber {
   private final static String SCOREBOARD_NAME = "INTAVE";
@@ -24,8 +28,8 @@ public final class EntityNoCollisionService implements PacketEventSubscriber {
 
   @PacketSubscription(
     priority = ListenerPriority.HIGHEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "PLAYER_INFO")
+    packetsOut = {
+      PLAYER_INFO
     }
   )
   public void receiveTabListName(PacketEvent event) {
@@ -45,8 +49,8 @@ public final class EntityNoCollisionService implements PacketEventSubscriber {
 
   @PacketSubscription(
     priority = ListenerPriority.HIGHEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "SPAWN_ENTITY_LIVING")
+    packetsOut = {
+      SPAWN_ENTITY_LIVING
     }
   )
   public void receiveEntitySpawn(PacketEvent event) {
@@ -57,8 +61,8 @@ public final class EntityNoCollisionService implements PacketEventSubscriber {
 
   @PacketSubscription(
     priority = ListenerPriority.HIGHEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "SCOREBOARD_TEAM")
+    packetsOut = {
+      SCOREBOARD_TEAM
     }
   )
   public void receiveScoreboardUpdate(PacketEvent event) {

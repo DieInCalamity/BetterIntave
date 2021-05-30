@@ -1,6 +1,7 @@
 package de.jpx3.intave.detect.checks.movement.physics.simulators;
 
 import de.jpx3.intave.detect.checks.movement.physics.MotionVector;
+import de.jpx3.intave.detect.checks.movement.physics.PoseSimulator;
 import de.jpx3.intave.tools.client.EffectLogic;
 import de.jpx3.intave.tools.client.MaterialLogic;
 import de.jpx3.intave.tools.client.MovementContextHelper;

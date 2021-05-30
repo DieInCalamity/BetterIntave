@@ -10,9 +10,7 @@ import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.entity.WrappedEntity;
 import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.user.*;
@@ -22,6 +20,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE;
 import static de.jpx3.intave.world.raytrace.Raytracer.distanceOf;
 
@@ -35,8 +34,8 @@ public final class AttackRequiredHeuristic extends IntaveMetaCheckPart<Heuristic
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "ARM_ANIMATION")
+    packetsIn = {
+      ARM_ANIMATION
     }
   )
   public void receiveSwing(PacketEvent event) {
@@ -47,8 +46,8 @@ public final class AttackRequiredHeuristic extends IntaveMetaCheckPart<Heuristic
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ENTITY")
+    packetsIn = {
+      USE_ENTITY
     }
   )
   public void receiveAttack(PacketEvent event) {
@@ -62,12 +61,8 @@ public final class AttackRequiredHeuristic extends IntaveMetaCheckPart<Heuristic
 
   @PacketSubscription(
     priority = ListenerPriority.NORMAL,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "VEHICLE_MOVE")
+    packetsIn = {
+      FLYING, LOOK, POSITION, POSITION_LOOK, VEHICLE_MOVE
     }
   )
   public void receiveMovement(PacketEvent event) {

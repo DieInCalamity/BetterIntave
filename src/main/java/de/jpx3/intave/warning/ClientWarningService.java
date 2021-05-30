@@ -4,10 +4,8 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.google.common.base.Charsets;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketEventSubscriber;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.tools.sync.Synchronizer;
@@ -17,6 +15,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.Locale;
+
+import static de.jpx3.intave.event.packet.PacketId.Client.CUSTOM_PAYLOAD;
 
 public final class ClientWarningService implements PacketEventSubscriber {
   private final IntavePlugin plugin;
@@ -32,8 +32,8 @@ public final class ClientWarningService implements PacketEventSubscriber {
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "CUSTOM_PAYLOAD")
+    packetsIn = {
+      CUSTOM_PAYLOAD
     }
   )
   public void receivePayloadPacket(PacketEvent event) {

@@ -64,8 +64,8 @@ public final class PlacementSneakAnalyzer extends IntaveMetaCheckPart<PlacementA
             .withDefaultThreshold().withVL(5).build();
           ViolationContext violationContext = plugin.violationProcessor().processViolation(violation);
           if (violationContext.violationLevelAfter() > 20) {
-            //dmc1
-            parentCheck().applyPlacementAnalysisDamageCancel(user, "1");
+            //dmc79
+            parentCheck().applyPlacementAnalysisDamageCancel(user, "79");
           }
         }
       }
@@ -83,7 +83,7 @@ public final class PlacementSneakAnalyzer extends IntaveMetaCheckPart<PlacementA
   }
 
   private boolean blockUnderPlayer(Block block, Player player) {
-    return block.getLocation().clone().add(0,1,0).distance(player.getLocation()) < 1.3;
+    return block.getLocation().clone().add(0, 1, 0).distance(player.getLocation()) < 1.3;
   }
 
   private int blockCollisions(Block block) {

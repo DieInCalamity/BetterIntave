@@ -10,7 +10,10 @@ import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscriber;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
-import de.jpx3.intave.event.packet.*;
+import de.jpx3.intave.event.packet.ListenerPriority;
+import de.jpx3.intave.event.packet.PacketEventSubscriber;
+import de.jpx3.intave.event.packet.PacketId;
+import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.items.InventoryUseItemHelper;
 import de.jpx3.intave.user.*;
@@ -22,6 +25,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+
+import static de.jpx3.intave.event.packet.PacketId.Client.HELD_ITEM_SLOT;
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
+import static de.jpx3.intave.event.packet.PacketId.Server.*;
 
 public final class PlayerInventoryEvaluator implements PacketEventSubscriber, BukkitEventSubscriber {
   private final IntavePlugin plugin;
@@ -70,8 +77,8 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "RESPAWN"),
+    packetsOut = {
+      RESPAWN
     }
   )
   public void sentRespawn(PacketEvent event) {
@@ -93,8 +100,8 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "OPEN_WINDOW"),
+    packetsOut = {
+      OPEN_WINDOW
     }
   )
   public void sentOpenInventory(PacketEvent event) {
@@ -119,8 +126,8 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
 
   @PacketSubscription(
     priority = ListenerPriority.LOW,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "CLIENT_COMMAND"),
+    packetsIn = {
+      CLIENT_COMMAND
     }
   )
   public void receiveClientCommand(PacketEvent event) {
@@ -147,8 +154,8 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "CLOSE_WINDOW")
+    packetsOut = {
+      PacketId.Server.CLOSE_WINDOW
     }
   )
   public void sentCloseInventory(PacketEvent event) {
@@ -161,8 +168,8 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
 
   @PacketSubscription(
     priority = ListenerPriority.LOW,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "CLOSE_WINDOW"),
+    packetsIn = {
+      PacketId.Client.CLOSE_WINDOW
     }
   )
   public void receiveCloseWindow(PacketEvent event) {
@@ -178,10 +185,12 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
 
   @PacketSubscription(
     priority = ListenerPriority.LOWEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "HELD_ITEM_SLOT"),
-//      @PacketDescriptor(sender = Sender.SERVER, packetName = "HELD_ITEM_SLOT")
+    packetsIn = {
+      HELD_ITEM_SLOT
     }
+//    ,packetsOut = {
+//      PacketId.Server.HELD_ITEM_SLOT
+//    }
   )
   public void receiveSlotSwitch(PacketEvent event) {
     Player player = event.getPlayer();
@@ -205,8 +214,8 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "COLLECT")
+    packetsOut = {
+      COLLECT
     }
   )
   public void receiveHandUpdate(PacketEvent event) {
@@ -227,8 +236,8 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
   @PacketSubscription(
 //    priority = ListenerPriority.HIGH,
     priority = ListenerPriority.LOWEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_PLACE")
+    packetsIn = {
+      BLOCK_PLACE
     }
   )
   public void receiveBlockPlace(PacketEvent event) {
@@ -267,8 +276,8 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_DIG")
+    packetsIn = {
+      BLOCK_DIG
     }
   )
   public void receiveBlockDigging(PacketEvent event) {
@@ -280,14 +289,10 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
     EnumWrappers.PlayerDigType digType = packet.getPlayerDigTypes().read(0);
 
     switch (digType) {
-      case RELEASE_USE_ITEM: {
-        inventoryData.deactivateHand();
-        break;
-      }
+      case RELEASE_USE_ITEM:
       case DROP_ALL_ITEMS:
       case DROP_ITEM: {
         inventoryData.deactivateHand();
-//        inventoryData.setHeldItem(null);
         break;
       }
     }

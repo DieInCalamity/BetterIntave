@@ -6,9 +6,8 @@ import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.IntaveMetaCheckPart;
 import de.jpx3.intave.detect.checks.world.PlacementAnalysis;
-import de.jpx3.intave.event.packet.PacketDescriptor;
+import de.jpx3.intave.event.packet.PacketId;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.event.violation.ViolationContext;
 import de.jpx3.intave.tools.AccessHelper;
@@ -21,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static de.jpx3.intave.detect.checks.world.PlacementAnalysis.COMMON_FLAG_MESSAGE;
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
 
 public final class PlacementPacketOrderAnalyzer extends IntaveMetaCheckPart<PlacementAnalysis, PlacementPacketOrderAnalyzer.PlacementOrderMeta> {
   private final IntavePlugin plugin;
@@ -31,12 +31,8 @@ public final class PlacementPacketOrderAnalyzer extends IntaveMetaCheckPart<Plac
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_PLACE")
+    packetsIn = {
+      PacketId.Client.FLYING, POSITION, POSITION_LOOK, LOOK, BLOCK_PLACE
     }
   )
   public void checkPlacementPacketOrder(PacketEvent event) {

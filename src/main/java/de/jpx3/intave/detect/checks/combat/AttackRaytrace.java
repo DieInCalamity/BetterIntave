@@ -11,9 +11,7 @@ import de.jpx3.intave.detect.CheckViolationLevelDecrementer;
 import de.jpx3.intave.detect.IntaveMetaCheck;
 import de.jpx3.intave.event.entity.WrappedEntity;
 import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.event.violation.ViolationContext;
@@ -34,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static de.jpx3.intave.event.entity.ClientSideEntityService.entityByIdentifier;
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
 import static de.jpx3.intave.event.violation.Violation.ViolationFlags.DONT_PROCESS_VIOSTAT;
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE;
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_COMBAT_UPDATE;
@@ -53,8 +52,8 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
 
   @PacketSubscription(
     priority = ListenerPriority.LOWEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ENTITY")
+    packetsIn = {
+      USE_ENTITY
     }
   )
   public void receiveUseEntityPacket(PacketEvent event) {
@@ -108,11 +107,8 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
 
   @PacketSubscription(
     priority = ListenerPriority.NORMAL,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING")
+    packetsIn = {
+      FLYING, LOOK, POSITION, POSITION_LOOK
     }
   )
   public void receiveMovementPacket(PacketEvent event) {

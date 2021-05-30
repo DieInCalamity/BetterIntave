@@ -6,15 +6,14 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.IntaveCheckPart;
 import de.jpx3.intave.detect.checks.world.PlacementAnalysis;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.user.User;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.detect.checks.world.PlacementAnalysis.COMMON_FLAG_MESSAGE;
+import static de.jpx3.intave.event.packet.PacketId.Client.BLOCK_PLACE;
 
 public final class PlacementFacingAnalyzer extends IntaveCheckPart<PlacementAnalysis> {
   private final IntavePlugin plugin;
@@ -25,8 +24,8 @@ public final class PlacementFacingAnalyzer extends IntaveCheckPart<PlacementAnal
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_PLACE")
+    packetsIn = {
+      BLOCK_PLACE
     }
   )
   public void checkPlacementVector(PacketEvent event) {

@@ -27,7 +27,6 @@ public final class BlockShape {
   private final Material type;
   private final int data;
   private final long creation = AccessHelper.now();
-  private int lookups;
 
   public BlockShape(List<WrappedAxisAlignedBB> boxes, Material type, int data) {
     this.boxes = boxes;
@@ -51,14 +50,6 @@ public final class BlockShape {
     return !IntaveControl.IGNORE_CACHE_REFRESH_ON_DETECTION && AccessHelper.now() - creation > 10000;
   }
 
-  public void successfulFallbackLookup() {
-    lookups++;
-  }
-
-  public int successfulLookups() {
-    return lookups;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -77,10 +68,5 @@ public final class BlockShape {
     result = 31 * result + data;
     result = 31 * result + (int) (creation ^ (creation >>> 32));
     return result;
-  }
-
-  @Override
-  public String toString() {
-    return String.valueOf(lookups);
   }
 }

@@ -5,9 +5,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.PlayerInfoData;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.tools.AccessHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -18,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerInfoAction.UPDATE_LATENCY;
+import static de.jpx3.intave.event.packet.PacketId.Server.PLAYER_INFO;
 
 public final class VanishedPlayerInfoFilter extends Filter {
   private final IntavePlugin plugin;
@@ -28,8 +27,8 @@ public final class VanishedPlayerInfoFilter extends Filter {
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "PLAYER_INFO")
+    packetsOut = {
+      PLAYER_INFO
     }
   )
   public void on(PacketEvent event) {

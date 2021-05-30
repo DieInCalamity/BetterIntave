@@ -7,13 +7,14 @@ import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.entity.WrappedEntity;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.user.*;
 import de.jpx3.intave.world.raytrace.Raytracer;
 import org.bukkit.entity.Player;
+
+import static de.jpx3.intave.event.packet.PacketId.Client.LOOK;
+import static de.jpx3.intave.event.packet.PacketId.Client.POSITION_LOOK;
 
 public final class RotationModuloResetHeuristic extends IntaveMetaCheckPart<Heuristics, RotationModuloResetHeuristic.RotationModuloResetHeuristicMeta> {
   private final IntavePlugin plugin;
@@ -24,9 +25,8 @@ public final class RotationModuloResetHeuristic extends IntaveMetaCheckPart<Heur
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK")
+    packetsIn = {
+      LOOK, POSITION_LOOK
     }
   )
   public void receiveMovementPacket(PacketEvent event) {

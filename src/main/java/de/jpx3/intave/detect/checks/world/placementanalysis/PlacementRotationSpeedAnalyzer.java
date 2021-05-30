@@ -6,9 +6,7 @@ import de.jpx3.intave.detect.IntaveMetaCheckPart;
 import de.jpx3.intave.detect.checks.world.PlacementAnalysis;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.MathHelper;
@@ -22,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static de.jpx3.intave.detect.checks.world.PlacementAnalysis.COMMON_FLAG_MESSAGE;
+import static de.jpx3.intave.event.packet.PacketId.Client.LOOK;
+import static de.jpx3.intave.event.packet.PacketId.Client.POSITION_LOOK;
 
 public final class PlacementRotationSpeedAnalyzer extends IntaveMetaCheckPart<PlacementAnalysis, PlacementRotationSpeedAnalyzer.RotationSpeedMeta> {
   private final IntavePlugin plugin;
@@ -33,9 +33,8 @@ public final class PlacementRotationSpeedAnalyzer extends IntaveMetaCheckPart<Pl
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK")
+    packetsIn = {
+      POSITION_LOOK, LOOK
     }
   )
   public void on(PacketEvent event) {

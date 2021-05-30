@@ -10,7 +10,10 @@ import de.jpx3.intave.detect.checks.movement.Physics;
 import de.jpx3.intave.detect.checks.movement.Timer;
 import de.jpx3.intave.detect.checks.world.InteractionRaytrace;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
-import de.jpx3.intave.event.packet.*;
+import de.jpx3.intave.event.packet.ListenerPriority;
+import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.event.packet.PacketSubscriptionLinker;
+import de.jpx3.intave.event.packet.PrioritySlot;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.MathHelper;
@@ -32,6 +35,10 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
+import static de.jpx3.intave.event.packet.PacketId.Client.POSITION;
+import static de.jpx3.intave.event.packet.PacketId.Client.VEHICLE_MOVE;
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
+import static de.jpx3.intave.event.packet.PacketId.Server.*;
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_COMBAT_UPDATE;
 
 @Relocate
@@ -129,8 +136,8 @@ public final class MovementDispatcher implements EventProcessor {
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "RESPAWN")
+    packetsOut = {
+      RESPAWN
     }
   )
   public void sentRespawn(PacketEvent event) {
@@ -159,8 +166,8 @@ public final class MovementDispatcher implements EventProcessor {
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "EXPLOSION"),
+    packetsOut = {
+      EXPLOSION
     }
   )
   public void sentExplosion(PacketEvent event) {
@@ -180,12 +187,8 @@ public final class MovementDispatcher implements EventProcessor {
 
   @PacketSubscription(
     priority = ListenerPriority.LOWEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "VEHICLE_MOVE")
+    packetsIn = {
+      POSITION, POSITION_LOOK, LOOK, FLYING, VEHICLE_MOVE
     }
   )
   public void receiveMovement(PacketEvent event) {
@@ -305,12 +308,8 @@ public final class MovementDispatcher implements EventProcessor {
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "VEHICLE_MOVE")
+    packetsIn = {
+      POSITION, POSITION_LOOK, LOOK, FLYING, VEHICLE_MOVE
     }
   )
   public void receiveFinalMovement(PacketEvent event) {
@@ -479,8 +478,8 @@ public final class MovementDispatcher implements EventProcessor {
   @PacketSubscription(
     priority = ListenerPriority.MONITOR,
     prioritySlot = PrioritySlot.EXTERNAL,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "ENTITY_VELOCITY")
+    packetsOut = {
+      ENTITY_VELOCITY
     }
   )
   public void sentVelocityPacket(PacketEvent event) {
@@ -537,8 +536,8 @@ public final class MovementDispatcher implements EventProcessor {
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "ENTITY_ACTION")
+    packetsIn = {
+      ENTITY_ACTION
     }
   )
   public void receiveEntityActionPacket(PacketEvent event) {

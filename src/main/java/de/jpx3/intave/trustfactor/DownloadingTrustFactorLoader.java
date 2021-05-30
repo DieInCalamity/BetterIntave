@@ -1,6 +1,7 @@
 package de.jpx3.intave.trustfactor;
 
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.CachedResource;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -12,6 +13,11 @@ public final class DownloadingTrustFactorLoader implements TrustFactorLoader {
   public TrustFactorConfiguration fetch() {
     CachedResource trustfactor = new CachedResource("trustfactor", "https://intave.de/api/trustfactor/" + IntavePlugin.version() + ".yml", TimeUnit.DAYS.toMillis(7));
     trustfactor.prepareFile();
-    return new YamlTrustFactorConfiguration(YamlConfiguration.loadConfiguration(new InputStreamReader(trustfactor.read())));
+    InputStreamReader reader = new InputStreamReader(trustfactor.read());
+    YamlConfiguration configuration = YamlConfiguration.loadConfiguration(reader);
+    if (configuration.getConfigurationSection("physics") == null) {
+      IntaveLogger.logger().error("Unable to download TXM file");
+    }
+    return new YamlTrustFactorConfiguration(configuration);
   }
 }

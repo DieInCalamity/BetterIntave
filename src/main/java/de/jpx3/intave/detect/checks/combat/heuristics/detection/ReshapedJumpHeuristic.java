@@ -7,9 +7,7 @@ import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.tools.client.SinusCache;
 import de.jpx3.intave.user.User;
@@ -18,6 +16,8 @@ import de.jpx3.intave.user.UserMetaAttackData;
 import de.jpx3.intave.user.UserMetaMovementData;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
 
 public final class ReshapedJumpHeuristic extends IntaveMetaCheckPart<Heuristics, ReshapedJumpHeuristic.ReshapedJumpHeuristicMeta> {
   private final IntavePlugin plugin;
@@ -29,10 +29,8 @@ public final class ReshapedJumpHeuristic extends IntaveMetaCheckPart<Heuristics,
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK")
+    packetsIn = {
+      POSITION, POSITION_LOOK, LOOK
     }
   )
   public void checkInvalidJump(PacketEvent event) {

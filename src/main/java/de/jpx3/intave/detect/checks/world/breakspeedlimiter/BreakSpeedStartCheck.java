@@ -7,9 +7,7 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.IntaveMetaCheckPart;
 import de.jpx3.intave.detect.checks.world.BreakSpeedLimiter;
 import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.event.violation.ViolationContext;
 import de.jpx3.intave.event.violation.ViolationProcessor;
@@ -19,6 +17,8 @@ import de.jpx3.intave.user.UserCustomCheckMeta;
 import de.jpx3.intave.user.UserMetaClientData;
 import org.bukkit.entity.Player;
 
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
+
 public final class BreakSpeedStartCheck extends IntaveMetaCheckPart<BreakSpeedLimiter, BreakSpeedStartCheck.BreakSpeedStartMeta> {
   public BreakSpeedStartCheck(BreakSpeedLimiter parentCheck) {
     super(parentCheck, BreakSpeedStartCheck.BreakSpeedStartMeta.class);
@@ -26,12 +26,8 @@ public final class BreakSpeedStartCheck extends IntaveMetaCheckPart<BreakSpeedLi
 
   @PacketSubscription(
     priority = ListenerPriority.LOWEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "VEHICLE_MOVE")
+    packetsIn = {
+      POSITION, POSITION_LOOK, LOOK, FLYING, VEHICLE_MOVE
     }
   )
   public void tickUpdate(PacketEvent event) {
@@ -43,8 +39,8 @@ public final class BreakSpeedStartCheck extends IntaveMetaCheckPart<BreakSpeedLi
 
   @PacketSubscription(
     priority = ListenerPriority.LOWEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_DIG")
+    packetsIn = {
+      BLOCK_DIG
     }
   )
   public void receiveBlockAction(PacketEvent event) {

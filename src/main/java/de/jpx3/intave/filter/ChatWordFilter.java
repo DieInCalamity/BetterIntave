@@ -5,9 +5,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.event.packet.Engine;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
@@ -17,6 +15,8 @@ import org.bukkit.entity.Player;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+
+import static de.jpx3.intave.event.packet.PacketId.Server.CHAT;
 
 public final class ChatWordFilter extends Filter {
   private final IntavePlugin plugin;
@@ -28,8 +28,8 @@ public final class ChatWordFilter extends Filter {
 
   @PacketSubscription(
     engine = Engine.INTERNAL,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "CHAT")
+    packetsOut = {
+      CHAT
     }
   )
   public void sendChatMessage(PacketEvent event) {

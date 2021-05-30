@@ -6,9 +6,7 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.IntaveMetaCheck;
 import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.event.violation.ViolationContext;
 import de.jpx3.intave.tools.AccessHelper;
@@ -20,6 +18,8 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
 
 public final class ClickSpeedLimiter extends IntaveMetaCheck<ClickSpeedLimiter.ClickSpeedLimiterMeta> {
   private final IntavePlugin plugin;
@@ -33,8 +33,8 @@ public final class ClickSpeedLimiter extends IntaveMetaCheck<ClickSpeedLimiter.C
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ENTITY")
+    packetsIn = {
+      USE_ENTITY
     }
   )
   public void attackEntity(PacketEvent event) {
@@ -60,11 +60,8 @@ public final class ClickSpeedLimiter extends IntaveMetaCheck<ClickSpeedLimiter.C
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK")
+    packetsIn = {
+      FLYING, LOOK, POSITION, POSITION_LOOK
     }
   )
   public void clientTickUpdate(PacketEvent event) {

@@ -3,7 +3,9 @@ package de.jpx3.intave.event.dispatch;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.packet.*;
+import de.jpx3.intave.event.packet.ListenerPriority;
+import de.jpx3.intave.event.packet.PacketEventSubscriber;
+import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaPotionData;
 import de.jpx3.intave.user.UserRepository;
@@ -11,6 +13,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.Objects;
+
+import static de.jpx3.intave.event.packet.PacketId.Server.ENTITY_EFFECT;
+import static de.jpx3.intave.event.packet.PacketId.Server.REMOVE_ENTITY_EFFECT;
 
 public final class PotionEffectEvaluator implements PacketEventSubscriber {
   public static final int POTION_EFFECT_SPEED = 1;
@@ -25,8 +30,8 @@ public final class PotionEffectEvaluator implements PacketEventSubscriber {
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "REMOVE_ENTITY_EFFECT")
+    packetsOut = {
+      REMOVE_ENTITY_EFFECT
     }
   )
   public void sentRemoveEffect(PacketEvent event) {
@@ -46,8 +51,8 @@ public final class PotionEffectEvaluator implements PacketEventSubscriber {
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "ENTITY_EFFECT")
+    packetsOut = {
+      ENTITY_EFFECT
     }
   )
   public void sentEffect(PacketEvent event) {

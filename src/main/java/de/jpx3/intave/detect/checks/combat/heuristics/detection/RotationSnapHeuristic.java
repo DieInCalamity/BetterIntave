@@ -12,9 +12,7 @@ import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.entity.WrappedEntity;
 import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
@@ -29,6 +27,7 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.Map;
 
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
 import static de.jpx3.intave.world.raytrace.Raytracer.distanceOf;
 
 public class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics, RotationSnapHeuristic.RotationSnapHeuristicMeta> {
@@ -39,8 +38,8 @@ public class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics, Rotat
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "ARM_ANIMATION")
+    packetsIn = {
+      ARM_ANIMATION
     }
   )
   public void receiveSwingPacket(PacketEvent event) {
@@ -53,8 +52,8 @@ public class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics, Rotat
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_PLACE")
+    packetsIn = {
+      BLOCK_PLACE
     }
   )
   public void blockPlace(PacketEvent event) {
@@ -83,8 +82,8 @@ public class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics, Rotat
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ENTITY")
+    packetsIn = {
+      USE_ENTITY
     }
   )
   public void receiveAttackPacket(PacketEvent event) {
@@ -101,9 +100,8 @@ public class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics, Rotat
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
+    packetsIn = {
+      POSITION_LOOK, LOOK
     }
   )
   public void receiveRotationPacket(PacketEvent event) {
@@ -120,11 +118,8 @@ public class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics, Rotat
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION")
+    packetsIn = {
+      FLYING, LOOK, POSITION, POSITION_LOOK
     }
   )
   public void receiveMovementPacket(PacketEvent event) {

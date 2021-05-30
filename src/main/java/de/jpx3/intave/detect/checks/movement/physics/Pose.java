@@ -3,7 +3,6 @@ package de.jpx3.intave.detect.checks.movement.physics;
 import de.jpx3.intave.detect.checks.movement.physics.simulators.DefaultPoseSimulator;
 import de.jpx3.intave.detect.checks.movement.physics.simulators.ElytraPoseSimulator;
 import de.jpx3.intave.detect.checks.movement.physics.simulators.HorsePoseSimulator;
-import de.jpx3.intave.detect.checks.movement.physics.simulators.PoseSimulator;
 
 public enum Pose {
   PLAYER(new DefaultPoseSimulator()),

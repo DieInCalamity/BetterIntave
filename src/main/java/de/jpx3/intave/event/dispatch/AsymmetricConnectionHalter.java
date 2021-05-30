@@ -3,9 +3,7 @@ package de.jpx3.intave.event.dispatch;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import org.bukkit.entity.Player;
@@ -19,9 +17,7 @@ public final class AsymmetricConnectionHalter {
 
   @PacketSubscription(
     priority = ListenerPriority.LOWEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "")
-    }
+    packetsIn = {}
   )
   public void processConnectionLag(PacketEvent event) {
   }

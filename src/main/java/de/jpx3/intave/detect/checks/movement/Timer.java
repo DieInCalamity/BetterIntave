@@ -7,9 +7,7 @@ import de.jpx3.intave.detect.CheckViolationLevelDecrementer;
 import de.jpx3.intave.detect.IntaveMetaCheck;
 import de.jpx3.intave.detect.checks.movement.physics.SimulationProcessor;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.event.violation.ViolationContext;
 import de.jpx3.intave.logging.IntaveLogger;
@@ -31,6 +29,9 @@ import org.bukkit.util.Vector;
 
 import java.util.Map;
 
+import static de.jpx3.intave.event.packet.PacketId.Server.POSITION;
+import static de.jpx3.intave.event.packet.PacketId.Server.RESPAWN;
+
 public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
   private final IntavePlugin plugin;
   private final CheckViolationLevelDecrementer decrementer;
@@ -50,8 +51,8 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "RESPAWN")
+    packetsOut = {
+      RESPAWN
     }
   )
   public void respawnTolerance(PacketEvent event) {
@@ -61,8 +62,8 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "POSITION")
+    packetsOut = {
+      POSITION
     }
   )
   public void sentPosition(PacketEvent event) {

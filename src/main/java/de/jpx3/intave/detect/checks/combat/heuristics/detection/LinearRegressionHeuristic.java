@@ -5,9 +5,7 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.detect.IntaveMetaCheckPart;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.executor.IntaveThreadFactory;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserCustomCheckMeta;
@@ -22,6 +20,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
+
 public class LinearRegressionHeuristic extends IntaveMetaCheckPart<Heuristics, LinearRegressionHeuristic.LinearRegressionHeuristicMeta> {
   private final ExecutorService executorService = Executors.newSingleThreadExecutor(IntaveThreadFactory.ofLowestPriority());
 
@@ -31,8 +31,8 @@ public class LinearRegressionHeuristic extends IntaveMetaCheckPart<Heuristics, L
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "ENTITY_ACTION")
+    packetsIn = {
+      ENTITY_ACTION
     }
   )
   public void sneakStart(PacketEvent event) {
@@ -46,11 +46,8 @@ public class LinearRegressionHeuristic extends IntaveMetaCheckPart<Heuristics, L
 
   @PacketSubscription(
     priority = ListenerPriority.HIGHEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK")
+    packetsIn = {
+      POSITION_LOOK, POSITION, FLYING, LOOK
     }
   )
   public void clientTickUpdate(PacketEvent event) {

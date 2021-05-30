@@ -14,9 +14,7 @@ import de.jpx3.intave.detect.checks.combat.heuristics.detection.*;
 import de.jpx3.intave.detect.checks.combat.heuristics.mining.MiningStrategyContainer;
 import de.jpx3.intave.detect.checks.combat.heuristics.mining.MiningStrategyExecutor;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.AccessHelper;
@@ -39,6 +37,8 @@ import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
 
 public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> {
   private final IntavePlugin plugin;
@@ -77,7 +77,7 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
     appendCheckPart(new RotationModuloResetHeuristic(this));
     appendCheckPart(new PacketOrderSwingHeuristic(this));
     appendCheckPart(new PacketPlayerActionToggleHeuristic(this));
-    appendCheckPart(new RotationLHeuristics(this));
+    appendCheckPart(new RotationUnlikelyAccuracyHeuristic(this));
     appendCheckPart(new PacketInventoryHeuristic(this));
     appendCheckPart(new BlockingHeuristic(this));
     appendCheckPart(new AttackInInvalidStateHeuristic(this));
@@ -281,8 +281,8 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
   // events
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ENTITY")
+    packetsIn = {
+      USE_ENTITY
     }
   )
   public void receiveUseEntity(PacketEvent event) {
@@ -322,12 +322,8 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "VEHICLE_MOVE")
+    packetsIn = {
+      POSITION, POSITION_LOOK, LOOK, FLYING, VEHICLE_MOVE
     }
   )
   public void receiveMovement(PacketEvent event) {

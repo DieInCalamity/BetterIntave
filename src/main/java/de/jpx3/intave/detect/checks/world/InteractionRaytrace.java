@@ -19,9 +19,7 @@ import de.jpx3.intave.detect.checks.movement.physics.MotionVector;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.event.dispatch.PlayerAbilityEvaluator;
 import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.event.violation.ViolationContext;
 import de.jpx3.intave.tools.annotate.DispatchCrossCall;
@@ -58,6 +56,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType.*;
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
 
 public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytrace.InteractionMeta> {
   private final IntavePlugin plugin;
@@ -73,9 +72,8 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
 
   @PacketSubscription(
     priority = ListenerPriority.NORMAL,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_PLACE"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ITEM")
+    packetsIn = {
+      BLOCK_PLACE, USE_ITEM
     }
   )
   public void receiveInteraction(PacketEvent event) {
@@ -130,8 +128,8 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
 
   @PacketSubscription(
     priority = ListenerPriority.NORMAL,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "BLOCK_DIG")
+    packetsIn = {
+      BLOCK_DIG
     }
   )
   public void receiveBreak(PacketEvent event) {

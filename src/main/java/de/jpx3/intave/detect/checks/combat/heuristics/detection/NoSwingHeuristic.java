@@ -7,14 +7,14 @@ import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserCustomCheckMeta;
 import de.jpx3.intave.user.UserMetaMovementData;
 import org.bukkit.entity.Player;
+
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
 
 public final class NoSwingHeuristic extends IntaveMetaCheckPart<Heuristics, NoSwingHeuristic.NoSwingMeta> {
 
@@ -24,8 +24,8 @@ public final class NoSwingHeuristic extends IntaveMetaCheckPart<Heuristics, NoSw
 
   @PacketSubscription(
     priority = ListenerPriority.NORMAL,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ENTITY")
+    packetsIn = {
+      USE_ENTITY
     }
   )
   public void entityHit(PacketEvent event) {
@@ -47,8 +47,8 @@ public final class NoSwingHeuristic extends IntaveMetaCheckPart<Heuristics, NoSw
 
   @PacketSubscription(
     priority = ListenerPriority.NORMAL,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "ARM_ANIMATION")
+    packetsIn = {
+      ARM_ANIMATION
     }
   )
   public void swing(PacketEvent event) {
@@ -61,12 +61,8 @@ public final class NoSwingHeuristic extends IntaveMetaCheckPart<Heuristics, NoSw
 
   @PacketSubscription(
     priority = ListenerPriority.NORMAL,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "VEHICLE_MOVE")
+    packetsIn = {
+      FLYING, LOOK, POSITION, POSITION, VEHICLE_MOVE
     }
   )
   public void receiveMovementPacket(PacketEvent event) {

@@ -5,11 +5,11 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+
+import static de.jpx3.intave.event.packet.PacketId.Server.ENTITY_METADATA;
 
 public final class HealthFilter extends Filter {
   private final IntavePlugin plugin;
@@ -20,8 +20,8 @@ public final class HealthFilter extends Filter {
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "ENTITY_METADATA")
+    packetsOut = {
+      ENTITY_METADATA
     }
   )
   public void depriveHealth(PacketEvent event) {

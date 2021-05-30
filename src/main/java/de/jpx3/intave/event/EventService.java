@@ -23,6 +23,7 @@ import de.jpx3.intave.tools.GarbageCollector;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.update.Version;
 import de.jpx3.intave.user.UserRepositoryEventListener;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -76,24 +77,20 @@ public final class EventService implements BukkitEventSubscriber {
     if (!hasNotificationPermission) {
       return;
     }
-
     String currentVersion = IntavePlugin.version();
     Version version = plugin.versionList().versionInformation(currentVersion);
+    if (version == null) {
+      sendPrefixedMessage(ChatColor.YELLOW + "This server is running an unlisted version of Intave (" + currentVersion + ")", player);
+      sendPrefixedMessage(ChatColor.YELLOW + "It is possible that bugs occur", player);
+    } else {
+      if (version.typeClassifier() == Version.Status.OUTDATED) {
+        long duration = AccessHelper.now() - version.release();
+        String durationAsString = DurationTranslator.translateDuration(duration);
 
-    Synchronizer.synchronize(() -> {
-      if (version == null) {
-        sendPrefixedMessage(ChatColor.YELLOW + "This server is running an experimental version of Intave (" + currentVersion + ")", player);
-        sendPrefixedMessage(ChatColor.YELLOW + "It is possible that bugs occur", player);
-      } else {
-        if (version.typeClassifier() == Version.Status.OUTDATED) {
-          long duration = AccessHelper.now() - version.release();
-          String durationAsString = DurationTranslator.translateDuration(duration);
-
-          sendPrefixedMessage(ChatColor.RED + "This server is running an outdated version of Intave ("+durationAsString+" old)", player);
-          sendPrefixedMessage(ChatColor.RED + "I hope you know why updating your *security* software might be important.", player);
-        }
+        sendPrefixedMessage(ChatColor.RED + "This server is running an outdated version of Intave ("+durationAsString+" old)", player);
+        sendPrefixedMessage(ChatColor.RED + "I hope you know why updating your *security* software might be important.", player);
       }
-    });
+    }
   }
 
   @BukkitEventSubscription
@@ -108,7 +105,7 @@ public final class EventService implements BukkitEventSubscriber {
   @BukkitEventSubscription
   public void on(WorldUnloadEvent unloadEvent) {
     World world = unloadEvent.getWorld();
-    GarbageCollector.clearIf(o -> o.equals(world));
+    GarbageCollector.clear(world);
     GarbageCollector.clearIf(o -> o instanceof Location && ((Location) o).getWorld().equals(world));
   }
 
@@ -119,6 +116,10 @@ public final class EventService implements BukkitEventSubscriber {
   }
 
   public void sendPrefixedMessage(String message, CommandSender target) {
+    if (!Bukkit.isPrimaryThread()) {
+      Synchronizer.synchronize(() -> sendPrefixedMessage(message, target));
+      return;
+    }
     target.sendMessage(IntavePlugin.prefix() + message);
   }
 

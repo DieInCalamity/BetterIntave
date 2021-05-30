@@ -7,7 +7,9 @@ import com.comphenix.protocol.utility.MinecraftReflection;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
-import de.jpx3.intave.event.packet.*;
+import de.jpx3.intave.event.packet.ListenerPriority;
+import de.jpx3.intave.event.packet.PacketEventSubscriber;
+import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.annotate.KeepEnumInternalNames;
@@ -23,14 +25,17 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.Set;
 
+import static de.jpx3.intave.event.packet.PacketId.Client.TELEPORT_ACCEPT;
+import static de.jpx3.intave.event.packet.PacketId.Server.POSITION;
+
 public final class TeleportApplyEnforcer implements PacketEventSubscriber {
   private final static boolean TELEPORTATION_DEBUG = false;
   final static boolean NEW_TELEPORTATION = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
 
   @PacketSubscription(
     priority = ListenerPriority.LOWEST,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "POSITION")
+    packetsOut = {
+      POSITION
     }
   )
   public void receiveTeleport(PacketEvent event) {
@@ -152,8 +157,8 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
 
   @PacketSubscription(
     priority = ListenerPriority.NORMAL,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "TELEPORT_ACCEPT")
+    packetsIn = {
+      TELEPORT_ACCEPT
     }
   )
   public void receiveTeleportAccept(PacketEvent event) {

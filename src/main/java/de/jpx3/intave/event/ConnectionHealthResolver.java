@@ -3,10 +3,9 @@ package de.jpx3.intave.event;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketEventSubscriber;
+import de.jpx3.intave.event.packet.PacketId;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.MathHelper;
@@ -53,8 +52,8 @@ public final class ConnectionHealthResolver implements PacketEventSubscriber {
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "KEEP_ALIVE")
+    packetsOut = {
+      PacketId.Server.KEEP_ALIVE
     }
   )
   public void processOutgoingPingPackets(PacketEvent event) {
@@ -71,8 +70,8 @@ public final class ConnectionHealthResolver implements PacketEventSubscriber {
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "KEEP_ALIVE")
+    packetsIn = {
+      PacketId.Client.KEEP_ALIVE
     }
   )
   public void processIncomingPingPackets(PacketEvent event) {

@@ -71,7 +71,6 @@ public final class CheckService {
       } catch (NoSuchMethodException exception) {
         check = checkClass.newInstance();
       }
-
       addCheck(check);
     } catch (Exception e) {
       throw new IntaveInternalException("Unable to load check " + checkClass.getSimpleName(), e);

@@ -12,9 +12,7 @@ import de.jpx3.intave.detect.EventProcessor;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.fakeplayer.FakePlayer;
 import de.jpx3.intave.fakeplayer.FakePlayerAttackSubscriber;
 import de.jpx3.intave.tools.sync.Synchronizer;
@@ -34,6 +32,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static de.jpx3.intave.event.packet.PacketId.Client.USE_ENTITY;
+import static de.jpx3.intave.event.packet.PacketId.Server.RESPAWN;
+import static de.jpx3.intave.event.packet.PacketId.Server.SET_SLOT;
+
 public final class AttackDispatcher implements EventProcessor {
   public static boolean REDUCING_DISABLED;
 
@@ -49,8 +51,8 @@ public final class AttackDispatcher implements EventProcessor {
 
   @PacketSubscription(
     priority = ListenerPriority.LOW,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ENTITY")
+    packetsIn = {
+      USE_ENTITY
     }
   )
   public void receiveUseEntity(PacketEvent event) {
@@ -102,8 +104,8 @@ public final class AttackDispatcher implements EventProcessor {
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "RESPAWN")
+    packetsOut = {
+      RESPAWN
     }
   )
   public void sentRespawn(PacketEvent event) {
@@ -113,8 +115,8 @@ public final class AttackDispatcher implements EventProcessor {
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "SET_SLOT")
+    packetsOut = {
+      SET_SLOT
     }
   )
   public void filterSharpness(PacketEvent event) {

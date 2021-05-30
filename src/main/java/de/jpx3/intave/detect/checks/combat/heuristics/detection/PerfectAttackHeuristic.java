@@ -12,9 +12,7 @@ import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.entity.WrappedEntity;
 import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.RotationMathHelper;
@@ -26,6 +24,8 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
+
 public final class PerfectAttackHeuristic extends IntaveMetaCheckPart<Heuristics, PerfectAttackHeuristic.PerfectAttackMeta> {
   private final IntavePlugin plugin;
 
@@ -35,9 +35,8 @@ public final class PerfectAttackHeuristic extends IntaveMetaCheckPart<Heuristics
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "USE_ENTITY"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "ARM_ANIMATION")
+    packetsIn = {
+      USE_ENTITY, ARM_ANIMATION
     }
   )
   public void evaluateFightAccuracy(PacketEvent event) {
@@ -69,9 +68,8 @@ public final class PerfectAttackHeuristic extends IntaveMetaCheckPart<Heuristics
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK")
+    packetsIn = {
+      POSITION_LOOK, LOOK
     }
   )
   public void receiveMovement(PacketEvent event) {

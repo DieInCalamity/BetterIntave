@@ -5,11 +5,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Class generated using IntelliJ IDEA
- * Created by Richard Strunk 2020
- */
-
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PacketSubscription {
@@ -17,5 +12,6 @@ public @interface PacketSubscription {
   PrioritySlot prioritySlot() default PrioritySlot.INTERNAL;
   Engine engine() default Engine.PROTOCOL;
   String identifier() default "no identifier assigned";
-  PacketDescriptor[] packets();
+  PacketId.Client[] packetsIn() default {};
+  PacketId.Server[] packetsOut() default {};
 }

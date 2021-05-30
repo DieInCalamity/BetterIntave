@@ -5,9 +5,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.detect.IntaveMetaCheck;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.tools.MathHelper;
@@ -19,6 +17,8 @@ import de.jpx3.intave.user.UserMetaMovementData;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.MainHand;
 
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
+
 public final class ProtocolScanner extends IntaveMetaCheck<ProtocolScanner.ProtocolScannerMeta> {
   private final IntavePlugin plugin;
 
@@ -28,9 +28,8 @@ public final class ProtocolScanner extends IntaveMetaCheck<ProtocolScanner.Proto
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK")
+    packetsIn = {
+      LOOK, POSITION_LOOK
     }
   )
   public void receiveRotation(PacketEvent event) {
@@ -49,8 +48,8 @@ public final class ProtocolScanner extends IntaveMetaCheck<ProtocolScanner.Proto
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "HELD_ITEM_SLOT"),
+    packetsIn = {
+      HELD_ITEM_SLOT
     }
   )
   public void receiveSlotSwitch(PacketEvent event) {
@@ -75,8 +74,8 @@ public final class ProtocolScanner extends IntaveMetaCheck<ProtocolScanner.Proto
   private static Class<?> enumMainHandClass;
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "SETTINGS")
+    packetsIn = {
+      SETTINGS
     }
   )
   public void receiveClientOptions(PacketEvent event) {

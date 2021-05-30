@@ -31,6 +31,7 @@ public final class Version {
     OUTDATED("OUTDATED"),
     LATEST("LATEST"),
     STABLE("STABLE"),
+    DISABLED("DISABLED"),
     INVALID("");
 
     private final static Map<String, Status> map = new HashMap<>();
@@ -43,7 +44,8 @@ public final class Version {
     }
 
     public static Status fromName(String name) {
-      return map.get(name.toUpperCase(Locale.ROOT));
+      Status statusLookup = map.get(name.toUpperCase(Locale.ROOT));
+      return statusLookup == null ? Status.INVALID : statusLookup;
     }
 
     Status(String typeName) {

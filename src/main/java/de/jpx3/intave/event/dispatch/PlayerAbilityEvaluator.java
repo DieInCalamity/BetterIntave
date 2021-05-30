@@ -6,7 +6,10 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.event.entity.ClientSideEntityService;
-import de.jpx3.intave.event.packet.*;
+import de.jpx3.intave.event.packet.ListenerPriority;
+import de.jpx3.intave.event.packet.PacketEventSubscriber;
+import de.jpx3.intave.event.packet.PacketId;
+import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.User;
@@ -18,6 +21,9 @@ import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
 
+import static de.jpx3.intave.event.packet.PacketId.Server.CAMERA;
+import static de.jpx3.intave.event.packet.PacketId.Server.GAME_STATE_CHANGE;
+
 public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
   private final IntavePlugin plugin;
 
@@ -27,8 +33,8 @@ public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "CAMERA")
+    packetsOut = {
+      CAMERA
     }
   )
   public void receiveCamera(PacketEvent event) {
@@ -47,8 +53,8 @@ public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "ABILITIES")
+    packetsIn = {
+      PacketId.Client.ABILITIES
     }
   )
   public void receiveAbilities(PacketEvent event) {
@@ -77,8 +83,8 @@ public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "ABILITIES")
+    packetsOut = {
+      PacketId.Server.ABILITIES
     }
   )
   public void sentAbilities(PacketEvent event) {
@@ -121,8 +127,8 @@ public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
 
   @PacketSubscription(
     priority = ListenerPriority.NORMAL,
-    packets = {
-      @PacketDescriptor(sender = Sender.SERVER, packetName = "GAME_STATE_CHANGE")
+    packetsOut = {
+      GAME_STATE_CHANGE
     }
   )
   public void updateGameMode(PacketEvent event) {

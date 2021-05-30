@@ -7,9 +7,7 @@ import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.entity.WrappedEntity;
 import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserCustomCheckMeta;
 import de.jpx3.intave.user.UserMetaAttackData;
@@ -17,6 +15,8 @@ import de.jpx3.intave.user.UserMetaMovementData;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.*;
+import static de.jpx3.intave.event.packet.PacketId.Client.LOOK;
+import static de.jpx3.intave.event.packet.PacketId.Client.POSITION_LOOK;
 
 public final class RotationAccuracyPitchHeuristic extends IntaveMetaCheckPart<Heuristics, RotationAccuracyPitchHeuristic.RotationAccuracyHeuristicMeta> {
   public RotationAccuracyPitchHeuristic(Heuristics parentCheck) {
@@ -25,9 +25,8 @@ public final class RotationAccuracyPitchHeuristic extends IntaveMetaCheckPart<He
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK")
+    packetsIn = {
+      LOOK, POSITION_LOOK
     }
   )
   public void receiveMovement(PacketEvent event) {

@@ -6,9 +6,7 @@ import de.jpx3.intave.detect.IntaveMetaCheckPart;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserCustomCheckMeta;
@@ -17,6 +15,8 @@ import de.jpx3.intave.user.UserMetaMovementData;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.*;
+import static de.jpx3.intave.event.packet.PacketId.Client.LOOK;
+import static de.jpx3.intave.event.packet.PacketId.Client.POSITION_LOOK;
 
 public final class RotationSensitivityHeuristic extends IntaveMetaCheckPart<Heuristics, RotationSensitivityHeuristic.RotationGCDMeta> {
   private final IntavePlugin plugin;
@@ -27,9 +27,8 @@ public final class RotationSensitivityHeuristic extends IntaveMetaCheckPart<Heur
   }
 
   @PacketSubscription(
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
+    packetsIn = {
+      LOOK, POSITION_LOOK
     }
   )
   public void rotationCheck(PacketEvent event) {

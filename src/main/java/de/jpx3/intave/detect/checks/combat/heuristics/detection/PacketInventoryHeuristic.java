@@ -9,14 +9,13 @@ import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.user.*;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.*;
+import static de.jpx3.intave.event.packet.PacketId.Client.*;
 
 public final class PacketInventoryHeuristic extends IntaveMetaCheckPart<Heuristics, PacketInventoryHeuristic.PacketInventoryMeta> {
   private final IntavePlugin plugin;
@@ -28,8 +27,8 @@ public final class PacketInventoryHeuristic extends IntaveMetaCheckPart<Heuristi
 
   @PacketSubscription(
     priority = ListenerPriority.LOW,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "CLIENT_COMMAND"),
+    packetsIn = {
+      CLIENT_COMMAND
     }
   )
   public void receiveInventoryOpen(PacketEvent event) {
@@ -45,8 +44,8 @@ public final class PacketInventoryHeuristic extends IntaveMetaCheckPart<Heuristi
 
   @PacketSubscription(
     priority = ListenerPriority.LOW,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "CLOSE_WINDOW"),
+    packetsIn = {
+      CLOSE_WINDOW
     }
   )
   public void receiveInventoryClose(PacketEvent event) {
@@ -74,11 +73,8 @@ public final class PacketInventoryHeuristic extends IntaveMetaCheckPart<Heuristi
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
-    packets = {
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "LOOK"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "FLYING"),
-      @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION")
+    packetsIn = {
+      POSITION, POSITION_LOOK, FLYING, LOOK
     }
   )
   public void receiveMovement(PacketEvent event) {

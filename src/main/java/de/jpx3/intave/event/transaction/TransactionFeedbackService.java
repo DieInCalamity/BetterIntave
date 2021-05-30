@@ -73,7 +73,7 @@ public final class TransactionFeedbackService implements PacketEventSubscriber {
       return null;
     }
     UserMetaConnectionData synchronizeData = user.meta().connectionData();
-    short transactionCounter = findAvailableTransactionIdFor(player);//synchronizeData.transactionCounter++;
+    short transactionCounter = findAvailableTransactionIdFor(player);
     if (transactionCounter >= TRANSACTION_MAX_CODE) {
       synchronizeData.transactionCounter = TRANSACTION_MIN_CODE;
     }
