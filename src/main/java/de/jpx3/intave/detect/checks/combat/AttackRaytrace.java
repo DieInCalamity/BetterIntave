@@ -6,6 +6,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.detect.CheckStatistics;
 import de.jpx3.intave.detect.CheckViolationLevelDecrementer;
 import de.jpx3.intave.detect.IntaveMetaCheck;
@@ -192,6 +193,8 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
             }
           });
         }
+        // Do not exclude packets if the player has bypass TrustFactor
+        invalid &= user.trustFactor() != TrustFactor.BYPASS;
         if (!invalid && !violationLevelData.isInActiveTeleportBundle && remainingAttack.shouldResend) {
           receiveExcludedPacket(player, remainingAttack.packet);
         }
