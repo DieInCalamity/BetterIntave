@@ -24,10 +24,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.POSITION;
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
@@ -148,24 +145,33 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
   public void receiveEntityDestroy(PacketEvent event) {
     Player player = event.getPlayer();
     int[] entityIDs = event.getPacket().getIntegerArrays().read(0);
-    plugin.eventService().feedback().clientSynchronize(
-      player,
-      entityIDs,
-      this::processEntityDestroy,
-      OPTIONAL
-    );
+
+    User user = UserRepository.userOf(player);
+    UserMetaConnectionData synchronizeData = user.meta().connectionData();
+    Map<Integer, WrappedEntity> synchronizedEntityMap = synchronizeData.synchronizedEntityMap();
+    for (int entityID : entityIDs) {
+      WrappedEntity wrappedEntity = synchronizedEntityMap.get(entityID);
+      if(wrappedEntity instanceof WrappedEntityFirework) {
+        plugin.eventService().feedback().clientSynchronize(
+          player,
+          entityID,
+          this::processEntityDestroy,
+          OPTIONAL
+        );
+      } else {
+        processEntityDestroy(player, entityID);
+      }
+    }
   }
 
-  private void processEntityDestroy(Player player, int[] entityIDs) {
+  private void processEntityDestroy(Player player, int entityId) {
     User user = UserRepository.userOf(player);
     UserMetaAttackData attackData = user.meta().attackData();
     UserMetaConnectionData synchronizeData = user.meta().connectionData();
     Map<Integer, WrappedEntity> synchronizedEntityMap = synchronizeData.synchronizedEntityMap();
-    for (int entityID : entityIDs) {
-      synchronizedEntityMap.remove(entityID);
-      if (attackData.lastAttackedEntity() != null && attackData.lastAttackedEntityID() == entityID) {
-        attackData.nullifyLastAttackedEntity();
-      }
+    synchronizedEntityMap.remove(entityId);
+    if (attackData.lastAttackedEntity() != null && attackData.lastAttackedEntityID() == entityId) {
+      attackData.nullifyLastAttackedEntity();
     }
   }
 
