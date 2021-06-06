@@ -13,10 +13,7 @@ import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.annotate.Native;
-import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
-import de.jpx3.intave.user.UserMetaClientData;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.*;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -43,8 +40,9 @@ public class SameRotationHeuristic extends IntaveMetaCheckPart<Heuristics, SameR
     User user = userOf(player);
     SameRotationHeuristicMeta meta = metaOf(user);
     UserMetaMovementData movementData = user.meta().movementData();
+    UserMetaViolationLevelData violationLevelData = user.meta().violationLevelData();
 
-    if (movementData.lastTeleport == 0) {
+    if (movementData.lastTeleport == 0 || violationLevelData.isInActiveTeleportBundle) {
       meta.rotationsSinceTeleport = 0;
       return;
     }
