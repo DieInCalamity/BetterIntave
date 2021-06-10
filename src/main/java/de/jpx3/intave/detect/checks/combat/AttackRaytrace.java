@@ -354,7 +354,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
     } else if (entity.verifiedPosition) {
       vl *= 1.5;
     }
-    if (movementData.inVehicle()) {
+    if (movementData.hasRidingEntity()) {
       vl = 0;
     } else if (distanceOfResult.hitVec != null && attackRaytraceMeta.lastHitVec != null && distanceOfResult.hitVec.distanceTo(attackRaytraceMeta.lastHitVec) == 0) {
       vl = 0;
@@ -387,7 +387,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
         details = minReachDisplay + " at best, estimated";
         thresholdKey = "applicable-thresholds.reach";
       }
-      if (movementData.inVehicle()) {
+      if (movementData.hasRidingEntity()) {
         message += " (vehicle)";
       }
 

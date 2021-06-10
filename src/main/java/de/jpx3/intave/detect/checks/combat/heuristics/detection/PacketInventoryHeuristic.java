@@ -87,7 +87,7 @@ public final class PacketInventoryHeuristic extends IntaveMetaCheckPart<Heuristi
     UserMetaMovementData movementData = user.meta().movementData();
     UserMetaClientData clientData = user.meta().clientData();
 
-    if (!clientData.flyingPacketStream() || movementData.inVehicle()) {
+    if (!clientData.flyingPacketStream() || movementData.hasRidingEntity()) {
       return;
     }
 

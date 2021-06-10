@@ -163,11 +163,10 @@ public final class Physics extends IntaveCheck {
   }
 
   private Pose poseOf(User user) {
-    Player player = user.player();
-    if (player.getVehicle() != null) {
+    UserMetaMovementData movementData = user.meta().movementData();
+    if (movementData.hasRidingEntity()) {
       return Pose.HORSE;
     } else {
-      UserMetaMovementData movementData = user.meta().movementData();
       boolean inLava = movementData.inLava();
       boolean inWater = movementData.inWater;
       if (/*PoseHelper.flyingWithElytra(player)*/movementData.elytraFlying && !inWater && !inLava) {
@@ -357,6 +356,9 @@ public final class Physics extends IntaveCheck {
     }
 
     double violationLevelIncrease = horizontalViolationIncrease + verticalViolationIncrease;
+    if (movementData.movementPoseType() == Pose.HORSE) {
+      violationLevelIncrease = 0;
+    }
     if (distance > 1e-3) {
       movementData.suspiciousMovement = true;
       ComplexColliderSimulationResult entityCollisionResult = simulationProcessor.simulateMovementWithoutKeyPress(user);
@@ -549,6 +551,7 @@ public final class Physics extends IntaveCheck {
         violationLevelInfo = "g:" + displayPhysicsVL;
       }
       String debug = chatColor + motion + " ";
+//      debug += movementData.movementPoseType().debugPrefix();
       if (movementData.recentlyEncounteredFlyingPacket(0)) {
         debug += "f";
       }
@@ -561,7 +564,7 @@ public final class Physics extends IntaveCheck {
 //      debug += inventoryData.heldItem().getType().name();
 //      debug += " flying:" + movementData.pastFlyingPacketAccurate;
 //      debug += " gliding:" + movementData.elytraFlying;
-      debug += " y:" + movementData.motionY();
+//      debug += " y:" + movementData.motionY();
 
       List<String> tags = new ArrayList<>();
 

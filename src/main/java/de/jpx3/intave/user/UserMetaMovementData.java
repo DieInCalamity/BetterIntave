@@ -109,7 +109,7 @@ public final class UserMetaMovementData {
   public boolean enforceBoatStep;
   public volatile Location nearestBoatLocation = null;
   // Vehicle
-  public boolean entityAttached;
+  private WrappedEntity ridingEntity;
 
   public boolean isTeleportConfirmationPacket;
   public boolean willReceiveSetbackVelocity;
@@ -119,6 +119,12 @@ public final class UserMetaMovementData {
   public Location teleportLocation = null;
   private volatile Location verifiedLocation;
   public int teleportResendCountdown = 10;
+
+  // Key inputs sent by the client
+  public boolean applyClientKeys = false;
+  public int clientInputKey = 0;
+  public int clientStrafeKey = 0;
+  public boolean clientPressedJump = false;
 
   public UserMetaMovementData(Player player, User user) {
     this.player = player;
@@ -387,6 +393,13 @@ public final class UserMetaMovementData {
     return baseSpeed;
   }
 
+  public void dismountRidingEntity() {
+    if (!hasRidingEntity()) {
+      return;
+    }
+    this.ridingEntity = null;
+  }
+
   public void resetFlyingPacketAccurate() {
     pastFlyingPacketAccurate = 0;
   }
@@ -396,9 +409,12 @@ public final class UserMetaMovementData {
     pastClientFlyingPacket++;
   }
 
-  public boolean inVehicle() {
-//    TODO return player != null && player.isInsideVehicle();
-    return false;
+  public boolean hasRidingEntity() {
+    return ridingEntity != null;
+  }
+
+  public WrappedEntity ridingEntity() {
+    return ridingEntity;
   }
 
   public Object nmsWorld() {
@@ -527,5 +543,9 @@ public final class UserMetaMovementData {
 
   public void setPastFlyingPacketAccurate(int pastFlyingPacketAccurate) {
     this.pastFlyingPacketAccurate = pastFlyingPacketAccurate;
+  }
+
+  public void setRidingEntity(WrappedEntity ridingEntity) {
+    this.ridingEntity = ridingEntity;
   }
 }

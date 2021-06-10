@@ -31,8 +31,8 @@ public final class HorsePoseSimulator extends DefaultPoseSimulator {
 //    System.out.println("horseForward:" + horseForward);
 
     float aiMoveSpeed = 0;
-//    movementData.setAiMoveSpeed(0.2f);
-//    movementData.setJumpMovementFactor(0.02f);
+    movementData.setJumpMovementFactor(0.02f);
+    movementData.setAiMoveSpeed(0.2f);
 
     return super.performSimulation(user, context, horseForward, horseStrafe, attackReduce, jumped, handActive);
   }

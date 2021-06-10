@@ -1,6 +1,9 @@
 package de.jpx3.intave.event.dispatch;
 
 import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLib;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
@@ -12,6 +15,7 @@ import de.jpx3.intave.detect.checks.movement.Physics;
 import de.jpx3.intave.detect.checks.movement.Timer;
 import de.jpx3.intave.detect.checks.world.InteractionRaytrace;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
+import de.jpx3.intave.event.entity.WrappedEntity;
 import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.PacketSubscriptionLinker;
@@ -119,7 +123,7 @@ public final class MovementDispatcher implements EventProcessor {
     User user = UserRepository.userOf(player);
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
-    if (!movementData.inVehicle()) {
+    if (!movementData.hasRidingEntity()) {
       return;
     }
     Location location = event.getTo();
@@ -214,8 +218,15 @@ public final class MovementDispatcher implements EventProcessor {
     PacketType packetType = event.getPacketType();
     boolean vehicleMove = packetType == PacketType.Play.Client.VEHICLE_MOVE;
 
-    boolean hasMovement = vehicleMove || packet.getBooleans().read(1);
     boolean hasRotation = vehicleMove || packet.getBooleans().read(2);
+    boolean hasMovement = vehicleMove || packet.getBooleans().read(1);
+
+    if (movementData.hasRidingEntity() && !vehicleMove && hasRotation && !hasMovement) {
+      movementData.applyGroundInformationToPacket(packet);
+      movementData.rotationYaw = packet.getFloat().read(0);
+      movementData.rotationPitch = packet.getFloat().read(1);
+      return;
+    }
 
     connectionData.receiveMovement();
     movementData.updateMovement(packet, hasMovement, hasRotation);
@@ -242,6 +253,11 @@ public final class MovementDispatcher implements EventProcessor {
         .build();
       plugin.violationProcessor().processViolation(violation);
       return;
+    }
+
+    WrappedEntity attachedEntity = movementData.ridingEntity();
+    if (attachedEntity != null && !attachedEntity.isEntityAlive()) {
+      movementData.dismountRidingEntity();
     }
 
     if (violationLevelData.isInActiveTeleportBundle) {
@@ -336,8 +352,14 @@ public final class MovementDispatcher implements EventProcessor {
     PacketType packetType = event.getPacketType();
     boolean vehicleMove = packetType == PacketType.Play.Client.VEHICLE_MOVE;
     boolean hasMovement = vehicleMove || packet.getBooleans().read(1);
+    boolean hasRotation = vehicleMove || packet.getBooleans().read(2);
 
     if (movementData.awaitTeleport) {
+      return;
+    }
+
+    if (movementData.hasRidingEntity() && !vehicleMove && hasRotation && !hasMovement) {
+      movementData.applyGroundInformationToPacket(packet);
       return;
     }
 
@@ -414,6 +436,7 @@ public final class MovementDispatcher implements EventProcessor {
     }
 
     updateSize(user);
+    movementData.applyClientKeys = false;
   }
 
   private void updatePotionEffects(User user) {
@@ -435,6 +458,25 @@ public final class MovementDispatcher implements EventProcessor {
         potionData.potionEffectJumpAmplifier(0);
       }
     }
+  }
+
+  @PacketSubscription(
+    packetsIn = {
+      STEER_VEHICLE
+    }
+  )
+  public void receiveClientKeys(PacketEvent event) {
+    Player player = event.getPlayer();
+    User user = UserRepository.userOf(player);
+    UserMetaMovementData movementData = user.meta().movementData();
+    PacketContainer packet = event.getPacket();
+    int strafeKey = (int) (packet.getFloat().read(0) / 0.98f);
+    int forwardKey = (int) (packet.getFloat().read(1) / 0.98f);
+    Boolean jumping = packet.getBooleans().read(0);
+    movementData.applyClientKeys = true;
+    movementData.clientStrafeKey = strafeKey;
+    movementData.clientInputKey = forwardKey;
+    movementData.clientPressedJump = jumping;
   }
 
   private final static boolean ELYTRA_SUPPORTED = MinecraftVersions.VER1_9_0.atOrAbove();
@@ -600,6 +642,10 @@ public final class MovementDispatcher implements EventProcessor {
       case START_SNEAKING:
         if (AccessHelper.now() - punishmentData.timeLastSneakToggleCancel < 1000) {
           event.setCancelled(true);
+        }
+        if (movementData.hasRidingEntity()) {
+          movementData.dismountRidingEntity();
+          movementData.sneaking = false;
         }
         movementData.lastSneakingTimestamps = AccessHelper.now();
         movementData.sneaking = true;

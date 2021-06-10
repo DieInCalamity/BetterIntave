@@ -301,6 +301,10 @@ public class WrappedEntity implements Cloneable {
     return Math.hypot(positions.newPosX - positions.posX, positions.newPosZ - positions.posZ) >= distance;
   }
 
+  public boolean isEntityAlive() {
+    return !this.dead && this.health > 0.0f;
+  }
+
   public void mountToEntity(WrappedEntity mountedOnEntity) {
     this.mountedOnEntity = mountedOnEntity;
   }

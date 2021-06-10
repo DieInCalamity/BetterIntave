@@ -123,7 +123,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     }
   )
   public void sendAttachEntityPacket(PacketEvent event) {
-    if(!NEW_POSITION_PROCESSING_1_9) {
+    if (!NEW_POSITION_PROCESSING_1_9) {
       // 1.8
       Player player = event.getPlayer();
       PacketContainer packet = event.getPacket();
@@ -137,30 +137,38 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     }
   }
 
-  private void processAttachEntity(Player player, int entityID, int mountedOnEntityID) {
+  private void processAttachEntity(Player player, int entityID, int vehicleEntityID) {
     User user = UserRepository.userOf(player);
+    UserMetaMovementData movementData = user.meta().movementData();
     UserMetaConnectionData synchronizeData = user.meta().connectionData();
     Map<Integer, WrappedEntity> synchronizedEntityMap = synchronizeData.synchronizedEntityMap();
     WrappedEntity sittingEntity = synchronizedEntityMap.get(entityID);
 
     if (sittingEntity != null) {
-      if (mountedOnEntityID == -1) {
-        // when a entity dismounts
+      // Another entity
+      if (vehicleEntityID == -1) {
+        // when an entity dismounts
         sittingEntity.unmountFromEntity();
       } else {
         // mounts on entity
-        WrappedEntity sittingOnEntity = synchronizedEntityMap.get(mountedOnEntityID);
+        WrappedEntity sittingOnEntity = synchronizedEntityMap.get(vehicleEntityID);
         if (sittingOnEntity != null) {
           sittingEntity.mountToEntity(sittingOnEntity);
         } else {
-          if(IntaveControl.DISABLE_LICENSE_CHECK) {
+          if (IntaveControl.DISABLE_LICENSE_CHECK) {
             IntaveLogger.logger().error("mounted On Entity could not be found");
           }
         }
       }
-    } else {
-      if (IntaveControl.DISABLE_LICENSE_CHECK) {
-        IntaveLogger.logger().error("sittingEntity could not be found");
+    } else if (entityID == player.getEntityId()) {
+      // The Player
+      // ID -1 => undo attachment
+      WrappedEntity ridingEntity = synchronizedEntityMap.get(vehicleEntityID);
+      if (movementData.hasRidingEntity()) {
+        movementData.dismountRidingEntity();
+      }
+      if (ridingEntity != null) {
+        movementData.setRidingEntity(ridingEntity);
       }
     }
   }
@@ -239,7 +247,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
      */
     for (int entityID : entityIDs) {
       WrappedEntity wrappedEntity = synchronizedEntityMap.get(entityID);
-      if(wrappedEntity instanceof WrappedEntityFirework) {
+      if (wrappedEntity instanceof WrappedEntityFirework) {
         TFCallback<Integer> task = this::processEntityDestroy;
         plugin.eventService().feedback().singleSynchronize(player, entityID, task, OPTIONAL);
       } else {
@@ -257,10 +265,10 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     if (attackData.lastAttackedEntity() != null && attackData.lastAttackedEntityID() == entityId) {
       attackData.nullifyLastAttackedEntity();
     }
-    if(NEW_POSITION_PROCESSING_1_9) {
+    if (NEW_POSITION_PROCESSING_1_9) {
       for (WrappedEntity wrappedEntity : synchronizedEntityMap.values()) {
-        if(wrappedEntity.mountedEntity() != null) {
-          if(wrappedEntity.mountedEntity().entityId() == entityId) {
+        if (wrappedEntity.mountedEntity() != null) {
+          if (wrappedEntity.mountedEntity().entityId() == entityId) {
             wrappedEntity.unmountFromEntity();
           }
         }

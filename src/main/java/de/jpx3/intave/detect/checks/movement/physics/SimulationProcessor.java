@@ -35,7 +35,23 @@ public final class SimulationProcessor {
 
   private ComplexColliderSimulationResult performKeySimulation(User user) {
     UserMetaMovementData movementData = user.meta().movementData();
+    return movementData.applyClientKeys ? performKeySimulationFromInput(user) : performKeyComparisonSimulation(user);
+  }
 
+  private ComplexColliderSimulationResult performKeySimulationFromInput(User user) {
+    UserMetaMovementData movementData = user.meta().movementData();
+    int clientInputKey = movementData.clientInputKey;
+    int clientStrafeKey = movementData.clientStrafeKey;
+    boolean jump = movementData.clientPressedJump && movementData.lastOnGround;
+    movementData.keyForward = clientInputKey;
+    movementData.keyStrafe = clientStrafeKey;
+    movementData.physicsJumped = jump;
+    KeyPressStudy.enterKeyPress(movementData.keyForward, movementData.keyStrafe);
+    return simulateMovementWithKeyPress(user, clientInputKey, clientStrafeKey, jump);
+  }
+
+  private ComplexColliderSimulationResult performKeyComparisonSimulation(User user) {
+    UserMetaMovementData movementData = user.meta().movementData();
     ComplexColliderSimulationResult simulation;
     double simulationAccuracy;
     boolean biasedSimulationFailed;
@@ -110,11 +126,11 @@ public final class SimulationProcessor {
   public ComplexColliderSimulationResult simulateMovementWithoutKeyPress(
     User user
   ) {
-    return simulateMovementWithKeyPress(user, 0, 0);
+    return simulateMovementWithKeyPress(user, 0, 0, false);
   }
 
   public ComplexColliderSimulationResult simulateMovementWithKeyPress(
-    User user, int forward, int strafe
+    User user, int forward, int strafe, boolean jumped
   ) {
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
@@ -123,7 +139,7 @@ public final class SimulationProcessor {
     motionVector.resetTo(movementData);
     return movementPoseType.simulator().performSimulation(
       user, motionVector,
-      forward, strafe, false, false,
+      forward, strafe, false, jumped,
       meta.inventoryData().handActive()
     );
   }

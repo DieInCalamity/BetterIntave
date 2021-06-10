@@ -84,7 +84,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     UserMetaMovementData movementData = user.meta().movementData();
     PacketContainer packet = event.getPacket();
     BlockPosition blockPosition = readBlockPositionFrom(packet);//packet.getBlockPositionModifier().readSafely(0);
-    if (blockPosition == null || movementData.inVehicle()) {
+    if (blockPosition == null || movementData.hasRidingEntity()) {
       return;
     }
     int enumDirection = readEnumDirectionFrom(packet);
