@@ -187,7 +187,7 @@ public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirC
 //      player.sendMessage("cps: " + sum);
     }
 
-    if (sum > 13 && user.meta().clientData().protocolVersion() <= UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE) {
+    if (sum > 13 && user.meta().clientData().protocolVersion() <= UserMetaClientData.VER_1_8) {
       meta.flaggCounter++;
       double timeDiffrenceInSeconds = (System.currentTimeMillis() - meta.lastFlagTimeStamp) / 1000d;
 

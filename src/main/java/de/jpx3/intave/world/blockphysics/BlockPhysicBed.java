@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_COLOR_UPDATE;
+import static de.jpx3.intave.user.UserMetaClientData.VER_1_12;
 
 final class BlockPhysicBed implements BlockPhysic {
   private List<Material> materials;
@@ -32,7 +32,7 @@ final class BlockPhysicBed implements BlockPhysic {
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
     UserMetaClientData userMetaClientData = meta.clientData();
-    if (userMetaClientData.protocolVersion() < PROTOCOL_VERSION_COLOR_UPDATE) {
+    if (userMetaClientData.protocolVersion() < VER_1_12) {
       return null;
     }
     if (motionY < 0.0) {

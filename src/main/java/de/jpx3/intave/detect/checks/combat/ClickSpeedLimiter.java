@@ -44,7 +44,7 @@ public final class ClickSpeedLimiter extends IntaveMetaCheck<ClickSpeedLimiter.C
     EnumWrappers.EntityUseAction entityUseAction = event.getPacket().getEntityUseActions().read(0);
 
     if (entityUseAction == EnumWrappers.EntityUseAction.ATTACK) {
-      if (user.meta().clientData().protocolVersion() <= UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE) {
+      if (user.meta().clientData().protocolVersion() <= UserMetaClientData.VER_1_8) {
         meta.attackCountArray[meta.attackArrayIndex]++;
       } else {
         meta.attacksDuringFlyingPackets.add(System.currentTimeMillis());
@@ -71,7 +71,7 @@ public final class ClickSpeedLimiter extends IntaveMetaCheck<ClickSpeedLimiter.C
     ClickSpeedLimiterMeta meta = metaOf(user);
     PacketType pt = event.getPacketType();
 
-    if (user.meta().clientData().protocolVersion() <= UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE) {
+    if (user.meta().clientData().protocolVersion() <= UserMetaClientData.VER_1_8) {
       // 1.8
       meta.countAccuratePositionPackets = 20;
     } else {

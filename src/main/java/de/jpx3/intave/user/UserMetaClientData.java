@@ -8,15 +8,15 @@ import org.bukkit.entity.Player;
 @Relocate
 public final class UserMetaClientData {
   // final has been removed to disguise modified integer VERSION_DETAILS
-  public static int PROTOCOL_VERSION_NETHER_UPDATE = 735; // 1.16
-  public static int PROTOCOL_VERSION_BEE_UPDATE = 573; // 1.15
-  public static int PROTOCOL_VERSION_VILLAGE_UPDATE = 477; // 1.14
-  public static int SOMETHING_BETWEEN = 404; // 1.13.2
-  public static int PROTOCOL_VERSION_AQUATIC_UPDATE = 393; // 1.13
-  public static int PROTOCOL_VERSION_COLOR_UPDATE = 335; // 1.12
-  public static int PROTOCOL_VERSION_COMBAT_UPDATE = 107; // 1.9
+  public static int VER_1_16 = 735; // 1.16
+  public static int VER_1_15 = 573; // 1.15
+  public static int VER_1_14 = 477; // 1.14
+  public static int VER_1_13_2 = 404; // 1.13.2
+  public static int VER_1_13 = 393; // 1.13
+  public static int VER_1_12 = 335; // 1.12
+  public static int VER_1_9 = 107; // 1.9
   public static int VERSION_DETAILS = 97; // secret integer for security - DO NOT MODIFY
-  public static int PROTOCOL_VERSION_BOUNTIFUL_UPDATE = 47; // 1.8
+  public static int VER_1_8 = 47; // 1.8
   private String versionString;
   private int protocolVersion;
   private final User user;
@@ -99,9 +99,13 @@ public final class UserMetaClientData {
     return protocolVersion;
   }
 
+  public boolean legacyTeleportAccept() {
+    return protocolVersion <= VER_1_8;
+  }
+
   public float cameraSneakOffset() {
     boolean override = user.customClientSupport().isLegacySneakHeight();
-    if (protocolVersion >= SOMETHING_BETWEEN && !override) {
+    if (protocolVersion >= VER_1_13_2 && !override) {
       return 0.35f;
     } else {
       return 0.08f;
@@ -109,69 +113,69 @@ public final class UserMetaClientData {
   }
 
   public float hitBoxHeightWhenSneaking() {
-    if (protocolVersion >= SOMETHING_BETWEEN) {
+    if (protocolVersion >= VER_1_13_2) {
       return 1.5F;
-    } else if (protocolVersion >= PROTOCOL_VERSION_COMBAT_UPDATE) {
+    } else if (protocolVersion >= VER_1_9) {
       return 1.65F;
     }
     return 1.8F;
   }
 
   public boolean flyingPacketStream() {
-    return protocolVersion <= PROTOCOL_VERSION_BOUNTIFUL_UPDATE && !clientVersionBehindServerVersion();
+    return protocolVersion <= VER_1_8 && !clientVersionBehindServerVersion();
   }
 
   public boolean inventoryAchievementPacket() {
-    return protocolVersion <= PROTOCOL_VERSION_BOUNTIFUL_UPDATE;
+    return protocolVersion <= VER_1_8;
   }
 
   public boolean applyNewEntityCollisions() {
     // >= 1.14
-    return protocolVersion >= PROTOCOL_VERSION_VILLAGE_UPDATE;
+    return protocolVersion >= VER_1_14;
   }
 
   public boolean roundEnvironmentNumbers() {
     // < 1.14
-    return protocolVersion < PROTOCOL_VERSION_VILLAGE_UPDATE;
+    return protocolVersion < VER_1_14;
   }
 
   public boolean sprintWhenSneaking() {
     // >= 1.14
-    return protocolVersion >= PROTOCOL_VERSION_VILLAGE_UPDATE;
+    return protocolVersion >= VER_1_14;
   }
 
   public boolean sprintWhenHandActive() {
     // >= 1.9
-    return protocolVersion >= PROTOCOL_VERSION_COMBAT_UPDATE;
+    return protocolVersion >= VER_1_9;
   }
 
   public boolean delayedSneak() {
     // 1.15
-    return protocolVersion >= PROTOCOL_VERSION_BEE_UPDATE;
+    return protocolVersion >= VER_1_15;
   }
 
   public boolean alternativeSneak() {
     // < 1.15 && >= 1.14
-    return protocolVersion < PROTOCOL_VERSION_BEE_UPDATE && protocolVersion >= PROTOCOL_VERSION_VILLAGE_UPDATE;
+    return protocolVersion < VER_1_15 && protocolVersion >= VER_1_14;
   }
 
   public boolean motionResetOnCollision() {
     // 1.14
-    return protocolVersion < PROTOCOL_VERSION_VILLAGE_UPDATE;
+    return protocolVersion < VER_1_14;
   }
 
   public boolean beeUpdate() {
     // 1.15
-    return protocolVersion >= PROTOCOL_VERSION_BEE_UPDATE;
+    return protocolVersion >= VER_1_15;
   }
 
   public boolean waterUpdate() {
     // >= 1.13
-    return protocolVersion >= PROTOCOL_VERSION_AQUATIC_UPDATE;
+    return protocolVersion >= VER_1_13;
   }
 
   public boolean combatUpdate() {
-    return protocolVersion >= PROTOCOL_VERSION_COMBAT_UPDATE;
+    return protocolVersion >= VER_1_9;
   }
 
   private Boolean behind;

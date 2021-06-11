@@ -17,7 +17,6 @@ import de.jpx3.intave.reflect.ReflectiveDataWatcherAccess;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.*;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -27,7 +26,7 @@ import java.util.List;
 
 import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.*;
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
-import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_COMBAT_UPDATE;
+import static de.jpx3.intave.user.UserMetaClientData.VER_1_9;
 
 public final class BlockingHeuristic extends IntaveMetaCheckPart<Heuristics, BlockingHeuristic.BlockingMeta> {
   private final IntavePlugin plugin;
@@ -168,7 +167,7 @@ public final class BlockingHeuristic extends IntaveMetaCheckPart<Heuristics, Blo
       return;
     }
     // checks if the client version is above 1.8 for disabling the check if the player is standing still
-    if (!movementData.recentlyEncounteredFlyingPacket(2) || clientData.protocolVersion() < PROTOCOL_VERSION_COMBAT_UPDATE) {
+    if (!movementData.recentlyEncounteredFlyingPacket(2) || clientData.protocolVersion() < VER_1_9) {
       if (meta.heldItemOperations > 0) {
         if (meta.blocksPlacedThisTick == 0 || meta.heldItemOperations > 2) {
           String description = "sent too many item operations (operations: " + meta.heldItemOperations + ")";
@@ -203,7 +202,7 @@ public final class BlockingHeuristic extends IntaveMetaCheckPart<Heuristics, Blo
     UserMetaClientData clientData = user.meta().clientData();
     BlockingMeta meta = metaOf(player);
     // 1.8
-    if(clientData.protocolVersion() >= PROTOCOL_VERSION_COMBAT_UPDATE) {
+    if(clientData.protocolVersion() >= VER_1_9) {
       meta.blocksPlacedThisTick++;
     }
   }
@@ -219,7 +218,7 @@ public final class BlockingHeuristic extends IntaveMetaCheckPart<Heuristics, Blo
     BlockingMeta meta = metaOf(player);
     UserMetaClientData clientData = user.meta().clientData();
     // 1.9+
-    if(clientData.protocolVersion() < PROTOCOL_VERSION_COMBAT_UPDATE) {
+    if(clientData.protocolVersion() < VER_1_9) {
       meta.blocksPlacedThisTick++;
     }
   }
@@ -239,7 +238,7 @@ public final class BlockingHeuristic extends IntaveMetaCheckPart<Heuristics, Blo
       return;
     }
 
-    if(!movementData.recentlyEncounteredFlyingPacket(2) || clientData.protocolVersion() < PROTOCOL_VERSION_COMBAT_UPDATE) {
+    if(!movementData.recentlyEncounteredFlyingPacket(2) || clientData.protocolVersion() < VER_1_9) {
       if (meta.heldItemOperations > 0) {
         PacketContainer clonedPacket = event.getPacket().deepClone();
         meta.unsendPackets.add(clonedPacket);

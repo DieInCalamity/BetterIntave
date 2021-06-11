@@ -10,7 +10,7 @@ import org.bukkit.util.Vector;
 import java.util.Collections;
 import java.util.List;
 
-import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_BEE_UPDATE;
+import static de.jpx3.intave.user.UserMetaClientData.VER_1_15;
 
 final class BlockPhysicSoulSand implements BlockPhysic {
   private List<Material> material;
@@ -34,7 +34,7 @@ final class BlockPhysicSoulSand implements BlockPhysic {
 
   private boolean requiresSpeedFactor(User user) {
     UserMetaClientData clientData = user.meta().clientData();
-    return clientData.protocolVersion() >= PROTOCOL_VERSION_BEE_UPDATE;
+    return clientData.protocolVersion() >= VER_1_15;
   }
 
   @Override

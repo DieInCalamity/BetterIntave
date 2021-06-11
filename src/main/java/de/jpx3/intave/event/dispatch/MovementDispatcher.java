@@ -1,9 +1,6 @@
 package de.jpx3.intave.event.dispatch;
 
 import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLib;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
@@ -48,7 +45,7 @@ import static de.jpx3.intave.event.packet.PacketId.Client.POSITION;
 import static de.jpx3.intave.event.packet.PacketId.Client.VEHICLE_MOVE;
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
 import static de.jpx3.intave.event.packet.PacketId.Server.*;
-import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_COMBAT_UPDATE;
+import static de.jpx3.intave.user.UserMetaClientData.VER_1_9;
 
 @Relocate
 public final class MovementDispatcher implements EventProcessor {
@@ -128,7 +125,7 @@ public final class MovementDispatcher implements EventProcessor {
     }
     Location location = event.getTo();
     UserMetaClientData clientData = meta.clientData();
-    if (clientData.protocolVersion() >= PROTOCOL_VERSION_COMBAT_UPDATE) {
+    if (clientData.protocolVersion() >= VER_1_9) {
       return;
     }
     movementData.lastPositionX = movementData.positionX;

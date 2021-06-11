@@ -8,7 +8,7 @@ import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserRepository;
 import org.bukkit.entity.Player;
 
-import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_AQUATIC_UPDATE;
+import static de.jpx3.intave.user.UserMetaClientData.VER_1_13;
 
 public final class PoseHelper {
   private final static boolean ELYTRA_ENABLED = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
@@ -23,7 +23,7 @@ public final class PoseHelper {
     UserMetaMovementData movementData = meta.movementData();
     UserMetaClientData clientData = meta.clientData();
     boolean canSwim = movementPoseSuitableForSwimming(player);
-    return clientData.protocolVersion() >= PROTOCOL_VERSION_AQUATIC_UPDATE && canSwim && movementData.lastSprinting;
+    return clientData.protocolVersion() >= VER_1_13 && canSwim && movementData.lastSprinting;
   }
 
   private static boolean movementPoseSuitableForSwimming(Player player) {

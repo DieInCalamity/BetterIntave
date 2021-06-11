@@ -21,7 +21,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
-import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE;
+import static de.jpx3.intave.user.UserMetaClientData.VER_1_8;
 import static de.jpx3.intave.world.raytrace.Raytracer.distanceOf;
 
 public final class AttackRequiredHeuristic extends IntaveMetaCheckPart<Heuristics, AttackRequiredHeuristic.VentolotlMeta> {
@@ -75,7 +75,7 @@ public final class AttackRequiredHeuristic extends IntaveMetaCheckPart<Heuristic
     if (entity == null || !entity.clientSynchronized || movementData.lastTeleport < 5) {
       return;
     }
-    if (clientData.protocolVersion() != PROTOCOL_VERSION_BOUNTIFUL_UPDATE || clientData.clientVersionBehindServerVersion()) {
+    if (clientData.protocolVersion() != VER_1_8 || clientData.clientVersionBehindServerVersion()) {
       return;
     }
 
@@ -134,7 +134,7 @@ public final class AttackRequiredHeuristic extends IntaveMetaCheckPart<Heuristic
     double blockReachDistance = reachDistance(player.getGameMode() == GameMode.CREATIVE);
     float lastRotationYaw = movementData.lastRotationYaw % 360;
     float rotationYaw = movementData.rotationYaw % 360;
-    boolean alternativePositionY = clientData.protocolVersion() == PROTOCOL_VERSION_BOUNTIFUL_UPDATE;
+    boolean alternativePositionY = clientData.protocolVersion() == VER_1_8;
     boolean hasAlwaysMouseDelayFix = clientData.protocolVersion() >= 314;
     // mouse delay fix
     Raytracer.EntityInteractionRaytrace distanceOfResult = distanceOf(

@@ -26,7 +26,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_VILLAGE_UPDATE;
+import static de.jpx3.intave.user.UserMetaClientData.VER_1_14;
 
 public class DefaultPoseSimulator extends PoseSimulator {
   @Override
@@ -482,7 +482,7 @@ public class DefaultPoseSimulator extends PoseSimulator {
       }
     }
 
-    if (clientData.protocolVersion() >= PROTOCOL_VERSION_VILLAGE_UPDATE) {
+    if (clientData.protocolVersion() >= VER_1_14) {
       int soulSandModifier = PlayerEnchantmentHelper.resolveSoulSpeedModifier(player);
       if (soulSandModifier == 0) {
         Block blockAccess = BukkitBlockAccess.blockAccess(world, positionX, positionY - 0.5000001, positionZ);

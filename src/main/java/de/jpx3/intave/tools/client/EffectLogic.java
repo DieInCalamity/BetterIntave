@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_AQUATIC_UPDATE;
+import static de.jpx3.intave.user.UserMetaClientData.VER_1_13;
 
 public final class EffectLogic {
   public final static PotionEffectType EFFECT_LEVITATION = PotionEffectType.getByName("LEVITATION");
@@ -35,7 +35,7 @@ public final class EffectLogic {
   public static boolean isPotionDolphinActive(Player player) {
     User user = UserRepository.userOf(player);
     UserMetaClientData clientData = user.meta().clientData();
-    if (EFFECT_DOLPHIN == null || clientData.protocolVersion() < PROTOCOL_VERSION_AQUATIC_UPDATE) {
+    if (EFFECT_DOLPHIN == null || clientData.protocolVersion() < VER_1_13) {
       return false;
     }
     return isPotionActive(player, EFFECT_DOLPHIN);

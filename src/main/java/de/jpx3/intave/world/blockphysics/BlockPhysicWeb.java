@@ -12,7 +12,7 @@ import org.bukkit.util.Vector;
 import java.util.Collections;
 import java.util.List;
 
-import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_BEE_UPDATE;
+import static de.jpx3.intave.user.UserMetaClientData.VER_1_15;
 
 final class BlockPhysicWeb implements BlockPhysic {
   private List<Material> material;
@@ -29,7 +29,7 @@ final class BlockPhysicWeb implements BlockPhysic {
     movementData.artificialFallDistance = 0;
 
     UserMetaClientData clientData = user.meta().clientData();
-    if (clientData.protocolVersion() >= PROTOCOL_VERSION_BEE_UPDATE) {
+    if (clientData.protocolVersion() >= VER_1_15) {
       return new Vector(motionX * 0.25, motionY * 0.05f, motionZ * 0.25);
     }
     return null;

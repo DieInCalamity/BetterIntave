@@ -22,7 +22,7 @@ import org.bukkit.util.Vector;
 import java.util.List;
 import java.util.Map;
 
-import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_BEE_UPDATE;
+import static de.jpx3.intave.user.UserMetaClientData.VER_1_15;
 
 public final class UserMetaMovementData {
   private final Player player;
@@ -144,8 +144,8 @@ public final class UserMetaMovementData {
   private void setupDefaults() {
     UserMetaClientData clientData = user.meta().clientData();
     this.resetMotion = clientData.protocolVersion() <= 47 ? 0.005 : 0.003;
-    this.frictionPosSubtraction = clientData.protocolVersion() <= PROTOCOL_VERSION_BEE_UPDATE ? 1.0 : 0.5000001;
-    this.hasJumpFactor = clientData.protocolVersion() >= PROTOCOL_VERSION_BEE_UPDATE;
+    this.frictionPosSubtraction = clientData.protocolVersion() <= VER_1_15 ? 1.0 : 0.5000001;
+    this.hasJumpFactor = clientData.protocolVersion() >= VER_1_15;
     Location location = player.getLocation();
     boundingBox = WrappedAxisAlignedBB.createFromPosition(user, location.getX(), location.getY(), location.getZ());
   }

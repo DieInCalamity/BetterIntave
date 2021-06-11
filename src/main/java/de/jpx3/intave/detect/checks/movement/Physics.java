@@ -49,7 +49,7 @@ import java.util.List;
 
 import static de.jpx3.intave.tools.MathHelper.formatDouble;
 import static de.jpx3.intave.tools.MathHelper.formatPosition;
-import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_AQUATIC_UPDATE;
+import static de.jpx3.intave.user.UserMetaClientData.VER_1_13;
 
 @Relocate
 public final class Physics extends IntaveCheck {
@@ -268,7 +268,7 @@ public final class Physics extends IntaveCheck {
     User.UserMeta meta = user.meta();
     UserMetaClientData clientData = meta.clientData();
     UserMetaMovementData movementData = meta.movementData();
-    if (clientData.protocolVersion() >= PROTOCOL_VERSION_AQUATIC_UPDATE) {
+    if (clientData.protocolVersion() >= VER_1_13) {
       movementData.inWater = Fluids.handleFluidAcceleration(user, movementData.boundingBox());
     } else {
       WrappedAxisAlignedBB entityBoundingBox = movementData.boundingBox();

@@ -16,7 +16,7 @@ import de.jpx3.intave.user.*;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.USE_ENTITY;
-import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE;
+import static de.jpx3.intave.user.UserMetaClientData.VER_1_8;
 
 public final class AttackInInvalidStateHeuristic extends IntaveMetaCheckPart<Heuristics, AttackInInvalidStateHeuristic.AttackInInvalidStateMeta> {
   public AttackInInvalidStateHeuristic(Heuristics heuristics) {
@@ -79,7 +79,7 @@ public final class AttackInInvalidStateHeuristic extends IntaveMetaCheckPart<Heu
     if (entity == null || !entity.clientSynchronized || !entity.isEntityLiving || !entity.entityTypeData.isLivingEntity()) {
       return;
     }
-    if (clientData.protocolVersion() != PROTOCOL_VERSION_BOUNTIFUL_UPDATE) {
+    if (clientData.protocolVersion() != VER_1_8) {
       return;
     }
     EnumWrappers.EntityUseAction action = packet.getEntityUseActions().read(0);

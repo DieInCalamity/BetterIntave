@@ -67,7 +67,7 @@ public final class InventoryClickDelayAnalyzer extends IntaveMetaCheckPart<Inven
 //      player.sendMessage(s);
 //    }
 
-    if (user.meta().clientData().protocolVersion() >= UserMetaClientData.PROTOCOL_VERSION_COLOR_UPDATE) {
+    if (user.meta().clientData().protocolVersion() >= UserMetaClientData.VER_1_12) {
       // TODO: when a player shifts an item in 1.12+ he sends a "null" as itemStack which makes the check imcompatible
       return;
     }
