@@ -2,7 +2,6 @@ package de.jpx3.intave.world.blockaccess;
 
 import com.comphenix.protocol.utility.MinecraftVersion;
 import de.jpx3.intave.access.IntaveInternalException;
-import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.tools.annotate.Relocate;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
@@ -33,16 +32,17 @@ public final class BlockTypeAccess {
     }
   }
 
-  private static final TypeTranslator translator;
+  private static final FileTypeTranslator translator = new VerTraFileTypeTranslator();
+  private static final TypeTranslations typeTranslations;
   static {
-    translator = VERTRAFileTypeTranslator.fromStream(BlockTypeAccess.class.getResourceAsStream("/mappings/block-backwards-mappings"));
+    typeTranslations = translator.fromResource("/mappings/block-backwards-mappings");
   }
 
   public static void setupTranslationsFor(User user) {
-    MinecraftVersion serverVersion = new MinecraftVersion(ProtocolLibraryAdapter.serverVersion().getVersion());
+    MinecraftVersion serverVersion = MinecraftVersion.getCurrentVersion();
     MinecraftVersion clientVersion = new MinecraftVersion(user.meta().clientData().versionString());
-    Map<Material, Material> translations = translator.translationsFor(serverVersion, clientVersion);
     user.clearTypeTranslations();
+    Map<Material, Material> translations = typeTranslations.specifiedTo(serverVersion, clientVersion).asMap();
     translations.forEach(user::applyTypeTranslation);
   }
 
