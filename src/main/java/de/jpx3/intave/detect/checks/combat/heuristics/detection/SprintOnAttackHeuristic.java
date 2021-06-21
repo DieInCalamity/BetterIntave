@@ -8,8 +8,10 @@ import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserCustomCheckMeta;
+import de.jpx3.intave.user.UserMetaMovementData;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
@@ -32,8 +34,10 @@ public final class SprintOnAttackHeuristic extends IntaveMetaCheckPart<Heuristic
     SprintOnAttackHeuristicMeta meta = metaOf(user);
     EnumWrappers.PlayerAction action = event.getPacket().getPlayerActions().read(0);
 
-    if(action == EnumWrappers.PlayerAction.START_SPRINTING || action == EnumWrappers.PlayerAction.STOP_SPRINTING) {
-      meta.sprintPacketsThisTick++;
+    if(action == EnumWrappers.PlayerAction.START_SPRINTING) {
+      meta.startSprint = true;
+    } else if(action == EnumWrappers.PlayerAction.STOP_SPRINTING) {
+      meta.stopSprint = true;
     }
   }
 
@@ -50,7 +54,7 @@ public final class SprintOnAttackHeuristic extends IntaveMetaCheckPart<Heuristic
     EnumWrappers.EntityUseAction action = event.getPacket().getEntityUseActions().read(0);
 
     if(action == EnumWrappers.EntityUseAction.ATTACK) {
-      meta.attacksThisTick++;
+      meta.lastAttack = 0;
     }
   }
 
@@ -64,42 +68,65 @@ public final class SprintOnAttackHeuristic extends IntaveMetaCheckPart<Heuristic
     Player player = event.getPlayer();
     User user = userOf(player);
     SprintOnAttackHeuristicMeta meta = metaOf(user);
+    UserMetaMovementData movementData = user.meta().movementData();
 
-    if(meta.attacksThisTick > 0) {
+    if(movementData.lastTeleport == 0) {
+      return;
+    }
+
+    if(meta.lastAttack == 0) {
       meta.totalAttacks++;
-      if(meta.sprintPacketsThisTick > 0) {
-        meta.attacksWithSprintChange++;
+      if(meta.startSprint) {
+        meta.attacksWithSprintChangeBefore++;
       }
     }
 
+    if(meta.lastAttack == 1 && meta.stopSprint) {
+      meta.attacksWithSprintChangeAfter++;
+    }
+
     if(meta.totalAttacks > 10) {
-      double ratio = (double) meta.attacksWithSprintChange / (double) meta.totalAttacks;
-      if(ratio > 0.9) {
+      double ratioBefore = (double) meta.attacksWithSprintChangeBefore / (double) meta.totalAttacks;
+      if(ratioBefore > 0.9) {
         Anomaly anomaly = Anomaly.anomalyOf(
           "200",
           Confidence.NONE,
           Anomaly.Type.KILLAURA,
-          "sprint-toggles aligned with attacks (" + ratio + "%)", Anomaly.AnomalyOption.DELAY_16s
+          "sprint-toggles aligned bevor attacks (" + MathHelper.formatDouble(ratioBefore, 2) + "%)", Anomaly.AnomalyOption.DELAY_16s
+        );
+        parentCheck().saveAnomaly(player, anomaly);
+      }
+
+      double ratioAfter = (double) meta.attacksWithSprintChangeAfter / (double) meta.totalAttacks;
+      if(ratioAfter > 0.9) {
+        Anomaly anomaly = Anomaly.anomalyOf(
+          "201",
+          Confidence.NONE,
+          Anomaly.Type.KILLAURA,
+          "sprint-toggles aligned after attacks (" + MathHelper.formatDouble(ratioBefore, 2) + "%)", Anomaly.AnomalyOption.DELAY_16s
         );
         parentCheck().saveAnomaly(player, anomaly);
       }
 
       meta.totalAttacks = 0;
-      meta.attacksWithSprintChange = 0;
+      meta.attacksWithSprintChangeBefore = 0;
     }
 
     prepareNextTick(meta);
   }
 
   private void prepareNextTick(SprintOnAttackHeuristicMeta meta) {
-    meta.attacksThisTick = 0;
-    meta.sprintPacketsThisTick = 0;
+    meta.lastAttack++;
+    meta.startSprint = false;
+    meta.stopSprint = false;
   }
 
   public static class SprintOnAttackHeuristicMeta extends UserCustomCheckMeta {
-    private int attacksWithSprintChange;
+    private int attacksWithSprintChangeBefore;
+    private int attacksWithSprintChangeAfter;
     private int totalAttacks;
-    private int sprintPacketsThisTick;
-    private int attacksThisTick;
+    private boolean startSprint;
+    private boolean stopSprint;
+    private int lastAttack;
   }
 }
