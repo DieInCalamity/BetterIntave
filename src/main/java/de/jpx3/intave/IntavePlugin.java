@@ -75,7 +75,7 @@ import static de.jpx3.intave.user.UserMetaClientData.VERSION_DETAILS;
 public final class IntavePlugin extends JavaPlugin {
   private static IntavePlugin singletonInstance;
   private static String version = "UNKNOWN";
-  private static String prefix = "&8[&c&lIntave&8]&7 ";
+  private static String prefix = ChatColor.translateAlternateColorCodes('&', "&8[&c&lIntave&8]&7 ");
   private static String defaultColor = "";
   private static boolean offlineMode = false;
 
@@ -387,9 +387,9 @@ public final class IntavePlugin extends JavaPlugin {
       boolean enterprise = (VERSION_DETAILS & 0x200) != 0;
 
       if (partner || enterprise) {
-        logger.info("Identity confirmed, overdrive mode enabled");
+//        logger.info("Identity confirmed, overdrive mode enabled");
       } else {
-        logger.info("Identity verification missing");
+        logger.info(ChatColor.RED + "Identity verification missing");
       }
 
       if (offlineMode) {
@@ -549,9 +549,26 @@ public final class IntavePlugin extends JavaPlugin {
 
     RuntimeDiagnostics.applicationBoot();
 
+    if (javaVersion() < 16) {
+      logger.info(ChatColor.RED + "We recommend upgrading Java to version 16");
+    }
+
     packetSubscriptionLinker.refreshLinkages();
     displayVersionInformation();
-    logger.info("Intave booted successfully");
+    logger.info( "Intave booted successfully");
+  }
+
+  @Native
+  private static int javaVersion() {
+    String version = System.getProperty("java.version");
+    if (version.startsWith("1.")) {
+      version = version.substring(2, 3);
+    } else {
+      int dot = version.indexOf(".");
+      if (dot != -1) {
+        version = version.substring(0, dot);
+      }
+    } return Integer.parseInt(version);
   }
 
   public void manifestDataFolder() {
@@ -588,7 +605,7 @@ public final class IntavePlugin extends JavaPlugin {
   public void displayVersionInformation() {
     Version version = versionList.versionInformation(version());
     if (version == null) {
-      logger().info("This version of Intave is not listed in the official version index");
+      logger().info(ChatColor.YELLOW + "This version of Intave is not listed in the official version index");
     } else {
       long duration = AccessHelper.now() - version.release();
       String durationAsString = DurationTranslator.translateDuration(duration);

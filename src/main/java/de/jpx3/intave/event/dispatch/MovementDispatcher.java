@@ -229,7 +229,7 @@ public final class MovementDispatcher implements EventProcessor {
 
     // garbage fix
     if (
-      clientData.cavesAndCliffsUpdate() && hasMovement && !movementData.awaitTeleport && !movementData.awaitOutgoingTeleport
+      clientData.cavesAndCliffsUpdate()
     ) {
       StructureModifier<Double> modifier = packet.getDoubles();
       double positionX = round(modifier.read(0));
@@ -239,6 +239,7 @@ public final class MovementDispatcher implements EventProcessor {
       double motionY = positionY - movementData.verifiedPositionY;
       double motionZ = positionZ - movementData.verifiedPositionZ;
       if (MathHelper.hypot3d(motionX, motionY, motionZ) < 0.00001) {
+        movementData.dropPostTickMotionProcessing = true;
         return;
       }
     }
@@ -303,7 +304,7 @@ public final class MovementDispatcher implements EventProcessor {
         physicsCheck.updateOnGroundIfFlying(user);
       }
 
-      timerCheck.receiveMovement(event, movementData.isTeleportConfirmationPacket);
+      timerCheck.receiveMovement(event);
 
       boolean clientOnGround = vehicleMove ? player.isOnGround() : packet.getBooleans().read(0);
       boolean collidedWithBoat = movementData.collidedWithBoat();
@@ -385,7 +386,7 @@ public final class MovementDispatcher implements EventProcessor {
 
     // onGround == true -> falldamage
 
-    if (!event.isCancelled() && !movementData.isTeleportConfirmationPacket) {
+    if (!event.isCancelled() && !movementData.isTeleportConfirmationPacket && !movementData.dropPostTickMotionProcessing) {
       physicsCheck.endMovement(user, hasMovement);
     }
 
@@ -396,6 +397,7 @@ public final class MovementDispatcher implements EventProcessor {
     movementData.invalidMovement = false;
     movementData.suspiciousMovement = false;
     movementData.isTeleportConfirmationPacket = false;
+    movementData.dropPostTickMotionProcessing = false;
 
     boolean flyingWithElytra = movementData.elytraFlying;//PoseHelper.flyingWithElytra(player);
     if (flyingWithElytra) {
@@ -435,7 +437,7 @@ public final class MovementDispatcher implements EventProcessor {
       movementData.physicsEatingSlotSwitchVL = 0;
     }
 
-    if (!event.isCancelled() && !movementData.isTeleportConfirmationPacket) {
+    if (!event.isCancelled() /*&& !movementData.isTeleportConfirmationPacket && !movementData.dropPostTickMotionProcessing*/) {
       movementData.lastOnGround = movementData.onGround;
       movementData.verifiedPositionX = movementData.positionX;
       movementData.verifiedPositionY = movementData.positionY;

@@ -324,7 +324,7 @@ public class DefaultPoseSimulator extends PoseSimulator {
     UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
     UserMetaMovementData movementData = meta.movementData();
     UserMetaClientData clientData = meta.clientData();
-    MotionVector motionVector = movementData.motionVector;
+    MotionVector motionVector = movementData.motionProcessorContext;
     motionVector.reset(motionX, motionY, motionZ);
 
     boolean elytraFlying = movementData.elytraFlying;//PoseHelper.flyingWithElytra(player);

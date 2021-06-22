@@ -11,14 +11,17 @@ import net.minecraft.server.v1_14_R1.IBlockData;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_14_R1.block.data.CraftBlockData;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
 public final class RuntimeBlockDataIndexer {
   private final static boolean required = MinecraftVersions.VER1_14_0.atOrAbove();
   private final static Map<Material, Map<Object, Integer>> blockDataIndex = new EnumMap<>(Material.class);
-  private final static Map<Material, List<Object>> blockDataRegister = new EnumMap<>(Material.class);
+  private final static Map<Material, Map<Integer, Object>> blockDataRegister = new EnumMap<>(Material.class);
 
   static {
     if (required) {
@@ -60,17 +63,17 @@ public final class RuntimeBlockDataIndexer {
     public static void index(
       Material type,
       BiConsumer<Material, Map<Object, Integer>> indexApply,
-      BiConsumer<Material, List<Object>> registerApply
+      BiConsumer<Material, Map<Integer, Object>> registerApply
     ) {
       CraftBlockData blockData = CraftBlockData.newData(type, null);
       Block block = blockData.getState().getBlock();
       ImmutableList<IBlockData> nativeStates = block.getStates().a();
       Map<Object, Integer> index = new HashMap<>();
-      List<Object> register = new ArrayList<>();
-      int i = 0;
+      Map<Integer, Object> register = new HashMap<>();
       for (IBlockData nativeState : nativeStates) {
-        index.put(nativeState, i++);
-        register.add(nativeState);
+        int id = Block.getCombinedId(nativeState);
+        index.put(nativeState, id);
+        register.put(id, nativeState);
       }
       indexApply.accept(type, index);
       registerApply.accept(type, register);

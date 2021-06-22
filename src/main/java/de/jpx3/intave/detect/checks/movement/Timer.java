@@ -74,7 +74,7 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
     timerData.lastFlyingPacket = AccessHelper.now();
   }
 
-  public void receiveMovement(PacketEvent event, boolean teleportConf) {
+  public void receiveMovement(PacketEvent event) {
     Player player = event.getPlayer();
     if (player == null) {
       return;

@@ -45,7 +45,7 @@ public final class UserMetaMovementData {
   public double gravity;
   public boolean outsideBorder = true;
 
-  public MotionVector motionVector = new MotionVector();
+  public MotionVector motionProcessorContext = new MotionVector();
   public Vector lookVector = new Vector();
   public double verifiedPositionX, verifiedPositionY, verifiedPositionZ;
   public double lastPositionX, lastPositionY, lastPositionZ;
@@ -112,6 +112,7 @@ public final class UserMetaMovementData {
   private WrappedEntity ridingEntity;
 
   public boolean isTeleportConfirmationPacket;
+  public boolean dropPostTickMotionProcessing;
   public boolean willReceiveSetbackVelocity;
   public int lastTeleport;
   public int teleportId;

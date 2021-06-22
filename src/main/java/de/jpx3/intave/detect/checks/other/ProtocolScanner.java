@@ -100,13 +100,13 @@ public final class ProtocolScanner extends IntaveMetaCheck<ProtocolScanner.Proto
       return;
     }
     if ((keyForward != 0 || keyStrafe != 0) && distanceMoved > 0.1) {
-      Violation violation = Violation.builderFor(ProtocolScanner.class)
-        .forPlayer(player)
-        .withMessage("updated client settings whilst walking")
-        .withDetails("version " + clientData.versionString())
-        .withVL(0)
-        .build();
-      plugin.violationProcessor().processViolation(violation);
+//      Violation violation = Violation.builderFor(ProtocolScanner.class)
+//        .forPlayer(player)
+//        .withMessage("updated client settings whilst walking")
+//        .withDetails("version " + clientData.versionString())
+//        .withVL(0)
+//        .build();
+//      plugin.violationProcessor().processViolation(violation);
       event.setCancelled(true);
     }
   }

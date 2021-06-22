@@ -135,7 +135,7 @@ public final class SimulationProcessor {
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
     Pose movementPoseType = movementData.movementPoseType();
-    MotionVector motionVector = MotionVector.from(movementData.motionVector);
+    MotionVector motionVector = MotionVector.from(movementData.motionProcessorContext);
     motionVector.resetTo(movementData);
     return movementPoseType.simulator().performSimulation(
       user, motionVector,
@@ -151,7 +151,7 @@ public final class SimulationProcessor {
     UserMetaInventoryData inventoryData = user.meta().inventoryData();
     Pose movementPoseType = movementData.movementPoseType();
     PoseSimulator simulator = movementPoseType.simulator();
-    MotionVector motionVector = movementData.motionVector;
+    MotionVector motionVector = movementData.motionProcessorContext;
     double lastMotionX = movementData.physicsMotionX;
     double lastMotionZ = movementData.physicsMotionZ;
     boolean jumped = false;
@@ -213,7 +213,7 @@ public final class SimulationProcessor {
     UserMetaInventoryData inventoryData = user.meta().inventoryData();
     Pose movementPoseType = movementData.movementPoseType();
     PoseSimulator simulator = movementPoseType.simulator();
-    MotionVector motionVector = movementData.motionVector;
+    MotionVector motionVector = movementData.motionProcessorContext;
 
     int keyForward = movementData.lastKeyForward;
     int keyStrafe = movementData.lastKeyStrafe;
@@ -419,7 +419,7 @@ public final class SimulationProcessor {
     boolean handActive,
     boolean forceApply
   ) {
-    MotionVector motionVector = movementData.motionVector;
+    MotionVector motionVector = movementData.motionProcessorContext;
     float moveForward = keyForward * 0.98f;
     float moveStrafe = keyStrafe * 0.98f;
     motionVector.resetTo(movementData);

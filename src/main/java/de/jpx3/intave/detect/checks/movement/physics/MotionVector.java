@@ -1,5 +1,6 @@
 package de.jpx3.intave.detect.checks.movement.physics;
 
+import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.user.UserMetaMovementData;
 import org.bukkit.util.Vector;
 
@@ -28,8 +29,21 @@ public class MotionVector {
     reset(data.physicsMotionX, data.physicsMotionY, data.physicsMotionZ);
   }
 
+  public double length() {
+    return MathHelper.hypot3d(motionX, motionY, motionZ);
+  }
+
   public Vector toBukkitVector() {
     return new Vector(this.motionX, this.motionY, this.motionZ);
+  }
+
+  @Override
+  public String toString() {
+    return "MotionVector{" +
+      "motionX=" + motionX +
+      ", motionY=" + motionY +
+      ", motionZ=" + motionZ +
+      '}';
   }
 
   public static MotionVector from(MotionVector context) {

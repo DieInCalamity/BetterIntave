@@ -44,7 +44,7 @@ public final class v8BoundingBoxResolver implements BoundingBoxResolvePipeline {
   @PatchyAutoTranslation
   public List<WrappedAxisAlignedBB> customResolve(World world, Player player, org.bukkit.Material type, int blockState, int posX, int posY, int posZ) {
     BlockPosition blockposition = new BlockPosition(posX, posY, posZ);
-    IBlockData blockData = Block.d.a((type.getId() << 4) | (blockState & 0xF));
+    IBlockData blockData = Block.getByCombinedId(type.getId() | (blockState & 0xF) << 12);
     List<AxisAlignedBB> bbs = new ArrayList<>();
     if (blockData == null) {
       return Collections.emptyList();

@@ -20,7 +20,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public final class IntaveLogger {
 
   public static boolean FILE_OUTPUT = true;
-  public static boolean CONSOLE_OUTPUT = IntaveControl.GOMME_MODE;
+  public static final boolean VIOLATION_CONSOLE_OUTPUT = IntaveControl.GOMME_MODE;
+  public static final boolean DISABLE_COLOR_OUTPUT = IntaveControl.GOMME_MODE;
 
   private final static String LOG_PATH = "plugins" + File.separator + "Intave" + File.separator + "logs";
   private final IntavePlugin plugin;
@@ -40,25 +41,46 @@ public final class IntaveLogger {
   }
 
   public void info(String infoMessage) {
-    String message = "[Intave] " + infoMessage;
+    String message = IntavePlugin.prefix() + infoMessage;
     for (PrintStream outputStream : outputStreams) {
-      outputStream.print(message);
+      outputStream.print(ChatColor.stripColor(message));
     }
-    Bukkit.getLogger().info(message);
+    if (DISABLE_COLOR_OUTPUT) {
+      Bukkit.getLogger().info(ChatColor.stripColor(message));
+    } else {
+      Bukkit.getConsoleSender().sendMessage(message);
+    }
     logToFile("(INF) " + infoMessage);
   }
 
   public void error(String errorMessage) {
-    String message = "[Intave] " + errorMessage;
+    String message = IntavePlugin.prefix() + ChatColor.RED + "ERROR" + IntavePlugin.defaultColor() + ": " + errorMessage;
     for (PrintStream outputStream : outputStreams) {
-      outputStream.print(message);
+      outputStream.print(ChatColor.stripColor(message));
     }
-    Bukkit.getLogger().warning(message);
+    if (DISABLE_COLOR_OUTPUT) {
+      Bukkit.getLogger().warning(ChatColor.stripColor(message));
+    } else {
+      Bukkit.getConsoleSender().sendMessage(message);
+    }
     logToFile("(ERR) " + errorMessage);
   }
 
+  public void warn(String errorMessage) {
+    String message = IntavePlugin.prefix() + ChatColor.RED + "WARN" + IntavePlugin.defaultColor() + ": " + errorMessage;
+    for (PrintStream outputStream : outputStreams) {
+      outputStream.print(ChatColor.stripColor(message));
+    }
+    if (DISABLE_COLOR_OUTPUT) {
+      Bukkit.getLogger().warning(ChatColor.stripColor(message));
+    } else {
+      Bukkit.getConsoleSender().sendMessage(message);
+    }
+    logToFile("(WARN) " + errorMessage);
+  }
+
   public void violation(String violation) {
-    if (CONSOLE_OUTPUT) {
+    if (VIOLATION_CONSOLE_OUTPUT) {
       pushPrintln("[Intave] Violation: " + violation);
     }
     logToFile("(DET) " + violation);
