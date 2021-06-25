@@ -10,11 +10,10 @@ import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.tools.client.SinusCache;
-import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
-import de.jpx3.intave.user.UserMetaAttackData;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.*;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
@@ -39,39 +38,61 @@ public final class ReshapedJumpHeuristic extends IntaveMetaCheckPart<Heuristics,
     ReshapedJumpHeuristicMeta heuristicMeta = metaOf(user);
     UserMetaMovementData movementData = user.meta().movementData();
     UserMetaAttackData attackData = user.meta().attackData();
+    UserMetaInventoryData inventoryData = user.meta().inventoryData();
 
     if (!attackData.recentlyAttacked(1000)) {
       return;
     }
 
     boolean jump = Math.abs(movementData.jumpMotion() - movementData.motionY()) < 1e-5;
-    if (jump && movementData.sprinting && movementData.suspiciousMovement && movementData.lastTeleport > 5) {
+    if (jump && movementData.sprinting && movementData.lastTeleport > 5) {
       float rotationYaw = movementData.rotationYaw;
       float yawSine = SinusCache.sin(rotationYaw * (float) Math.PI / 180.0F, false);
       float yawCosine = SinusCache.cos(rotationYaw * (float) Math.PI / 180.0F, false);
 
-      Vector motion = new Vector(movementData.physicsMotionX, 0.0, movementData.physicsMotionZ);
-      float friction = 0.13f;
+      double physicsMotionX = movementData.physicsMotionX;
+      double physicsMotionZ = movementData.physicsMotionZ;
+      ItemStack itemStack = inventoryData.heldItem();
+      boolean knockbackEnchantment = itemStack != null && itemStack.containsEnchantment(Enchantment.KNOCKBACK);
+
+      if (!knockbackEnchantment && movementData.pastPlayerAttackPhysics == 0) {
+        physicsMotionX *= 0.6;
+        physicsMotionZ *= 0.6;
+      }
+
+      Vector motion = new Vector(physicsMotionX, 0.0, physicsMotionZ);
+      float friction = movementData.friction();
       float moveForward = movementData.keyForward * 0.98f;
       float moveStrafe = movementData.keyStrafe * 0.98f;
 
+      physicsApplyJumpTo(yawSine, yawCosine, motion);
       physicsCalculateRelativeMovement(motion, friction, yawSine, yawCosine, moveForward, moveStrafe);
-      double distance = Math.hypot(motion.getX() - movementData.motionX(), motion.getZ() - movementData.motionZ());
-      double abs = Math.abs(distance - 0.2);
+      double preDistance = Math.hypot(motion.getX() - movementData.motionX(), motion.getZ() - movementData.motionZ());
 
-      if (abs < 1e-5) {
-        if (heuristicMeta.balance++ >= 1) {
-          String description = "player performed rotation hop";
-          int options = Anomaly.AnomalyOption.LIMIT_8 | Anomaly.AnomalyOption.DELAY_128s | Anomaly.AnomalyOption.SUGGEST_MINING;
-          Anomaly anomaly = Anomaly.anomalyOf("61", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, options);
-          parentCheck().saveAnomaly(player, anomaly);
-          //dmc15
-          user.applyAttackNerfer(AttackNerfStrategy.HT_MEDIUM, "15");
+      double leniency = 0.0001;
+      if (preDistance > leniency) {
+        motion = new Vector(physicsMotionX, 0.0, physicsMotionZ);
+        physicsCalculateRelativeMovement(motion, friction, yawSine, yawCosine, moveForward, moveStrafe);
+        double postDistance = Math.hypot(motion.getX() - movementData.motionX(), motion.getZ() - movementData.motionZ());
+        if (Math.abs(postDistance - 0.2) < leniency) {
+          if (heuristicMeta.balance++ >= 1) {
+            String description = "xz-motion not corrected with jump";
+            int options = Anomaly.AnomalyOption.LIMIT_8 | Anomaly.AnomalyOption.SUGGEST_MINING;
+            Anomaly anomaly = Anomaly.anomalyOf("61", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, options);
+            parentCheck().saveAnomaly(player, anomaly);
+            //dmc15
+            user.applyAttackNerfer(AttackNerfStrategy.HT_MEDIUM, "15");
+          }
         }
       } else {
         heuristicMeta.balance -= heuristicMeta.balance > 0 ? 0.2 : 0;
       }
     }
+  }
+
+  private void physicsApplyJumpTo(float yawSine, float yawCosine, Vector motion) {
+    motion.setX(motion.getX() - yawSine * 0.2F);
+    motion.setZ(motion.getZ() + yawCosine * 0.2F);
   }
 
   private void physicsCalculateRelativeMovement(
