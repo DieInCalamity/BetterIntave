@@ -38,9 +38,13 @@ public final class EntityVelocityCache implements PacketEventSubscriber {
     double motionX = packet.getIntegers().readSafely(1) / VELOCITY_CONVERT_FACTOR;
     double motionY = packet.getIntegers().readSafely(2) / VELOCITY_CONVERT_FACTOR;
     double motionZ = packet.getIntegers().readSafely(3) / VELOCITY_CONVERT_FACTOR;
-    registerHorizontalVelocity(motionX);
-    registerHorizontalVelocity(motionZ);
-    registerVerticalVelocity(motionY);
+    if (horizontalVelocities.size() < 10) {
+      registerHorizontalVelocity(motionX);
+      registerHorizontalVelocity(motionZ);
+    }
+    if (verticalVelocities.size() < 10) {
+      registerVerticalVelocity(motionY);
+    }
     if (fakePlayer != null && entityID == player.getEntityId()) {
       notifyFakePlayer(fakePlayer, motionX, motionY, motionZ);
     }

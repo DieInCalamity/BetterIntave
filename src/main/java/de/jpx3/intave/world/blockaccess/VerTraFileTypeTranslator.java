@@ -35,7 +35,7 @@ final class VerTraFileTypeTranslator implements FileTypeTranslator {
         } else {
           // selector
           if(!SELECTOR_REGEX_PATTERN.matcher(line).matches()) {
-            throw new IntaveResourceCompilationException("Invalid selector patter");
+            throw new IntaveResourceCompilationException("Invalid selector pattern");
           }
           int fromVersionStartIndex = afterIndex(line, "from ");
           int fromVersionEndIndex = line.indexOf(" ", fromVersionStartIndex);
