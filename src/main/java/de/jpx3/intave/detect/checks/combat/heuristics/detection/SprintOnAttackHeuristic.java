@@ -81,32 +81,17 @@ public final class SprintOnAttackHeuristic extends IntaveMetaCheckPart<Heuristic
       }
     }
 
-    if(meta.lastAttack == 1 && meta.stopSprint) {
-      meta.attacksWithSprintChangeAfter++;
-    }
-
     if(meta.totalAttacks > 10) {
       double ratioBefore = (double) meta.attacksWithSprintChangeBefore / (double) meta.totalAttacks;
-      if(ratioBefore > 0.9) {
-        Anomaly anomaly = Anomaly.anomalyOf(
-          "200",
-          Confidence.NONE,
-          Anomaly.Type.KILLAURA,
-          "sprint-toggles aligned bevor attacks (" + MathHelper.formatDouble(ratioBefore, 2) + "%)", Anomaly.AnomalyOption.DELAY_16s
-        );
-        parentCheck().saveAnomaly(player, anomaly);
-      }
-
-      double ratioAfter = (double) meta.attacksWithSprintChangeAfter / (double) meta.totalAttacks;
-      if(ratioAfter > 0.9) {
-        Anomaly anomaly = Anomaly.anomalyOf(
-          "201",
-          Confidence.NONE,
-          Anomaly.Type.KILLAURA,
-          "sprint-toggles aligned after attacks (" + MathHelper.formatDouble(ratioBefore, 2) + "%)", Anomaly.AnomalyOption.DELAY_16s
-        );
-        parentCheck().saveAnomaly(player, anomaly);
-      }
+        if(ratioBefore > 0.9) {
+          Anomaly anomaly = Anomaly.anomalyOf(
+            "200",
+            Confidence.NONE,
+            Anomaly.Type.KILLAURA,
+            "sprint-toggles aligned bevor attacks (" + MathHelper.formatDouble(ratioBefore, 2) + "%)", Anomaly.AnomalyOption.DELAY_16s
+          );
+          parentCheck().saveAnomaly(player, anomaly);
+        }
 
       meta.totalAttacks = 0;
       meta.attacksWithSprintChangeBefore = 0;
