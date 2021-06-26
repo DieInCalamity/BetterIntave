@@ -1,8 +1,13 @@
 package de.jpx3.intave.detect.checks.combat.heuristics.detection;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.EnumWrappers;
+import de.jpx3.intave.adapter.MinecraftVersions;
+import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.detect.IntaveMetaCheckPart;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
@@ -14,6 +19,8 @@ import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.user.*;
 import org.bukkit.entity.Player;
+
+import java.lang.reflect.InvocationTargetException;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.USE_ENTITY;
 import static de.jpx3.intave.user.UserMetaClientData.VER_1_8;
@@ -47,7 +54,37 @@ public final class AttackInInvalidStateHeuristic extends IntaveMetaCheckPart<Heu
       parentCheck().saveAnomaly(player, anomaly);
       //dmc28
       user.applyAttackNerfer(AttackNerfStrategy.BLOCKING, "28");
+
+      sendStopUseItemPacketToServer(user);
     }
+  }
+
+  private void sendStopUseItemPacketToServer(User user) {
+    Player player = user.player();
+    if (ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0)) {
+      return;
+    } else {
+      try {
+        PacketContainer packet = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Client.BLOCK_DIG);
+        packet.getBlockPositionModifier().write(0, new BlockPosition(0,0,0));
+        packet.getDirections().write(0, EnumWrappers.Direction.DOWN);
+        packet.getPlayerDigTypes().write(0, EnumWrappers.PlayerDigType.RELEASE_USE_ITEM);
+
+        userOf(player).ignoreNextPacket();
+        ProtocolLibrary.getProtocolManager().recieveClientPacket(player, packet);
+
+        updatePlayerHandItem(player);
+      } catch (InvocationTargetException | IllegalAccessException exception) {
+        exception.printStackTrace();
+      }
+    }
+    player.updateInventory();
+  }
+
+  private void updatePlayerHandItem(Player player) {
+    User user = UserRepository.userOf(player);
+    UserMetaInventoryData inventoryData = user.meta().inventoryData();
+    inventoryData.deactivateHand();
   }
 
   private void checkGUIScreen(Player player) {
