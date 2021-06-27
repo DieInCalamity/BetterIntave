@@ -34,11 +34,11 @@ public final class TypeTranslators {
           return enumConstant;
         }
       }
-      return ("Could not find " + type + " in " + type.getSimpleName());
+      return "Could not find " + type + " in " + type.getSimpleName();
     }
     TypeTranslator<?> typeTranslator = typeTranslatorMap.get(type);
     if (typeTranslator == null) {
-      return ("Invalid type: " + type);
+      return "Invalid type: " + type;
     }
     return typeTranslator.resolve(player, element, forward);
   }

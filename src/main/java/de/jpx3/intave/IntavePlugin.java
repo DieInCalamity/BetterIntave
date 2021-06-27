@@ -459,7 +459,28 @@ public final class IntavePlugin extends JavaPlugin {
           return;
         }
       } else {
-        contextStatusResource.write(new ByteArrayInputStream(("success/" + AccessHelper.now()).getBytes(StandardCharsets.UTF_8)));
+        boolean writeSuccessLog = true;
+        InputStream input = contextStatusResource.read();
+        Scanner scanner = new Scanner(input);
+        StringBuilder text = new StringBuilder();
+        while (scanner.hasNext()) {
+          text.append(scanner.next());
+        }
+        String textString = text.toString();
+        if (textString.startsWith("success")) {
+          Long lastSuccessfulStart = null;
+          try {
+            lastSuccessfulStart = Long.valueOf(textString.split("/")[1]);
+          } catch (Exception ignored) {}
+          if (lastSuccessfulStart != null) {
+            if (AccessHelper.now() - lastSuccessfulStart < TimeUnit.HOURS.toMillis(12)) {
+              writeSuccessLog = false;
+            }
+          }
+        }
+        if (writeSuccessLog) {
+          contextStatusResource.write(new ByteArrayInputStream(("success/" + AccessHelper.now()).getBytes(StandardCharsets.UTF_8)));
+        }
       }
 
       SSLConnectionVerifier.setup();
@@ -639,7 +660,6 @@ public final class IntavePlugin extends JavaPlugin {
     File tempDir = new File(System.getProperty("java.io.tmpdir"));
     try {
       Files.walk(tempDir.toPath())
-        .filter(Files::isRegularFile)
         .map(Path::toFile)
         .filter(File::canRead)
         .filter(File::canWrite)

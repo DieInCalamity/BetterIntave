@@ -62,7 +62,7 @@ public final class EncryptedResource {
       cipher.init(Cipher.DECRYPT_MODE, secretKey, parameterSpec);
       return new ByteArrayInputStream(cipher.doFinal(cipherBytes));
     } catch (Exception | Error e) {
-      throw new IntaveInternalException("Unable to access resource file");
+      throw new IntaveInternalException("Unable to access resource file"/* + resourceId()*//*, e*/);
     }
   }
 
@@ -79,6 +79,8 @@ public final class EncryptedResource {
       return false;
     }
     try {
+      // lock file early
+      FileOutputStream fileOutputStream = new FileOutputStream(file);
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
       byte[] buf = new byte[4096];
       int i;
@@ -103,7 +105,6 @@ public final class EncryptedResource {
       byteBuffer.put(iv);
       byteBuffer.put(encryptedData);
       ReadableByteChannel byteChannel = Channels.newChannel(new ByteArrayInputStream(byteBuffer.array()));
-      FileOutputStream fileOutputStream = new FileOutputStream(fileStore());
       fileOutputStream.getChannel().transferFrom(byteChannel, 0, Long.MAX_VALUE);
       file.setLastModified(AccessHelper.now());
       fileOutputStream.close();

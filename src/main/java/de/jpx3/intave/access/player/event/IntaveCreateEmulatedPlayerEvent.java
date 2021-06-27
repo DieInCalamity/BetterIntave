@@ -35,7 +35,7 @@ public final class IntaveCreateEmulatedPlayerEvent extends IntaveCreateEmulatedE
 
   @Override
   public void referenceInvalidate() {
-    this.observer = null;
+    this.observer.clear();
   }
 
   public static IntaveCreateEmulatedPlayerEvent empty() {
