@@ -29,7 +29,7 @@ public class IntaveCreateEmulatedEntityEvent extends IntaveEvent {
 
   @Override
   public void referenceInvalidate() {
-    this.observer = null;
+    this.observer.clear();
   }
 
   public static IntaveCreateEmulatedEntityEvent empty() {
