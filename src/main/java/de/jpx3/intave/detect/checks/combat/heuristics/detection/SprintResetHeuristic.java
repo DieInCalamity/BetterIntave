@@ -119,8 +119,12 @@ public final class SprintResetHeuristic extends IntaveMetaCheckPart<Heuristics, 
     } else {
       attacked = meta.lastAttack == 1;
     }
+    UserMetaAbilityData abilityData = user.meta().abilityData();
 
-    if(attacked
+    if(
+      !attacked
+      && player.getFoodLevel() > 6
+      && abilityData.health > 0
       && meta.sprintingTicksLeft != 0
       && !useItem
       && movementData.lastTeleport != 0
@@ -162,7 +166,7 @@ public final class SprintResetHeuristic extends IntaveMetaCheckPart<Heuristics, 
     private boolean startSneak;
     private boolean startSprint;
     private boolean stopSprint;
-    private int lastAttack;
+    private int lastAttack = 9999;
     private int sprintingTicksLeft;
   }
 }
