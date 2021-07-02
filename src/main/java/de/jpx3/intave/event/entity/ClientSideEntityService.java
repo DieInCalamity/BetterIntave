@@ -233,23 +233,14 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
   public void receiveEntityDestroy(PacketEvent event) {
     Player player = event.getPlayer();
     int[] entityIDs = event.getPacket().getIntegerArrays().read(0);
-
-    User user = UserRepository.userOf(player);
-    UserMetaConnectionData synchronizeData = user.meta().connectionData();
-    Map<Integer, WrappedEntity> synchronizedEntityMap = synchronizeData.synchronizedEntityMap();
     /*
     Important: When the destroy entity packet is synchronised the spawn entity packet needs also be synchronized because:
     When you respawn the server sends a destroy entity packet and a spawn entity packet pretty fast one after another and if the
     destroy entity packet gets executed after the spawn packet the entity will be destroyed right after it gets spawned
      */
     for (int entityID : entityIDs) {
-      WrappedEntity wrappedEntity = synchronizedEntityMap.get(entityID);
-      if (wrappedEntity instanceof WrappedEntityFirework) {
-        TFCallback<Integer> task = this::processEntityDestroy;
-        plugin.eventService().feedback().singleSynchronize(player, entityID, task, OPTIONAL);
-      } else {
-        processEntityDestroy(player, entityID);
-      }
+      TFCallback<Integer> task = this::processEntityDestroy;
+      plugin.eventService().feedback().singleSynchronize(player, entityID, task, OPTIONAL);
     }
   }
 
