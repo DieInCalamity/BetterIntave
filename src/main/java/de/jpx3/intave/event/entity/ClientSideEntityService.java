@@ -238,10 +238,12 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     When you respawn the server sends a destroy entity packet and a spawn entity packet pretty fast one after another and if the
     destroy entity packet gets executed after the spawn packet the entity will be destroyed right after it gets spawned
      */
-    for (int entityID : entityIDs) {
-      TFCallback<Integer> task = this::processEntityDestroy;
-      plugin.eventService().feedback().singleSynchronize(player, entityID, task, OPTIONAL);
-    }
+    TFCallback<Object> task = (player1, object) -> {
+      for (int entityID : entityIDs) {
+        processEntityDestroy(player, entityID);
+      }
+    };
+    plugin.eventService().feedback().singleSynchronize(player, null, task, OPTIONAL);
   }
 
   private void processEntityDestroy(Player player, int entityId) {
