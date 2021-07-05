@@ -133,10 +133,8 @@ public final class BlockDataAccess {
 
   private static void loadMaterials() {
     if (MODERN_MATERIAL_PROCESSING) {
-      IntaveLogger.logger().info("Modern material processing");
       modernMaterialLoad();
     } else {
-      IntaveLogger.logger().info("Legacy material processing");
       legacyMaterialLoad();
     }
   }
