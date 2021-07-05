@@ -94,8 +94,9 @@ public final class SameRotationHeuristic extends IntaveMetaCheckPart<Heuristics,
     boolean yawExactNumber = meta.lastTick.yaw % 1 == 0;
 
     if (yawExactNumber && !lastYawMotionExactNumber) {
+      meta.violationLevel += 20;
       String description = "exact Yaw Rotation:" + meta.lastTick.yaw;
-      Anomaly anomaly = Anomaly.anomalyOf("183", Confidence.NONE, Anomaly.Type.KILLAURA, description, options());
+      Anomaly anomaly = anomalyOf("183", description, meta);
       parentCheck().saveAnomaly(player, anomaly);
     }
   }
@@ -108,8 +109,9 @@ public final class SameRotationHeuristic extends IntaveMetaCheckPart<Heuristics,
     boolean pitchExactNumber = meta.lastTick.pitch % 1 == 0;
 
     if (pitchExactNumber && Math.abs(meta.lastTick.pitch) != 90 && !lastPitchMotionExactNumber) {
+      meta.violationLevel += 20;
       String description = "exact pitch rotation:" + meta.lastTick.pitch;
-      Anomaly anomaly = Anomaly.anomalyOf("183", Confidence.NONE, Anomaly.Type.KILLAURA, description, options());
+      Anomaly anomaly = anomalyOf("183", description, meta);
       parentCheck().saveAnomaly(player, anomaly);
     }
   }
@@ -119,8 +121,9 @@ public final class SameRotationHeuristic extends IntaveMetaCheckPart<Heuristics,
     boolean containedYaw = meta.yawRotations.contains(meta.lastTick.yaw);
 
     if (containedYaw) {
+      meta.violationLevel += 50;
       String description = "same rotation (Yaw:" + meta.lastTick.yaw + ", YawMotion:" + MathHelper.formatDouble(meta.lastTick.yawMotion, 2) + ")";
-      Anomaly anomaly = Anomaly.anomalyOf("181", Confidence.NONE, Anomaly.Type.KILLAURA, description, options());
+      Anomaly anomaly = anomalyOf("181", description, meta);
       parentCheck().saveAnomaly(player, anomaly);
     }
   }
@@ -135,8 +138,9 @@ public final class SameRotationHeuristic extends IntaveMetaCheckPart<Heuristics,
     }
 
     if (containedPitch && Math.abs(meta.lastTick.pitch) != 90) {
+      meta.violationLevel += 50;
       String description = "same rotation (Pitch:" + meta.lastTick.pitch + ", PitchMotion:" + MathHelper.formatDouble(meta.lastTick.pitchMotion, 2) + ")";
-      Anomaly anomaly = Anomaly.anomalyOf("181", Confidence.NONE, Anomaly.Type.KILLAURA, description, options());
+      Anomaly anomaly = anomalyOf("181", description, meta);
       parentCheck().saveAnomaly(player, anomaly);
     }
   }
@@ -146,8 +150,9 @@ public final class SameRotationHeuristic extends IntaveMetaCheckPart<Heuristics,
     boolean yawMotionExactNumber = meta.lastTick.yawMotion % 1 == 0;
 
     if (yawMotionExactNumber) {
+      meta.violationLevel += 30;
       String description = "exact yaw motion:" + meta.lastTick.yawMotion;
-      Anomaly anomaly = Anomaly.anomalyOf("182", Confidence.NONE, Anomaly.Type.KILLAURA, description, options());
+      Anomaly anomaly = anomalyOf("182", description, meta);
       parentCheck().saveAnomaly(player, anomaly);
     }
   }
@@ -157,10 +162,22 @@ public final class SameRotationHeuristic extends IntaveMetaCheckPart<Heuristics,
     boolean pitchMotionExactNumber = meta.lastTick.pitchMotion % 1 == 0;
 
     if (pitchMotionExactNumber) {
+      meta.violationLevel += 20;
       String description = "exact pitch motion:" + meta.lastTick.pitchMotion;
-      Anomaly anomaly = Anomaly.anomalyOf("182", Confidence.NONE, Anomaly.Type.KILLAURA, description, options());
+      Anomaly anomaly = anomalyOf("182", description, meta);
       parentCheck().saveAnomaly(player, anomaly);
     }
+  }
+
+  private Anomaly anomalyOf(String key, String description, SameRotationHeuristicMeta meta) {
+    Confidence confidence = getConfidence(meta);
+    return Anomaly.anomalyOf(key, confidence, Anomaly.Type.KILLAURA, description + " conf:" + confidence.level(), options());
+  }
+
+  private Confidence getConfidence(SameRotationHeuristicMeta meta) {
+    Confidence confidence = Confidence.confidenceFrom(meta.violationLevel);
+    meta.violationLevel -= confidence.level();
+    return confidence;
   }
 
   @Native
@@ -185,11 +202,11 @@ public final class SameRotationHeuristic extends IntaveMetaCheckPart<Heuristics,
     meta.lastLastTick = meta.lastTick;
     meta.lastTick = currentTick;
 
-    if (meta.yawRotations.size() > 40) {
+    if (meta.yawRotations.size() > 50) {
       meta.yawRotations.remove(0);
     }
 
-    if (meta.pitchRotations.size() > 40) {
+    if (meta.pitchRotations.size() > 50) {
       meta.pitchRotations.remove(0);
     }
 
@@ -200,6 +217,7 @@ public final class SameRotationHeuristic extends IntaveMetaCheckPart<Heuristics,
 
 
   public static final class SameRotationHeuristicMeta extends UserCustomCheckMeta {
+    private int violationLevel;
     private final List<Float> yawRotations = new ArrayList<>();
     private final List<Float> pitchRotations = new ArrayList<>();
     private int rotationsSinceTeleport;

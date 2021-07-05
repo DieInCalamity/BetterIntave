@@ -40,7 +40,7 @@ public final class JumpVelocityHeuristic extends IntaveMetaCheckPart<Heuristics,
           message += " and got velocity";
         }
         Anomaly anomaly = Anomaly.anomalyOf("200",
-          Confidence.NONE,
+          Confidence.LIKELY,
           Anomaly.Type.KILLAURA,
           message, Anomaly.AnomalyOption.DELAY_16s
         );
