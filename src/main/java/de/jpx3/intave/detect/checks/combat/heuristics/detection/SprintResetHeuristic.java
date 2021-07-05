@@ -1,6 +1,5 @@
 package de.jpx3.intave.detect.checks.combat.heuristics.detection;
 
-import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.detect.IntaveMetaCheckPart;

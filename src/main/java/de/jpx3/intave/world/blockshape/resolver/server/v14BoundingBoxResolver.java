@@ -33,10 +33,8 @@ public final class v14BoundingBoxResolver implements BoundingBoxResolvePipeline 
   public List<WrappedAxisAlignedBB> customResolve(World world, Player player, Material type, int blockState, int posX, int posY, int posZ) {
     WorldServer handle = ((CraftWorld) world).getHandle();
     BlockPosition blockPosition = new BlockPosition(posX, posY, posZ);
-    IBlockData blockData;
-    if (BlockDataAccess.isLegacy(type)) {
-      blockData = CraftMagicNumbers.getBlock(type, (byte) blockState);
-    } else {
+    IBlockData blockData = CraftMagicNumbers.getBlock(type, (byte) blockState);
+    if (blockData == null || blockData.getBlock() instanceof BlockAir) {
       blockData = (IBlockData) RuntimeBlockDataIndexer.modernStateFromIndex(type, blockState);
     }
     if (blockData == null) {

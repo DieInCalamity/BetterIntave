@@ -15,6 +15,7 @@ import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.world.blockaccess.BlockDataAccess;
 import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -35,7 +36,6 @@ import static de.jpx3.intave.event.transaction.TransactionFeedbackService.Transa
 
 public final class BlockActionDispatcher implements EventProcessor {
   private final IntavePlugin plugin;
-  private final static boolean ignoreDataInBlockChangePackets = MinecraftVersions.VER1_14_0.atOrAbove();
 
   public BlockActionDispatcher(IntavePlugin plugin) {
     this.plugin = plugin;
@@ -213,7 +213,7 @@ public final class BlockActionDispatcher implements EventProcessor {
           BlockPosition blockPosition = blockPositions.get(i);
           WrappedBlockData blockData = blockDataList.get(i);
           Material material = blockData.getType();
-          blockShapeAccess.override(world, blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(), material, ignoreDataInBlockChangePackets ? 0 : blockData.getData());
+          blockShapeAccess.override(world, blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(), material, BlockDataAccess.dataAccess(blockData));
           blockShapeAccess.invalidate(blockPosition.getX(), blockPosition.getY(), blockPosition.getZ());
         }
       }, OPTIONAL);
@@ -221,7 +221,7 @@ public final class BlockActionDispatcher implements EventProcessor {
       for (int i = 0; i < blockPositions.size(); i++) {
         BlockPosition blockPosition = blockPositions.get(i);
         WrappedBlockData blockData = blockDataList.get(i);
-        blockShapeAccess.override(world, blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(), blockData.getType(), ignoreDataInBlockChangePackets ? 0 : blockData.getData());
+        blockShapeAccess.override(world, blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(), blockData.getType(), BlockDataAccess.dataAccess(blockData));
         blockShapeAccess.invalidate(blockPosition.getX(), blockPosition.getY(), blockPosition.getZ());
       }
     }

@@ -70,10 +70,12 @@ public final class RuntimeBlockDataIndexer {
       ImmutableList<IBlockData> nativeStates = block.getStates().a();
       Map<Object, Integer> index = new HashMap<>();
       Map<Integer, Object> register = new HashMap<>();
+      int id = 0;
       for (IBlockData nativeState : nativeStates) {
-        int id = Block.getCombinedId(nativeState);
+//        int id = Block.getCombinedId(nativeState);
         index.put(nativeState, id);
         register.put(id, nativeState);
+        id++;
       }
       indexApply.accept(type, index);
       registerApply.accept(type, register);

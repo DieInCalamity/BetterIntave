@@ -29,7 +29,7 @@ public final class UserMessageSubscriptions {
   private final static Map<UserMessageChannel, List<Player>> messageChannelSubscriptions = new ConcurrentHashMap<>();
 
   public static Iterable<? extends Player> activeListenersOf(UserMessageChannel channel) {
-    return messageChannelSubscriptions.get(channel);
+    return messageChannelSubscriptions.computeIfAbsent(channel, theChannel -> new CopyOnWriteArrayList<>());
   }
 
   public static void setChannelActivation(Player player, UserMessageChannel channel, boolean status) {

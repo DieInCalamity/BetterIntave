@@ -8,7 +8,6 @@ import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.client.SinusCache;
 import de.jpx3.intave.user.*;

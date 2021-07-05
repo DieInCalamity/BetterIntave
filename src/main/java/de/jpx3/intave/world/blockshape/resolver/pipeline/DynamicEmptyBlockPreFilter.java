@@ -42,6 +42,8 @@ public final class DynamicEmptyBlockPreFilter implements BoundingBoxResolvePipel
     }
     switch (type) {
       case AIR:
+      case GRASS:
+      case LONG_GRASS:
       case SIGN:
       case SIGN_POST:
       case WALL_SIGN:

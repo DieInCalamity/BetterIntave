@@ -1,6 +1,7 @@
 package de.jpx3.intave.world.blockaccess;
 
 import com.comphenix.protocol.wrappers.BlockPosition;
+import com.comphenix.protocol.wrappers.WrappedBlockData;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.MinecraftVersions;
@@ -25,7 +26,7 @@ public final class BlockDataAccess {
   private static MethodHandle nativeBlockDataAccess;
   private static MethodHandle nativeBlockDataExtractionAccess;
 
-  private final static boolean NEW_MATERIAL_PROCESSING = MinecraftVersions.VER1_14_0.atOrAbove();
+  private final static boolean MODERN_MATERIAL_PROCESSING = MinecraftVersions.VER1_14_0.atOrAbove();
   private final static boolean NEW_BLOCK_ACCESS = MinecraftVersions.VER1_13_0.atOrAbove();
 
   private final static Set<Material> clickableMaterials = new HashSet<>();
@@ -86,6 +87,14 @@ public final class BlockDataAccess {
     }
   }
 
+  public static int dataAccess(WrappedBlockData wrappedBlockData) {
+    if(!MODERN_MATERIAL_PROCESSING) {
+      return wrappedBlockData.getData();
+    }
+    Object handle = wrappedBlockData.getHandle();
+    return RuntimeBlockDataIndexer.indexOfModernState(wrappedBlockData.getType(), handle);
+  }
+
   public static Object nativeBlockDataOf(Block bukkitBlock) {
     try {
       if (NEW_BLOCK_ACCESS) {
@@ -107,7 +116,7 @@ public final class BlockDataAccess {
   }
 
   public static boolean isLegacy(Material type) {
-    return !NEW_MATERIAL_PROCESSING || legacyMaterials.contains(type);
+    return !MODERN_MATERIAL_PROCESSING || legacyMaterials.contains(type);
   }
 
   public static boolean isClickable(Material type) {
@@ -123,9 +132,11 @@ public final class BlockDataAccess {
   }
 
   private static void loadMaterials() {
-    if (NEW_MATERIAL_PROCESSING) {
+    if (MODERN_MATERIAL_PROCESSING) {
+      IntaveLogger.logger().info("Modern material processing");
       modernMaterialLoad();
     } else {
+      IntaveLogger.logger().info("Legacy material processing");
       legacyMaterialLoad();
     }
   }
@@ -140,7 +151,8 @@ public final class BlockDataAccess {
     }
     for (Material material : Material.values()) {
       try {
-        if ((boolean) isLegacy.invoke(material)) {
+        boolean legacyInvoke = (boolean) isLegacy.invoke(material);
+        if (legacyInvoke) {
           legacyMaterials.add(material);
         }
       } catch (Exception exception) {
