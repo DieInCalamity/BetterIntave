@@ -6,12 +6,13 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
+import de.jpx3.intave.adapter.MinecraftVersions;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-public final class FakePlayerMetaDataHelper {
+public final class PlayerMetaDataHelper {
   private final static ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
   private final static int SPRINT_BYTE = 3;
 
@@ -108,6 +109,16 @@ public final class FakePlayerMetaDataHelper {
       protocolManager.sendServerPacket(player, packet);
     } catch (InvocationTargetException e) {
       e.printStackTrace();
+    }
+  }
+
+  private final static boolean SERIALIZE = MinecraftVersions.VER1_9_0.atOrAbove();
+
+  public static <T> void setMetadata(WrappedDataWatcher dataWatcher, int index, Class<T> classOfValue, T value) {
+    if (SERIALIZE) {
+      dataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(index, WrappedDataWatcher.Registry.get(classOfValue)), value);
+    } else {
+      dataWatcher.setObject(index, value);
     }
   }
 }

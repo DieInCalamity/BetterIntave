@@ -4,7 +4,7 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.fakeplayer.FakePlayer;
-import de.jpx3.intave.fakeplayer.FakePlayerMetaDataHelper;
+import de.jpx3.intave.fakeplayer.PlayerMetaDataHelper;
 import de.jpx3.intave.fakeplayer.event.EntityVelocityCache;
 import de.jpx3.intave.fakeplayer.randomaction.ActionType;
 import de.jpx3.intave.fakeplayer.randomaction.RandomAction;
@@ -75,9 +75,9 @@ public final class HurtAnimationAction extends RandomAction {
   }
 
   private void sendHealthUpdate(float health) {
-    FakePlayerMetaDataHelper.updateHealthFor(parentPlayer, fakePlayer, SPAWN_HEALTH_STATE);
+    PlayerMetaDataHelper.updateHealthFor(parentPlayer, fakePlayer, SPAWN_HEALTH_STATE);
     if (health != this.currentHealthState) {
-      FakePlayerMetaDataHelper.updateHealthFor(parentPlayer, fakePlayer, health);
+      PlayerMetaDataHelper.updateHealthFor(parentPlayer, fakePlayer, health);
     }
     this.currentHealthState = health;
   }

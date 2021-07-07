@@ -53,10 +53,7 @@ public final class SameRotationHeuristic extends IntaveMetaCheckPart<Heuristics,
       Math.abs(movementData.lastRotationPitch - movementData.rotationPitch)
     );
 
-    boolean isPartner = (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
-//    boolean isEnterprise = (UserMetaClientData.VERSION_DETAILS & 0x200) != 0;
-
-    if (movementData.lastTeleport > 5 && isPartner && meta.rotationsSinceTeleport > 6) {
+    if (movementData.lastTeleport > 5 && isPartner() && meta.rotationsSinceTeleport > 6) {
       if (meta.lastLastTick.yawMotion < 10 && meta.lastTick.yawMotion > 45 && currentTick.yawMotion < 10) {
         checkSameRotationYaw(meta, player);
         checkExactRotationMotionYaw(meta, player);
@@ -83,6 +80,11 @@ public final class SameRotationHeuristic extends IntaveMetaCheckPart<Heuristics,
     }
 
     prepareNextTick(user, currentTick, event.getPacketType());
+  }
+
+  @Native
+  public boolean isPartner() {
+    return (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
   }
 
   private void checkExactRotationYaw(SameRotationHeuristicMeta meta, Player player) {
@@ -182,12 +184,10 @@ public final class SameRotationHeuristic extends IntaveMetaCheckPart<Heuristics,
 
   @Native
   private int options() {
-    boolean isPartner = (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
-
     int options;
     if (IntaveControl.GOMME_MODE) {
       options = Anomaly.AnomalyOption.DELAY_32s;
-    } else if (isPartner) {
+    } else if (isPartner()) {
       options = Anomaly.AnomalyOption.DELAY_64s;
     } else {
       options = Anomaly.AnomalyOption.DELAY_128s;

@@ -36,6 +36,7 @@ public final class RotationAccuracyPitchHeuristic extends IntaveMetaCheckPart<He
     UserMetaMovementData movementData = meta.movementData();
     UserMetaAttackData attackData = meta.attackData();
     WrappedEntity attackedEntity = attackData.lastAttackedEntity();
+    RotationAccuracyHeuristicMeta heuristicMeta = metaOf(user);
 
     if (movementData.lastTeleport < 20) {
       return;
@@ -45,19 +46,26 @@ public final class RotationAccuracyPitchHeuristic extends IntaveMetaCheckPart<He
       float pitchSpeed = Math.abs(movementData.rotationPitch - movementData.lastRotationPitch);
       float distanceToPerfectPitch = Math.abs(movementData.rotationPitch - attackData.perfectPitch());
 
+      int timeAddOnDetection = 40 * 20;
+
       if (pitchSpeed > 1.0) {
         // Check perfect yaw
         if (distanceToPerfectPitch == 0) {
-          String description = "rotated pitch too precisely (0.0)";
-          int options = LIMIT_2 | DELAY_128s | SUGGEST_MINING;
-          Anomaly anomaly = Anomaly.anomalyOf("71", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, options);
+          heuristicMeta.threshold += timeAddOnDetection;
+          int vl = heuristicMeta.threshold / timeAddOnDetection;
+          Confidence confidence = vl <= 2 ? Confidence.PROBABLE : Confidence.LIKELY;
+          String description = "rotated pitch too precisely (0.0) vl:" + vl + ", conf:" + confidence.level();
+          int options = DELAY_128s | SUGGEST_MINING;
+          Anomaly anomaly = Anomaly.anomalyOf("71", confidence, Anomaly.Type.KILLAURA, description, options);
           parentCheck().saveAnomaly(player, anomaly);
+        } else if (heuristicMeta.threshold > 0) {
+          heuristicMeta.threshold--;
         }
       }
     }
   }
 
   public final static class RotationAccuracyHeuristicMeta extends UserCustomCheckMeta {
-
+    public int threshold;
   }
 }

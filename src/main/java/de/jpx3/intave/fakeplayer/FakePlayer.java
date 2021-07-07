@@ -8,6 +8,7 @@ import com.comphenix.protocol.wrappers.*;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.fakeplayer.movement.LocationUtils;
 import de.jpx3.intave.fakeplayer.movement.types.Movement;
 import de.jpx3.intave.fakeplayer.randomaction.ActionType;
@@ -17,6 +18,7 @@ import de.jpx3.intave.fakeplayer.randomaction.actions.EquipmentHeldItemAction;
 import de.jpx3.intave.fakeplayer.randomaction.actions.HurtAnimationAction;
 import de.jpx3.intave.fakeplayer.randomaction.actions.SwingAnimationAction;
 import de.jpx3.intave.tools.AccessHelper;
+import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaAttackData;
@@ -25,6 +27,7 @@ import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -109,39 +112,61 @@ public final class FakePlayer implements TickTaskScheduler {
   @Override
   public void startTickScheduler() {
     IntavePlugin plugin = IntavePlugin.singletonInstance();
-    this.taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this::onTick, 0, 1);
+    this.taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+      try {
+        onTick();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }, 0, 1);
   }
+
+  private final static boolean SPAWN_DOUBLE_COORDINATES = MinecraftVersions.VER1_9_0.atOrAbove();
+  private final static boolean SPAWN_HAS_CURRENT_ITEM_FLAG = !MinecraftVersions.VER1_9_0.atOrAbove();
 
   public void spawn(Location location) {
     Preconditions.checkNotNull(location);
     this.movement.location = location;
     this.movement.botDistance = (movement.minBotDistance() + movement.maxBotDistance()) / 2;
     PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.NAMED_ENTITY_SPAWN);
-    packet.getModifier().writeSafely(0, fakePlayerID);
-    packet.getModifier().writeSafely(1, wrappedGameProfile.getUUID());
-    packet.getModifier().writeSafely(2, translateCoordinateToPacket(location.getX()));
-    packet.getModifier().writeSafely(3, translateCoordinateToPacket(location.getY()));
-    packet.getModifier().writeSafely(4, translateCoordinateToPacket(location.getZ()));
-    packet.getModifier().writeSafely(5, translateRotationToPacket(location.getYaw()));
-    packet.getModifier().writeSafely(6, translateRotationToPacket(location.getPitch()));
-    packet.getModifier().writeSafely(7, 0);
+    packet.getModifier()
+      .write(0, fakePlayerID)
+      .write(1, wrappedGameProfile.getUUID())
+      .write(5, translateRotationToPacket(location.getYaw()))
+      .write(6, translateRotationToPacket(location.getPitch()));
+    if (SPAWN_DOUBLE_COORDINATES) {
+      packet.getDoubles()
+        .write(0, location.getX())
+        .write(1, location.getY())
+        .write(2, location.getZ());
+    } else {
+      packet.getIntegers()
+        .write(1, translateCoordinateToPacket(location.getX()))
+        .write(2, translateCoordinateToPacket(location.getY()))
+        .write(3, translateCoordinateToPacket(location.getZ()));
+    }
+    if (SPAWN_HAS_CURRENT_ITEM_FLAG) {
+      packet.getModifier().write(7, 0);
+    }
+
     // Entity
-    wrappedDataWatcher.setObject(0, (byte) 0);
-    wrappedDataWatcher.setObject(1, (short) 300);
-    wrappedDataWatcher.setObject(3, (byte) 0);
-    wrappedDataWatcher.setObject(2, "");
-    wrappedDataWatcher.setObject(4, (byte) 0);
+    PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 0, Byte.class, (byte) 0);
+    PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 1, Integer.class, 300);
+    PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 2, String.class, "");
+    PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 3, Byte.class, (byte) 0);
+    PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 4, Byte.class, (byte) 0);
     // EntityLivingBase
-    wrappedDataWatcher.setObject(7, 0);
-    wrappedDataWatcher.setObject(8, (byte) 0);
-    wrappedDataWatcher.setObject(9, (byte) 0);
-    wrappedDataWatcher.setObject(6, 1.0F); // health
+    PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 6, Float.class, 1.0f); // health
+    PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 7, Integer.class, 0);
+    PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 8, Byte.class, (byte) 0);
+    PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 9, Byte.class, (byte) 0);
     // EntityPlayer
-    wrappedDataWatcher.setObject(16, (byte) 0);
-    wrappedDataWatcher.setObject(17, 0.0F);
-    wrappedDataWatcher.setObject(18, 0);
-    wrappedDataWatcher.setObject(10, (byte) 0);
-    packet.getDataWatcherModifier().writeSafely(0, wrappedDataWatcher);
+    PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 16, Byte.class, (byte) 0);
+    PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 17, Float.class, 0.0f);
+    PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 18, Integer.class, 0);
+    PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 10, Byte.class, (byte) 0);
+
+    packet.getDataWatcherModifier().write(0, wrappedDataWatcher);
     String tabListName = tabListPrefix + wrappedGameProfile.getName();
     TabListHelper.addToTabList(this.parentPlayer, this.wrappedGameProfile, tabListName);
     try {
@@ -154,7 +179,7 @@ public final class FakePlayer implements TickTaskScheduler {
       TabListHelper.removeFromTabList(this.parentPlayer, this.wrappedGameProfile);
     }
     if (invisible) {
-      FakePlayerMetaDataHelper.updateVisibility(parentPlayer, this, true);
+      PlayerMetaDataHelper.updateVisibility(parentPlayer, this, true);
     }
 
     //
@@ -167,7 +192,7 @@ public final class FakePlayer implements TickTaskScheduler {
       RandomAction.findAndProcessAction(this.actions, ActionType.HELD_ITEM_CHANGE);
     }
 
-    FakePlayerMetaDataHelper.updateHealthFor(parentPlayer, this, SPAWN_HEALTH_STATE);
+    PlayerMetaDataHelper.updateHealthFor(parentPlayer, this, SPAWN_HEALTH_STATE);
     applyDisplayName();
     startTickScheduler();
     sendLatency(0);
@@ -183,8 +208,9 @@ public final class FakePlayer implements TickTaskScheduler {
   private void applyDisplayName() {
     PacketContainer scoreboardCreatePacket = protocolManager.createPacket(PacketType.Play.Server.SCOREBOARD_TEAM);
     String teamName = PlayerNameHelper.randomString();
-    scoreboardCreatePacket.getStrings().writeSafely(0, teamName);
-    scoreboardCreatePacket.getStrings().writeSafely(2, prefix);
+    scoreboardCreatePacket.getStrings()
+      .write(0, teamName)
+      .write(2, prefix);
     try {
       protocolManager.sendServerPacket(this.parentPlayer, scoreboardCreatePacket);
     } catch (InvocationTargetException e) {
@@ -233,16 +259,18 @@ public final class FakePlayer implements TickTaskScheduler {
 
   public void despawn() {
     stopTickScheduler();
-    if (this.visibleInTablist) {
-      TabListHelper.removeFromTabList(this.parentPlayer, this.wrappedGameProfile);
-    }
-    PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_DESTROY);
-    packet.getIntegerArrays().writeSafely(0, new int[]{this.fakePlayerID});
-    try {
-      protocolManager.sendServerPacket(this.parentPlayer, packet);
-    } catch (InvocationTargetException e) {
-      e.printStackTrace();
-    }
+    Synchronizer.synchronize(() -> {
+      if (this.visibleInTablist) {
+        TabListHelper.removeFromTabList(this.parentPlayer, this.wrappedGameProfile);
+      }
+      PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_DESTROY);
+      packet.getIntegerArrays().write(0, new int[]{this.fakePlayerID});
+      try {
+        protocolManager.sendServerPacket(this.parentPlayer, packet);
+      } catch (InvocationTargetException e) {
+        e.printStackTrace();
+      }
+    });
     user.meta().attackData().setFakePlayer(null);
   }
 
@@ -270,12 +298,32 @@ public final class FakePlayer implements TickTaskScheduler {
 
   private void sendWalkingSoundEffect(Location location) {
     PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.NAMED_SOUND_EFFECT);
-    packet.getStrings().write(0, resolveSoundName());
-    packet.getIntegers().write(0, (int) (location.getX() * SOUND_CONVERT_FACTOR));
-    packet.getIntegers().write(1, (int) (location.getY() * SOUND_CONVERT_FACTOR));
-    packet.getIntegers().write(2, (int) (location.getZ() * SOUND_CONVERT_FACTOR));
-    packet.getFloat().write(0, 0.15f);
-    packet.getIntegers().write(3, 63);
+
+    // Set SoundCategory and SoundEffect when on 1.9 or higher
+    if (MinecraftVersions.VER1_9_0.atOrAbove()) {
+      packet.getSoundEffects().write(0, Sound.BLOCK_STONE_STEP);
+      packet.getSoundCategories().write(0, EnumWrappers.SoundCategory.PLAYERS);
+    } else {
+      packet.getStrings().write(0, resolveSoundName());
+    }
+
+    // Field change on 1.10
+    if (MinecraftVersions.VER1_10_0.atOrAbove()) {
+      packet.getIntegers()
+        .write(0, (int) (location.getX() * SOUND_CONVERT_FACTOR))
+        .write(1, (int) (location.getY() * SOUND_CONVERT_FACTOR))
+        .write(2, (int) (location.getZ() * SOUND_CONVERT_FACTOR));
+      packet.getFloat()
+        .write(0, 1f)
+        .write(1, 0.15f);
+    } else {
+      packet.getIntegers()
+        .write(0, (int) (location.getX() * SOUND_CONVERT_FACTOR))
+        .write(1, (int) (location.getY() * SOUND_CONVERT_FACTOR))
+        .write(2, (int) (location.getZ() * SOUND_CONVERT_FACTOR))
+        .write(3, 63);
+      packet.getFloat().write(0, 0.15f);
+    }
     try {
       protocolManager.sendServerPacket(parentPlayer, packet);
     } catch (InvocationTargetException e) {
@@ -328,6 +376,7 @@ public final class FakePlayer implements TickTaskScheduler {
     }
   }
 
+
   private void sendRelativeMovement(
     Location to,
     Location from,
@@ -337,13 +386,24 @@ public final class FakePlayer implements TickTaskScheduler {
     boolean look = !LocationUtils.equalRotations(to, from);
     if (move && look) {
       PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.REL_ENTITY_MOVE_LOOK);
-      packet.getIntegers().writeSafely(0, this.fakePlayerID);
-      packet.getBytes().writeSafely(0, translateRelativeMoveDiff(to.getX(), from.getX()));
-      packet.getBytes().writeSafely(1, translateRelativeMoveDiff(to.getY(), from.getY()));
-      packet.getBytes().writeSafely(2, translateRelativeMoveDiff(to.getZ(), from.getZ()));
-      packet.getBytes().writeSafely(3, translateRotationToPacket(to.getYaw()));
-      packet.getBytes().writeSafely(4, translateRotationToPacket(to.getPitch()));
-      packet.getBooleans().writeSafely(0, onGround);
+      packet.getIntegers().write(0, this.fakePlayerID);
+      if (MinecraftVersions.VER1_9_0.atOrAbove()) {
+        packet.getIntegers()
+          .write(1, (int) ((to.getX() - from.getX()) * 4096.0D))
+          .write(2, (int) ((to.getY() - from.getY()) * 4096.0D))
+          .write(3, (int) ((to.getZ() - from.getZ()) * 4096.0D));
+        packet.getBytes()
+          .write(0, translateRotationToPacket(to.getYaw()))
+          .write(1, translateRotationToPacket(to.getPitch()));
+      } else {
+        packet.getBytes()
+          .write(0, translateRelativeMoveDiff(to.getX(), from.getX()))
+          .write(1, translateRelativeMoveDiff(to.getY(), from.getY()))
+          .write(2, translateRelativeMoveDiff(to.getZ(), from.getZ()))
+          .write(3, translateRotationToPacket(to.getYaw()))
+          .write(4, translateRotationToPacket(to.getPitch()));
+      }
+      packet.getBooleans().write(0, onGround);
       try {
         protocolManager.sendServerPacket(this.parentPlayer, packet);
       } catch (InvocationTargetException e) {
@@ -351,11 +411,20 @@ public final class FakePlayer implements TickTaskScheduler {
       }
     } else if (move) {
       PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.REL_ENTITY_MOVE);
-      packet.getIntegers().writeSafely(0, this.fakePlayerID);
-      packet.getBytes().writeSafely(0, translateRelativeMoveDiff(to.getX(), from.getX()));
-      packet.getBytes().writeSafely(1, translateRelativeMoveDiff(to.getY(), from.getY()));
-      packet.getBytes().writeSafely(2, translateRelativeMoveDiff(to.getZ(), from.getZ()));
-      packet.getBooleans().writeSafely(0, onGround);
+      packet.getIntegers().write(0, this.fakePlayerID);
+      if (MinecraftVersions.VER1_9_0.atOrAbove()) {
+        packet.getIntegers()
+          .write(1, (int) ((to.getX() - from.getX()) * 4096.0D))
+          .write(2, (int) ((to.getY() - from.getY()) * 4096.0D))
+          .write(3, (int) ((to.getZ() - from.getZ()) * 4096.0D));
+
+      } else {
+        packet.getBytes()
+          .write(0, translateRelativeMoveDiff(to.getX(), from.getX()))
+          .write(1, translateRelativeMoveDiff(to.getY(), from.getY()))
+          .write(2, translateRelativeMoveDiff(to.getZ(), from.getZ()));
+      }
+      packet.getBooleans().write(0, onGround);
       try {
         protocolManager.sendServerPacket(this.parentPlayer, packet);
       } catch (InvocationTargetException e) {
@@ -363,10 +432,11 @@ public final class FakePlayer implements TickTaskScheduler {
       }
     } else if (look) {
       PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_LOOK);
-      packet.getIntegers().writeSafely(0, this.fakePlayerID);
-      packet.getBytes().writeSafely(0, translateRotationToPacket(to.getYaw()));
-      packet.getBytes().writeSafely(1, translateRotationToPacket(to.getPitch()));
-      packet.getBooleans().writeSafely(0, onGround);
+      packet.getIntegers().write(0, this.fakePlayerID);
+      packet.getBytes()
+        .write(0, translateRotationToPacket(to.getYaw()))
+        .write(1, translateRotationToPacket(to.getPitch()));
+      packet.getBooleans().write(0, onGround);
       try {
         protocolManager.sendServerPacket(this.parentPlayer, packet);
       } catch (InvocationTargetException e) {
@@ -396,18 +466,29 @@ public final class FakePlayer implements TickTaskScheduler {
     return (byte) (fixedTo - fixedFrom);
   }
 
+  private final static boolean NEW_TELEPORT_PROCESSING = MinecraftVersions.VER1_9_0.atOrAbove();
+
   public void sendTeleport(Location to, boolean onGround) {
     Preconditions.checkNotNull(to);
     float rotationYaw = to.getYaw();
     float rotationPitch = to.getPitch();
     PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_TELEPORT);
-    packet.getIntegers().writeSafely(0, this.fakePlayerID);
-    packet.getIntegers().writeSafely(1, translateCoordinateToPacket(to.getX()));
-    packet.getIntegers().writeSafely(2, translateCoordinateToPacket(to.getY()));
-    packet.getIntegers().writeSafely(3, translateCoordinateToPacket(to.getZ()));
-    packet.getBytes().writeSafely(0, translateRotationToPacket(rotationYaw));
-    packet.getBytes().writeSafely(1, translateRotationToPacket(rotationPitch));
-    packet.getBooleans().writeSafely(0, onGround);
+    packet.getIntegers().write(0, this.fakePlayerID);
+    if (NEW_TELEPORT_PROCESSING) {
+      packet.getDoubles()
+        .write(0, to.getX())
+        .write(1, to.getY())
+        .write(2, to.getZ());
+    } else {
+      packet.getIntegers()
+        .write(1, translateCoordinateToPacket(to.getX()))
+        .write(2, translateCoordinateToPacket(to.getY()))
+        .write(3, translateCoordinateToPacket(to.getZ()));
+    }
+    packet.getBytes()
+      .write(0, translateRotationToPacket(rotationYaw))
+      .write(1, translateRotationToPacket(rotationPitch));
+    packet.getBooleans().write(0, onGround);
     try {
       protocolManager.sendServerPacket(this.parentPlayer, packet);
     } catch (InvocationTargetException e) {
@@ -431,8 +512,8 @@ public final class FakePlayer implements TickTaskScheduler {
 
   public void headRotation(float yaw) {
     PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_HEAD_ROTATION);
-    packet.getIntegers().writeSafely(0, this.fakePlayerID);
-    packet.getBytes().writeSafely(0, translateRotationToPacket(yaw));
+    packet.getIntegers().write(0, this.fakePlayerID);
+    packet.getBytes().write(0, translateRotationToPacket(yaw));
     try {
       protocolManager.sendServerPacket(this.parentPlayer, packet);
     } catch (InvocationTargetException e) {
@@ -447,12 +528,12 @@ public final class FakePlayer implements TickTaskScheduler {
   }
 
   public void setSprinting(boolean sprinting) {
-    FakePlayerMetaDataHelper.setSprinting(parentPlayer, this, sprinting);
+    PlayerMetaDataHelper.setSprinting(parentPlayer, this, sprinting);
     this.movement.sprinting = sprinting;
   }
 
   public void setSneaking(boolean sneaking) {
-    FakePlayerMetaDataHelper.setSneaking(parentPlayer, this, sneaking);
+    PlayerMetaDataHelper.setSneaking(parentPlayer, this, sneaking);
     this.movement.sneaking = sneaking;
   }
 

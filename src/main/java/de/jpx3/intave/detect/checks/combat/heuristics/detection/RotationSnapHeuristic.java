@@ -14,6 +14,7 @@ import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.tools.MathHelper;
+import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.*;
@@ -261,12 +262,8 @@ public final class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics,
           description += " " + user.meta().clientData().protocolVersion();
         }
 
-        // TODO: 06/17/21 Use isPartner and isEnterprise only in a method annotated with @Native
-        boolean isPartner = (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
-        boolean isEnterprise = (UserMetaClientData.VERSION_DETAILS & 0x200) != 0;
-
-        if (isPartner || isEnterprise) {
-          Anomaly anomaly = Anomaly.anomalyOf("102", confidence, Anomaly.Type.KILLAURA, description, anomalyOptions(isPartner));
+        if (isPartner() || isEnterprise()) {
+          Anomaly anomaly = Anomaly.anomalyOf("102", confidence, Anomaly.Type.KILLAURA, description, anomalyOptions(isPartner()));
           parentCheck().saveAnomaly(player, anomaly);
         }
       }
@@ -277,17 +274,22 @@ public final class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics,
     if (liteFlag) {
       String description = "rotation snap scaffold [" +  MathHelper.formatDouble(meta.yawMotions[0], 2) + "]";
 
-      // TODO: 06/17/21 Use isPartner and isEnterprise only in a method annotated with @Native
-      boolean isPartner = (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
-      boolean isEnterprise = (UserMetaClientData.VERSION_DETAILS & 0x200) != 0;
-
-      if (isPartner || isEnterprise) {
-        Anomaly anomaly = Anomaly.anomalyOf("103", Confidence.MAYBE, Anomaly.Type.KILLAURA, description, anomalyOptions(isPartner));
+      if (isPartner() || isEnterprise()) {
+        Anomaly anomaly = Anomaly.anomalyOf("103", Confidence.MAYBE, Anomaly.Type.KILLAURA, description, anomalyOptions(isPartner()));
         parentCheck().saveAnomaly(player, anomaly);
       }
     }
 
     prepareNextTick(meta, yawMotion, user);
+  }
+
+  @Native
+  public boolean isPartner() {
+    return (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
+  }
+  @Native
+  public boolean isEnterprise() {
+    return (UserMetaClientData.VERSION_DETAILS & 0x200) != 0;
   }
 
   private int anomalyOptions(boolean isPartner) {

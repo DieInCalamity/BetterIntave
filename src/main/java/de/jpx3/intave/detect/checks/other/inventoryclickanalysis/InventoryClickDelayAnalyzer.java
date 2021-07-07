@@ -14,6 +14,7 @@ import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.RotationMathHelper;
 import de.jpx3.intave.tools.annotate.KeepEnumInternalNames;
+import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserCustomCheckMeta;
 import de.jpx3.intave.user.UserMetaClientData;
@@ -100,14 +101,18 @@ public final class InventoryClickDelayAnalyzer extends IntaveMetaCheckPart<Inven
     }
 
     if (meta.clickDelayList.size() > 10) {
-      boolean isPartner = (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
-      if(isPartner) {
+      if(isPartner()) {
         processStandardDeviationCheck(player, meta);
       }
       meta.clickDelayList.clear();
     }
 
     processClickDelayAnalyzerCheck(player, meta, slot, time);
+  }
+
+  @Native
+  public boolean isPartner() {
+    return (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
   }
 
   private void processClickDelayAnalyzerCheck(Player player, ClickDelayMeta meta, int slot, double time) {
