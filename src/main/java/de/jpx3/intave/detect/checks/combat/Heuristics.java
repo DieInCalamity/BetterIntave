@@ -59,11 +59,14 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
 
     if (enterprise) {
       appendCheckPart(new AirClickLimitHeuristic(this));
-      appendCheckPart(new AttackRequiredHeuristic(this));
       appendCheckPart(new AttackReduceIgnoreHeuristic(this));
       appendCheckPart(new RotationStandardDeviationHeuristic(this));
       appendCheckPart(new RotationSnapHeuristic(this));
       appendCheckPart(new SameRotationHeuristic(this));
+    }
+
+    if (IntaveControl.GOMME_MODE || IntaveControl.DISABLE_LICENSE_CHECK) {
+      appendCheckPart(new AttackRequiredHeuristic(this));
     }
 
     appendCheckPart(new ReshapedJumpHeuristic(this));

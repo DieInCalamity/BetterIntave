@@ -1,5 +1,6 @@
 package de.jpx3.intave.detect.checks.combat.heuristics.detection;
 
+import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.detect.IntaveMetaCheckPart;
@@ -80,7 +81,7 @@ public final class SprintResetHeuristic extends IntaveMetaCheckPart<Heuristics, 
 
     if(meta.stopSprint) {
       if(!user.meta().abilityData().inGameMode(GameMode.CREATIVE)) {
-        playerUnsprinted(player, meta);
+        playerUnsprinted(player, meta, event.getPacketType());
       }
     }
     if(meta.startSprint) {
@@ -105,7 +106,7 @@ public final class SprintResetHeuristic extends IntaveMetaCheckPart<Heuristics, 
     meta.sprintingTicksLeft = 600;
   }
 
-  private void playerUnsprinted(Player player, SprintResetHeuristicMeta meta) {
+  private void playerUnsprinted(Player player, SprintResetHeuristicMeta meta, PacketType packetType) {
     User user = userOf(player);
     UserMetaInventoryData inventoryData = user.meta().inventoryData();
     ItemStack heldItem = inventoryData.heldItem();
@@ -116,6 +117,15 @@ public final class SprintResetHeuristic extends IntaveMetaCheckPart<Heuristics, 
 
     boolean attacked = meta.lastAttack <= 1;
     UserMetaAbilityData abilityData = user.meta().abilityData();
+
+    boolean sendFlyingPacket = false;
+    if(packetType == PacketType.Play.Client.FLYING || packetType == PacketType.Play.Client.LOOK) {
+      sendFlyingPacket = true;
+    } else if(user.meta().clientData().protocolVersion() >= UserMetaClientData.VER_1_9) {
+      if(movementData.recentlyEncounteredFlyingPacket(2) || movementData.pastFlyingPacketAccurate() <= 2) {
+        sendFlyingPacket = true;
+      }
+    }
 
     if(!attacked
       && movementData.pastInWeb > 2
