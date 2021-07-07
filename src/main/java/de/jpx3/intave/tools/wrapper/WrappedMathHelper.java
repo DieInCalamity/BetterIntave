@@ -321,15 +321,10 @@ public final class WrappedMathHelper {
     return p_181162_0_ - Math.floor(p_181162_0_);
   }
 
-//  public static long getPositionRandom(Vec3i pos)
-//  {
-//    return getCoordinateRandom(pos.getX(), pos.getY(), pos.getZ());
-//  }
-
   public static long getCoordinateRandom(int x, int y, int z) {
-    long i = (long) (x * 3129871) ^ (long) z * 116129781L ^ (long) y;
+    long i = (x * 3129871L) ^ (long) z * 116129781L ^ (long) y;
     i = i * i * 42317861L + i * 11L;
-    return i;
+    return i >> 16;
   }
 
   public static UUID getRandomUuid(Random rand) {
@@ -415,13 +410,12 @@ public final class WrappedMathHelper {
   /**
    * Long version of floor_double
    */
-  public static long floor_double_long(double value)
-  {
-    long i = (long)value;
-    return value < (double)i ? i - 1L : i;
+  public static long floor_double_long(double value) {
+    long i = (long) value;
+    return value < (double) i ? i - 1L : i;
   }
 
   public static float toRadians(float value) {
-		return value * (float) Math.PI / 180f;
-	}
+    return value * (float) Math.PI / 180f;
+  }
 }
