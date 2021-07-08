@@ -34,12 +34,7 @@ public final class ModernComplexColliderProcessor implements ComplexColliderProc
     WrappedAxisAlignedBB entityBoundingBox = movementData.boundingBox();
     if (context.motionY != 0.0) {
       for (WrappedAxisAlignedBB collisionBox : collisionBoxes) {
-        double offset = collisionBox.calculateYOffset(entityBoundingBox, context.motionY);
-        if (Math.abs(offset) < 1.0E-7D) {
-          context.motionY = 0.0;
-          break;
-        }
-        context.motionY = offset;
+        context.motionY = collisionBox.calculateYOffset(entityBoundingBox, context.motionY);
       }
       if (context.motionY != 0.0) {
         entityBoundingBox = entityBoundingBox.offset(0.0D, context.motionY, 0.0D);
@@ -48,12 +43,7 @@ public final class ModernComplexColliderProcessor implements ComplexColliderProc
     boolean flag = Math.abs(context.motionX) < Math.abs(context.motionZ);
     if (flag && context.motionZ != 0.0) {
       for (WrappedAxisAlignedBB collisionBox : collisionBoxes) {
-        double offset = collisionBox.calculateZOffset(entityBoundingBox, context.motionZ);
-        if (Math.abs(offset) < 1.0E-7D) {
-          context.motionZ = 0;
-          break;
-        }
-        context.motionZ = offset;
+        context.motionZ = collisionBox.calculateZOffset(entityBoundingBox, context.motionZ);
       }
       if (context.motionZ != 0.0) {
         entityBoundingBox = entityBoundingBox.offset(0.0, 0.0, context.motionZ);
@@ -61,12 +51,7 @@ public final class ModernComplexColliderProcessor implements ComplexColliderProc
     }
     if (context.motionX != 0.0) {
       for (WrappedAxisAlignedBB collisionBox : collisionBoxes) {
-        double offset = collisionBox.calculateXOffset(entityBoundingBox, context.motionX);
-        if (Math.abs(offset) < 1.0E-7D) {
-          context.motionX = 0.0;
-          break;
-        }
-        context.motionX = offset;
+        context.motionX = collisionBox.calculateXOffset(entityBoundingBox, context.motionX);
       }
       if (context.motionX != 0.0) {
         entityBoundingBox = entityBoundingBox.offset(context.motionX, 0.0D, 0.0D);
@@ -74,12 +59,7 @@ public final class ModernComplexColliderProcessor implements ComplexColliderProc
     }
     if (!flag && context.motionZ != 0.0) {
       for (WrappedAxisAlignedBB collisionBox : collisionBoxes) {
-        double offset = collisionBox.calculateZOffset(entityBoundingBox, context.motionZ);
-        if (Math.abs(offset) < 1.0E-7D) {
-          context.motionZ = 0.0;
-          break;
-        }
-        context.motionZ = offset;
+        context.motionZ = collisionBox.calculateZOffset(entityBoundingBox, context.motionZ);
       }
       if (context.motionZ != 0.0) {
         entityBoundingBox = entityBoundingBox.offset(0.0, 0.0, context.motionZ);
