@@ -50,7 +50,7 @@ public final class CachedResource {
   public boolean prepareFile() {
     File file = fileStore();
     long fileLastModified = AccessHelper.now() - file.lastModified();
-    boolean invalidFile = !file.exists() || fileLastModified > expireDuration;
+    boolean invalidFile = !file.exists() || fileLastModified > expireDuration || file.length() == 0;
 
     if (invalidFile) {
       refreshFile();
@@ -96,7 +96,6 @@ public final class CachedResource {
       fileInputChannel.transferTo(0, Long.MAX_VALUE, Channels.newChannel(byteArrayOutputStream));
       removeFileLock(fileInputChannel);
       fileInputChannel.close();
-      byteArrayOutputStream.close();
       ByteBuffer byteBuffer = ByteBuffer.wrap(byteArrayOutputStream.toByteArray());
       byte[] iv = new byte[byteBuffer.getInt()];
       byteBuffer.get(iv);

@@ -63,6 +63,7 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
       appendCheckPart(new RotationStandardDeviationHeuristic(this));
       appendCheckPart(new RotationSnapHeuristic(this));
       appendCheckPart(new SameRotationHeuristic(this));
+      appendCheckPart(new LongTermClickAccuracyHeuristic(this));
     }
 
     if (IntaveControl.GOMME_MODE || IntaveControl.DISABLE_LICENSE_CHECK) {
@@ -112,7 +113,7 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
       IntaveLogger.logger().pushPrintln(message);
     }
 
-    for (Player authenticatedPlayer : UserMessageSubscriptions.sibylReceivers()/*Bukkit.getOnlinePlayers()*/) {
+    for (Player authenticatedPlayer : UserMessageSubscriptions.sibylReceiver()/*Bukkit.getOnlinePlayers()*/) {
       if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
         authenticatedPlayer.sendMessage(message);
       }

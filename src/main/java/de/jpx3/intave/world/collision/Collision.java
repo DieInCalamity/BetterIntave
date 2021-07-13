@@ -204,6 +204,7 @@ public final class Collision {
       return false;
     }
     WrappedAxisAlignedBB playerBox = user.meta().movementData().boundingBox();
+    playerBox = playerBox.shrink(0.001);
     return boundingBoxes.stream().anyMatch(playerBox::intersectsWith);
   }
 

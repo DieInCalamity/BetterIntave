@@ -300,7 +300,7 @@ public final class ViolationProcessor {
 
   public void broadcastNotify(String fullMessage) {
     String notifyMessage = MessageFormatter.resolveNotifyReplacements(new TextContext(fullMessage));
-    for (Player allPlayers : UserMessageSubscriptions.activeListenersOf(NOTIFY_MESSAGE_CHANNEL)/*Bukkit.getOnlinePlayers()*/) {
+    for (Player allPlayers : UserMessageSubscriptions.receiverOf(NOTIFY_MESSAGE_CHANNEL)/*Bukkit.getOnlinePlayers()*/) {
       User user = UserRepository.userOf(allPlayers);
       if (user.receives(NOTIFY_MESSAGE_CHANNEL)) {
         synchronizedMessage(allPlayers, notifyMessage);
@@ -322,7 +322,7 @@ public final class ViolationProcessor {
     UserMessageChannel channel,
     String message
   ) {
-    for (Player allPlayers : UserMessageSubscriptions.activeListenersOf(channel)/*Bukkit.getOnlinePlayers()*/) {
+    for (Player allPlayers : UserMessageSubscriptions.receiverOf(channel)/*Bukkit.getOnlinePlayers()*/) {
       User allUsers = UserRepository.userOf(allPlayers);
       if (!allUsers.receives(channel)) {
         continue;

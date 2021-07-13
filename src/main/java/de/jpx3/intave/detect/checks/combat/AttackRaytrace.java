@@ -305,7 +305,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
       @Native
       @Override
       public void run() {
-        for (Player authenticatedPlayer : Bukkit.getOnlinePlayers()) {
+        for (Player authenticatedPlayer : UserMessageSubscriptions.sibylReceiver()/*Bukkit.getOnlinePlayers()*/) {
           if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
             authenticatedPlayer.sendMessage(special);
           }
@@ -359,7 +359,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
     if (expandHitbox > 0.1f) {
       vl /= 2;
     } else if (entity.verifiedPosition) {
-      vl *= 1.5;
+      vl *= 1.25;
     }
     if (movementData.hasRidingEntity()) {
       vl = 0;

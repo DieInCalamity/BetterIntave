@@ -78,7 +78,7 @@ public final class CombatMitigator implements BukkitEventSubscriber {
       IntaveLogger.logger().pushPrintln("[Intave] " + ChatColor.stripColor(message));
     }
 
-    for (Player authenticatedPlayer : UserMessageSubscriptions.sibylReceivers()/*Bukkit.getOnlinePlayers()*/) {
+    for (Player authenticatedPlayer : UserMessageSubscriptions.sibylReceiver()/*Bukkit.getOnlinePlayers()*/) {
       if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
         authenticatedPlayer.sendMessage(message);
       }

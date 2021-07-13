@@ -41,7 +41,7 @@ public final class InventoryClickPacketDelayAnalyzer extends IntaveMetaCheckPart
   @Native
   private void processSibylDebug(String message) {
     IntavePlugin plugin = IntavePlugin.singletonInstance();
-    for (Player onlinePlayer : UserMessageSubscriptions.sibylReceivers()/*Bukkit.getOnlinePlayers()*/) {
+    for (Player onlinePlayer : UserMessageSubscriptions.sibylReceiver()/*Bukkit.getOnlinePlayers()*/) {
       if (plugin.sibylIntegrationService().isAuthenticated(onlinePlayer)) {
         onlinePlayer.sendMessage(message);
       }

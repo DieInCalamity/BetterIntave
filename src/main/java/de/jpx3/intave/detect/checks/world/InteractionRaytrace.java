@@ -9,6 +9,7 @@ import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.MovingObjectPositionBlock;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
+import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.event.BucketAction;
 import de.jpx3.intave.access.player.trust.TrustFactor;
@@ -327,6 +328,9 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
       emulationFailed = !emulateInteraction(player, interaction);
     } else if (interaction.type == InteractionType.BREAK) {
       emulationFailed = !emulateBreak(player, interaction);
+    }
+    if (emulationFailed && IntaveControl.DISABLE_LICENSE_CHECK) {
+      System.out.println("Emulation of " + interaction.type + " failed for player " + player.getName() + "/" + userOf(player).meta().clientData().versionString());
     }
     return emulationFailed;
   }

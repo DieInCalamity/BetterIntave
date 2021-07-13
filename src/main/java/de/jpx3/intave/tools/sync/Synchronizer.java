@@ -66,6 +66,7 @@ public final class Synchronizer {
     }
   }
 
+  @Deprecated
   public static void packetSynchronize(Runnable runnable) {
     runnable = wrapTask(runnable);
     try {

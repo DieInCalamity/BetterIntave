@@ -12,7 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public final class UserMessageSubscriptions {
   private final static Collection<Player> sibylRepo = GarbageCollector.watch(new CopyOnWriteArrayList<>());
 
-  public static Collection<? extends Player> sibylReceivers() {
+  public static Collection<? extends Player> sibylReceiver() {
     return sibylRepo;
   }
 
@@ -28,7 +28,7 @@ public final class UserMessageSubscriptions {
 
   private final static Map<UserMessageChannel, List<Player>> messageChannelSubscriptions = new ConcurrentHashMap<>();
 
-  public static Collection<? extends Player> activeListenersOf(UserMessageChannel channel) {
+  public static Collection<? extends Player> receiverOf(UserMessageChannel channel) {
     return messageChannelSubscriptions.computeIfAbsent(channel, theChannel -> new CopyOnWriteArrayList<>());
   }
 

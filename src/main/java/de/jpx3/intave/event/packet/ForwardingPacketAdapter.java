@@ -63,7 +63,6 @@ public final class ForwardingPacketAdapter extends IntavePacketAdapter {
         return;
       }
     }
-
     User user = UserRepository.userOf(event.getPlayer());
     if (user == null) {
       return;
@@ -72,7 +71,6 @@ public final class ForwardingPacketAdapter extends IntavePacketAdapter {
       user.receiveNextPacket();
       return;
     }
-
     for (LocalPacketAdapter localPacketAdapter : targetList) {
       localPacketAdapter.onPacketReceiving(event);
     }

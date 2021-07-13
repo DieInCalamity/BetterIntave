@@ -88,7 +88,7 @@ public final class UserMetaInventoryData {
     }
     int finalNewItemSlot = newItemSlot;
     pastSlotSwitch = 0;
-    Synchronizer.packetSynchronize(() -> {
+    Synchronizer.synchronize(() -> {
       pastSlotSwitch = 0;
       awaitingSlotSet = previousItemSlot;
       player.getInventory().setHeldItemSlot(finalNewItemSlot);
