@@ -1,6 +1,6 @@
 package de.jpx3.intave.event.packet.tinyprotocol;
 
-import de.jpx3.intave.reflect.locate.ClassLocator;
+import de.jpx3.intave.reflect.locate.Locator;
 import org.bukkit.Bukkit;
 
 import java.lang.reflect.Constructor;
@@ -264,7 +264,7 @@ final class TinyProtocolReflection {
    * @throws IllegalArgumentException If the class doesn't exist.
    */
   public static Class<?> getMinecraftClass(String name) {
-    return ClassLocator.classByKey(name);//getCanonicalClass(NMS_PREFIX + "." + name);
+    return Locator.classByKey(name);//getCanonicalClass(NMS_PREFIX + "." + name);
   }
 
   /**
@@ -284,7 +284,7 @@ final class TinyProtocolReflection {
    * @return The class.
    */
   private static Class<?> getCanonicalClass(String canonicalName) {
-    return ClassLocator.byFullClassName(canonicalName);
+    return Locator.tryConvertByClassNameLookup(canonicalName);
   }
 
   /**

@@ -38,7 +38,7 @@ public final class TransactionResponseEnforcingProcessor implements PacketEventS
   private void checkTransactionTimeoutFor(Player player) {
     User user = userOf(player);
     if (oldestPendingTransaction(user) > TRANSACTION_TIMEOUT_KICK) {
-      IntaveLogger.logger().error(player.getName() + " was not responding to validation packets, and therefore removed");
+      IntaveLogger.logger().error(player.getName() + " was not responding to validation packets and therefore removed");
       user.synchronizedDisconnect("Timed out");
     }
   }

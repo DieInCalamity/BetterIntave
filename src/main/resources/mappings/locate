@@ -1,13 +1,35 @@
 AxisAlignedBB -> {
   17 -> "net/minecraft/world/phys/AxisAlignedBB"
+  fields {
+    17 -> {
+      "minX" -> "a"
+      "minY" -> "b"
+      "minZ" -> "c"
+      "maxX" -> "d"
+      "maxY" -> "e"
+      "maxZ" -> "f"
+    }
+  }
 }
 
 Vec3D -> {
   17 -> "net/minecraft/world/phys/Vec3d"
+  fields {
+    17 -> {
+      "x" -> "b"
+      "y" -> "c"
+      "z" -> "d"
+    }
+  }
 }
 
 IRegistry -> {
   17 -> "net/minecraft/core/IRegistry"
+  fields {
+    17 -> {
+      "ENTITY_TYPE" -> "Y"
+    }
+  }
 }
 
 BlockPosition -> {
@@ -48,6 +70,13 @@ PacketDataSerializer -> {
 
 Entity -> {
   17 -> "net/minecraft/world/entity/Entity"
+  fields {
+    17 -> {
+      "yaw" -> "a"
+      "pitch" -> "b"
+      "onGround" -> "z"
+    }
+  }
 }
 
 EntityTypes -> {
@@ -56,6 +85,12 @@ EntityTypes -> {
 
 EntitySize -> {
   17 -> "net/minecraft/world/entity/EntitySize"
+  fields {
+    17 -> {
+      "width" -> "a"
+      "height" -> "b"
+    }
+  }
 }
 
 EntityLiving -> {
@@ -84,6 +119,14 @@ ScoreboardTeam -> {
 
 ScoreboardTeamBase$EnumNameTagVisibility -> {
   17 -> "net/minecraft/world/scores/ScoreboardTeamBase$EnumNameTagVisibility"
+  fields {
+    17 -> {
+      "ALWAYS" -> "a"
+      "NEVER" -> "b"
+      "HIDE_FOR_OTHER_TEAMS" -> "c"
+      "HIDE_FOR_OWN_TEAM" -> "d"
+    }
+  }
 }
 
 TagsFluid -> {
@@ -92,6 +135,11 @@ TagsFluid -> {
 
 EntityPlayer -> {
   17 -> "net/minecraft/server/level/EntityPlayer"
+  fields {
+    17 -> {
+      "playerConnection" -> "b"
+    }
+  }
 }
 
 WorldServer -> {
@@ -152,8 +200,14 @@ PacketPlayOutScoreboardTeam -> {
 
 PacketPlayOutPosition$EnumPlayerTeleportFlags -> {
   17 -> "net/minecraft/network/protocol/game/PacketPlayOutPosition$EnumPlayerTeleportFlags"
+  fields {
+    17 -> {
+      "X_ROT" -> "d"
+      "Y_ROT" -> "e"
+    }
+  }
 }
-
+g
 PacketPlayInEntityAction$EnumPlayerAction -> {
   17 -> "net/minecraft/network/protocol/game/PacketPlayInEntityAction$EnumPlayerAction"
 }

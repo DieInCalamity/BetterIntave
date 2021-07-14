@@ -5,7 +5,7 @@ import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.patchy.PatchyLoadingInjector;
 import de.jpx3.intave.reflect.hitbox.ReflectiveEntityHitBoxAccess;
-import de.jpx3.intave.reflect.locate.ClassLocator;
+import de.jpx3.intave.reflect.locate.Locator;
 import org.bukkit.Bukkit;
 
 import java.lang.reflect.Field;
@@ -66,8 +66,12 @@ public final class ReflectiveAccess {
     return NMS_PACKAGE_NAME;
   }
 
+  public static Field lookupServerField(String serverClassName, String fieldName) {
+    return Locator.fieldByKey(serverClassName, fieldName);
+  }
+
   public static Class<?> lookupServerClass(String className) {
-    return ClassLocator.classByKey(className);
+    return Locator.classByKey(className);
   }
 
   public static Class<?> lookupCraftBukkitClass(String className) {

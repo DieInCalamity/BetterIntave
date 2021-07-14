@@ -4,7 +4,6 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveException;
 import de.jpx3.intave.access.IntaveInternalException;
-import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.detect.checks.movement.Physics;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.reflect.ReflectiveAccess;
@@ -50,18 +49,15 @@ public final class MovementEmulationEngine {
 
   private void loadTeleportFlags() {
     try {
-      Class<?> teleportFlagsClass = ReflectiveAccess.lookupServerClass("PacketPlayOutPosition$EnumPlayerTeleportFlags");
+//      Class<?> teleportFlagsClass = ReflectiveAccess.lookupServerClass("PacketPlayOutPosition$EnumPlayerTeleportFlags");
       if (teleportFlags.isEmpty()) {
-        if (MinecraftVersions.VER1_17_0.atOrAbove()) {
-          teleportFlags.add(teleportFlagsClass.getField("d").get(null));
-          teleportFlags.add(teleportFlagsClass.getField("e").get(null));
-        } else {
-          teleportFlags.add(teleportFlagsClass.getField("X_ROT").get(null));
-          teleportFlags.add(teleportFlagsClass.getField("Y_ROT").get(null));
-        }
+        teleportFlags.add(ReflectiveAccess.lookupServerField("PacketPlayOutPosition$EnumPlayerTeleportFlags", "X_ROT").get(null));
+        teleportFlags.add(ReflectiveAccess.lookupServerField("PacketPlayOutPosition$EnumPlayerTeleportFlags", "Y_ROT").get(null));
+//        teleportFlags.add(teleportFlagsClass.getField("X_ROT").get(null));
+//        teleportFlags.add(teleportFlagsClass.getField("Y_ROT").get(null));
       }
-    } catch (IllegalAccessException | NoSuchFieldException e) {
-      throw new IntaveInternalException(e);
+    } catch (IllegalAccessException exception) {
+      throw new IntaveInternalException(exception);
     }
   }
 
@@ -394,7 +390,7 @@ public final class MovementEmulationEngine {
     if (!event.isCancelled()) {
       try {
         Object playerHandle = UserRepository.userOf(player).playerHandle();
-        Object playerConnection = playerHandle.getClass().getField("playerConnection").get(playerHandle);
+        Object playerConnection = ReflectiveAccess.lookupServerField("EntityPlayer", "playerConnection").get(playerHandle);
         Class<?> playerConnectionClass = ReflectiveAccess.lookupServerClass("PlayerConnection");
         Method internalTeleport = playerConnectionClass.getDeclaredMethod("internalTeleport", Double.TYPE, Double.TYPE, Double.TYPE, Float.TYPE, Float.TYPE, Set.class);
         if (!internalTeleport.isAccessible()) {
@@ -407,9 +403,8 @@ public final class MovementEmulationEngine {
         if (Math.abs(nativeYaw) > 360f) {
           internalTeleport.invoke(playerConnection, dest.getX(), dest.getY(), dest.getZ(), nativeYaw % 360f, nativePitch, Collections.emptySet());
         } else {
-          Class<?> entityClass = ReflectiveAccess.lookupServerClass("Entity");
-          Field yawField = entityClass.getField("yaw");
-          Field pitchField = entityClass.getField("pitch");
+          Field yawField = ReflectiveAccess.lookupServerField("Entity", "yaw");
+          Field pitchField = ReflectiveAccess.lookupServerField("Entity", "pitch");
           float yaw = (float) yawField.get(playerHandle);
           float pitch = (float) pitchField.get(playerHandle);
           yawField.set(playerHandle, 0f);
@@ -418,8 +413,8 @@ public final class MovementEmulationEngine {
           yawField.set(playerHandle, yaw);
           pitchField.set(playerHandle, pitch);
         }
-      } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException | NoSuchFieldException e) {
-        throw new IntaveInternalException(e);
+      } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException exception) {
+        throw new IntaveInternalException(exception);
       }
     }
   }
@@ -431,7 +426,7 @@ public final class MovementEmulationEngine {
         if (IntaveControl.DEBUG_INTAVE_TELEPORT_EVENT_CANCELS && cancel) {
           PluginInvocation pluginInvocation = CallerResolver.callerPluginInfo();
           if (pluginInvocation == null) {
-            IntaveLogger.logger().pushPrintln("[Intave] Intave's teleport event was cancelled by an unknown struct");
+            IntaveLogger.logger().pushPrintln("[Intave] Intaves teleport event was cancelled anonymously");
           } else {
             IntaveLogger.logger().pushPrintln("[Intave] " + pluginInvocation.pluginName() + " cancelled Intave's teleport event (" + pluginInvocation.className() + ": " + pluginInvocation.methodName() + ")");
           }

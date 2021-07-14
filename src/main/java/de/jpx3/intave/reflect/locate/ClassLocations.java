@@ -15,10 +15,10 @@ public final class ClassLocations {
   }
 
   public ClassLocations filterByKey(String key) {
-    return forward(classLocation -> classLocation.name().equals(key));
+    return forward(classLocation -> classLocation.key().equals(key));
   }
 
-  public ClassLocations filterByCurrentVersion() {
+  public ClassLocations reduceToCurrentVersion() {
     return forward(classLocation -> classLocation.versionMatcher().matches(currentMinecraftVersion()));
   }
 

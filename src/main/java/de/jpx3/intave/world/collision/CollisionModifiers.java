@@ -15,7 +15,7 @@ public final class CollisionModifiers {
     setup(ScaffoldingCollisionModifier.class);
   }
 
-  public static void setup(Class<? extends CollisionModifier> modifierClass) {
+  private static void setup(Class<? extends CollisionModifier> modifierClass) {
     CollisionModifier modifier;
     try {
       modifier = modifierClass.newInstance();

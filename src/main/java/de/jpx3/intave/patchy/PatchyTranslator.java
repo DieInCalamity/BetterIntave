@@ -6,7 +6,7 @@ import de.jpx3.intave.lib.asm.Handle;
 import de.jpx3.intave.lib.asm.Type;
 import de.jpx3.intave.lib.asm.tree.*;
 import de.jpx3.intave.patchy.annotate.PatchyAutoTranslation;
-import de.jpx3.intave.reflect.locate.ClassLocator;
+import de.jpx3.intave.reflect.locate.Locator;
 import de.jpx3.intave.tools.annotate.Native;
 import org.bukkit.Bukkit;
 
@@ -29,7 +29,6 @@ final class PatchyTranslator {
 
   public static byte[] translateClass(byte[] inputBytes) {
     ClassNode classNode = classNodeOf(inputBytes);
-    System.out.println("translating " + classNode.name);
     translateClassDependencies(classNode);
     processMethods(selectedMethodsIn(classNode));
     return byteArrayOf(classNode);
@@ -112,6 +111,7 @@ final class PatchyTranslator {
             }
             instructionTarget = process(instructionTarget, configuration);
             arg.setOwner(instructionTarget.owner);
+            arg.setName(instructionTarget.name);
             arg.setDescriptor(instructionTarget.desc);
           }
         }
@@ -124,7 +124,11 @@ final class PatchyTranslator {
     VersionMethodReference methodReference = configuration.resolveCustomMethodDescriptor(original.owner, original.name, original.desc);
     if (methodReference == null) {
       if (configuration.translateEverything()) {
-        return InstructionTarget.methodInstructionTarget(translate(original.owner), original.name, translate(original.desc));
+        String name = original.name;
+        if (original.type == InstructionTargetType.FIELD) {
+          name = Locator.patchyFieldCovert(original.owner, name);
+        }
+        return InstructionTarget.methodInstructionTarget(translate(original.owner), name, translate(original.desc));
       }
       return original;
     } else {
@@ -154,7 +158,7 @@ final class PatchyTranslator {
         String extractedVersion = input.substring(versionBeginIndex, versionEndIndex);
         output = input.replace(extractedVersion, CURRENT_SERVER_VERSION);
       } else {
-        output = ClassLocator.patchyConvert(input);
+        output = Locator.patchyConvert(input);
       }
     }
 //    System.out.println("[Patchy] " + input + " -> " + output);
