@@ -2,6 +2,7 @@ package de.jpx3.intave.event.entity;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.reflect.FieldAccessException;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import de.jpx3.intave.IntaveControl;
@@ -76,10 +77,15 @@ public final class PacketEntityTypeResolver {
       return entityTypeDataOfBukkitEntity(entity);
     } else {
       if (ENTITY_TYPE_ACCESS_UNDER_1_14) {
-        int deadEntityType = packet.getIntegers().read(9);
-        String name = nameByDeadEntityType(deadEntityType);
-        HitBoxBoundaries boundaries = hitboxBoundariesByDeadEntityType(deadEntityType);
-        return new EntityTypeData(name, boundaries, -1, false);
+        try {
+          int deadEntityType = packet.getIntegers().read(9);
+          String name = nameByDeadEntityType(deadEntityType);
+          HitBoxBoundaries boundaries = hitboxBoundariesByDeadEntityType(deadEntityType);
+          return new EntityTypeData(name, boundaries, -1, false);
+        } catch (FieldAccessException exception) {
+          IntaveLogger.logger().info("unknown entity entityID: " + entityId);
+        }
+        return new EntityTypeData("could not be created", HitBoxBoundaries.zero(), -2, false);
       } else {
         EntityType entityType = packet.getEntityTypeModifier().read(0);
         Class<? extends Entity> entityClass = entityType.getEntityClass();
