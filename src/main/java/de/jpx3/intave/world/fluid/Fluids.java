@@ -31,10 +31,6 @@ public final class Fluids {
     }
   }
 
-  public static boolean areEyesInFluid(User user, double positionX, double positionY, double positionZ) {
-    return engine != null && engine.areEyesInFluid(user, positionX, positionY, positionZ);
-  }
-
   public static boolean handleFluidAcceleration(User user, WrappedAxisAlignedBB boundingBox) {
     return engine != null && engine.handleFluidAcceleration(user, boundingBox);
   }
