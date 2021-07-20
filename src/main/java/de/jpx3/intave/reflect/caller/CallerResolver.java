@@ -21,7 +21,6 @@ public final class CallerResolver {
       String callerMethodName = element.getMethodName();
       String pluginName = pluginFromClass(callerClassName);
       if (!pluginName.equalsIgnoreCase(NO_PLUGIN_FOUND)
-//        && !pluginName.equalsIgnoreCase("Intave")
         && i++ > 1
       ) {
         return new PluginInvocation(
