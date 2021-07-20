@@ -6,6 +6,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.command.CommandStage;
+import de.jpx3.intave.command.Forward;
 import de.jpx3.intave.command.SubCommand;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.UserRepository;
@@ -46,6 +47,17 @@ public final class IntaveInternalsStage extends CommandStage {
     String fullMessage = Arrays.stream(message).map(s -> s + " ").collect(Collectors.joining()).trim();
     plugin.violationProcessor().broadcastNotify(fullMessage);
   }
+
+  @SubCommand(
+    selectors = "bot",
+    usage = "<player> <type>",
+    description = "Bot related commands",
+    permission = "intave.command.bot"
+  )
+  @Forward(
+    target = IntaveBotStage.class
+  )
+  public void botCommand(CommandSender commandSender) {}
 
   @SubCommand(
     selectors = "entitylag",

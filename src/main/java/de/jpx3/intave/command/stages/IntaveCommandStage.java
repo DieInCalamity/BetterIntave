@@ -123,17 +123,6 @@ public final class IntaveCommandStage extends CommandStage {
   public void rootCommand(User user) {}
 
   @SubCommand(
-    selectors = "bot",
-    usage = "<player> <type>",
-    description = "Bot related commands",
-    permission = "intave.command.bot"
-  )
-  @Forward(
-    target = IntaveBotStage.class
-  )
-  public void botCommand(CommandSender commandSender) {}
-
-  @SubCommand(
     selectors = "diagnostics",
     usage = "",
     description = "Runtime and performance data output",

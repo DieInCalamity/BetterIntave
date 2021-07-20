@@ -124,6 +124,11 @@ public final class FakePlayer implements TickTaskScheduler {
   private final static boolean SPAWN_DOUBLE_COORDINATES = MinecraftVersions.VER1_9_0.atOrAbove();
   private final static boolean SPAWN_HAS_CURRENT_ITEM_FLAG = !MinecraftVersions.VER1_9_0.atOrAbove();
 
+  public void syncSpawn(Location location) {
+    Synchronizer.synchronize(() -> spawn(location));
+  }
+
+  @Deprecated
   public void spawn(Location location) {
     Preconditions.checkNotNull(location);
     this.movement.location = location;
@@ -151,7 +156,11 @@ public final class FakePlayer implements TickTaskScheduler {
 
     // Entity
     PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 0, Byte.class, (byte) 0);
-    PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 1, Short.class, (short)300);
+    if (MinecraftVersions.VER1_9_0.atOrAbove()) {
+      PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 1, Integer.class, 300);
+    } else {
+      PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 1, Short.class, (short) 300);
+    }
     PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 2, String.class, "");
     PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 3, Byte.class, (byte) 0);
     PlayerMetaDataHelper.setMetadata(wrappedDataWatcher, 4, Byte.class, (byte) 0);

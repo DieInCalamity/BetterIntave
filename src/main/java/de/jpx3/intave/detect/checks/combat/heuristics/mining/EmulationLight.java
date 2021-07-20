@@ -9,6 +9,7 @@ import de.jpx3.intave.fakeplayer.movement.types.ConvertEntityMovement;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaAttackData;
 import de.jpx3.intave.user.UserMetaMovementData;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
@@ -37,7 +38,8 @@ public final class EmulationLight extends MiningStrategyExecutor {
         .withParentPlayer(user().player())
         .withAttackSubscriber(() -> saveAnomalyWithID(1))
         .build();
-      fakePlayer.spawn(locationBehind(user(), ThreadLocalRandom.current().nextInt(1, 2)));
+
+      fakePlayer.syncSpawn(locationBehind(user(), ThreadLocalRandom.current().nextInt(1, 2)));
     });
   }
 
