@@ -110,7 +110,7 @@ public final class PacketEntityTypeResolver {
       if (DATA_WATCHER_ACCESS_UNDER_1_15) {
         WrappedDataWatcher dataWatcher = packet.getDataWatcherModifier().read(0);
         // Guckt ob das Packet ein Datawatcher hat
-        if (dataWatcher != null) {
+        if (dataWatcher != null && dataWatchesIncludesEntity(dataWatcher)) {
           return entityTypeDataOfDataWatcher(dataWatcher);
         } else {
           int entityTypeId = packet.getIntegers().read(1);
@@ -224,6 +224,10 @@ public final class PacketEntityTypeResolver {
     HitBoxBoundaries hitBoxBoundaries = hitBoxBoundariesByBukkitEntity(entity);
     String name = entityNameByBukkitEntity(entity);
     return new EntityTypeData(name, hitBoxBoundaries, entity.getType().getTypeId(), !entity.isDead());
+  }
+
+  public boolean dataWatchesIncludesEntity(WrappedDataWatcher dataWatcher) {
+    return entityOfDataWatcher(dataWatcher) != null;
   }
 
   private EntityTypeData entityTypeDataOfDataWatcher(WrappedDataWatcher dataWatcher) {
