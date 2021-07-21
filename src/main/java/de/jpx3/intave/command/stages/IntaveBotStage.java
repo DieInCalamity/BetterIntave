@@ -31,9 +31,8 @@ public final class IntaveBotStage extends CommandStage {
     permission = "intave.command.internals.bot.spawn",
     description = "Summon bots to a specified player"
   )
-  public void spawn(CommandSender commandSender, Player targetPlayer, String typeName) {
+  public void spawn(CommandSender commandSender, Player targetPlayer, Type type) {
     User target = UserRepository.userOf(targetPlayer);
-    Type type = Type.fromString(typeName);
     if (MinecraftVersions.VER1_13_0.atOrAbove()) {
       commandSender.sendMessage(IntavePlugin.prefix() + ChatColor.RED + "Intave Bots are currently unavailable for your server version. Please wait for upcoming updates.");
       return;
@@ -69,11 +68,7 @@ public final class IntaveBotStage extends CommandStage {
   private enum Type {
     INVISIBLE,
     MODERATE,
-    HEAVY;
-
-    public static Type fromString(String string) {
-      return Arrays.stream(Type.values()).filter(type -> type.name().equalsIgnoreCase(string)).findFirst().orElse(null);
-    }
+    HEAVY
   }
 
   public static IntaveBotStage singletonInstance() {
