@@ -35,16 +35,29 @@ public final class TypeTranslators {
           return enumConstant;
         }
       }
-      String types = Arrays.stream(enumConstants).map(enumConstant -> niceifyEnumName(enumConstant.name())).collect(Collectors.joining(", "));
-      int indexOfLastComma = types.lastIndexOf(", ");
-      types = types.substring(0, indexOfLastComma - 1) + " or " + types.substring(indexOfLastComma);
-      return "Unknown type \"" + type + "\": Expected " + types;
+      List<String> types = Arrays.stream(enumConstants).map(enumConstant -> niceifyEnumName(enumConstant.name().toUpperCase(Locale.ROOT))).collect(Collectors.toList());
+      return "Unknown element \"" + element + "\" of enum: Expected " + describeListSelection(types);
     }
     TypeTranslator<?> typeTranslator = typeTranslatorMap.get(type);
     if (typeTranslator == null) {
       return "Invalid type: " + type;
     }
     return typeTranslator.resolve(player, element, forward);
+  }
+
+  private static String describeListSelection(List<String> elements) {
+    int size = elements.size();
+    if(size == 0) {
+      return "nothing";
+    } else if (size == 1) {
+      return "only " + elements.get(0);
+    } else /*if (size == 2) {
+      return "either " + elements.get(0) + " or " + elements.get(1);
+    } else */{
+      String elementsListed = String.join(", ", elements.subList(0, size - 1));
+      String lastElement = elements.get(size - 1);
+      return "either " + elementsListed + " or " + lastElement;
+    }
   }
 
   public static List<String> findTabCompletes(CommandSender player, Class<?> type, String element, String forward) {

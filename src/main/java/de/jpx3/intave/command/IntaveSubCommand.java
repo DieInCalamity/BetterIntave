@@ -156,6 +156,10 @@ public final class IntaveSubCommand {
       if (output == null) {
         return null;
       }
+      if (output instanceof String && expectedType != String.class) {
+        sender.sendMessage(prefix + ChatColor.RED + output);
+        return null;
+      }
       parameterTypes.add(output);
       i++;
     }
@@ -167,8 +171,8 @@ public final class IntaveSubCommand {
     try {
       Object output = targetMethod.invoke(stage, parameterTypes.toArray(new Object[0]));
       return output instanceof CommandStage ? (CommandStage) output : null;
-    } catch (IllegalAccessException | InvocationTargetException e) {
-      e.printStackTrace();
+    } catch (IllegalAccessException | InvocationTargetException exception) {
+      exception.printStackTrace();
       return null;
     }
   }

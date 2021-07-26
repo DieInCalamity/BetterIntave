@@ -1,13 +1,11 @@
 package de.jpx3.classloader;
 
-import de.jpx3.intave.tools.JavaVersion;
-
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
 public final class ClassLoader {
-  public final static boolean USE_NATIVE_ACCESS = JavaVersion.current() > 15;
+  public final static boolean USE_NATIVE_ACCESS = currentJavaVersion() > 15;
 
   private static boolean loaded;
 
@@ -71,4 +69,17 @@ public final class ClassLoader {
   }
 
   private static native void classLoad0(byte[] bytes);
+
+  private static int currentJavaVersion() {
+    String version = System.getProperty("java.version");
+    if (version.startsWith("1.")) {
+      version = version.substring(2, 3);
+    } else {
+      int dot = version.indexOf(".");
+      if (dot != -1) {
+        version = version.substring(0, dot);
+      }
+    }
+    return Integer.parseInt(version);
+  }
 }

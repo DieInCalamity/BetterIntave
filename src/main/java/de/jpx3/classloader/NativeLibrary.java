@@ -1,18 +1,15 @@
 package de.jpx3.classloader;
 
-import de.jpx3.intave.security.ContextSecrets;
-import de.jpx3.intave.security.HashAccess;
-
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Locale;
-
-import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 
 public final class NativeLibrary {
   private final String name;
@@ -30,25 +27,30 @@ public final class NativeLibrary {
   public void load() {
     try {
       prepareCache();
-      File tempFile;
-      int i = 0;
-      do {
-        tempFile = new File(tempDirectory, name + "-" + i + ".jar");
-      } while (tempFile.exists() && i++ < 100);
-      tempFile.createNewFile();
-      InputStream resourceAsStream = new FileInputStream(cacheFile());
-      FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
-      int read;
-      byte[] array = new byte[512];
-      while ((read = resourceAsStream.read(array)) != -1) {
-        fileOutputStream.write(array, 0, read);
-      }
-      fileOutputStream.close();
-      resourceAsStream.close();
+      File tempFile = copyCacheToTempFile();
       System.load(tempFile.getAbsolutePath());
     } catch (Exception exception) {
       throw new IllegalStateException("Failed to load library " + name, exception);
     }
+  }
+
+  private File copyCacheToTempFile() throws IOException {
+    File tempFile;
+    int i = 0;
+    do {
+      tempFile = new File(tempDirectory, name + i + suffix());
+    } while (tempFile.exists() && i++ < 100);
+    tempFile.createNewFile();
+    InputStream resourceAsStream = new FileInputStream(cacheFile());
+    FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
+    int read;
+    byte[] array = new byte[512];
+    while ((read = resourceAsStream.read(array)) != -1) {
+      fileOutputStream.write(array, 0, read);
+    }
+    fileOutputStream.close();
+    resourceAsStream.close();
+    return tempFile;
   }
 
   private void prepareCache() throws IOException, IllegalAccessException {
@@ -56,7 +58,11 @@ public final class NativeLibrary {
       // download
       tryDownload();
     }
-    String hash = HashAccess.hashOf(cacheFile());
+    hashCheck();
+  }
+
+  private void hashCheck() throws IllegalAccessException {
+    String hash = hashOf(cacheFile());
     boolean fileValid = allowedHashes.stream().anyMatch(hash::equalsIgnoreCase);
     if (!fileValid) {
       cacheFile().delete();
@@ -64,12 +70,34 @@ public final class NativeLibrary {
     }
   }
 
+  private String hashOf(File file) {
+    StringBuilder jarChecksum = new StringBuilder();
+    try {
+      MessageDigest md = MessageDigest.getInstance("SHA-256");// MD5
+      FileInputStream fis = new FileInputStream(file);
+      byte[] dataBytes = new byte[1024];
+      int nread;
+      while ((nread = fis.read(dataBytes)) != -1) {
+        md.update(dataBytes, 0, nread);
+      }
+      byte[] mdbytes = md.digest();
+      for (byte mdbyte : mdbytes) {
+        jarChecksum.append(Integer.toString((mdbyte & 0xff) + 0x100, 16).substring(1));
+      }
+    } catch (NoSuchAlgorithmException | IOException exception) {
+      throw new IllegalStateException(exception);
+    }
+    return jarChecksum.toString();
+  }
+
   private void tryDownload() throws IOException {
     URL url = new URL("https://intave.de/dlls/" + name + suffix());
     URLConnection connection = url.openConnection();
-    connection.addRequestProperty("User-Agent", "Intave/DLLFetch");
+    connection.addRequestProperty("User-Agent", "Intave/$VERSION$");
     connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
     connection.addRequestProperty("Pragma", "no-cache");
+    connection.setConnectTimeout(8000);
+    connection.setReadTimeout(8000);
     connection.connect();
     InputStream inputStream = connection.getInputStream();
     ReadableByteChannel readableByteChannel = Channels.newChannel(inputStream);
@@ -97,11 +125,7 @@ public final class NativeLibrary {
     if (operatingSystem.contains("win")) {
       filePath = System.getenv("APPDATA") + "/Intave/";
     } else {
-      if (GOMME_MODE) {
-        filePath = ContextSecrets.secret("cache-directory");
-      } else {
-        filePath = System.getProperty("user.home") + "/.intave/";
-      }
+      filePath = System.getProperty("user.home") + "/.intave/";
     }
     return new File(filePath);
   }

@@ -576,9 +576,9 @@ public final class IntavePlugin extends JavaPlugin {
 
     RuntimeDiagnostics.applicationBoot();
 
-//    if (javaVersion() < 16) {
-//      logger.info(ChatColor.RED + "We recommend upgrading Java to version 16");
-//    }
+    if (JavaVersion.current() < 16) {
+      logger.info(ChatColor.RED + "Upgrading to Java 16 has great performance benefits");
+    }
 
     packetSubscriptionLinker.refreshLinkages();
     displayVersionInformation();

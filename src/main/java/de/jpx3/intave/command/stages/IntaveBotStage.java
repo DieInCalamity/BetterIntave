@@ -12,9 +12,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 public final class IntaveBotStage extends CommandStage {
   private static IntaveBotStage singletonInstance;
@@ -35,11 +33,6 @@ public final class IntaveBotStage extends CommandStage {
     User target = UserRepository.userOf(targetPlayer);
     if (MinecraftVersions.VER1_13_0.atOrAbove()) {
       commandSender.sendMessage(IntavePlugin.prefix() + ChatColor.RED + "Intave Bots are currently unavailable for your server version. Please wait for upcoming updates.");
-      return;
-    }
-    if (type == null) {
-      String types = Arrays.stream(Type.values()).map(name -> firstToUppercase(name.toString())).collect(Collectors.joining(", "));
-      commandSender.sendMessage(IntavePlugin.prefix() + ChatColor.RED + "Invalid type identifier. " + ChatColor.GRAY + "Expecting one of " + types + "");
       return;
     }
     if (target.meta().attackData().activeMiningStrategy != null) {
