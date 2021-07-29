@@ -40,7 +40,11 @@ public final class AttackInInvalidStateHeuristic extends IntaveMetaCheckPart<Heu
   public void receiveAttack(PacketEvent event) {
     Player player = event.getPlayer();
     PacketContainer packet = event.getPacket();
-    checkGUIScreen(player);
+    User user = userOf(player);
+    UserMetaClientData clientData = user.meta().clientData();
+    if (clientData.protocolVersion() <= VER_1_8) {
+      checkGUIScreen(player);
+    }
     checkDeadEntity(player, packet);
     checkBlocking(event);
   }
