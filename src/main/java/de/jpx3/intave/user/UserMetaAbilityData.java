@@ -5,7 +5,9 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.WrappedAttribute;
 import com.comphenix.protocol.wrappers.WrappedAttributeModifier;
+import com.google.common.collect.ImmutableMap;
 import de.jpx3.intave.access.IntaveInternalException;
+import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.event.dispatch.PlayerAbilityEvaluator;
 import de.jpx3.intave.tools.annotate.Relocate;
 import org.bukkit.GameMode;
@@ -77,12 +79,15 @@ public final class UserMetaAbilityData {
   }
 
   public double attributeValue(String key) {
+    key = keyTranslation(key);
     return attributeValue(key, x -> true);
   }
 
   public double attributeValue(String key, Predicate<WrappedAttributeModifier> filter) {
+    key = keyTranslation(key);
     for (Map.Entry<WrappedAttribute, List<WrappedAttributeModifier>> wrappedAttributeListEntry : attributeModifiers.entrySet()) {
       WrappedAttribute attribute = wrappedAttributeListEntry.getKey();
+      System.out.println(attribute.getAttributeKey());
       if (attribute.getAttributeKey().equals(key)) {
         List<WrappedAttributeModifier> modifiers = wrappedAttributeListEntry.getValue();
         if (!modifiers.isEmpty()) {
@@ -102,12 +107,36 @@ public final class UserMetaAbilityData {
   }
 
   public WrappedAttribute findAttribute(String key) {
+    key = keyTranslation(key);
     for (WrappedAttribute wrappedAttribute : attributeModifiers.keySet()) {
       if (wrappedAttribute.getAttributeKey().equals(key)) {
         return wrappedAttribute;
       }
     }
     return null;
+  }
+
+  private final static boolean KEY_WRAPPED;
+  private final static Map<String, String> REMAP;
+
+  static {
+    KEY_WRAPPED = MinecraftVersions.VER1_16_0.atOrAbove();
+    Map<String, String> remap = new HashMap<>();
+    remap.put("generic.maxHealth", "generic.max_health");
+    remap.put("generic.followRange", "generic.follow_range");
+    remap.put("generic.knockbackResistance", "generic.knockback_resistance");
+    remap.put("generic.movementSpeed", "generic.movement_speed");
+    remap.put("generic.attackDamage", "generic.attack_damage");
+    remap.put("generic.attackSpeed", "generic.attack_speed");
+    remap.put("generic.armorToughness", "generic.armor_toughness");
+    remap.put("generic.attackKnockback", "generic.attack_knockback");
+    remap.put("horse.jumpStrength", "horse.jump_strength");
+    remap.put("zombie.spawnReinforcements", "zombie.spawn_reinforcements");
+    REMAP = ImmutableMap.copyOf(remap);
+  }
+
+  private String keyTranslation(String key) {
+    return KEY_WRAPPED ? REMAP.get(key) : key;
   }
 
   public void modifyBaseValue(String key, double baseValue) {

@@ -16,7 +16,7 @@ import static de.jpx3.intave.event.packet.PacketId.Server.SCOREBOARD_TEAM;
 
 public final class EntityNoCollisionService implements PacketEventSubscriber {
   private final static String SCOREBOARD_NAME = "INTAVE";
-  private final static int COLLISION_RULE_FIELD = MinecraftVersions.VER1_13_0.atOrAbove() ? 2 : 5;
+  private final static int COLLISION_RULE_FIELD = (MinecraftVersions.VER1_13_0.atOrAbove() ? (MinecraftVersions.VER1_17_0.atOrAbove() ? 1 : 2) : 5);
 
   public EntityNoCollisionService(IntavePlugin plugin) {
     plugin.packetSubscriptionLinker().linkSubscriptionsIn(this);

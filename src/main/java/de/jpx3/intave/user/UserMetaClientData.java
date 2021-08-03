@@ -95,7 +95,9 @@ public final class UserMetaClientData {
       return "1.16.5";
     if (protocolVersion <= 755)
       return "1.17";
-    return "1.17";
+    if (protocolVersion <= 756)
+      return "1.17.1";
+    return "1.17.1";
   }
 
   public int protocolVersion() {
