@@ -34,8 +34,8 @@ final class ThinBlockPatch extends BoundingBoxPatch {
   };
 
   public ThinBlockPatch() {
-    Arrays.stream(STATES_8).forEach(WrappedAxisAlignedBB::setOriginBox);
-    Arrays.stream(STATES_9).forEach(WrappedAxisAlignedBB::setOriginBox);
+    Arrays.stream(STATES_8).forEach(WrappedAxisAlignedBB::makeOriginBox);
+    Arrays.stream(STATES_9).forEach(WrappedAxisAlignedBB::makeOriginBox);
   }
 
   @Override

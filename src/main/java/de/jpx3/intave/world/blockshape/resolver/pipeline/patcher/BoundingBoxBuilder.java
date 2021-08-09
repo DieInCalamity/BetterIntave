@@ -42,7 +42,7 @@ public final class BoundingBoxBuilder {
 
   public void apply() {
     WrappedAxisAlignedBB boundingBox = new WrappedAxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
-    boundingBox.setOriginBox();
+    boundingBox.makeOriginBox();
     boundingBoxes.add(boundingBox);
   }
 

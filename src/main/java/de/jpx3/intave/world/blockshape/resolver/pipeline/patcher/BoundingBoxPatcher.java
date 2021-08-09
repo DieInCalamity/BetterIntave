@@ -38,21 +38,24 @@ public final class BoundingBoxPatcher {
     Arrays.stream(Material.values()).filter(patch::appliesTo).forEach(type -> patches.put(type, patch));
   }
 
+  @Deprecated
   public static List<WrappedAxisAlignedBB> patch(World world, Player player, Block block, List<WrappedAxisAlignedBB> bbs) {
     BoundingBoxPatch patch = patches.get(BlockTypeAccess.typeAccess(block, player));
-    return patch == null ? bbs : transpose(patch.patch(world, player, block, reposeIfRequired(patch, bbs, block.getX(), block.getY(), block.getZ())), block.getX(), block.getY(), block.getZ());
+    if (patch == null) {
+      return bbs;
+    } else {
+      List<WrappedAxisAlignedBB> reposedBoxes = repose(patch, bbs, block.getX(), block.getY(), block.getZ());
+      List<WrappedAxisAlignedBB> patchedBoxes = patch.patch(world, player, block, reposedBoxes);
+      return transposeIfRequired(patchedBoxes, block.getX(), block.getY(), block.getZ());
+    }
   }
 
   public static List<WrappedAxisAlignedBB> patch(World world, Player player, int blockX, int blockY, int blockZ, Material type, int blockState, List<WrappedAxisAlignedBB> boxes) {
     BoundingBoxPatch patch = patches.get(type);
-    return patch == null ? boxes : transpose(patch.patch(world, player, blockX, blockY, blockZ, type, blockState, reposeIfRequired(patch, boxes, blockX, blockY, blockZ)), blockX, blockY, blockZ);
+    return patch == null ? boxes : transposeIfRequired(patch.patch(world, player, blockX, blockY, blockZ, type, blockState, repose(patch, boxes, blockX, blockY, blockZ)), blockX, blockY, blockZ);
   }
 
-  public static boolean requiresPatch(Material material) {
-    return patches.containsKey(material);
-  }
-
-  private static List<WrappedAxisAlignedBB> transpose(List<WrappedAxisAlignedBB> boundingBoxes, int posX, int posY, int posZ) {
+  private static List<WrappedAxisAlignedBB> transposeIfRequired(List<WrappedAxisAlignedBB> boundingBoxes, int posX, int posY, int posZ) {
     if (boundingBoxes.isEmpty()) {
       return boundingBoxes;
     }
@@ -65,7 +68,7 @@ public final class BoundingBoxPatcher {
     return boundingBoxes;
   }
 
-  private static List<WrappedAxisAlignedBB> reposeIfRequired(BoundingBoxPatch patch, List<WrappedAxisAlignedBB> boundingBoxes, int posX, int posY, int posZ) {
+  private static List<WrappedAxisAlignedBB> repose(BoundingBoxPatch patch, List<WrappedAxisAlignedBB> boundingBoxes, int posX, int posY, int posZ) {
     if (!patch.requireRepose() || boundingBoxes.isEmpty()) {
       return boundingBoxes;
     }
@@ -73,7 +76,7 @@ public final class BoundingBoxPatcher {
     for (int i = 0; i < reposedList.size(); i++) {
       WrappedAxisAlignedBB boundingBox = reposedList.get(i);
       WrappedAxisAlignedBB newBox = boundingBox.offset(-posX, -posY, -posZ);
-      newBox.setOriginBox();
+      newBox.makeOriginBox();
       reposedList.set(i, newBox);
     }
     return reposedList;

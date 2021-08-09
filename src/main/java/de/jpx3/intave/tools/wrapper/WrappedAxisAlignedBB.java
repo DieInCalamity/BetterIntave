@@ -383,7 +383,7 @@ public class WrappedAxisAlignedBB {
     return originBox;
   }
 
-  public void setOriginBox() {
+  public void makeOriginBox() {
     this.originBox = true;
   }
 

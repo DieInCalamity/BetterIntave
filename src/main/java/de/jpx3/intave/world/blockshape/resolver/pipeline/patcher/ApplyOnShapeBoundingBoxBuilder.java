@@ -12,15 +12,15 @@ public final class ApplyOnShapeBoundingBoxBuilder {
     this.boundingBoxes = new ArrayList<>();
   }
   
-  public void shape(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
+  public void shapeAndApply(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
     WrappedAxisAlignedBB boundingBox = WrappedAxisAlignedBB.fromBounds(minX, minY, minZ, maxX, maxY, maxZ);
-    boundingBox.setOriginBox();
+    boundingBox.makeOriginBox();
     boundingBoxes.add(boundingBox);
   }
 
-  public void shapeX16(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+  public void shapeX16AndApply(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
     WrappedAxisAlignedBB boundingBox = WrappedAxisAlignedBB.fromBounds(minX / 16.0, minY / 16.0, minZ / 16.0, maxX / 16.0, maxY / 16.0, maxZ / 16.0);
-    boundingBox.setOriginBox();
+    boundingBox.makeOriginBox();
     boundingBoxes.add(boundingBox);
   }
 

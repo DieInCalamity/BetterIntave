@@ -28,28 +28,33 @@ final class AnvilBlockPatch extends BoundingBoxPatch {
   @Override
   public List<WrappedAxisAlignedBB> patch(World world, Player player, int posX, int posY, int posZ, Material type, int blockState, List<WrappedAxisAlignedBB> bbs) {
     User user = UserRepository.userOf(player);
-    WrappedEnumDirection.Axis axis = axisOf(blockState);
     boolean legacy = user.meta().protocolData().protocolVersion() < ProtocolMetadata.VER_1_13;
-    if (legacy) {
-      BoundingBoxBuilder boundingBoxBuilder = BoundingBoxBuilder.create();
-      if (axis == WrappedEnumDirection.Axis.X) {
-        boundingBoxBuilder.shape(0.0F, 0.0F, 0.125F, 1.0F, 1.0F, 0.875F);
-      } else {
-        boundingBoxBuilder.shape(0.125F, 0.0F, 0.0F, 0.875F, 1.0F, 1.0F);
-      }
-      return boundingBoxBuilder.applyAndResolve();
+    WrappedEnumDirection.Axis axis = axisOf(blockState);
+    return legacy ? legacyPatch(axis) : modernPatch(axis);
+  }
+
+  private List<WrappedAxisAlignedBB> legacyPatch(WrappedEnumDirection.Axis axis) {
+    BoundingBoxBuilder boundingBoxBuilder = BoundingBoxBuilder.create();
+    if (axis == WrappedEnumDirection.Axis.X) {
+      boundingBoxBuilder.shape(0.0F, 0.0F, 0.125F, 1.0F, 1.0F, 0.875F);
+    } else {
+      boundingBoxBuilder.shape(0.125F, 0.0F, 0.0F, 0.875F, 1.0F, 1.0F);
     }
+    return boundingBoxBuilder.applyAndResolve();
+  }
+
+  private List<WrappedAxisAlignedBB> modernPatch(WrappedEnumDirection.Axis axis) {
     ApplyOnShapeBoundingBoxBuilder boundingBoxBuilder = ApplyOnShapeBoundingBoxBuilder.create();
     if (axis == WrappedEnumDirection.Axis.X) {
-      boundingBoxBuilder.shapeX16(2.0D, 0.0D, 2.0D, 14.0D, 4.0D, 14.0D);
-      boundingBoxBuilder.shapeX16(3.0D, 4.0D, 4.0D, 13.0D, 5.0D, 12.0D);
-      boundingBoxBuilder.shapeX16(4.0D, 5.0D, 6.0D, 12.0D, 10.0D, 10.0D);
-      boundingBoxBuilder.shapeX16(0.0D, 10.0D, 3.0D, 16.0D, 16.0D, 13.0D);
+      boundingBoxBuilder.shapeX16AndApply(2.0D, 0.0D, 2.0D, 14.0D, 4.0D, 14.0D);
+      boundingBoxBuilder.shapeX16AndApply(3.0D, 4.0D, 4.0D, 13.0D, 5.0D, 12.0D);
+      boundingBoxBuilder.shapeX16AndApply(4.0D, 5.0D, 6.0D, 12.0D, 10.0D, 10.0D);
+      boundingBoxBuilder.shapeX16AndApply(0.0D, 10.0D, 3.0D, 16.0D, 16.0D, 13.0D);
     } else {
-      boundingBoxBuilder.shapeX16(2.0D, 0.0D, 2.0D, 14.0D, 4.0D, 14.0D);
-      boundingBoxBuilder.shapeX16(4.0D, 4.0D, 3.0D, 12.0D, 5.0D, 13.0D);
-      boundingBoxBuilder.shapeX16(6.0D, 5.0D, 4.0D, 10.0D, 10.0D, 12.0D);
-      boundingBoxBuilder.shapeX16(3.0D, 10.0D, 0.0D, 13.0D, 16.0D, 16.0D);
+      boundingBoxBuilder.shapeX16AndApply(2.0D, 0.0D, 2.0D, 14.0D, 4.0D, 14.0D);
+      boundingBoxBuilder.shapeX16AndApply(4.0D, 4.0D, 3.0D, 12.0D, 5.0D, 13.0D);
+      boundingBoxBuilder.shapeX16AndApply(6.0D, 5.0D, 4.0D, 10.0D, 10.0D, 12.0D);
+      boundingBoxBuilder.shapeX16AndApply(3.0D, 10.0D, 0.0D, 13.0D, 16.0D, 16.0D);
     }
     return boundingBoxBuilder.resolve();
   }

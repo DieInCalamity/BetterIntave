@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 final class LadderBlockPatch extends BoundingBoxPatch {
-  private static final boolean EMULATE_NEW_REDUNDANT = MinecraftVersions.VER1_13_0.atOrAbove();
+  private static final boolean MODERN_PATCH_REDUNDANT = MinecraftVersions.VER1_13_0.atOrAbove();
 
   public LadderBlockPatch() {
     super(Material.LADDER);
@@ -29,21 +29,17 @@ final class LadderBlockPatch extends BoundingBoxPatch {
   @Override
   public List<WrappedAxisAlignedBB> patch(World world, Player player, int posX, int posY, int posZ, Material type, int blockState, List<WrappedAxisAlignedBB> bbs) {
     User user = UserRepository.userOf(player);
-    BoundingBoxBuilder builder = BoundingBoxBuilder.create();
     WrappedEnumDirection direction = WrappedEnumDirection.getFront(blockState);
-    if (user.meta().protocolData().combatUpdate()) {
-      if (EMULATE_NEW_REDUNDANT) {
-        return super.patch(world, player, posX, posY, posZ, type, blockState, bbs);
-      } else {
-        emulateNew(builder, direction);
-      }
+    boolean modern = user.meta().protocolData().combatUpdate();
+    if (modern) {
+      return MODERN_PATCH_REDUNDANT ? bbs : modernPath(direction);
     } else {
-      emulateLegacy(builder, direction);
+      return legacyPatch(direction);
     }
-    return builder.applyAndResolve();
   }
 
-  private void emulateNew(BoundingBoxBuilder builder, WrappedEnumDirection direction) {
+  private List<WrappedAxisAlignedBB> modernPath(WrappedEnumDirection direction) {
+    BoundingBoxBuilder builder = BoundingBoxBuilder.create();
     switch (direction) {
       case NORTH:
         builder.shape(0.0f, 0.0f, 0.8125f, 1.0f, 1.0f, 1.0f);
@@ -58,9 +54,11 @@ final class LadderBlockPatch extends BoundingBoxPatch {
         builder.shape(0.0f, 0.0f, 0.0f, 0.1875f, 1.0f, 1.0f);
         break;
     }
+    return builder.applyAndResolve();
   }
 
-  private void emulateLegacy(BoundingBoxBuilder builder, WrappedEnumDirection direction) {
+  private List<WrappedAxisAlignedBB> legacyPatch(WrappedEnumDirection direction) {
+    BoundingBoxBuilder builder = BoundingBoxBuilder.create();
     switch (direction) {
       case NORTH:
         builder.shape(0.0F, 0.0F, 0.875f, 1.0F, 1.0F, 1.0F);
@@ -76,5 +74,6 @@ final class LadderBlockPatch extends BoundingBoxPatch {
         break;
       }
     }
+    return builder.applyAndResolve();
   }
 }

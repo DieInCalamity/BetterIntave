@@ -40,9 +40,9 @@ public final class CubeMemoryPipe implements ResolverPipeline {
     }
     List<WrappedAxisAlignedBB> resolve = forward.resolve(world, player, type, blockState, posX, posY, posZ);
     if (isInLoadedChunk(world, posX, posZ)) {
-      boolean solid = isSolid(resolve, posX, posY, posZ);
+      boolean solid = isCubic(resolve, posX, posY, posZ);
       if (solid) {
-        downstreamTypeReset(type); // flush downstream type save
+        downstreamTypeReset(type); // flush downstream type
       }
       (solid ? solidMaterials : otherMaterials).add(type);
     }
@@ -60,7 +60,7 @@ public final class CubeMemoryPipe implements ResolverPipeline {
     return world.isChunkLoaded(x >> 4, z >> 4);
   }
 
-  private boolean isSolid(List<WrappedAxisAlignedBB> resolve, int posX, int posY, int posZ) {
+  private boolean isCubic(List<WrappedAxisAlignedBB> resolve, int posX, int posY, int posZ) {
     if (resolve.size() != 1) {
       return false;
     }

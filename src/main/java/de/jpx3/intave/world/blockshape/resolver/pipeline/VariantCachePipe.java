@@ -62,7 +62,7 @@ public final class VariantCachePipe implements ResolverPipeline {
     for (int i = 0; i < result.size(); i++) {
       WrappedAxisAlignedBB boundingBox = result.get(i);
       WrappedAxisAlignedBB newBox = boundingBox.offset(-posX, -posY, -posZ);
-      newBox.setOriginBox();
+      newBox.makeOriginBox();
       result.set(i, newBox);
     }
     return result;

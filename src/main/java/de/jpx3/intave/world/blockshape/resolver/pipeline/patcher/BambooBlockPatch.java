@@ -21,7 +21,7 @@ final class BambooBlockPatch extends BoundingBoxPatch {
 
   @Override
   public List<WrappedAxisAlignedBB> patch(World world, Player player, int posX, int posY, int posZ, Material type, int blockState, List<WrappedAxisAlignedBB> bbs) {
-    // Small Bamboos Leaves
+    // Small Bamboo Leaves
     if (bbs.isEmpty()) {
       return bbs;
     }
