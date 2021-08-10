@@ -71,6 +71,10 @@ public final class Anomaly {
     return AnomalyOption.matches(options, AnomalyOption.REQUIRES_HEAVY_COMBAT);
   }
 
+  public boolean forceApply() {
+    return AnomalyOption.matches(options, AnomalyOption.FORCE_APPLY);
+  }
+
   public Type type() {
     return type;
   }
@@ -125,6 +129,7 @@ public final class Anomaly {
     public final static int DELAY_32s = 1 << 7;
     public final static int DELAY_64s = 1 << 8;
     public final static int DELAY_128s = 1 << 9;
+    public final static int FORCE_APPLY = 1 << 10;
 
     public static boolean matches(int optionInt, int option) {
       return (optionInt & option) > 0;

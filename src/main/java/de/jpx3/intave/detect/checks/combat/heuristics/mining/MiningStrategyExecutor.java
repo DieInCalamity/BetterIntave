@@ -74,7 +74,7 @@ public abstract class MiningStrategyExecutor {
   private Anomaly createAnomaly(int id) {
     String key = "31" + id;
     String description = "attacked a bot";
-    return Anomaly.anomalyOf(key, Confidence.CERTAIN, Anomaly.Type.KILLAURA, description);
+    return Anomaly.anomalyOf(key, Confidence.CERTAIN, Anomaly.Type.KILLAURA, description, Anomaly.AnomalyOption.FORCE_APPLY);
   }
 
   public void unregisterStrategy() {

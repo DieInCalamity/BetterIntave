@@ -100,7 +100,10 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     if (anomaly.confidence().level() > Confidence.NONE.level()) {
       HeuristicMeta meta = metaOf(player);
       int limit = anomaly.limit();
-      int betterFound = (int) meta.anomalies.stream().filter(anomaly1 -> anomaly1.key().equals(anomaly.key())).filter(anomaly1 -> anomaly1.confidence().atLeast(anomaly.confidence())).count();
+      int betterFound = (int) meta.anomalies
+        .stream()
+        .filter(anomaly1 -> anomaly1.key().equals(anomaly.key()) && anomaly1.confidence().atLeast(anomaly.confidence()))
+        .count();
       if (betterFound <= limit) {
         meta.anomalies.add(anomaly);
       }
@@ -142,15 +145,6 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
 
   @Native
   public void evaluate(Player player, boolean enforceDecision) {
-    Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
-
-    boolean isPartner = (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
-    boolean isEnterprise = (ProtocolMetadata.VERSION_DETAILS & 0x200) != 0;
-
-    if (!IntaveControl.DISABLE_LICENSE_CHECK && !isPartner && !isEnterprise && (onlinePlayers.size() <= 5 || player.isOp())) {
-      return;
-    }
-
     User user = userOf(player);
     AttackMetadata attackData = user.meta().attack();
 
@@ -220,13 +214,23 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     }
   }
 
+  @SuppressWarnings("UnusedAssignment")
+  @Native
   public List<Anomaly> catchAnomaliesOf(User user, boolean delay) {
+    Player player = user.player();
+    Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
+    boolean isPartner = (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
+    boolean isEnterprise = (ProtocolMetadata.VERSION_DETAILS & 0x200) != 0;
+    boolean trust = IntaveControl.DISABLE_LICENSE_CHECK || isPartner || isEnterprise || !(onlinePlayers.size() <= 5 || player.isOp());
     List<Anomaly> anomalies = metaOf(user).anomalies;
     anomalies.removeIf(Anomaly::expired);
     anomalies = new ArrayList<>(anomalies);
     if (delay) {
       // filter non active (delay)
       anomalies.removeIf(anomaly -> !anomaly.active());
+    }
+    if (!trust) {
+      anomalies.removeIf(anomaly -> !anomaly.forceApply());
     }
     anomalies = new ArrayList<>(anomalies);
     return anomalies;
