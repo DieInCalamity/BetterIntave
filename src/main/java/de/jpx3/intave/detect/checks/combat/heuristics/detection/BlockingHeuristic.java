@@ -49,7 +49,7 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
     Player player = event.getPlayer();
     User user = userOf(player);
     BlockingMeta meta = metaOf(user);
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
 
     if (movementData.lastTeleport == 0) {
       return;
@@ -82,11 +82,11 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
   public void receiveInteractionPacket(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    PunishmentMetadata punishmentData = user.meta().punishmentData();
+    PunishmentMetadata punishmentData = user.meta().punishment();
     BlockingMeta meta = metaOf(user);
     PacketContainer packet = event.getPacket();
 
-    if (!user.meta().protocolData().flyingPacketStream() || user.meta().abilityData().ignoringMovementPackets()) {
+    if (!user.meta().protocol().flyingPacketStream() || user.meta().abilities().ignoringMovementPackets()) {
       return;
     }
 
@@ -163,8 +163,8 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
     Player player = event.getPlayer();
     User user = userOf(player);
     BlockingMeta meta = metaOf(user);
-    MovementMetadata movementData = user.meta().movementData();
-    ProtocolMetadata clientData = user.meta().protocolData();
+    MovementMetadata movementData = user.meta().movement();
+    ProtocolMetadata clientData = user.meta().protocol();
     if (movementData.lastTeleport == 0) {
       return;
     }
@@ -173,7 +173,7 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
       if (meta.heldItemOperations > 0) {
         if (meta.blocksPlacedThisTick == 0 || meta.heldItemOperations > 2) {
           String description = "sent too many item operations (operations: " + meta.heldItemOperations + ")";
-          description += " (version " + user.meta().protocolData().versionString() + ")";
+          description += " (version " + user.meta().protocol().versionString() + ")";
           Anomaly anomaly = Anomaly.anomalyOf("144", Confidence.NONE, Anomaly.Type.KILLAURA, description, 0);
           parentCheck().saveAnomaly(player, anomaly);
 //          if(meta.unsendPackets.size() != meta.heldItemOperations) {
@@ -201,7 +201,7 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
   public void receiveUseItem(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    ProtocolMetadata clientData = user.meta().protocolData();
+    ProtocolMetadata clientData = user.meta().protocol();
     BlockingMeta meta = metaOf(player);
     // 1.8
     if(clientData.protocolVersion() >= VER_1_9) {
@@ -218,7 +218,7 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
     Player player = event.getPlayer();
     User user = userOf(player);
     BlockingMeta meta = metaOf(player);
-    ProtocolMetadata clientData = user.meta().protocolData();
+    ProtocolMetadata clientData = user.meta().protocol();
     // 1.9+
     if(clientData.protocolVersion() < VER_1_9) {
       meta.blocksPlacedThisTick++;
@@ -234,9 +234,9 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
     Player player = event.getPlayer();
     User user = userOf(player);
     BlockingMeta meta = metaOf(player);
-    MovementMetadata movementData = user.meta().movementData();
-    ProtocolMetadata clientData = user.meta().protocolData();
-    if (user.meta().abilityData().ignoringMovementPackets()) {
+    MovementMetadata movementData = user.meta().movement();
+    ProtocolMetadata clientData = user.meta().protocol();
+    if (user.meta().abilities().ignoringMovementPackets()) {
       return;
     }
 

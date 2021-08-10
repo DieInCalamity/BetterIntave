@@ -87,7 +87,7 @@ public final class PlayerUser implements User {
     this.simpleColliderProcessor = Collider.suitableSimpleColliderProcessorFor(this);
     Synchronizer.synchronize(this::setDefaultMessagingChannel);
     this.identificationContext = new PlayerIdentificationContext(player.getName(), player.getUniqueId(), player.getAddress().getAddress());
-    int version = metadata.protocolData().protocolVersion();
+    int version = metadata.protocol().protocolVersion();
     if (version >= VER_1_13) {
       this.poseSizes = Pose.AT_LEAST_1_13_POSE;
     } else if (version >= VER_1_9) {
@@ -101,7 +101,7 @@ public final class PlayerUser implements User {
   @Override
   public void delayedSetup() {
     Player player = player();
-    ProtocolMetadata clientData = meta().protocolData();
+    ProtocolMetadata clientData = meta().protocol();
     clientData.refresh(player);
     outputVersionJoinInfo();
     BlockTypeAccess.setupTranslationsFor(this);
@@ -109,7 +109,7 @@ public final class PlayerUser implements User {
 
   private void outputVersionJoinInfo() {
     Player player = player();
-    ProtocolMetadata clientData = meta().protocolData();
+    ProtocolMetadata clientData = meta().protocol();
     String string = player.getName() + " joined with version " + clientData.versionString() + " ";
     string += "(" + clientData.protocolVersion() + ")";
     if (clientData.clientVersionOlderThanServerVersion()) {
@@ -335,12 +335,12 @@ public final class PlayerUser implements User {
 
   @Override
   public int latency() {
-    return meta().connectionData().latency;
+    return meta().connection().latency;
   }
 
   @Override
   public int latencyJitter() {
-    return meta().connectionData().latencyJitter;
+    return meta().connection().latencyJitter;
   }
 
   @Override
@@ -371,7 +371,7 @@ public final class PlayerUser implements User {
 
   @Override
   public void noteHardTransactionResponse() {
-    ConnectionMetadata connectionData = metadata.connectionData();
+    ConnectionMetadata connectionData = metadata.connection();
     if (connectionData.hardTransactionResponse++ > 100) {
       Player player = player();
       IntaveLogger.logger().error(player.getName() + " has been removed for repeated feedback faults");
@@ -392,7 +392,7 @@ public final class PlayerUser implements User {
 
   @Override
   public void unregister() {
-    FakePlayer fakePlayer = meta().attackData().fakePlayer();
+    FakePlayer fakePlayer = meta().attack().fakePlayer();
     if (fakePlayer != null) {
       fakePlayer.remove();
     }

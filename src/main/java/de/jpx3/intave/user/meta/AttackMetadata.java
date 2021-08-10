@@ -44,7 +44,7 @@ public final class AttackMetadata {
 
   public void updatePerfectRotation() {
     User user = UserRepository.userOf(player);
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     double positionX = movementData.positionX;
     double lastPositionX = movementData.lastPositionX;
     double positionY = movementData.positionY;

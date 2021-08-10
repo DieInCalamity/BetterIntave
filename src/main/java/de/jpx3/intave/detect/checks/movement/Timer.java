@@ -69,7 +69,7 @@ public final class Timer extends MetaCheck<Timer.TimerData> {
   )
   public void sentPosition(PacketEvent event) {
     User user = userOf(event.getPlayer());
-    double leniency = user.meta().violationLevelData().isInActiveTeleportBundle ? 2 : 12.5;
+    double leniency = user.meta().violationLevel().isInActiveTeleportBundle ? 2 : 12.5;
     TimerData timerData = metaOf(user);
     timerData.timerBalance -= leniency;
     timerData.lastFlyingPacket = AccessHelper.now();
@@ -123,7 +123,7 @@ public final class Timer extends MetaCheck<Timer.TimerData> {
         .build();
       ViolationContext violationContext = plugin.violationProcessor().processViolation(violation);
       if (violationContext.shouldCounterThreat()) {
-        MovementMetadata movementData = user.meta().movementData();
+        MovementMetadata movementData = user.meta().movement();
         movementData.invalidMovement = true;
         Vector setback = new Vector(movementData.physicsMotionX, movementData.physicsMotionY, movementData.physicsMotionZ);
         plugin.eventService().emulationEngine().emulationSetBack(player, setback, 12, false);
@@ -168,7 +168,7 @@ public final class Timer extends MetaCheck<Timer.TimerData> {
     Timer.TimerData timerData = metaOf(user);
     long lastTimerFlag = timerData.lastTimerFlag;
     long msSinceFlag = AccessHelper.now() - lastTimerFlag;
-    ViolationMetadata violationLevelData = user.meta().violationLevelData();
+    ViolationMetadata violationLevelData = user.meta().violationLevel();
     Map<String, Map<String, Double>> violationLevel = violationLevelData.violationLevel;
     String name = name().toLowerCase();
     if (!violationLevel.containsKey(name)) {
@@ -184,7 +184,7 @@ public final class Timer extends MetaCheck<Timer.TimerData> {
   public void checkSetback(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     TimerData timerData = metaOf(user);
     if (timerData.flagTick) {
       ComplexColliderSimulationResult result = this.simulationProcessor.simulateMovementWithoutKeyPress(user);

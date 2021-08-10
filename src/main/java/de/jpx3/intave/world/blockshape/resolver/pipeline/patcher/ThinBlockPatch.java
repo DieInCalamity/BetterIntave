@@ -47,7 +47,7 @@ final class ThinBlockPatch extends BoundingBoxPatch {
   protected List<WrappedAxisAlignedBB> patch(World world, Player player, int posX, int posY, int posZ, Material type, int blockState, List<WrappedAxisAlignedBB> bbs) {
     User user = UserRepository.userOf(player);
     if (MinecraftVersions.VER1_9_0.atOrAbove()) {
-      if (!user.meta().protocolData().combatUpdate()) {
+      if (!user.meta().protocol().combatUpdate()) {
         // update 1.9 to 1.8
         int count = 0;
         int[] indices = new int[bbs.size()];
@@ -92,7 +92,7 @@ final class ThinBlockPatch extends BoundingBoxPatch {
         return bbList;
       }
     } else {
-      if (user.meta().protocolData().combatUpdate()) {
+      if (user.meta().protocol().combatUpdate()) {
         // update 1.8 to 1.9
         int count = 0;
         int[] indices = new int[bbs.size()];
@@ -113,7 +113,7 @@ final class ThinBlockPatch extends BoundingBoxPatch {
         }
 
         // via version emulates 1.8 behaviour of panes, we can account for it
-        if (!(north || east || south || west) && user.meta().protocolData().waterUpdate()) {
+        if (!(north || east || south || west) && user.meta().protocol().waterUpdate()) {
           north = south = east = west = true;
         }
 

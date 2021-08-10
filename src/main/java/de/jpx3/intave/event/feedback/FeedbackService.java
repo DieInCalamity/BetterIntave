@@ -120,7 +120,7 @@ public final class FeedbackService implements PacketEventSubscriber {
     boolean append = false;
     if (TransactionOptions.matches(APPEND_ON_OVERFLOW, options)) {
       boolean tooManyPending = pendingTransactions(userOf(player)) > OPTIONAL_PENDING_LIMIT;
-      boolean sentTooManyRecently = user.meta().connectionData().transactionPacketCounter > OPTIONAL_SENT_LIMIT;
+      boolean sentTooManyRecently = user.meta().connection().transactionPacketCounter > OPTIONAL_SENT_LIMIT;
       append = tooManyPending || sentTooManyRecently;
     }
     if (TransactionOptions.matches(APPEND, options)) {
@@ -143,7 +143,7 @@ public final class FeedbackService implements PacketEventSubscriber {
     if (user == null || !user.hasPlayer()) {
       return;
     }
-    ConnectionMetadata synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connection();
     Queue<Request<?>> queue = synchronizeData
       .transactionAppendixMap()
       .computeIfAbsent(synchronizeData.transactionNumCounter, aLong -> new LinkedBlockingDeque<>());
@@ -158,7 +158,7 @@ public final class FeedbackService implements PacketEventSubscriber {
     Player player, T obj, Callback<T> callback
   ) {
     User user = UserRepository.userOf(player);
-    ConnectionMetadata synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connection();
     short transactionKey = findAvailableTransactionIdFor(player);
     if (transactionKey >= TRANSACTION_MAX_CODE) {
       synchronizeData.transactionCounter = TRANSACTION_MIN_CODE;
@@ -176,7 +176,7 @@ public final class FeedbackService implements PacketEventSubscriber {
 
   private synchronized short findAvailableTransactionIdFor(Player player) {
     User user = UserRepository.userOf(player);
-    ConnectionMetadata synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connection();
     Map<Short, Request<?>> transactionFeedBackMap = synchronizeData.transactionShortKeyMap();
     short counter = USE_PING_PONG_PACKETS ? 13 : TRANSACTION_MIN_CODE;
     while (transactionFeedBackMap.containsKey(counter)) counter++;
@@ -185,7 +185,7 @@ public final class FeedbackService implements PacketEventSubscriber {
 
   private void countTransactionPacket(Player receiver) {
     User user = userOf(receiver);
-    ConnectionMetadata connectionData = user.meta().connectionData();
+    ConnectionMetadata connectionData = user.meta().connection();
     connectionData.transactionPacketCounter++;
 
     if (AccessHelper.now() - connectionData.transactionPacketCounterReset > 3000) {
@@ -217,7 +217,7 @@ public final class FeedbackService implements PacketEventSubscriber {
   }
 
   private static long pendingTransactions(User user) {
-    return user.meta().connectionData().transactionShortKeyMap().size();
+    return user.meta().connection().transactionShortKeyMap().size();
   }
 
   public User userOf(Player player) {

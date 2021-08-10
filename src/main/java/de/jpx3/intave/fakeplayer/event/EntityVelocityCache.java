@@ -32,7 +32,7 @@ public final class EntityVelocityCache implements PacketEventSubscriber {
   public void receiveEntityVelocity(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    FakePlayer fakePlayer = user.meta().attackData().fakePlayer();
+    FakePlayer fakePlayer = user.meta().attack().fakePlayer();
     PacketContainer packet = event.getPacket();
     Integer entityID = packet.getIntegers().read(0);
     double motionX = packet.getIntegers().readSafely(1) / VELOCITY_CONVERT_FACTOR;

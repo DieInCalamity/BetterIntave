@@ -41,9 +41,9 @@ public final class SameRotationHeuristic extends MetaCheckPart<Heuristics, SameR
     User user = userOf(player);
     SameRotationHeuristicMeta meta = metaOf(user);
     MetadataBundle metadata = user.meta();
-    MovementMetadata movementData = metadata.movementData();
-    ViolationMetadata violationLevelData = metadata.violationLevelData();
-    AbilityMetadata abilityMetadata = metadata.abilityData();
+    MovementMetadata movementData = metadata.movement();
+    ViolationMetadata violationLevelData = metadata.violationLevel();
+    AbilityMetadata abilityMetadata = metadata.abilities();
 
     if(abilityMetadata.health <= 0 || abilityMetadata.unsynchronizedHealth <= 0) {
       meta.ticksSinceRespawn = 0;
@@ -242,19 +242,19 @@ public final class SameRotationHeuristic extends MetaCheckPart<Heuristics, SameR
     private Tick lastTick = new Tick();
     private int ticksSinceRespawn;
   }
-}
 
-class Tick {
-  float yaw, pitch;
-  float yawMotion, pitchMotion;
+  public static class Tick {
+    float yaw, pitch;
+    float yawMotion, pitchMotion;
 
-  public Tick() {
-  }
+    public Tick() {
+    }
 
-  public Tick(float yaw, float pitch, float yawMotion, float pitchMotion) {
-    this.yaw = yaw;
-    this.pitch = pitch;
-    this.yawMotion = yawMotion;
-    this.pitchMotion = pitchMotion;
+    public Tick(float yaw, float pitch, float yawMotion, float pitchMotion) {
+      this.yaw = yaw;
+      this.pitch = pitch;
+      this.yawMotion = yawMotion;
+      this.pitchMotion = pitchMotion;
+    }
   }
 }

@@ -40,7 +40,7 @@ public enum Pose {
     .build();
 
   public WrappedAxisAlignedBB boundingBoxOf(User user) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     return boundingBoxOf(user, movementData.positionX, movementData.positionY, movementData.positionZ);
   }
 

@@ -77,7 +77,7 @@ public final class FoodItemsRegistry {
 
   public boolean foodConsumable(Player player, Material type) {
     User user = UserRepository.userOf(player);
-    AbilityMetadata abilityData = user.meta().abilityData();
+    AbilityMetadata abilityData = user.meta().abilities();
     boolean creative = abilityData.inGameMode(PlayerAbilityEvaluator.GameMode.CREATIVE);
     if (creative) {
       return false;

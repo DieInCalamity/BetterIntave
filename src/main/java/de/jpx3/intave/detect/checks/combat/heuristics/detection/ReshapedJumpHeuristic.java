@@ -40,9 +40,9 @@ public final class ReshapedJumpHeuristic extends MetaCheckPart<Heuristics, Resha
     Player player = event.getPlayer();
     User user = userOf(player);
     ReshapedJumpHeuristicMeta heuristicMeta = metaOf(user);
-    MovementMetadata movementData = user.meta().movementData();
-    AttackMetadata attackData = user.meta().attackData();
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    MovementMetadata movementData = user.meta().movement();
+    AttackMetadata attackData = user.meta().attack();
+    InventoryMetadata inventoryData = user.meta().inventory();
 
     boolean recentlyAttacked = attackData.recentlyAttacked(1000);
     boolean jump = Math.abs(movementData.jumpMotion() - movementData.motionY()) < 1e-5;
@@ -82,7 +82,7 @@ public final class ReshapedJumpHeuristic extends MetaCheckPart<Heuristics, Resha
             description += " | attacked";
           }
           description += " | pre-dist:" + preDistance + ", alt-dist:" + alternativeDistance;
-          description += " | " + user.meta().protocolData().versionString();
+          description += " | " + user.meta().protocol().versionString();
           int options = Anomaly.AnomalyOption.LIMIT_8 | Anomaly.AnomalyOption.SUGGEST_MINING;
           Anomaly anomaly = Anomaly.anomalyOf("61", Confidence.NONE, Anomaly.Type.KILLAURA, description, options);
           parentCheck().saveAnomaly(player, anomaly);

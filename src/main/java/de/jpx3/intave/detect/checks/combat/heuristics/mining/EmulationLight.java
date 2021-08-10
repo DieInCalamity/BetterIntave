@@ -20,7 +20,7 @@ public final class EmulationLight extends MiningStrategyExecutor {
   @Override
   protected void setup() {
     MetadataBundle meta = user().meta();
-    AttackMetadata attackData = meta.attackData();
+    AttackMetadata attackData = meta.attack();
     if (attackData.fakePlayer() != null) {
       return;
     }
@@ -38,7 +38,7 @@ public final class EmulationLight extends MiningStrategyExecutor {
   }
 
   public static Location locationBehind(User user) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     float rotationYaw = movementData.rotationYaw;
     Location location = movementData.verifiedLocation().clone();
     location.setYaw(rotationYaw);
@@ -49,7 +49,7 @@ public final class EmulationLight extends MiningStrategyExecutor {
 
   @Override
   protected void stopStrategy() {
-    AttackMetadata attackData = user().meta().attackData();
+    AttackMetadata attackData = user().meta().attack();
     FakePlayer fakePlayer = attackData.fakePlayer();
     if (fakePlayer != null) {
       fakePlayer.remove();

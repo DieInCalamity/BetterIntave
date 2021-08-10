@@ -21,7 +21,7 @@ public abstract class FluidEngine {
 
   protected boolean handleFluidAcceleration(User user, WrappedAxisAlignedBB boundingBox) {
     World world = user.player().getWorld();
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     WrappedAxisAlignedBB wrappedAxisAlignedBB = boundingBox.shrink(0.001D);
     int minX = WrappedMathHelper.floor(wrappedAxisAlignedBB.minX);
     int minY = WrappedMathHelper.floor(wrappedAxisAlignedBB.minY);

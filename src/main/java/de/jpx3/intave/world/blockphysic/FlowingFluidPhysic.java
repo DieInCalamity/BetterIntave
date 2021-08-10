@@ -32,9 +32,9 @@ final class FlowingFluidPhysic implements BlockPhysic {
 
   @Override
   public Vector entityCollidedWithBlock(User user, Location location, Location from, double motionX, double motionY, double motionZ) {
-    ProtocolMetadata clientData = user.meta().protocolData();
+    ProtocolMetadata clientData = user.meta().protocol();
     if (clientData.waterUpdate()) {
-      MovementMetadata movementData = user.meta().movementData();
+      MovementMetadata movementData = user.meta().movement();
       WrappedFluid fluid = Fluids.fluidAt(user, location);
       if (fluid.isIn(FluidTag.LAVA)) {
         float f = (float) location.getY() + fluid.height();

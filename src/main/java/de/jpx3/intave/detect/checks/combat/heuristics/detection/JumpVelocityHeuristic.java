@@ -29,7 +29,7 @@ public final class JumpVelocityHeuristic extends MetaCheckPart<Heuristics, JumpV
   public void receiveEntityActionPacket(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
 
     if (movementData.physicsJumped) {
       double motionY = movementData.motionY();

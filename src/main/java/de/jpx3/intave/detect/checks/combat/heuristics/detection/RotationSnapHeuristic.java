@@ -139,7 +139,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
 //    }
     Player player = event.getPlayer();
     User user = userOf(player);
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
 
     if (movementData.lastTeleport == 0) {
       return;
@@ -153,7 +153,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
     }
 
     double yawMotion = Math.abs(movementData.lastRotationYaw - movementData.rotationYaw);
-    AttackMetadata attackData = user.meta().attackData();
+    AttackMetadata attackData = user.meta().attack();
 
     if ((yawMotion > 40 && meta.yawMotions[1] < 9) || (yawMotion > 25 && meta.yawMotions[1] == 0)) {
       if (meta.lastKeyStrafe != movementData.keyStrafe || meta.lastKeyForward != movementData.keyForward) {
@@ -181,7 +181,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
       );
       meta.movementAtTick[0] = tick;
 
-      for (Map.Entry<Integer, WrappedEntity> entry : user.meta().connectionData().synchronizedEntityMap().entrySet()) {
+      for (Map.Entry<Integer, WrappedEntity> entry : user.meta().connection().synchronizedEntityMap().entrySet()) {
         WrappedEntity value = entry.getValue();
         if (value != null && !(value instanceof DeadWrappedEntity)) {
           meta.entityPositions.put(entry.getKey(), value.positionHistory.get(Math.max(value.positionHistory.size() - 1, 0)));
@@ -282,8 +282,8 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
 
     if (confidence.level() >= 30 && IntaveControl.GOMME_MODE) {
       meta.internalViolation -= confidence.level();
-      if (user.meta().protocolData().protocolVersion() > 47) {
-        description += " " + user.meta().protocolData().protocolVersion();
+      if (user.meta().protocol().protocolVersion() > 47) {
+        description += " " + user.meta().protocol().protocolVersion();
       }
 
       Anomaly anomaly = Anomaly.anomalyOf(key, confidence, Anomaly.Type.KILLAURA, description, anomalyOptions(isPartner()));
@@ -355,7 +355,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
   }
 
   private void prepareNextTick(RotationSnapHeuristicMeta meta, double yawMotion, User user) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     meta.lastKeyForward = movementData.keyForward;
     meta.lastKeyStrafe = movementData.keyStrafe;
 

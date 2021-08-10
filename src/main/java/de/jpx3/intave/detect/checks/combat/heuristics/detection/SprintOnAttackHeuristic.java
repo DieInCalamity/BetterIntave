@@ -72,7 +72,7 @@ public final class SprintOnAttackHeuristic extends MetaCheckPart<Heuristics, Spr
     Player player = event.getPlayer();
     User user = userOf(player);
     SprintOnAttackHeuristicMeta meta = metaOf(user);
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
 
     if(movementData.lastTeleport == 0) {
       return;

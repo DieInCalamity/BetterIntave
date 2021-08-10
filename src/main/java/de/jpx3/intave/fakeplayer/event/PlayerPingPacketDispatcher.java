@@ -35,7 +35,7 @@ public final class PlayerPingPacketDispatcher implements PacketEventSubscriber {
     Player player = event.getPlayer();
     PacketContainer packet = event.getPacket();
     User user = UserRepository.userOf(player);
-    FakePlayer fakePlayer = user.meta().attackData().fakePlayer();
+    FakePlayer fakePlayer = user.meta().attack().fakePlayer();
     if (fakePlayer == null) {
       return;
     }

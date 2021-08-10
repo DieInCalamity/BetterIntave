@@ -43,7 +43,7 @@ public final class PerfectAttackHeuristic extends MetaCheckPart<Heuristics, Perf
   public void evaluateFightAccuracy(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    AttackMetadata attackData = user.meta().attackData();
+    AttackMetadata attackData = user.meta().attack();
     PerfectAttackMeta heuristicMeta = metaOf(user);
     PacketType packetType = event.getPacketType();
     PacketContainer packet = event.getPacket();
@@ -79,8 +79,8 @@ public final class PerfectAttackHeuristic extends MetaCheckPart<Heuristics, Perf
   public void receiveMovement(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    AttackMetadata attackData = user.meta().attackData();
-    MovementMetadata movementData = user.meta().movementData();
+    AttackMetadata attackData = user.meta().attack();
+    MovementMetadata movementData = user.meta().movement();
     PerfectAttackMeta heuristicMeta = metaOf(user);
 
     if (!attackData.recentlyAttacked(1000) || attackData.recentlySwitchedEntity(500) || attackData.lastReach() < 1.0) {

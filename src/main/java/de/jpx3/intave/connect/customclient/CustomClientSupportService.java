@@ -77,7 +77,7 @@ public final class CustomClientSupportService implements EventProcessor {
       String messageKey = LabyModChannelHelper.readString(bytes, 100);
       if (messageKey.equalsIgnoreCase("clientconfig")) {
         User user = UserRepository.userOf(player);
-        ConnectionMetadata connectionData = user.meta().connectionData();
+        ConnectionMetadata connectionData = user.meta().connection();
         if (AccessHelper.now() - connectionData.lastCCCInfoMessageSent > 4000) {
           IntaveLogger.logger().info(player.getName() + " has sent a custom client configuration (client has special Intave support)");
           connectionData.lastCCCInfoMessageSent = AccessHelper.now();

@@ -433,8 +433,8 @@ public class WrappedAxisAlignedBB {
     User user,
     double positionX, double positionY, double positionZ
   ) {
-    MovementMetadata movementData = user.meta().movementData();
-    ProtocolMetadata clientData = user.meta().protocolData();
+    MovementMetadata movementData = user.meta().movement();
+    ProtocolMetadata clientData = user.meta().protocol();
     double width = movementData.widthRounded;
     float height = movementData.height;
 

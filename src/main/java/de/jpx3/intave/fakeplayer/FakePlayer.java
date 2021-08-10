@@ -68,7 +68,7 @@ public final class FakePlayer extends FakePlayerBody {
     this.actions = loadActions();
     this.attackSubscriber = attackSubscriber;
     this.gameMode = EnumWrappers.NativeGameMode.SURVIVAL;
-    user.meta().attackData().setFakePlayer(this);
+    user.meta().attack().setFakePlayer(this);
   }
 
   public static Builder builderFor(Player observer) {
@@ -132,7 +132,7 @@ public final class FakePlayer extends FakePlayerBody {
     }
     stopTicking();
     despawn();
-    user.meta().attackData().setFakePlayer(null);
+    user.meta().attack().setFakePlayer(null);
   }
 
   public void respawn() {
@@ -220,7 +220,7 @@ public final class FakePlayer extends FakePlayerBody {
       .feedback()
       .singleSynchronize(observer, to, (player, target) -> {
         User user = UserRepository.userOf(player);
-        AttackMetadata attackData = user.meta().attackData();
+        AttackMetadata attackData = user.meta().attack();
         attackData.fakePlayerLastReportedX = target.getX();
         attackData.fakePlayerLastReportedY = target.getY();
         attackData.fakePlayerLastReportedZ = target.getZ();
@@ -233,7 +233,7 @@ public final class FakePlayer extends FakePlayerBody {
       .eventService().feedback()
       .singleSynchronize(observer, to, (player, target) -> {
         User user = UserRepository.userOf(player);
-        AttackMetadata attackData = user.meta().attackData();
+        AttackMetadata attackData = user.meta().attack();
         attackData.fakePlayerLastReportedX = target.getX();
         attackData.fakePlayerLastReportedY = target.getY();
         attackData.fakePlayerLastReportedZ = target.getZ();

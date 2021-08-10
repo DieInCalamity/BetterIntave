@@ -166,7 +166,7 @@ public final class MovementMetadata {
   }
 
   private void setupDefaults() {
-    ProtocolMetadata clientData = user.meta().protocolData();
+    ProtocolMetadata clientData = user.meta().protocol();
     int version = clientData.protocolVersion();
     this.resetMotion = version <= 47 ? 0.005 : 0.003;
     this.frictionMultiplier = version <= VER_1_15 ? 0.16277136f : 0.16277137F;
@@ -216,7 +216,7 @@ public final class MovementMetadata {
     PacketContainer packet,
     boolean hasMovement, boolean hasRotation
   ) {
-    ProtocolMetadata clientData = user.meta().protocolData();
+    ProtocolMetadata clientData = user.meta().protocol();
     if (!boundingBoxSetup) {
       setupDefaults();
     }
@@ -281,7 +281,7 @@ public final class MovementMetadata {
   }
 
   private void updateEntityMovement() {
-    ConnectionMetadata connectionMetadata = user.meta().connectionData();
+    ConnectionMetadata connectionMetadata = user.meta().connection();
     Map<Integer, WrappedEntity> entityMap = connectionMetadata.synchronizedEntityMap();
     for (Map.Entry<Integer, WrappedEntity> entry : entityMap.entrySet()) {
       WrappedEntity entity = entry.getValue();
@@ -391,7 +391,7 @@ public final class MovementMetadata {
       case SLEEPING:
         return 0.2f;
       case CROUCHING:
-        return 1.62f - user.meta().protocolData().cameraSneakOffset();
+        return 1.62f - user.meta().protocol().cameraSneakOffset();
       default:
         return 1.62f;
     }
@@ -404,7 +404,7 @@ public final class MovementMetadata {
 
   private void updateMovementMetaData() {
     MetadataBundle meta = user.meta();
-    AbilityMetadata abilityData = meta.abilityData();
+    AbilityMetadata abilityData = meta.abilities();
 //    UserMetaPotionData potionData = meta.potionData();
 
 //    aiMoveSpeed = abilityData.walkSpeed();
@@ -434,8 +434,8 @@ public final class MovementMetadata {
   }
 
   private void updateEntityActionStates() {
-    ProtocolMetadata clientData = user.meta().protocolData();
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    ProtocolMetadata clientData = user.meta().protocol();
+    InventoryMetadata inventoryData = user.meta().inventory();
     sprintingAllowed = sprinting;
     if (sneaking && !clientData.sprintWhenSneaking()) {
       sprintingAllowed = false;
@@ -449,7 +449,7 @@ public final class MovementMetadata {
   }
 
   public boolean inLava() {
-    ProtocolMetadata clientData = user.meta().protocolData();
+    ProtocolMetadata clientData = user.meta().protocol();
     if (clientData.waterUpdate()) {
       return aquaticUpdateInLava;
     } else {
@@ -463,7 +463,7 @@ public final class MovementMetadata {
   }
 
   public boolean recentlyEncounteredFlyingPacket(int ticks) {
-    ProtocolMetadata clientData = user.meta().protocolData();
+    ProtocolMetadata clientData = user.meta().protocol();
     if (clientData.flyingPacketStream()) {
       return pastClientFlyingPacket <= ticks && pastFlyingPacketAccurate <= ticks;
     } else {
@@ -472,7 +472,7 @@ public final class MovementMetadata {
   }
 
   public boolean denyJump() {
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventory();
     if (inventoryData.inventoryOpen()) {
       return true;
     }
@@ -485,7 +485,7 @@ public final class MovementMetadata {
   }
 
   public double baseMoveSpeed() {
-    EffectMetadata potionData = user.meta().potionData();
+    EffectMetadata potionData = user.meta().potions();
     int speedAmplifier = potionData.potionEffectSpeedAmplifier();
     double baseSpeed = 0.271;
     if (speedAmplifier != 0) {
@@ -498,7 +498,7 @@ public final class MovementMetadata {
   }
 
   public void sprintReset() {
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventory();
     // really required
     if (player.getFoodLevel() >= 6 && !inventoryData.inventoryOpen()) {
       ReflectiveDataWatcherAccess.setDataWatcherFlag(player, ReflectiveDataWatcherAccess.WATCHER_SPRINT_ID, false);

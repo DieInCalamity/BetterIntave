@@ -45,18 +45,18 @@ public final class PacketOrderSwingHeuristic extends MetaCheckPart<Heuristics, P
   public void receiveUseEntity(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    ProtocolMetadata clientData = user.meta().protocolData();
+    ProtocolMetadata clientData = user.meta().protocol();
     PacketOrderSwingHeuristicMeta heuristicMeta = metaOf(player);
     PacketContainer packet = event.getPacket();
     EnumWrappers.EntityUseAction action = packet.getEntityUseActions().readSafely(0);
     if (action == null) {
       action = packet.getEnumEntityUseActions().read(0).getAction();
     }
-    if (user.meta().abilityData().ignoringMovementPackets()) {
+    if (user.meta().abilities().ignoringMovementPackets()) {
       return;
     }
     if (clientData.flyingPacketStream() && action == EnumWrappers.EntityUseAction.ATTACK && !heuristicMeta.swingTick) {
-      String description = "swing not correlated with attack ("+user.meta().protocolData().versionString()+")";
+      String description = "swing not correlated with attack ("+user.meta().protocol().versionString()+")";
       Anomaly anomaly = Anomaly.anomalyOf("31", Confidence.CERTAIN, Anomaly.Type.KILLAURA, description, Anomaly.AnomalyOption.DELAY_128s);
       parentCheck().saveAnomaly(player, anomaly);
       //dmc11

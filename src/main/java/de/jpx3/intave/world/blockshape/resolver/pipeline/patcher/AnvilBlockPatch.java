@@ -28,7 +28,7 @@ final class AnvilBlockPatch extends BoundingBoxPatch {
   @Override
   public List<WrappedAxisAlignedBB> patch(World world, Player player, int posX, int posY, int posZ, Material type, int blockState, List<WrappedAxisAlignedBB> bbs) {
     User user = UserRepository.userOf(player);
-    boolean legacy = user.meta().protocolData().protocolVersion() < ProtocolMetadata.VER_1_13;
+    boolean legacy = user.meta().protocol().protocolVersion() < ProtocolMetadata.VER_1_13;
     WrappedEnumDirection.Axis axis = axisOf(blockState);
     return legacy ? legacyPatch(axis) : modernPatch(axis);
   }

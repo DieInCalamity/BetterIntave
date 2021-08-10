@@ -51,7 +51,7 @@ public final class ScaffoldingCollisionModifier extends CollisionModifier {
   }
 
   private boolean useCustomCollision(User user, double blockY) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     return movementData.positionY >= blockY + 1 - (double) 0.00001f;
   }
 

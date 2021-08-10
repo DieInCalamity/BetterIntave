@@ -62,7 +62,7 @@ public final class InventoryMetadata {
 
   public void deactivateHand() {
     User user = UserRepository.userOf(player);
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     ItemStack heldItem = heldItem();
     if (heldItem != null && PlayerEnchantmentHelper.tridentRiptideEnchanted(heldItem)) {
       movementData.pastRiptideSpin = 0;
@@ -116,7 +116,7 @@ public final class InventoryMetadata {
 
   public void updateInventoryOpenState(boolean inventoryOpen) {
     User user = UserRepository.userOf(player);
-    ProtocolMetadata clientData = user.meta().protocolData();
+    ProtocolMetadata clientData = user.meta().protocol();
     if (!inventoryOpen && clientData.inventoryAchievementPacket()) {
       this.forceInventoryOnClickOpen = true;
     }

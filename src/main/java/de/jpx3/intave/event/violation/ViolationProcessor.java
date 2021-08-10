@@ -144,7 +144,7 @@ public final class ViolationProcessor {
       return;
     }
     User user = UserRepository.userOf(violationContext.violation().findPlayer().orElseThrow(IllegalStateException::new));
-    ViolationMetadata violationLevelData = user.meta().violationLevelData();
+    ViolationMetadata violationLevelData = user.meta().violationLevel();
 
     if (AccessHelper.now() - violationLevelData.detectionCounterReset > 10000) {
       violationLevelData.detectionCounter = 0;
@@ -348,7 +348,7 @@ public final class ViolationProcessor {
   }
 
   private Map<String, Map<String, Double>> violationMapOf(Player player) {
-    return UserRepository.userOf(player).meta().violationLevelData().violationLevel;
+    return UserRepository.userOf(player).meta().violationLevel().violationLevel;
   }
 
   private double resolvePreventionActivationThreshold(String checkName, Player player) {

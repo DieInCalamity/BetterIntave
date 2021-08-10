@@ -124,7 +124,7 @@ public final class BlockActionDispatcher implements EventProcessor {
       Vector targetBlock = blockPosition.toVector();
 
       User user = UserRepository.userOf(player);
-      MovementMetadata movementData = user.meta().movementData();
+      MovementMetadata movementData = user.meta().movement();
       Vector playerLocation = new Vector(movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ);
 
       if (playerLocation.distance(targetBlock) > 16) {

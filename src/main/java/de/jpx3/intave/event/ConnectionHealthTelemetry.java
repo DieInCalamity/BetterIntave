@@ -18,11 +18,11 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.Map;
 
-public final class ConnectionHealthResolver implements PacketEventSubscriber {
+public final class ConnectionHealthTelemetry implements PacketEventSubscriber {
   private final IntavePlugin plugin;
   private final static long TIMEOUT_DURATION = 1000 * 30;
 
-  public ConnectionHealthResolver(IntavePlugin plugin) {
+  public ConnectionHealthTelemetry(IntavePlugin plugin) {
     this.plugin = plugin;
     this.plugin.packetSubscriptionLinker().linkSubscriptionsIn(this);
 
@@ -39,7 +39,7 @@ public final class ConnectionHealthResolver implements PacketEventSubscriber {
   }
 
   private long lastKeepAliveResponse(User user) {
-    ConnectionMetadata synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connection();
     Map<Long, Long> remainingPingPackets = synchronizeData.remainingPingPacketTimestamps();
     long last = AccessHelper.now();
     for (Long value : remainingPingPackets.values()) {
@@ -63,7 +63,7 @@ public final class ConnectionHealthResolver implements PacketEventSubscriber {
     } else {
       id = packet.getIntegers().read(0);
     }
-    user.meta().connectionData().remainingPingPacketTimestamps().put(id, AccessHelper.now());
+    user.meta().connection().remainingPingPacketTimestamps().put(id, AccessHelper.now());
   }
 
   @PacketSubscription(
@@ -75,7 +75,7 @@ public final class ConnectionHealthResolver implements PacketEventSubscriber {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
     PacketContainer packet = event.getPacket();
-    ConnectionMetadata synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connection();
 
     Map<Long, Long> remainingPingPackets = synchronizeData.remainingPingPacketTimestamps();
 
@@ -105,7 +105,7 @@ public final class ConnectionHealthResolver implements PacketEventSubscriber {
     }
     differenceBalance.add(pingChange);
     if (enoughPingDataAvailable) {
-      user.meta().connectionData().latencyJitter =
+      user.meta().connection().latencyJitter =
         (int) differenceBalance.stream().mapToLong(value -> value).average().orElse(0d);
     }
 

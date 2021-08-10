@@ -43,12 +43,12 @@ public final class PlayerAccessor {
 
   private PlayerAccess newPlayerAccess(Player player) {
     User user = UserRepository.userOf(player);
-    Map<String, Map<String, Double>> violationLevel = user.meta().violationLevelData().violationLevel;
+    Map<String, Map<String, Double>> violationLevel = user.meta().violationLevel().violationLevel;
 
     return new PlayerAccess() {
       @Override
       public int protocolVersion() {
-        return user.meta().protocolData().protocolVersion();
+        return user.meta().protocol().protocolVersion();
       }
 
       @Override

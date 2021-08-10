@@ -74,6 +74,8 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
       appendCheckPart(new AttackRequiredHeuristic(this));
     }
 
+    appendCheckPart(new PreAttackHeuristic(this));
+
     appendCheckPart(new ReshapedJumpHeuristic(this));
     appendCheckPart(new RotationAccuracyYawHeuristic(this));
     appendCheckPart(new RotationAccuracyPitchHeuristic(this));
@@ -149,7 +151,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     }
 
     User user = userOf(player);
-    AttackMetadata attackData = user.meta().attackData();
+    AttackMetadata attackData = user.meta().attack();
 
     // External confidence
     List<Anomaly> anomalies = catchAnomaliesOf(user, true);
@@ -327,7 +329,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     }
     Player player = (Player) damager;
     User user = userOf(player);
-    AttackMetadata attackData = user.meta().attackData();
+    AttackMetadata attackData = user.meta().attack();
     if (attackData.activeMiningStrategy != null) {
       MiningStrategyExecutor executor = attackData.activeMiningStrategy.executor();
       executor.receiveAttackOfPlayer(event);
@@ -355,7 +357,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     }
     Player player = event.getPlayer();
     User user = userOf(player);
-    AttackMetadata attackData = user.meta().attackData();
+    AttackMetadata attackData = user.meta().attack();
     MiningStrategyContainer activeMiningStrategy = attackData.activeMiningStrategy;
     if (activeMiningStrategy == null) {
       return;

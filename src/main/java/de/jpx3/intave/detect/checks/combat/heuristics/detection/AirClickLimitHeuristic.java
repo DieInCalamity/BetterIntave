@@ -149,7 +149,7 @@ public final class AirClickLimitHeuristic extends MetaCheckPart<Heuristics, AirC
          Gibt auch ein Minecraft Bug bei dem man nach dem man ein Block abgebaut hat für 5 Ticks noch Swing-packets sendet.
       **/
       World world = event.getPlayer().getWorld();
-      MovementMetadata movementData = user.meta().movementData();
+      MovementMetadata movementData = user.meta().movement();
 
       Location playerLocation = new Location(world, movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ);
       playerLocation.setYaw(movementData.rotationYaw);
@@ -191,7 +191,7 @@ public final class AirClickLimitHeuristic extends MetaCheckPart<Heuristics, AirC
 //      player.sendMessage("cps: " + sum);
     }
 
-    if (sum > 13 && user.meta().protocolData().protocolVersion() <= ProtocolMetadata.VER_1_8) {
+    if (sum > 13 && user.meta().protocol().protocolVersion() <= ProtocolMetadata.VER_1_8) {
       meta.flaggCounter++;
       double timeDiffrenceInSeconds = (System.currentTimeMillis() - meta.lastFlagTimeStamp) / 1000d;
 

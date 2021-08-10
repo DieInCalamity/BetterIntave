@@ -72,7 +72,7 @@ public final class NoSwingHeuristic extends MetaCheckPart<Heuristics, NoSwingHeu
   public void receiveMovementPacket(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     NoSwingMeta meta = metaOf(user);
 
     if (movementData.lastTeleport == 0) {
@@ -80,7 +80,7 @@ public final class NoSwingHeuristic extends MetaCheckPart<Heuristics, NoSwingHeu
     }
 
     // fix?
-    if (user.meta().protocolData().clientVersionOlderThanServerVersion()) {
+    if (user.meta().protocol().clientVersionOlderThanServerVersion()) {
       return;
     }
 

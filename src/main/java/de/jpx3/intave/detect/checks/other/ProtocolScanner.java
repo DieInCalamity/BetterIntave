@@ -82,7 +82,7 @@ public final class ProtocolScanner extends MetaCheck<ProtocolScanner.ProtocolSca
     Player player = event.getPlayer();
     User user = userOf(player);
     PacketContainer packet = event.getPacket();
-    ProtocolMetadata clientData = user.meta().protocolData();
+    ProtocolMetadata clientData = user.meta().protocol();
     if (HAS_OFF_HAND && clientData.combatUpdate()) {
       if (enumMainHandClass == null) {
         enumMainHandClass = ReflectiveAccess.lookupServerClass("EnumMainHand");
@@ -92,7 +92,7 @@ public final class ProtocolScanner extends MetaCheck<ProtocolScanner.ProtocolSca
         return;
       }
     }
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     int keyForward = movementData.keyForward;
     int keyStrafe = movementData.keyStrafe;
     double distanceMoved = Math.hypot(movementData.motionX(), movementData.motionZ());

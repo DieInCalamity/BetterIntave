@@ -26,7 +26,7 @@ import java.util.List;
 public final class MovementContext {
   public static double jumpMotionFor(Player player, float jumpUpwardsMotion) {
     User user = UserRepository.userOf(player);
-    EffectMetadata potionData = user.meta().potionData();
+    EffectMetadata potionData = user.meta().potions();
     if (potionData.potionEffectJumpDuration > 0) {
       int jumpAmplifier = potionData.potionEffectJumpAmplifier();
       jumpUpwardsMotion += (float) ((jumpAmplifier + 1) * 0.1);
@@ -35,7 +35,7 @@ public final class MovementContext {
   }
 
   public static float resolveFriction(User user, double positionX, double positionY, double positionZ) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     World world = user.player().getWorld();
     float speed;
     if (movementData.lastOnGround) {
@@ -133,7 +133,7 @@ public final class MovementContext {
 
   public static boolean isOnLadder(User user, double positionX, double positionY, double positionZ) {
     Player player = user.player();
-    ProtocolMetadata clientData = user.meta().protocolData();
+    ProtocolMetadata clientData = user.meta().protocol();
     Block block = BukkitBlockAccess.blockAccess(
       player.getWorld(),
       WrappedMathHelper.floor(positionX),

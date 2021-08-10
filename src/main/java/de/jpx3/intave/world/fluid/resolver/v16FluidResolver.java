@@ -16,7 +16,7 @@ public final class v16FluidResolver extends FluidEngine {
   @Override
   @PatchyAutoTranslation
   protected WrappedFluid fluidAt(User user, int x, int y, int z) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     World world = (World) movementData.nmsWorld();
     if (!world.isChunkLoaded(x >> 4, z >> 4)) {
       return WrappedFluid.empty();
@@ -44,7 +44,7 @@ public final class v16FluidResolver extends FluidEngine {
   @Override
   @PatchyAutoTranslation
   protected WrappedVector flowVectorAt(User user, int x, int y, int z) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     IWorldReader world = (World) movementData.nmsWorld();
     BlockPosition blockPosition = new BlockPosition(x, y, z);
     return WrapperLinkage.vectorOf(world.getFluid(blockPosition).c(world, blockPosition));

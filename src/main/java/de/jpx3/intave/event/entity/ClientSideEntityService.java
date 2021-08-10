@@ -81,7 +81,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
   private void reevaluteTracingEntitiesFor(Player player) {
     User user = UserRepository.userOf(player);
-    ConnectionMetadata synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connection();
     Vector location = new Vector(0, 0, 0);
     Vector playerLocation = player.getLocation().toVector();
     List<WrappedEntity> validEntities = new ArrayList<>();
@@ -144,8 +144,8 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
   private void processAttachEntity(Player player, int entityID, int vehicleEntityID) {
     User user = UserRepository.userOf(player);
-    MovementMetadata movementData = user.meta().movementData();
-    ConnectionMetadata synchronizeData = user.meta().connectionData();
+    MovementMetadata movementData = user.meta().movement();
+    ConnectionMetadata synchronizeData = user.meta().connection();
     Map<Integer, WrappedEntity> synchronizedEntityMap = synchronizeData.synchronizedEntityMap();
     WrappedEntity sittingEntity = synchronizedEntityMap.get(entityID);
 
@@ -207,7 +207,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
   private void processEntitySpawn(Player player, PacketEvent event) {
     User user = UserRepository.userOf(player);
-    AttackMetadata attackData = user.meta().attackData();
+    AttackMetadata attackData = user.meta().attack();
     PacketType packetType = event.getPacketType();
     PacketContainer packet = event.getPacket();
     EntityTypeData entityTypeData;
@@ -281,7 +281,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     destroy entity packet gets executed after the spawn packet the entity will be destroyed right after it gets spawned
      */
     User user = UserRepository.userOf(player);
-    ConnectionMetadata synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connection();
     WrappedEntity wrappedEntity = synchronizeData.synchronizedEntityMap().get(entityID);
     if (wrappedEntity instanceof WrappedEntityFirework) {
       plugin.eventService().feedback().singleSynchronize(player, entityID, this::processEntityDestroy, APPEND_ON_OVERFLOW);
@@ -292,10 +292,10 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
   private void processEntityDestroy(Player player, int entityId) {
     User user = UserRepository.userOf(player);
-    AttackMetadata attackData = user.meta().attackData();
-    ConnectionMetadata synchronizeData = user.meta().connectionData();
+    AttackMetadata attackData = user.meta().attack();
+    ConnectionMetadata synchronizeData = user.meta().connection();
     Map<Integer, WrappedEntity> synchronizedEntityMap = synchronizeData.synchronizedEntityMap();
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
 
     WrappedEntity entity = synchronizedEntityMap.get(entityId);
     if (entity != null && movementData.ridingEntity() == entity) {
@@ -326,8 +326,8 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
   public void receiveMovement(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    ConnectionMetadata synchronizeData = user.meta().connectionData();
-    MovementMetadata movementData = user.meta().movementData();
+    ConnectionMetadata synchronizeData = user.meta().connection();
+    MovementMetadata movementData = user.meta().movement();
 
     if (movementData.lastTeleport == 0) {
       return;
@@ -512,7 +512,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     double posX, double posY, double posZ,
     boolean player
   ) {
-    ConnectionMetadata synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connection();
     Map<Integer, WrappedEntity> synchronizedEntityMap = synchronizeData.synchronizedEntityMap();
     WrappedEntity entity = createEntityOf(user, entityId, isEntityLiving, entityTypeData, player);
     entity.serverPosX = WrappedMathHelper.getPositionLong(posX);
@@ -528,7 +528,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     long serverPosX, long serverPosY, long serverPosZ,
     boolean player
   ) {
-    ConnectionMetadata synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connection();
     Map<Integer, WrappedEntity> synchronizedEntityMap = synchronizeData.synchronizedEntityMap();
     double posX = serverPosX / 32d;
     double posY = serverPosY / 32d;
@@ -642,7 +642,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
   private void synchronizePlayerHealth(Player player, PacketContainer packet) {
     Float health = readHealthOf(packet.getWatchableCollectionModifier().read(0));
     if (health != null) {
-      AbilityMetadata abilityData = UserRepository.userOf(player).meta().abilityData();
+      AbilityMetadata abilityData = UserRepository.userOf(player).meta().abilities();
       abilityData.unsynchronizedHealth = health;
       plugin.eventService().feedback().singleSynchronize(player, health, (p, retrievedHealth) -> {
         abilityData.health = retrievedHealth;
@@ -688,7 +688,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
   @Nullable
   public static WrappedEntity entityByIdentifier(User user, int entityID) {
-    ConnectionMetadata synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connection();
     return synchronizeData.synchronizedEntityMap().getOrDefault(entityID, null);
   }
 }

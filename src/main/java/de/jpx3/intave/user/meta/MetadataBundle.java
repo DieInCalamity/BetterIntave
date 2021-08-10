@@ -26,39 +26,39 @@ public final class MetadataBundle {
     this.punishmentData = new PunishmentMetadata(player);
   }
 
-  public ViolationMetadata violationLevelData() {
+  public ViolationMetadata violationLevel() {
     return violationLevelData;
   }
 
-  public MovementMetadata movementData() {
+  public MovementMetadata movement() {
     return movementData;
   }
 
-  public InventoryMetadata inventoryData() {
+  public InventoryMetadata inventory() {
     return inventoryData;
   }
 
-  public AbilityMetadata abilityData() {
+  public AbilityMetadata abilities() {
     return abilityData;
   }
 
-  public EffectMetadata potionData() {
+  public EffectMetadata potions() {
     return potionData;
   }
 
-  public ConnectionMetadata connectionData() {
+  public ConnectionMetadata connection() {
     return connectionData;
   }
 
-  public ProtocolMetadata protocolData() {
+  public ProtocolMetadata protocol() {
     return clientData;
   }
 
-  public AttackMetadata attackData() {
+  public AttackMetadata attack() {
     return attackData;
   }
 
-  public PunishmentMetadata punishmentData() {
+  public PunishmentMetadata punishment() {
     return punishmentData;
   }
 

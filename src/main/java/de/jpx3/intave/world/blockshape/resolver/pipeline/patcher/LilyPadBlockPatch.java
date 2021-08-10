@@ -22,7 +22,7 @@ final class LilyPadBlockPatch extends BoundingBoxPatch {
   public List<WrappedAxisAlignedBB> patch(World world, Player player, int posX, int posY, int posZ, Material type, int blockState, List<WrappedAxisAlignedBB> bbs) {
     User user = UserRepository.userOf(player);
     BoundingBoxBuilder builder = BoundingBoxBuilder.create();
-    if (user.meta().protocolData().combatUpdate()) {
+    if (user.meta().protocol().combatUpdate()) {
       builder.shape(0.0625f, 0.0f, 0.0625f, 0.9375f, 0.09375f, 0.9375f);
     } else {
       float radius = 0.5F;

@@ -33,8 +33,8 @@ public final class RotationModuloResetHeuristic extends MetaCheckPart<Heuristics
   public void receiveMovementPacket(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    MovementMetadata movementData = user.meta().movementData();
-    AttackMetadata attackData = user.meta().attackData();
+    MovementMetadata movementData = user.meta().movement();
+    AttackMetadata attackData = user.meta().attack();
     RotationModuloResetHeuristicMeta heuristicMeta = metaOf(user);
 
     WrappedEntity attackedEntity = attackData.lastAttackedEntity();
@@ -80,9 +80,9 @@ public final class RotationModuloResetHeuristic extends MetaCheckPart<Heuristics
 
   private boolean entityInLineOfSight(User user) {
     MetadataBundle meta = user.meta();
-    AttackMetadata attackData = meta.attackData();
-    MovementMetadata movementData = meta.movementData();
-    ProtocolMetadata clientData = meta.protocolData();
+    AttackMetadata attackData = meta.attack();
+    MovementMetadata movementData = meta.movement();
+    ProtocolMetadata clientData = meta.protocol();
     boolean alternativePositionY = clientData.protocolVersion() == ProtocolMetadata.VER_1_8;
     Raytracing.EntityInteractionRaytrace rayTraceResult = Raytracing.blockIgnoringEntityRaytrace(
       user.player(),

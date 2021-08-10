@@ -30,7 +30,7 @@ final class LadderBlockPatch extends BoundingBoxPatch {
   public List<WrappedAxisAlignedBB> patch(World world, Player player, int posX, int posY, int posZ, Material type, int blockState, List<WrappedAxisAlignedBB> bbs) {
     User user = UserRepository.userOf(player);
     WrappedEnumDirection direction = WrappedEnumDirection.getFront(blockState);
-    boolean modern = user.meta().protocolData().combatUpdate();
+    boolean modern = user.meta().protocol().combatUpdate();
     if (modern) {
       return MODERN_PATCH_REDUNDANT ? bbs : modernPath(direction);
     } else {

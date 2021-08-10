@@ -115,7 +115,7 @@ public final class Physics extends Check {
     if (!user.hasPlayer()) {
       return;
     }
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     if (movementData.artificialFallDistance > 3.0F) {
       float fallDistance = movementData.artificialFallDistance;
       Synchronizer.synchronize(() -> {
@@ -148,8 +148,8 @@ public final class Physics extends Check {
   @DispatchTarget
   public void receiveMovement(User user) {
     MetadataBundle meta = user.meta();
-    MovementMetadata movementData = meta.movementData();
-    ProtocolMetadata clientData = meta.protocolData();
+    MovementMetadata movementData = meta.movement();
+    ProtocolMetadata clientData = meta.protocol();
 
     movementData.setSimulator(selectSimulator(user));
 
@@ -179,7 +179,7 @@ public final class Physics extends Check {
   }
 
   private Simulator selectSimulator(User user) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     if (movementData.hasRidingEntity()) {
       return Simulators.HORSE;
     } else {
@@ -195,7 +195,7 @@ public final class Physics extends Check {
 
   @DispatchTarget
   public void endMovement(User user, boolean hasMovement) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     double motionX = movementData.motionX();
     double motionY = movementData.motionY();
     double motionZ = movementData.motionZ();
@@ -214,7 +214,7 @@ public final class Physics extends Check {
 
   @DispatchTarget
   public void updateOnGroundIfFlying(User user) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     double physicsMotionX = movementData.physicsMotionX;
     double physicsMotionY = movementData.physicsMotionY;
     double physicsMotionZ = movementData.physicsMotionZ;
@@ -239,7 +239,7 @@ public final class Physics extends Check {
   }
 
   private void predictFlyingPacketBeforeVelocity(User user) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     if (movementData.pastVelocity != 0) {
       return;
     }
@@ -267,20 +267,20 @@ public final class Physics extends Check {
   }
 
   public void updateAquatics(User user) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     updateInWater(user);
     movementData.updateEyesInWater();
   }
 
   private void handleSneakInWater(User user) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     movementData.physicsMotionY -= 0.04F;
   }
 
   private void updateInWater(User user) {
     MetadataBundle meta = user.meta();
-    ProtocolMetadata clientData = meta.protocolData();
-    MovementMetadata movementData = meta.movementData();
+    ProtocolMetadata clientData = meta.protocol();
+    MovementMetadata movementData = meta.movement();
     if (clientData.waterUpdate()) {
       movementData.inWater = Fluids.handleFluidAcceleration(user, movementData.boundingBox());
     } else {
@@ -301,9 +301,9 @@ public final class Physics extends Check {
     MetadataBundle meta = user.meta();
     boolean spectator = player.getGameMode() == GameMode.SPECTATOR;
 
-    MovementMetadata movementData = meta.movementData();
-    ViolationMetadata violationLevelData = meta.violationLevelData();
-    AbilityMetadata abilityData = meta.abilityData();
+    MovementMetadata movementData = meta.movement();
+    ViolationMetadata violationLevelData = meta.violationLevel();
+    AbilityMetadata abilityData = meta.abilities();
     OCBlockShapeAccess blockShapeAccess = user.blockShapeAccess();
     MotionVector context = expectedMovement.context();
 
@@ -692,8 +692,8 @@ public final class Physics extends Check {
   ) {
     Player player = user.player();
     MetadataBundle meta = user.meta();
-    ProtocolMetadata clientData = meta.protocolData();
-    MovementMetadata movementData = meta.movementData();
+    ProtocolMetadata clientData = meta.protocol();
+    MovementMetadata movementData = meta.movement();
     double distanceMoved = MathHelper.resolveHorizontalDistance(
       movementData.positionX, movementData.positionZ,
       movementData.verifiedPositionX, movementData.verifiedPositionZ
@@ -838,8 +838,8 @@ public final class Physics extends Check {
   ) {
     Player player = user.player();
     MetadataBundle meta = user.meta();
-    ViolationMetadata violationLevelData = meta.violationLevelData();
-    MovementMetadata movementData = meta.movementData();
+    ViolationMetadata violationLevelData = meta.violationLevel();
+    MovementMetadata movementData = meta.movement();
 
     double motionX = movementData.motionX();
     double motionZ = movementData.motionZ();
@@ -982,7 +982,7 @@ public final class Physics extends Check {
   }
 
   private void simulateMotionClamp(User user) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     double resetMotion = movementData.resetMotion();
     if (Math.abs(movementData.physicsMotionX) < resetMotion) {
       movementData.physicsMotionX = 0.0;

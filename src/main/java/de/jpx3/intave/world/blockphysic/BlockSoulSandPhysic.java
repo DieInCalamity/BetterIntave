@@ -27,7 +27,7 @@ final class BlockSoulSandPhysic implements BlockPhysic {
   }
 
   private boolean useBlockCollision(User user) {
-    ProtocolMetadata clientData = user.meta().protocolData();
+    ProtocolMetadata clientData = user.meta().protocol();
     return clientData.protocolVersion() < VER_1_15;
   }
 

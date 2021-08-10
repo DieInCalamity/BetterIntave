@@ -352,7 +352,7 @@ public final class RootStage extends CommandStage {
   )
   @Native
   public void asyncMessageInNetty(User user) {
-    user.meta().connectionData().sendAsyncMessage = true;
+    user.meta().connection().sendAsyncMessage = true;
   }
 
   @SubCommand(

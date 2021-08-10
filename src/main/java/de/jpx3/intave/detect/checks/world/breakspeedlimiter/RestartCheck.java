@@ -47,7 +47,7 @@ public final class RestartCheck extends MetaCheckPart<BreakSpeedLimiter, Restart
     Player player = event.getPlayer();
     User user = userOf(player);
     RestartCheck.BreakSpeedStartMeta meta = metaOf(user);
-    ProtocolMetadata clientData = user.meta().protocolData();
+    ProtocolMetadata clientData = user.meta().protocol();
 
     PacketContainer packet = event.getPacket();
     EnumWrappers.PlayerDigType digType = packet.getPlayerDigTypes().read(0);

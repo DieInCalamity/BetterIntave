@@ -31,8 +31,8 @@ final class BlockBedPhysic implements BlockPhysic {
   @Override
   public Vector landed(User user, double motionX, double motionY, double motionZ) {
     MetadataBundle meta = user.meta();
-    MovementMetadata movementData = meta.movementData();
-    ProtocolMetadata protocolMetadata = meta.protocolData();
+    MovementMetadata movementData = meta.movement();
+    ProtocolMetadata protocolMetadata = meta.protocol();
     if (protocolMetadata.protocolVersion() < VER_1_12) {
       return null;
     }

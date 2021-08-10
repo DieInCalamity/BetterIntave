@@ -42,7 +42,7 @@ public final class SharpRotationAnalyzer extends MetaCheckPart<PlacementAnalysis
   public void on(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     SharpRotationMeta meta = metaOf(user);
     float rotationMovement = Math.min(MathHelper.distanceInDegrees(movementData.rotationYaw, movementData.lastRotationYaw), 360);
 

@@ -29,7 +29,7 @@ public abstract class MiningStrategyExecutor {
   }
 
   private void registerExecutor() {
-    AttackMetadata attackData = user.meta().attackData();
+    AttackMetadata attackData = user.meta().attack();
     attackData.activeMiningStrategy = new MiningStrategyContainer(miningStrategy(), this);
   }
 
@@ -48,8 +48,8 @@ public abstract class MiningStrategyExecutor {
   }
 
   public void saveAnomalyWithID(int id) {
-    AttackMetadata attackData = user.meta().attackData();
-    MovementMetadata movementData = user.meta().movementData();
+    AttackMetadata attackData = user.meta().attack();
+    MovementMetadata movementData = user.meta().movement();
     FakePlayer fakePlayer = attackData.fakePlayer();
     if (fakePlayer == null) {
       return;
@@ -79,7 +79,7 @@ public abstract class MiningStrategyExecutor {
 
   public void unregisterStrategy() {
     this.stopStrategy();
-    AttackMetadata attackData = user.meta().attackData();
+    AttackMetadata attackData = user.meta().attack();
     attackData.lastMiningStrategy = miningStrategy();
     attackData.activeMiningStrategy = null;
   }

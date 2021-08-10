@@ -68,7 +68,7 @@ public final class LinearRegressionHeuristic extends MetaCheckPart<Heuristics, L
 
     double timeDiff = (double) (System.currentTimeMillis() - meta.lastMoveTimeStamp);
 
-    Vector vector = new Vector(meta.addedCounter, timeDiff);
+    Vector2d vector = new Vector2d(meta.addedCounter, timeDiff);
     meta.addedCounter++;
     meta.vectorList.add(vector);
 
@@ -145,7 +145,7 @@ public final class LinearRegressionHeuristic extends MetaCheckPart<Heuristics, L
           int maxVectorX = Integer.MIN_VALUE;
           int maxVectorY = Integer.MIN_VALUE;
 
-          for(Vector vector : meta.vectorList) {
+          for(Vector2d vector : meta.vectorList) {
             if (vector.x > maxVectorX)
               maxVectorX = (int) vector.x;
             if (vector.y > maxVectorY)
@@ -161,7 +161,7 @@ public final class LinearRegressionHeuristic extends MetaCheckPart<Heuristics, L
           int lastVectorX = Integer.MAX_VALUE;
           int lastVectorY = Integer.MAX_VALUE;
 
-          for(Vector vector : meta.vectorList) {
+          for(Vector2d vector : meta.vectorList) {
             int vectorX = (int) map2(vector.x, minVectorX, maxVectorX, 0, getWidth());
             int vectorY = (int) map2(vector.y, minVectorY, maxVectorY, 0, getHeight());
 
@@ -233,18 +233,18 @@ public final class LinearRegressionHeuristic extends MetaCheckPart<Heuristics, L
     public JPanel panel;
 //    public double b;
 //    public double m;
-    List<Vector> vectorList = new CopyOnWriteArrayList<>();
+    List<Vector2d> vectorList = new CopyOnWriteArrayList<>();
     long lastMoveTimeStamp = 0;
     public int addedCounter;
   }
-}
 
-class Vector {
-  double x;
-  double y;
+  static class Vector2d {
+    double x;
+    double y;
 
-  public Vector(double x, double y) {
-    this.x = x;
-    this.y = y;
+    public Vector2d(double x, double y) {
+      this.x = x;
+      this.y = y;
+    }
   }
 }

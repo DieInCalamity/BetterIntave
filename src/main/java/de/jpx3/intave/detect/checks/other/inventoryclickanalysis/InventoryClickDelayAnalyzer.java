@@ -68,7 +68,7 @@ public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryCl
 //      player.sendMessage(s);
 //    }
 
-    if (user.meta().protocolData().protocolVersion() >= ProtocolMetadata.VER_1_12) {
+    if (user.meta().protocol().protocolVersion() >= ProtocolMetadata.VER_1_12) {
       // TODO: when a player shifts an item in 1.12+ he sends a "null" as itemStack which makes the check imcompatible
       return;
     }
@@ -147,7 +147,7 @@ public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryCl
     User user = userOf(player);
     double std = Rotation.calculateStandardDeviation(meta.clickDelayList) * 100;
 
-    double averageMovementPacketTimestamp = user.meta().connectionData().averageMovementPacketTimestamp();
+    double averageMovementPacketTimestamp = user.meta().connection().averageMovementPacketTimestamp();
     if (std < 2 && Math.abs(averageMovementPacketTimestamp - 50) < 40) {
       Violation violation = Violation.builderFor(InventoryClickAnalysis.class)
         .forPlayer(player).withDefaultThreshold()

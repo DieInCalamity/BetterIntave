@@ -35,8 +35,8 @@ public final class RotationAccuracyPitchHeuristic extends MetaCheckPart<Heuristi
     Player player = event.getPlayer();
     User user = userOf(player);
     MetadataBundle meta = user.meta();
-    MovementMetadata movementData = meta.movementData();
-    AttackMetadata attackData = meta.attackData();
+    MovementMetadata movementData = meta.movement();
+    AttackMetadata attackData = meta.attack();
     WrappedEntity attackedEntity = attackData.lastAttackedEntity();
     RotationAccuracyHeuristicMeta heuristicMeta = metaOf(user);
 

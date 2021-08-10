@@ -274,7 +274,7 @@ public final class FallbackUser implements User {
 
   @Override
   public void unregister() {
-    FakePlayer fakePlayer = meta().attackData().fakePlayer();
+    FakePlayer fakePlayer = meta().attack().fakePlayer();
     if (fakePlayer != null) {
       fakePlayer.remove();
     }

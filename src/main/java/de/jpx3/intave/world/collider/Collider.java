@@ -29,7 +29,7 @@ public final class Collider {
   }
 
   public static ComplexColliderProcessor suitableComplexColliderProcessorFor(User user) {
-    ProtocolMetadata clientData = user.meta().protocolData();
+    ProtocolMetadata clientData = user.meta().protocol();
     return clientData.applyModernCollider() ? modernComplexCollisionResolver : legacyComplexCollisionResolver;
   }
 

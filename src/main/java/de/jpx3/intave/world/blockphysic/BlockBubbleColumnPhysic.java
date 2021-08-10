@@ -36,7 +36,7 @@ final class BlockBubbleColumnPhysic implements BlockPhysic {
 
   @Override
   public Vector entityCollidedWithBlock(User user, Location location, Location from, double motionX, double motionY, double motionZ) {
-    ProtocolMetadata clientData = user.meta().protocolData();
+    ProtocolMetadata clientData = user.meta().protocol();
     if (clientData.waterUpdate()) {
       boolean water = Fluids.fluidAt(user, location.clone().add(0,1,0)).isIn(FluidTag.WATER);
       Block block = location.getBlock();
@@ -51,7 +51,7 @@ final class BlockBubbleColumnPhysic implements BlockPhysic {
   }
 
   private Vector enterBubbleColumn(User user, boolean downwards, double motionX, double motionY, double motionZ) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     if (downwards) {
       motionY = Math.max(-0.3D, motionY - 0.03D);
     } else {

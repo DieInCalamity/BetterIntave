@@ -13,7 +13,7 @@ public final class HorseSimulator extends DefaultSimulator {
     float forward, float strafe,
     boolean attackReduce, boolean jumped, boolean handActive
   ) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     float horseForward = forward;
     float horseStrafe = strafe * 0.5F;
 

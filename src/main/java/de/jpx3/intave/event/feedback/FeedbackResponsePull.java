@@ -55,7 +55,7 @@ public final class FeedbackResponsePull implements PacketEventSubscriber {
     if (user == null) {
       return;
     }
-    ConnectionMetadata synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connection();
     Map<Long, Request<?>> transactionGlobalKeyMap = synchronizeData.transactionGlobalKeyMap();
     Map<Short, Request<?>> transactionShortKeyMap = synchronizeData.transactionShortKeyMap();
     PacketContainer packet = event.getPacket();
@@ -97,7 +97,7 @@ public final class FeedbackResponsePull implements PacketEventSubscriber {
 
   private void receiveRequest(User user, Request<?> transactionResponse) {
     Player player = user.player();
-    ConnectionMetadata synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connection();
     synchronizeData.lastSynchronization = transactionResponse.requested();
     synchronizeData.lastReceivedTransactionNum = transactionResponse.num();
     Map<Long, Queue<Request<?>>> appendixMap = synchronizeData.transactionAppendixMap();
@@ -149,7 +149,7 @@ public final class FeedbackResponsePull implements PacketEventSubscriber {
   }
 
   private static long oldestPendingTransaction(User user) {
-    ConnectionMetadata synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connection();
     Map<Short, Request<?>> transactionFeedBackMap = synchronizeData.transactionShortKeyMap();
     long duration = AccessHelper.now();
     for (Request<?> value : transactionFeedBackMap.values()) {

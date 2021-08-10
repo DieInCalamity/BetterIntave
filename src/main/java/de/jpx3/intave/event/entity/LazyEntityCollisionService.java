@@ -30,7 +30,7 @@ public final class LazyEntityCollisionService implements BukkitEventSubscriber {
   }
 
   private void searchCollisions(User user, List<Entity> entities) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     boolean entityFound = false;
     for (Entity entity : entities) {
       if (!collidableEntity(entity.getType())) {

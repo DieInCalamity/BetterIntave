@@ -75,8 +75,8 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     Player player = event.getPlayer();
     User user = userOf(player);
     InteractionMeta interactionMeta = metaOf(user);
-    MovementMetadata movementData = user.meta().movementData();
-    AbilityMetadata abilityMetadata = user.meta().abilityData();
+    MovementMetadata movementData = user.meta().movement();
+    AbilityMetadata abilityMetadata = user.meta().abilities();
     PacketContainer packet = event.getPacket();
     BlockPosition blockPosition = readBlockPositionFrom(packet);
 
@@ -91,7 +91,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
 
     Material clickedType = BukkitBlockAccess.blockAccess(blockPosition.toLocation(player.getWorld())).getType();
     boolean clickableInteraction = BlockDataAccess.isClickable(clickedType);
-    Material heldItemType = user.meta().inventoryData().heldItemType();
+    Material heldItemType = user.meta().inventory().heldItemType();
     boolean interactionIsPlacement = heldItemType != Material.AIR && heldItemType.isBlock() && !clickableInteraction && !abilityMetadata.inGameMode(GameMode.ADVENTURE);
 
     EnumWrappers.Hand handSlot = packet.getHands().readSafely(0);
@@ -121,8 +121,8 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
   public void receiveBreak(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    AbilityMetadata abilityData = user.meta().abilityData();
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    AbilityMetadata abilityData = user.meta().abilities();
+    InventoryMetadata inventoryData = user.meta().inventory();
     PacketContainer packet = event.getPacket();
     BlockPosition blockPosition = packet.getBlockPositionModifier().readSafely(0);
 
@@ -137,7 +137,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     }
 
     EnumWrappers.PlayerDigType playerDigType = packet.getPlayerDigTypes().readSafely(0);
-    float blockDamage = BlockDataAccess.blockDamage(player, user.meta().inventoryData().heldItem(), blockPosition);
+    float blockDamage = BlockDataAccess.blockDamage(player, user.meta().inventory().heldItem(), blockPosition);
     boolean instantBreak = blockDamage >= 1.0f || abilityData.inGameMode(PlayerAbilityEvaluator.GameMode.CREATIVE);
     boolean breakBlock = instantBreak || playerDigType == STOP_DESTROY_BLOCK;
 
@@ -152,7 +152,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     Interaction interaction = new Interaction(
       packet.deepClone(), player.getWorld(), player, blockPosition, enumDirection,
       breakBlock ? InteractionType.BREAK : InteractionType.INTERACT,
-      user.meta().inventoryData().heldItemType(), EnumWrappers.Hand.MAIN_HAND, playerDigType
+      user.meta().inventory().heldItemType(), EnumWrappers.Hand.MAIN_HAND, playerDigType
     );
 
     boolean mustPostValidate = interactionMeta.remainingBlockStart > 0;
@@ -178,7 +178,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     Player player = event.getPlayer();
     World world = player.getWorld();
     User user = userOf(player);
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     InteractionMeta interactionMeta = metaOf(user);
 
     List<Interaction> interactionList = interactionMeta.interactionList;
@@ -202,7 +202,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     World world = interaction.world();
     Player player = interaction.player();
     User user = userOf(player);
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     InteractionMeta interactionMeta = metaOf(user);
 
     Location playerLocation = new Location(player.getWorld(), movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ);
@@ -339,7 +339,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     if (enforceCancel) {
       response = ResponseType.CANCEL;
     }
-    if (user.meta().movementData().awaitTeleport) {
+    if (user.meta().movement().awaitTeleport) {
       rewritePacket = true;
     }
     boolean refreshBlocks = interaction.type() != InteractionType.INTERACT;
@@ -356,7 +356,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
           // check if player collides with placement location
           {
             World world = player.getWorld();
-            Material material = user.meta().inventoryData().heldItemType();
+            Material material = user.meta().inventory().heldItemType();
             int dat = 0;
             boolean replace = BlockDataAccess.replacementPlace(world, player, new BlockPosition(raycastLocation.toVector()));
             Location placementLocation = replace ? raycastLocation : raycastLocation.clone().add(raycastResult.sideHit.getDirectionVec().convertToBukkitVec());
@@ -423,7 +423,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     boolean mustFlag = false;
     String message, details;
     if (type == InteractionType.BREAK) {
-      boolean longBreakDuration = BlockDataAccess.blockDamage(player, user.meta().inventoryData().heldItem(), interaction.targetBlock()) < 0.8;
+      boolean longBreakDuration = BlockDataAccess.blockDamage(player, user.meta().inventory().heldItem(), interaction.targetBlock()) < 0.8;
       String typeName = shortenTypeName(targetLocationBlockType);
       String append = "";
       if (hitMiss || (raycastLocation.getBlockX() == 0 && raycastLocation.getBlockY() == 0 && raycastLocation.getBlockZ() == 0)) {
@@ -440,8 +440,8 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
         append = "invalid block face";
         vl = longBreakDuration ? 20 : 15;
       }
-      float blockDamage = BlockDataAccess.blockDamage(player, user.meta().inventoryData().heldItem(), interaction.targetBlock());
-      boolean instantBreak = blockDamage == Float.POSITIVE_INFINITY || blockDamage >= 1.0f || user.meta().abilityData().inGameMode(PlayerAbilityEvaluator.GameMode.CREATIVE);
+      float blockDamage = BlockDataAccess.blockDamage(player, user.meta().inventory().heldItem(), interaction.targetBlock());
+      boolean instantBreak = blockDamage == Float.POSITIVE_INFINITY || blockDamage >= 1.0f || user.meta().abilities().inGameMode(PlayerAbilityEvaluator.GameMode.CREATIVE);
       if (instantBreak) {
         vl = 0;
       }
@@ -450,7 +450,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
       mustFlag = true;
     } else if (type == InteractionType.PLACE) {
       String typeAgainstName = shortenTypeName(targetLocationBlockType);
-      String typeName = shortenTypeName(user.meta().inventoryData().heldItemType());
+      String typeName = shortenTypeName(user.meta().inventory().heldItemType());
 
       String append = "";
       if (hitMiss || (raycastLocation.getBlockX() == 0 && raycastLocation.getBlockY() == 0 && raycastLocation.getBlockZ() == 0)) {
@@ -483,7 +483,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     if (user.trustFactor().atLeast(TrustFactor.BYPASS)) {
       mustFlag = false;
     }
-    if (user.meta().movementData().awaitTeleport) {
+    if (user.meta().movement().awaitTeleport) {
       mustFlag = true;
     }
     Violation violation = Violation.builderFor(InteractionRaytrace.class)
@@ -503,7 +503,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
       targetBlockLocation.getBlockY() + 1,
       targetBlockLocation.getBlockZ() + 1
     ).grow(0.1);
-    WrappedVector origin = Raytracing.resolvePositionEyes(location, location, user.meta().movementData().eyeHeight(), 1f);
+    WrappedVector origin = Raytracing.resolvePositionEyes(location, location, user.meta().movement().eyeHeight(), 1f);
     WrappedVector directionVector = hitVec.subtract(origin).normalize().scale(0.2);
     WrappedVector itrVector = origin.scale(1);
     if (targetBlockBox.isVecInside(hitVec)) {

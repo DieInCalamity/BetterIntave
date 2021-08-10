@@ -85,7 +85,7 @@ public final class SprintResetHeuristic extends MetaCheckPart<Heuristics, Sprint
     SprintResetHeuristicMeta meta = metaOf(user);
 
     if(meta.stopSprint) {
-      if(!user.meta().abilityData().inGameMode(GameMode.CREATIVE)) {
+      if(!user.meta().abilities().inGameMode(GameMode.CREATIVE)) {
         playerUnsprinted(player, meta, event.getPacketType());
       }
     }
@@ -113,20 +113,20 @@ public final class SprintResetHeuristic extends MetaCheckPart<Heuristics, Sprint
 
   private void playerUnsprinted(Player player, SprintResetHeuristicMeta meta, PacketType packetType) {
     User user = userOf(player);
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventory();
     ItemStack heldItem = inventoryData.heldItem();
     boolean useItem = InventoryUseItemHelper.isUseItem(player, heldItem);
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
 
     // can false flag if a player collides with a wall some times
 
     boolean attacked = meta.lastAttack <= 1;
-    AbilityMetadata abilityData = user.meta().abilityData();
+    AbilityMetadata abilityData = user.meta().abilities();
 
     boolean sendFlyingPacket = false;
     if(packetType == PacketType.Play.Client.FLYING || packetType == PacketType.Play.Client.LOOK) {
       sendFlyingPacket = true;
-    } else if(user.meta().protocolData().protocolVersion() >= ProtocolMetadata.VER_1_9) {
+    } else if(user.meta().protocol().protocolVersion() >= ProtocolMetadata.VER_1_9) {
       if(movementData.recentlyEncounteredFlyingPacket(2) || movementData.pastFlyingPacketAccurate() <= 2) {
         sendFlyingPacket = true;
       }
@@ -152,7 +152,7 @@ public final class SprintResetHeuristic extends MetaCheckPart<Heuristics, Sprint
         collided = canCollideHorizontally(user, movementData);
       }
       if(!collided) {
-        ProtocolMetadata clientData = user.meta().protocolData();
+        ProtocolMetadata clientData = user.meta().protocol();
         String details = "unsprinted and pressed W " + clientData.versionString() + " " + meta.lastAttack;
         Anomaly anomaly = Anomaly.anomalyOf("220",
           Confidence.NONE,

@@ -68,9 +68,9 @@ public final class AttackDispatcher implements EventProcessor {
     }
     User user = UserRepository.userOf(player);
     MetadataBundle meta = user.meta();
-    AttackMetadata attackData = meta.attackData();
-    ConnectionMetadata connectionData = meta.connectionData();
-    MovementMetadata movementData = meta.movementData();
+    AttackMetadata attackData = meta.attack();
+    ConnectionMetadata connectionData = meta.connection();
+    MovementMetadata movementData = meta.movement();
 
     PacketContainer packet = event.getPacket();
     Integer entityId = packet.getIntegers().read(0);
@@ -79,7 +79,7 @@ public final class AttackDispatcher implements EventProcessor {
       action = packet.getEnumEntityUseActions().read(0).getAction();
     }
 
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventory();
     ItemStack itemStack = inventoryData.heldItem();
     boolean knockbackEnchantment = itemStack != null && itemStack.containsEnchantment(Enchantment.KNOCKBACK);
 

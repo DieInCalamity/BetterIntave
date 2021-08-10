@@ -40,10 +40,10 @@ public final class AttackReduceIgnoreHeuristic extends MetaCheckPart<Heuristics,
   public void receiveMovement(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    MovementMetadata movementData = user.meta().movementData();
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    MovementMetadata movementData = user.meta().movement();
+    InventoryMetadata inventoryData = user.meta().inventory();
     AttackReduceMeta heuristicMeta = metaOf(user);
-    ProtocolMetadata clientData = user.meta().protocolData();
+    ProtocolMetadata clientData = user.meta().protocol();
 
     if (clientData.protocolVersion() >= VER_1_17 || AttackDispatcher.REDUCING_DISABLED) {
       return;

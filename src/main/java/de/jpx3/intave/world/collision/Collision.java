@@ -41,7 +41,7 @@ public final class Collision {
 
     List<WrappedAxisAlignedBB> resolvedBoundingBoxes = null;
     User user = UserRepository.userOf(player);
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
 
     boolean outsideBorderLast = movementData.outsideBorder;
     boolean outsideBorderCurrent = playerOutsideBorder(user);
@@ -178,7 +178,7 @@ public final class Collision {
 
   private static boolean playerOutsideBorder(User user) {
     World world = user.player().getWorld();
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     double positionX = movementData.verifiedPositionX;
     double positionZ = movementData.verifiedPositionZ;
     WorldBorder worldBorder = world.getWorldBorder();
@@ -207,7 +207,7 @@ public final class Collision {
     if (boundingBoxes == null || boundingBoxes.isEmpty()) {
       return false;
     }
-    WrappedAxisAlignedBB playerBox = user.meta().movementData().boundingBox();
+    WrappedAxisAlignedBB playerBox = user.meta().movement().boundingBox();
     playerBox = playerBox.shrink(0.001);
     return boundingBoxes.stream().anyMatch(playerBox::intersectsWith);
   }

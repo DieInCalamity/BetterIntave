@@ -59,7 +59,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     Player player = event.getPlayer();
     User user = userOf(player);
     AttackRaytraceMeta attackRaytraceMeta = metaOf(player);
-    ViolationMetadata violationLevelData = user.meta().violationLevelData();
+    ViolationMetadata violationLevelData = user.meta().violationLevel();
     EnumWrappers.EntityUseAction action = packet.getEntityUseActions().readSafely(0);
     if (action == null) {
       action = packet.getEnumEntityUseActions().read(0).getAction();
@@ -69,10 +69,10 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
       int entityId = packet.getIntegers().read(0);
 
       boolean shouldResend;
-      MovementMetadata movementData = user.meta().movementData();
+      MovementMetadata movementData = user.meta().movement();
       WrappedEntity entity = entityByIdentifier(user, entityId);
-      ProtocolMetadata clientData = user.meta().protocolData();
-      AbilityMetadata abilityData = user.meta().abilityData();
+      ProtocolMetadata clientData = user.meta().protocol();
+      AbilityMetadata abilityData = user.meta().abilities();
       float unsynchroniszedHealth = abilityData.unsynchronizedHealth;
 
       if (entity == null || entity instanceof DeadWrappedEntity || unsynchroniszedHealth <= 0) {
@@ -113,9 +113,9 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     AttackRaytraceMeta attackRaytraceMeta = metaOf(user);
     PacketContainer packet = event.getPacket();
     MetadataBundle meta = user.meta();
-    ProtocolMetadata clientData = meta.protocolData();
-    MovementMetadata movementData = meta.movementData();
-    ViolationMetadata violationLevelData = meta.violationLevelData();
+    ProtocolMetadata clientData = meta.protocol();
+    MovementMetadata movementData = meta.movement();
+    ViolationMetadata violationLevelData = meta.violationLevel();
     if (movementData.lastTeleport == 0) {
       attackRaytraceMeta.pendingAttacks.clear();
       return;
@@ -125,7 +125,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
       statisticApply(user, CheckStatistics::increaseTotal);
       WrappedEntity entity = entityByIdentifier(user, remainingAttack.entityId());
       Boolean cancelHit = null;
-      AbilityMetadata abilityData = user.meta().abilityData();
+      AbilityMetadata abilityData = user.meta().abilities();
       float unsynchronizedHealth = abilityData.unsynchronizedHealth;
 
       // bypass when the entity is null or on entities which are riding and players which are mounted on entities
@@ -219,7 +219,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
   }
 
   private boolean validReachWalking(User user, WrappedEntity entity) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     Player player = user.player();
     double blockReachDistance = Raytracing.reachDistance(player);
     float rotationYaw = movementData.rotationYaw % 360;
@@ -245,10 +245,10 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     User user = userOf(player);
     MetadataBundle meta = user.meta();
     AttackRaytraceMeta attackRaytraceMeta = metaOf(user);
-    AttackMetadata attackData = meta.attackData();
-    MovementMetadata movementData = meta.movementData();
-    ProtocolMetadata clientData = meta.protocolData();
-    PunishmentMetadata punishmentData = meta.punishmentData();
+    AttackMetadata attackData = meta.attack();
+    MovementMetadata movementData = meta.movement();
+    ProtocolMetadata clientData = meta.protocol();
+    PunishmentMetadata punishmentData = meta.punishment();
 
     double blockReachDistance = Raytracing.reachDistance(meta);
     boolean alternativePositionY = clientData.protocolVersion() == ProtocolMetadata.VER_1_8;
@@ -341,7 +341,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     User user, double expandHitbox
   ) {
     AttackRaytraceMeta attackRaytraceMeta = metaOf(user);
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     int vl = 0;
     switch (attackRaytraceResult) {
       case MISS: {
@@ -372,8 +372,8 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
   private boolean processIterativeReachCheck(Player player, WrappedEntity attackedEntity) {
     User user = userOf(player);
     MetadataBundle meta = user.meta();
-    MovementMetadata movementData = meta.movementData();
-    ProtocolMetadata clientData = user.meta().protocolData();
+    MovementMetadata movementData = meta.movement();
+    ProtocolMetadata clientData = user.meta().protocol();
 
     double blockReachDistance = Raytracing.reachDistance(meta);
     boolean hasAlwaysMouseDelayFix = clientData.protocolVersion() >= 314;
@@ -417,9 +417,9 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     WrappedEntity clonedEntity = entity.clone();
     Player player = user.player();
     MetadataBundle meta = user.meta();
-    ProtocolMetadata clientData = meta.protocolData();
+    ProtocolMetadata clientData = meta.protocol();
     boolean alternativePositionY = clientData.protocolVersion() == ProtocolMetadata.VER_1_8;
-    MovementMetadata movementData = meta.movementData();
+    MovementMetadata movementData = meta.movement();
     float rotationYaw = movementData.rotationYaw % 360;
     float lastRotationYaw = movementData.lastRotationYaw % 360;
     double blockReachDistance = Raytracing.reachDistance(meta);
@@ -465,7 +465,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
 
     // when standing still
     if (movementData.recentlyEncounteredFlyingPacket(1)
-      && user.meta().protocolData().protocolVersion() >= VER_1_9) {
+      && user.meta().protocol().protocolVersion() >= VER_1_9) {
       for (WrappedEntity.EntityPositionContext possiblePosition : entity.positionHistory) {
         // TODO: 01/07/21 add general packet based length tolerance
         clonedEntity.position = possiblePosition.clone();

@@ -65,7 +65,7 @@ public final class AttributeDispatcher implements EventProcessor {
   }
 
   private void receivedAttribute(User user, WrappedAttribute attribute) {
-    AbilityMetadata abilityData = user.meta().abilityData();
+    AbilityMetadata abilityData = user.meta().abilities();
     List<WrappedAttributeModifier> modifiers = abilityData.modifiersOf(attribute);
     modifiers.clear();
     modifiers.addAll(attribute.getModifiers());

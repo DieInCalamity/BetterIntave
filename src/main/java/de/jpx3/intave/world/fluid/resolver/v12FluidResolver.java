@@ -47,7 +47,7 @@ public final class v12FluidResolver extends FluidEngine {
   protected boolean handleFluidAcceleration(User user, WrappedAxisAlignedBB boundingBox) {
     Player player = user.player();
     World world = player.getWorld();
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     WrappedAxisAlignedBB entityBoundingBox = boundingBox.shrink(0.001D);
 
     int minX = WrappedMathHelper.floor(entityBoundingBox.minX);

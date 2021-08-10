@@ -53,7 +53,7 @@ public final class Raytracing {
   }
 
   public static float reachDistance(MetadataBundle meta) {
-    return meta.abilityData().inGameMode(GameMode.CREATIVE) ? 5.0F : 3.0F;
+    return meta.abilities().inGameMode(GameMode.CREATIVE) ? 5.0F : 3.0F;
   }
 
   /**
@@ -271,7 +271,7 @@ public final class Raytracing {
 
   private static double resolvePlayerEyeHeight(Player player) {
     User user = UserRepository.userOf(player);
-    return user.meta().movementData().eyeHeight();
+    return user.meta().movement().eyeHeight();
   }
 
   private static double resolveBlockReachDistance(GameMode gameMode) {

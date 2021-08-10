@@ -20,7 +20,7 @@ public final class EntityNoDamageTickChanger {
     }
 
     User user = UserRepository.userOf(player);
-    PunishmentMetadata punishmentData = user.meta().punishmentData();
+    PunishmentMetadata punishmentData = user.meta().punishment();
 
     // Already changed
     if (punishmentData.damageTicksBefore != -1) {
@@ -41,7 +41,7 @@ public final class EntityNoDamageTickChanger {
 
   public static void removeNoDamageTickChangeOf(User user) {
     Player player = user.player();
-    PunishmentMetadata punishmentData = user.meta().punishmentData();
+    PunishmentMetadata punishmentData = user.meta().punishment();
     if (punishmentData.appliedDamageTicks != resolveNoDamageTicksOf(player)) {
       // The server has changed the noDamageTicks field, do not override
       punishmentData.damageTicksBefore = -1;

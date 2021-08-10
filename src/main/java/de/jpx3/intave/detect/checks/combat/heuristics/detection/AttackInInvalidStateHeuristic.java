@@ -43,7 +43,7 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
     Player player = event.getPlayer();
     PacketContainer packet = event.getPacket();
     User user = userOf(player);
-    ProtocolMetadata clientData = user.meta().protocolData();
+    ProtocolMetadata clientData = user.meta().protocol();
     if (clientData.protocolVersion() <= VER_1_8) {
       checkGUIScreen(player);
     }
@@ -56,7 +56,7 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
     User user = userOf(player);
 
     // not checked yet
-    if (user.meta().inventoryData().handActive()) {
+    if (user.meta().inventory().handActive()) {
       Anomaly anomaly = Anomaly.anomalyOf("162", Confidence.NONE, Anomaly.Type.KILLAURA, "attacked whilst using an item");
       parentCheck().saveAnomaly(player, anomaly);
       //dmc28
@@ -90,15 +90,15 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
 
   private void updatePlayerHandItem(Player player) {
     User user = UserRepository.userOf(player);
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventory();
     inventoryData.deactivateHand();
   }
 
   private void checkGUIScreen(Player player) {
     User user = userOf(player);
     AttackInInvalidStateMeta meta = metaOf(user);
-    ProtocolMetadata clientData = user.meta().protocolData();
-    AbilityMetadata abilityData = user.meta().abilityData();
+    ProtocolMetadata clientData = user.meta().protocol();
+    AbilityMetadata abilityData = user.meta().abilities();
     float health = abilityData.health;
     if (health <= 0f) {
       long now = AccessHelper.now();
@@ -117,8 +117,8 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
 
   private void checkDeadEntity(Player player, PacketContainer packet) {
     User user = userOf(player);
-    AttackMetadata attackData = user.meta().attackData();
-    ProtocolMetadata clientData = user.meta().protocolData();
+    AttackMetadata attackData = user.meta().attack();
+    ProtocolMetadata clientData = user.meta().protocol();
     WrappedEntity entity = attackData.lastAttackedEntity();
     if (entity == null || !entity.clientSynchronized || !entity.isEntityLiving || !entity.entityTypeData.isLivingEntity()) {
       return;

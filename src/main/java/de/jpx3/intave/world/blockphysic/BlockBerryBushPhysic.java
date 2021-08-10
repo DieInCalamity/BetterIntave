@@ -23,7 +23,7 @@ final class BlockBerryBushPhysic implements BlockPhysic {
 
   @Override
   public Vector entityCollidedWithBlock(User user, Location location, Location from, double motionX, double motionY, double motionZ) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     movementData.setMotionMultiplier(new Vector(0.8f, 0.75, 0.8f));
     return null;
   }

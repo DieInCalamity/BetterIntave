@@ -103,7 +103,7 @@ public final class InventoryUseItemHelper {
   private static boolean tridentUsable(User user, ItemStack itemStack) {
     Player player = user.player();
     World world = player.getWorld();
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     if (tridentRiptideEnchanted(itemStack)) {
       return movementData.inWater || (world.isThundering() || world.hasStorm());
     }

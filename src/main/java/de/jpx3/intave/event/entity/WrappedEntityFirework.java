@@ -21,7 +21,7 @@ public final class WrappedEntityFirework extends WrappedEntity {
 
   @Override
   public void entityPlayerMoveUpdate() {
-    MovementMetadata movementData = this.attachedUser.meta().movementData();
+    MovementMetadata movementData = this.attachedUser.meta().movement();
     if (movementData.pose() == Pose.FALL_FLYING) {
       if (this.ticksAlive <= 1) {
         movementData.fireworkTolerant = true;
@@ -31,7 +31,7 @@ public final class WrappedEntityFirework extends WrappedEntity {
   }
 
   private void applyElytraBoost() {
-    MovementMetadata movementData = this.attachedUser.meta().movementData();
+    MovementMetadata movementData = this.attachedUser.meta().movement();
     Vector lookVector = RotationHelper.vectorForRotation(movementData.rotationPitch, movementData.rotationYaw);
     movementData.physicsMotionX += lookVector.getX() * 0.1 + (lookVector.getX() * 1.5 - movementData.physicsMotionX) * 0.5;
     movementData.physicsMotionY += lookVector.getY() * 0.1 + (lookVector.getY() * 1.5 - movementData.physicsMotionY) * 0.5;

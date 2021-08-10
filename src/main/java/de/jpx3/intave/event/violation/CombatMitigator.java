@@ -33,7 +33,7 @@ public final class CombatMitigator implements BukkitEventSubscriber {
       return;
     }
     Player player = (Player) attacker;
-    PunishmentMetadata punishmentData = UserRepository.userOf(player).meta().punishmentData();
+    PunishmentMetadata punishmentData = UserRepository.userOf(player).meta().punishment();
     for (AttackNerfer attackNerfer : punishmentData.availableAttackNerfer()) {
       if (attackNerfer.active() && !attackNerfer.inverseEvent()) {
         attackNerfer.executor().accept(event);
@@ -44,7 +44,7 @@ public final class CombatMitigator implements BukkitEventSubscriber {
       return;
     }
     Player attackedPlayer = (Player) attacked;
-    punishmentData = UserRepository.userOf(attackedPlayer).meta().punishmentData();
+    punishmentData = UserRepository.userOf(attackedPlayer).meta().punishment();
     for (AttackNerfer attackNerfer : punishmentData.availableAttackNerfer()) {
       if (attackNerfer.active() && attackNerfer.inverseEvent()) {
         attackNerfer.executor().accept(event);
@@ -55,7 +55,7 @@ public final class CombatMitigator implements BukkitEventSubscriber {
   @Deprecated
   public void mitigate(User user, AttackNerfStrategy type, String checkId) {
     Synchronizer.synchronize(() -> {
-      AttackNerfer nerfer = user.meta().punishmentData().nerferOfType(type);
+      AttackNerfer nerfer = user.meta().punishment().nerferOfType(type);
       notify(user, nerfer, checkId);
       nerfer.activate();
     });

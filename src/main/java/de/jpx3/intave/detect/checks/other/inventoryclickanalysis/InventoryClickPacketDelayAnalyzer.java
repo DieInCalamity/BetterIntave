@@ -29,7 +29,7 @@ public final class InventoryClickPacketDelayAnalyzer extends MetaCheckPart<Inven
     User user = userOf(player);
     TimingData meta = metaOf(player);
     long difference = AccessHelper.now() - meta.lastMovementTimestamps;
-    double averageMovementPacketTimestamp = user.meta().connectionData().averageMovementPacketTimestamp();
+    double averageMovementPacketTimestamp = user.meta().connection().averageMovementPacketTimestamp();
 
     if (difference < 15 && Math.abs(averageMovementPacketTimestamp - 50) < 10) {
       String message = ChatColor.RED + "[InvAnalysis] " + player.getName() + " is clicking suspiciously on items: "

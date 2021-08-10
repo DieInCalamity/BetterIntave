@@ -41,8 +41,8 @@ public final class SneakAnalyzer extends MetaCheckPart<PlacementAnalysis, SneakA
     User user = userOf(player);
     SneakMeta meta = metaOf(user);
     MetadataBundle metadata = user.meta();
-    MovementMetadata movementData = metadata.movementData();
-    EffectMetadata potionData = metadata.potionData();
+    MovementMetadata movementData = metadata.movement();
+    EffectMetadata potionData = metadata.potions();
     Block block = place.getBlockPlaced();
     Block blockAgainst = place.getBlockAgainst();
     if (blockUnderPlayer(block, player) && blockCollisions(block) < 2) {

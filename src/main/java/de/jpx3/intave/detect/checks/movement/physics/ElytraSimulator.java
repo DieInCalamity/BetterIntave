@@ -14,7 +14,7 @@ public final class ElytraSimulator extends DefaultSimulator {
     float forward, float strafe,
     boolean attackReduce, boolean jumped, boolean handActive
   ) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     float rotationPitch = movementData.rotationPitch;
     Vector lookVector = movementData.lookVector;
 

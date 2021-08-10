@@ -11,8 +11,6 @@ import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.entity.WrappedEntity;
 import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.violation.AttackNerfStrategy;
-import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.*;
 import de.jpx3.intave.world.raytrace.Raytracing;
@@ -20,15 +18,16 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.LIMIT_4;
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_8;
 
-public final class AttackRequiredHeuristic extends MetaCheckPart<Heuristics, AttackRequiredHeuristic.AttackRequiredMeta> {
+public final class PreAttackHeuristic extends MetaCheckPart<Heuristics, PreAttackHeuristic.PreAttackMeta> {
   private final IntavePlugin plugin;
 
-  public AttackRequiredHeuristic(Heuristics parentCheck) {
-    super(parentCheck, AttackRequiredMeta.class);
-    this.plugin = IntavePlugin.singletonInstance();
+  public PreAttackHeuristic(Heuristics parentCheck) {
+    super(parentCheck, PreAttackMeta.class);
+    plugin = IntavePlugin.singletonInstance();
   }
 
   @PacketSubscription(
@@ -69,7 +68,7 @@ public final class AttackRequiredHeuristic extends MetaCheckPart<Heuristics, Att
   )
   public void receiveSlotSwitch(PacketEvent event) {
     Player player = event.getPlayer();
-    AttackRequiredMeta meta = metaOf(player);
+    PreAttackMeta meta = metaOf(player);
     PacketContainer packet = event.getPacket();
     Integer slot = packet.getIntegers().read(0);
 
@@ -93,9 +92,11 @@ public final class AttackRequiredHeuristic extends MetaCheckPart<Heuristics, Att
     AttackMetadata attackData = user.meta().attack();
     MovementMetadata movementData = user.meta().movement();
     WrappedEntity entity = attackData.lastAttackedEntity();
+
     if (entity == null || !entity.clientSynchronized || movementData.lastTeleport < 5) {
       return;
     }
+
     if (clientData.protocolVersion() != VER_1_8 || clientData.clientVersionOlderThanServerVersion()) {
       return;
     }
@@ -104,41 +105,45 @@ public final class AttackRequiredHeuristic extends MetaCheckPart<Heuristics, Att
     if (dead) {
       return;
     }
-    AttackRequiredMeta meta = metaOf(player);
 
-    // FishingRod overrides onItemRightClick and sends an arm-animation packet
-    boolean recentlyUsedRot = meta.ticksSinceFishingRodItemSwitch < 5;
+    PreAttackMeta meta = metaOf(player);
 
-    if (!recentlyUsedRot && meta.didSwing && !meta.didAttack) {
-      // Raytrace if cursor is upon entity
-      boolean cursorUponEntity = cursorUponEntity(player, user, entity);
-      if (cursorUponEntity) {
-        long timeToLastFlag = AccessHelper.now() - meta.lastFlag;
-        if (timeToLastFlag < 20_000 && timeToLastFlag > 1500) {
-          int vl = (meta.vl += 200) / 200;
-          int options = Anomaly.AnomalyOption.DELAY_128s;
-          boolean flag = vl >= 2;
-          if (flag) {
-            Anomaly anomaly = Anomaly.anomalyOf("151", Confidence.LIKELY, Anomaly.Type.KILLAURA, "missed attack packet vl:" + vl, options);
-            parentCheck().saveAnomaly(player, anomaly);
-            //dmc5
-            user.applyAttackNerfer(AttackNerfStrategy.HT_LIGHT, "5");
-            user.applyAttackNerfer(AttackNerfStrategy.CANCEL_FIRST_HIT, "5");
-          }
-        }
-        meta.lastFlag = AccessHelper.now();
+    try {
+      if (!entity.moving(0.1) || attackData.lastReach() < 1.0) {
+        return;
       }
+
+      // FishingRod overrides onItemRightClick and sends an arm-animation packet
+      boolean recentlyUsedRot = meta.ticksSinceFishingRodItemSwitch < 5;
+
+      if (!recentlyUsedRot && meta.didSwing && !meta.didAttack) {
+        // Raytrace if cursor is upon entity
+        boolean cursorUponEntity = cursorUponEntity(player, user, entity);
+        if (cursorUponEntity) {
+          meta.preAttacks++;
+        }
+      }
+
+      if (meta.didAttack) {
+        meta.attacks++;
+      }
+
+      if (meta.attacks >= 100) {
+//        player.sendMessage((((double)meta.preAttacks / ((double)meta.preAttacks + (double) meta.attacks) * 100) + "% unsuccessful"));
+        if (meta.preAttacks < 4) {
+          String description = "attacks seem automated (" + meta.preAttacks + "f)";
+          Anomaly anomaly = Anomaly.anomalyOf("231", Confidence.MAYBE, Anomaly.Type.KILLAURA, description, LIMIT_4);
+          parentCheck().saveAnomaly(player, anomaly);
+        }
+
+        meta.attacks = 0;
+        meta.preAttacks = 0;
+      }
+    } finally {
+      meta.ticksSinceFishingRodItemSwitch++;
+      meta.didAttack = false;
+      meta.didSwing = false;
     }
-
-    if (meta.didSwing && meta.didAttack && meta.vl > 0) {
-      meta.vl--;
-    }
-
-    meta.ticksSinceFishingRodItemSwitch++;
-
-    meta.expectedAttack = false;
-    meta.didAttack = false;
-    meta.didSwing = false;
   }
 
   private boolean cursorUponEntity(
@@ -149,8 +154,8 @@ public final class AttackRequiredHeuristic extends MetaCheckPart<Heuristics, Att
     MetadataBundle meta = user.meta();
     MovementMetadata movementData = meta.movement();
     ProtocolMetadata clientData = meta.protocol();
-    float expandHitbox = 0.05f;
-    double blockReachDistance = reachDistance(player.getGameMode() == GameMode.CREATIVE);
+    float expandHitbox = 0.25f /* EXPAND */;
+    double blockReachDistance = reachDistance(player.getGameMode() == GameMode.CREATIVE) + 1f /* RANGE */;
     float lastRotationYaw = movementData.lastRotationYaw % 360;
     float rotationYaw = movementData.rotationYaw % 360;
     boolean alternativePositionY = clientData.protocolVersion() == VER_1_8;
@@ -183,11 +188,10 @@ public final class AttackRequiredHeuristic extends MetaCheckPart<Heuristics, Att
     return (creative ? 5.0F : 3.0F) - 0.005f;
   }
 
-  public final static class AttackRequiredMeta extends CheckCustomMetadata {
-    public boolean expectedAttack;
+  public final static class PreAttackMeta extends CheckCustomMetadata {
     public boolean didAttack, didSwing;
-    public long lastFlag;
-    public int vl;
     public int ticksSinceFishingRodItemSwitch;
+
+    public int preAttacks, attacks;
   }
 }

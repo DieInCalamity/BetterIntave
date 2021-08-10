@@ -15,7 +15,7 @@ public final class LegacyComplexColliderProcessor implements ComplexColliderProc
   public ComplexColliderSimulationResult collide(User user, MotionVector context, boolean inWeb, double positionX, double positionY, double positionZ) {
     Player player = user.player();
     MetadataBundle meta = user.meta();
-    MovementMetadata movementData = meta.movementData();
+    MovementMetadata movementData = meta.movement();
     if (inWeb) {
       context.motionX *= 0.25D;
       context.motionY *= 0.05f;

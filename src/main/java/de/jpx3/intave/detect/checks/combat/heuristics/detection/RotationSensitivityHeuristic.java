@@ -36,8 +36,8 @@ public final class RotationSensitivityHeuristic extends MetaCheckPart<Heuristics
     User user = userOf(player);
     RotationGCDMeta heuristicMeta = metaOf(user);
 
-    AttackMetadata attackData = user.meta().attackData();
-    MovementMetadata movementData = user.meta().movementData();
+    AttackMetadata attackData = user.meta().attack();
+    MovementMetadata movementData = user.meta().movement();
 
     float rotationYaw = movementData.rotationYaw;
     float rotationPitch = movementData.rotationPitch;
@@ -51,7 +51,7 @@ public final class RotationSensitivityHeuristic extends MetaCheckPart<Heuristics
 
     // old liquidbounce gcd patch
     // detects a few clients
-    if (pitchDifference > 0 && yawDifference > 0 && user.meta().attackData().recentlyAttacked(16000)) {
+    if (pitchDifference > 0 && yawDifference > 0 && user.meta().attack().recentlyAttacked(16000)) {
       int yawDecimal = decimalPlacesOf(rotationYaw);
       int pitchDecimal = decimalPlacesOf(rotationPitch);
 
@@ -81,7 +81,7 @@ public final class RotationSensitivityHeuristic extends MetaCheckPart<Heuristics
       yawDecimal = decimalPlacesOf(yawDifference);
       pitchDecimal = decimalPlacesOf(pitchDifference);
 
-      if (yawDifference != 0 && yawDecimal < 3 && pitchDifference != 0 && pitchDecimal < 3) {
+      if (yawDecimal < 3 && pitchDecimal < 3) {
         heuristicMeta.decimalSpeedVL += 50;
         heuristicMeta.decimalSpeedVL = Math.min(heuristicMeta.decimalSpeedVL, 1000);
         if (heuristicMeta.decimalSpeedVL++ > 200) {
@@ -108,7 +108,7 @@ public final class RotationSensitivityHeuristic extends MetaCheckPart<Heuristics
 
   private void ensureSensitivity(Player player, User user) {
     RotationGCDMeta heuristicMeta = metaOf(user);
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     float pitchDifference = Math.abs(movementData.rotationPitch - movementData.lastRotationPitch);
 
     float prevPitchGCD = heuristicMeta.prevPitchGCD;

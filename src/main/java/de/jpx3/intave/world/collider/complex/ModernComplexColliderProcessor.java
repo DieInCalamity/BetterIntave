@@ -15,7 +15,7 @@ public final class ModernComplexColliderProcessor implements ComplexColliderProc
   public ComplexColliderSimulationResult collide(User user, MotionVector context, boolean inWeb, double positionX, double positionY, double positionZ) {
     Player player = user.player();
     MetadataBundle meta = user.meta();
-    MovementMetadata movementData = meta.movementData();
+    MovementMetadata movementData = meta.movement();
     if (inWeb) {
       context.motionX *= 0.25D;
       context.motionY *= 0.05f;
@@ -157,7 +157,7 @@ public final class ModernComplexColliderProcessor implements ComplexColliderProc
 
   private void calculateBackOffFromEdge(User user, double length, MotionVector context) {
     Player player = user.player();
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     WrappedAxisAlignedBB boundingBox = movementData.boundingBox();
     double motionX = context.motionX;
     double motionZ = context.motionZ;

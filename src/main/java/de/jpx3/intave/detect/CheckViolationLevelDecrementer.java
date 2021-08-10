@@ -33,7 +33,7 @@ public final class CheckViolationLevelDecrementer {
   }
 
   public void decrement(User user, double amount) {
-    ViolationMetadata violationLevelData = user.meta().violationLevelData();
+    ViolationMetadata violationLevelData = user.meta().violationLevel();
     Map<String, Map<String, Double>> violationLevel = violationLevelData.violationLevel;
     Map<String, Map<String, Double>> violationLevelGainedCounter = violationLevelData.violationLevelGainedCounter;
     Map<String, Map<String, Long>> lastViolationLevelGainedCounterReset = violationLevelData.lastViolationLevelGainedCounterReset;

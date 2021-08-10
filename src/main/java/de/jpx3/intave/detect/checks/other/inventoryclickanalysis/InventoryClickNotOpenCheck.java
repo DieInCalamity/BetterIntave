@@ -30,8 +30,8 @@ public final class InventoryClickNotOpenCheck extends CheckPart<InventoryClickAn
     Player player = ((Player) whoClicked).getPlayer();
     User user = userOf(player);
     MetadataBundle meta = user.meta();
-    ProtocolMetadata clientData = meta.protocolData();
-    InventoryMetadata inventoryData = meta.inventoryData();
+    ProtocolMetadata clientData = meta.protocol();
+    InventoryMetadata inventoryData = meta.inventory();
 
     // This check does only work on 1.8 or below
     if (clientData.combatUpdate() || clientData.clientVersionOlderThanServerVersion()) {
@@ -39,7 +39,7 @@ public final class InventoryClickNotOpenCheck extends CheckPart<InventoryClickAn
     }
 
     boolean inventoryOpen = inventoryData.inventoryOpen();
-    int pastInventoryOpen = meta.movementData().pastInventoryOpen;
+    int pastInventoryOpen = meta.movement().pastInventoryOpen;
 
     ClickType click = event.getClick();
     if (click == ClickType.CREATIVE) {

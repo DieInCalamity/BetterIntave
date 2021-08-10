@@ -51,8 +51,8 @@ public final class CompletionDurationCheck extends MetaCheckPart<BreakSpeedLimit
     User user = userOf(player);
     BreakSpeedFinishMeta meta = metaOf(user);
 
-    ProtocolMetadata clientData = user.meta().protocolData();
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    ProtocolMetadata clientData = user.meta().protocol();
+    InventoryMetadata inventoryData = user.meta().inventory();
 
     if (meta.breakProcess) {
       ItemStack itemInHand = inventoryData.heldItem();
@@ -80,9 +80,9 @@ public final class CompletionDurationCheck extends MetaCheckPart<BreakSpeedLimit
     Player player = event.getPlayer();
     User user = userOf(player);
     BreakSpeedFinishMeta meta = metaOf(user);
-    ProtocolMetadata clientData = user.meta().protocolData();
-    InventoryMetadata inventoryData = user.meta().inventoryData();
-    MovementMetadata movementData = user.meta().movementData();
+    ProtocolMetadata clientData = user.meta().protocol();
+    InventoryMetadata inventoryData = user.meta().inventory();
+    MovementMetadata movementData = user.meta().movement();
 
     ItemStack heldItem = inventoryData.heldItem();
     PacketContainer packet = event.getPacket();

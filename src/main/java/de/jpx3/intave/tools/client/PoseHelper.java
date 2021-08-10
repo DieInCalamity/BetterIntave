@@ -24,14 +24,14 @@ public final class PoseHelper {
     }
     User user = UserRepository.userOf(player);
     MetadataBundle meta = user.meta();
-    ProtocolMetadata clientData = meta.protocolData();
+    ProtocolMetadata clientData = meta.protocol();
     return clientData.canUseElytra();
   }
 
   public static boolean isSwimming(User user) {
     MetadataBundle meta = user.meta();
-    MovementMetadata movementData = meta.movementData();
-    ProtocolMetadata clientData = meta.protocolData();
+    MovementMetadata movementData = meta.movement();
+    ProtocolMetadata clientData = meta.protocol();
     if (!clientData.swimmingMechanics()) {
       return false;
     }
@@ -46,9 +46,9 @@ public final class PoseHelper {
 
   public static boolean poseSneaking(User user) {
     MetadataBundle meta = user.meta();
-    MovementMetadata movementData = meta.movementData();
-    ProtocolMetadata clientData = meta.protocolData();
-    InventoryMetadata inventoryData = meta.inventoryData();
+    MovementMetadata movementData = meta.movement();
+    ProtocolMetadata clientData = meta.protocol();
+    InventoryMetadata inventoryData = meta.inventory();
     boolean sneakingAllowed = movementData.sneaking && !inventoryData.inventoryOpen();
     boolean actualSneaking;
     if (clientData.delayedSneak()) {

@@ -50,10 +50,10 @@ public final class PacketPlayerActionToggleHeuristic extends MetaCheckPart<Heuri
     Player player = event.getPlayer();
     User user = userOf(player);
     MetadataBundle meta = user.meta();
-    MovementMetadata movementData = meta.movementData();
-    AbilityMetadata abilityData = meta.abilityData();
-    ProtocolMetadata clientData = meta.protocolData();
-    PunishmentMetadata punishmentData = user.meta().punishmentData();
+    MovementMetadata movementData = meta.movement();
+    AbilityMetadata abilityData = meta.abilities();
+    ProtocolMetadata clientData = meta.protocol();
+    PunishmentMetadata punishmentData = user.meta().punishment();
     PacketSprintToggleHeuristicMeta heuristicMeta = metaOf(user);
 
     PacketContainer packet = event.getPacket();

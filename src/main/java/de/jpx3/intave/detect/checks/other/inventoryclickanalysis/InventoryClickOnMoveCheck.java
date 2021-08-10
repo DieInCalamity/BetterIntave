@@ -38,7 +38,7 @@ public final class InventoryClickOnMoveCheck extends CheckPart<InventoryClickAna
       return;
     }
 
-    MovementMetadata movementData = meta.movementData();
+    MovementMetadata movementData = meta.movement();
     int keyForward = movementData.keyForward;
     int keyStrafe = movementData.keyStrafe;
 

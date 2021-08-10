@@ -63,7 +63,7 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
     }
     Player player = (Player) event.getEntity();
     User user = UserRepository.userOf(player);
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventory();
 //    if (inventoryData.pastSlotSwitch < 5) {
 //      event.setCancelled(true);
 //    }
@@ -76,7 +76,7 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
   public void receiveInteraction(PlayerInteractEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventory();
     // https://i.imgur.com/O5UBqoJ.png
     if (inventoryData.pastSlotSwitch < 10) {
       event.setCancelled(true);
@@ -93,13 +93,13 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
   public void sentRespawn(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventory();
     inventoryData.updateInventoryOpenState(false);
   }
 
   private void updatePlayerHandItem(Player player, int foodLevel) {
     User user = UserRepository.userOf(player);
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventory();
     if (foodLevel >= 20 && inventoryData.handActive() && inventoryData.foodItem()) {
       if (!InventoryUseItemHelper.foodItemRegistry().foodConsumable(player, inventoryData.heldItemType())) {
         inventoryData.deactivateHand();
@@ -117,7 +117,7 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
   public void sentOpenInventory(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventory();
     PacketContainer packet = event.getPacket();
 
     WrappedChatComponent chatComponent = packet.getChatComponents().read(0);
@@ -150,7 +150,7 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
   }
 
   private void openInventory(Player player, User user) {
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventory();
     if (!inNetherPortal(user)) {
       inventoryData.updateInventoryOpenState(true);
     }
@@ -158,7 +158,7 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
 
   private boolean inNetherPortal(User user) {
     World world = user.player().getWorld();
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     return Collision.containsBlockInBB(world, movementData.boundingBox(), BlockTypeAccess.NETHER_PORTAL);
   }
 
@@ -190,7 +190,7 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
   }
 
   private void closeInventory(Player player, User user) {
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventory();
     inventoryData.updateInventoryOpenState(false);
   }
 
@@ -208,7 +208,7 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
     PacketContainer packet = event.getPacket();
 
     User user = UserRepository.userOf(player);
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventory();
 
     Integer slot = packet.getIntegers().read(0);
     ItemStack item = player.getInventory().getItem(slot);
@@ -234,7 +234,7 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
     PacketContainer packet = event.getPacket();
 
     User user = UserRepository.userOf(player);
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventory();
     Integer entityID = packet.getIntegers().read(0);
 
     if (entityID == player.getEntityId()) {
@@ -255,8 +255,8 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
     MetadataBundle meta = user.meta();
-    InventoryMetadata inventoryData = meta.inventoryData();
-    PunishmentMetadata punishmentData = meta.punishmentData();
+    InventoryMetadata inventoryData = meta.inventory();
+    PunishmentMetadata punishmentData = meta.punishment();
 
     PacketContainer packet = event.getPacket();
     ItemStack heldItem = inventoryData.heldItem();
@@ -294,7 +294,7 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
   public void receiveBlockDigging(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    InventoryMetadata inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventory();
 
     PacketContainer packet = event.getPacket();
     EnumWrappers.PlayerDigType digType = packet.getPlayerDigTypes().read(0);

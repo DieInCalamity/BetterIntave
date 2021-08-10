@@ -53,8 +53,8 @@ public final class PacketInventoryHeuristic extends MetaCheckPart<Heuristics, Pa
     Player player = event.getPlayer();
     User user = userOf(player);
     PacketInventoryMeta meta = metaOf(user);
-    ProtocolMetadata clientData = user.meta().protocolData();
-    AbilityMetadata abilityData = user.meta().abilityData();
+    ProtocolMetadata clientData = user.meta().protocol();
+    AbilityMetadata abilityData = user.meta().abilities();
 
     if (abilityData.ignoringMovementPackets()) {
       return;
@@ -84,9 +84,9 @@ public final class PacketInventoryHeuristic extends MetaCheckPart<Heuristics, Pa
     PacketContainer packet = event.getPacket();
     boolean hasRotation = packet.getBooleans().read(2);
 
-    InventoryMetadata inventoryData = user.meta().inventoryData();
-    MovementMetadata movementData = user.meta().movementData();
-    ProtocolMetadata clientData = user.meta().protocolData();
+    InventoryMetadata inventoryData = user.meta().inventory();
+    MovementMetadata movementData = user.meta().movement();
+    ProtocolMetadata clientData = user.meta().protocol();
 
     if (!clientData.flyingPacketStream() || movementData.hasRidingEntity()) {
       return;

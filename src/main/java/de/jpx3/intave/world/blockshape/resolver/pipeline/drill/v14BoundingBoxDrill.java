@@ -21,6 +21,7 @@ public final class v14BoundingBoxDrill implements ResolverPipeline {
   public List<WrappedAxisAlignedBB> resolve(World world, Player player, Material type, int blockState, int posX, int posY, int posZ) {
     WorldServer handle = ((CraftWorld) world).getHandle();
     BlockPosition blockPosition = new BlockPosition(posX, posY, posZ);
+    // do not attempt to merge this class with v13BoundingBoxDrill
     IBlockData blockData = (IBlockData) RuntimeBlockDataIndexer.modernStateFromIndex(type, blockState);
     if (blockData == null) {
       return Collections.emptyList();

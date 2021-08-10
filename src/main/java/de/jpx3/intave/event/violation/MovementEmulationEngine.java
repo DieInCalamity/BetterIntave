@@ -86,8 +86,8 @@ public final class MovementEmulationEngine {
   ) {
     User user = UserRepository.userOf(player);
     MetadataBundle meta = user.meta();
-    MovementMetadata movementData = meta.movementData();
-    ViolationMetadata violationLevelData = meta.violationLevelData();
+    MovementMetadata movementData = meta.movement();
+    ViolationMetadata violationLevelData = meta.violationLevel();
     if (violationLevelData.isInActiveTeleportBundle) {
       return;
     }
@@ -112,14 +112,14 @@ public final class MovementEmulationEngine {
     double motionX, double motionY, double motionZ
   ) {
     User user = UserRepository.userOf(player);
-    ViolationMetadata violationLevelData = user.meta().violationLevelData();
+    ViolationMetadata violationLevelData = user.meta().violationLevel();
 
     if (violationLevelData.isInActiveTeleportBundle) {
       return;
     }
 
     violationLevelData.isInActiveTeleportBundle = true;
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     movementData.physicsMotionX = motionX;
     movementData.physicsMotionY = motionY;
     movementData.physicsMotionZ = motionZ;
@@ -138,8 +138,8 @@ public final class MovementEmulationEngine {
       return;
     }
     MetadataBundle meta = user.meta();
-    MovementMetadata movementData = meta.movementData();
-    ViolationMetadata violationLevelData = meta.violationLevelData();
+    MovementMetadata movementData = meta.movement();
+    ViolationMetadata violationLevelData = meta.violationLevel();
     WrappedAxisAlignedBB boundingBox = movementData.boundingBox();
 
     boolean boundingBoxIntersection = Collision.checkBoundingBoxIntersection(user, boundingBox);
@@ -183,8 +183,8 @@ public final class MovementEmulationEngine {
     }
 
     MetadataBundle meta = user.meta();
-    MovementMetadata movementData = meta.movementData();
-    ViolationMetadata violationLevelData = meta.violationLevelData();
+    MovementMetadata movementData = meta.movement();
+    ViolationMetadata violationLevelData = meta.violationLevel();
 
     // check motion status (velocity?)
     Location futurePosition = movementData.verifiedLocation();
@@ -265,7 +265,7 @@ public final class MovementEmulationEngine {
 
   private Vector motionProceed(Vector lastMotion, User user, WrappedAxisAlignedBB boundingBox, boolean applyPhysics) {
     Player player = user.player();
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     float rotationPitch = movementData.rotationPitch;
     Vector lookVector = movementData.lookVector;
 
@@ -317,7 +317,7 @@ public final class MovementEmulationEngine {
           if (EffectLogic.isPotionLevitationActive(player)) {
             int levitationAmplifier = EffectLogic.effectAmplifier(player, EffectLogic.EFFECT_LEVITATION);
             motionY += (0.05D * (double) (levitationAmplifier + 1) - motionY) * 0.2D;
-            user.meta().movementData().artificialFallDistance = 0f;
+            user.meta().movement().artificialFallDistance = 0f;
           } else {
             motionY -= movementData.gravity;
           }
@@ -376,7 +376,7 @@ public final class MovementEmulationEngine {
 
   private void teleport(Player player, Location teleportLocation) {
     User user = UserRepository.userOf(player);
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
 
     WrappedAxisAlignedBB entityBoundingBox = WrappedAxisAlignedBB.createFromPosition(
       user, teleportLocation.getX(), teleportLocation.getY(), teleportLocation.getZ()
@@ -388,7 +388,7 @@ public final class MovementEmulationEngine {
     movementData.setBoundingBox(entityBoundingBox);
     movementData.setVerifiedLocation(teleportLocation.clone(), "Emulation-Setback");
 //    player.teleport(teleportLocation);
-    if (user.meta().inventoryData().inventoryOpen()) {
+    if (user.meta().inventory().inventoryOpen()) {
       player.closeInventory();
     }
     rotationlessTeleport(player, teleportLocation, movementData.rotationYaw, movementData.rotationPitch);
@@ -398,7 +398,7 @@ public final class MovementEmulationEngine {
   private void updateMovementStatus(User user) {
     Player player = user.player();
     World world = player.getWorld();
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     movementData.inWater = MovementContext.isAnyLiquid(world, user, movementData.boundingBox());
   }
 

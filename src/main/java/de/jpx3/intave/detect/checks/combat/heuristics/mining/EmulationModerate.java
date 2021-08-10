@@ -18,7 +18,7 @@ public final class EmulationModerate extends MiningStrategyExecutor{
   @Override
   protected void setup() {
     MetadataBundle meta = user().meta();
-    AttackMetadata attackData = meta.attackData();
+    AttackMetadata attackData = meta.attack();
     if (attackData.fakePlayer() != null) {
       return;
     }
@@ -35,7 +35,7 @@ public final class EmulationModerate extends MiningStrategyExecutor{
 
   @Override
   protected void stopStrategy() {
-    AttackMetadata attackData = user().meta().attackData();
+    AttackMetadata attackData = user().meta().attack();
     FakePlayer fakePlayer = attackData.fakePlayer();
     if (fakePlayer != null) {
       fakePlayer.remove();

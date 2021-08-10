@@ -38,7 +38,7 @@ public final class v14BlockAccessor implements BlockAccessor {
       return false;
     }
     User user = UserRepository.userOf(player);
-    int heldItemType = user.meta().inventoryData().handSlot();
+    int heldItemType = user.meta().inventory().handSlot();
     net.minecraft.server.v1_14_R1.BlockPosition blockPosition = new net.minecraft.server.v1_14_R1.BlockPosition(nativeBlockPosition.getX(), nativeBlockPosition.getY(), nativeBlockPosition.getZ());
     IBlockData blockData = chunk.getType(blockPosition);
     Item heldItem = ((CraftPlayer) player).getHandle().inventory.getItem(heldItemType).getItem();

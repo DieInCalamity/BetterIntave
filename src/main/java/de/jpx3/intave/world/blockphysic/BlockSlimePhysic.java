@@ -19,7 +19,7 @@ final class BlockSlimePhysic implements BlockPhysic {
 
   @Override
   public void fallenUpon(User user) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     if (!movementData.sneaking) {
       movementData.artificialFallDistance = 0;
     }
@@ -27,7 +27,7 @@ final class BlockSlimePhysic implements BlockPhysic {
 
   @Override
   public Vector landed(User user, double motionX, double motionY, double motionZ) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     if (motionY < 0.0 && !movementData.sneaking) {
       return new Vector(motionX, -motionY, motionZ);
     } else {
@@ -37,7 +37,7 @@ final class BlockSlimePhysic implements BlockPhysic {
 
   @Override
   public Vector entityCollidedWithBlock(User user, double motionX, double motionY, double motionZ) {
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     if (Math.abs(motionY) < 0.1D && !movementData.sneaking) {
       double d0 = 0.4D + Math.abs(motionY) * 0.2D;
       motionX *= d0;

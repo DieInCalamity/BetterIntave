@@ -68,8 +68,8 @@ public final class SpeedAnalyzer extends MetaCheckPart<PlacementAnalysis, SpeedA
     Player player = place.getPlayer();
     User user = userOf(player);
     PlacementSpeedMeta meta = metaOf(user);
-    MovementMetadata movementData = user.meta().movementData();
-    EffectMetadata potionData = user.meta().potionData();
+    MovementMetadata movementData = user.meta().movement();
+    EffectMetadata potionData = user.meta().potions();
 
     Block block = place.getBlockPlaced();
     Block blockAgainst = place.getBlockAgainst();

@@ -30,7 +30,7 @@ public final class DoubleEntityActionHeuristic extends MetaCheckPart<Heuristics,
   public void receiveEntityActionPacket(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    MovementMetadata movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movement();
     EnumWrappers.PlayerAction action = event.getPacket().getPlayerActions().read(0);
 
     String message = null;

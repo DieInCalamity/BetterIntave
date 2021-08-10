@@ -33,7 +33,7 @@ public final class BotStage extends CommandStage {
       commandSender.sendMessage(IntavePlugin.prefix() + "Intave Bots are currently unavailable for your server version. Please wait for upcoming updates.");
       return;
     }
-    if (target.meta().attackData().activeMiningStrategy != null) {
+    if (target.meta().attack().activeMiningStrategy != null) {
       commandSender.sendMessage(IntavePlugin.prefix() + "This player already has a bot assigned");
       return;
     }

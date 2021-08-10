@@ -39,8 +39,8 @@ public final class RotationUnlikelyAccuracyHeuristic extends MetaCheckPart<Heuri
     User user = userOf(player);
     ULMeta heuristicMeta = metaOf(user);
     MetadataBundle meta = user.meta();
-    AttackMetadata attackData = meta.attackData();
-    MovementMetadata movementData = meta.movementData();
+    AttackMetadata attackData = meta.attack();
+    MovementMetadata movementData = meta.movement();
     if (!attackData.recentlyAttacked(1000)) {
       return;
     }

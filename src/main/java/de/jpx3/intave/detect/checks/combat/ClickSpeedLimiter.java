@@ -49,7 +49,7 @@ public final class ClickSpeedLimiter extends MetaCheck<ClickSpeedLimiter.ClickSp
     }
 
     if (action == EnumWrappers.EntityUseAction.ATTACK) {
-      if (user.meta().protocolData().protocolVersion() <= ProtocolMetadata.VER_1_8) {
+      if (user.meta().protocol().protocolVersion() <= ProtocolMetadata.VER_1_8) {
         meta.attackCountArray[meta.attackArrayIndex]++;
       } else {
         meta.attacksDuringFlyingPackets.add(System.currentTimeMillis());
@@ -76,12 +76,12 @@ public final class ClickSpeedLimiter extends MetaCheck<ClickSpeedLimiter.ClickSp
     ClickSpeedLimiterMeta meta = metaOf(user);
     PacketType pt = event.getPacketType();
 
-    if (user.meta().protocolData().protocolVersion() <= ProtocolMetadata.VER_1_8) {
+    if (user.meta().protocol().protocolVersion() <= ProtocolMetadata.VER_1_8) {
       // 1.8
       meta.countAccuratePositionPackets = 20;
     } else {
       // 1.9+
-      MovementMetadata movementData = user.meta().movementData();
+      MovementMetadata movementData = user.meta().movement();
 
       if (movementData.recentlyEncounteredFlyingPacket(0)
         || meta.lastMovePacketType == PacketType.Play.Client.FLYING || meta.lastMovePacketType == PacketType.Play.Client.LOOK
