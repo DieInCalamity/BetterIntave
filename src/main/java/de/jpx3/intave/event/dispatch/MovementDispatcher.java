@@ -48,7 +48,7 @@ import static de.jpx3.intave.event.packet.PacketId.Client.POSITION;
 import static de.jpx3.intave.event.packet.PacketId.Client.VEHICLE_MOVE;
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
 import static de.jpx3.intave.event.packet.PacketId.Server.*;
-import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_17;
+import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_16;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_9;
 
 @Relocate
@@ -169,29 +169,26 @@ public final class MovementDispatcher implements EventProcessor {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
     MetadataBundle meta = user.meta();
-    MovementMetadata movementData = meta.movement();
-    ProtocolMetadata clientData = meta.protocol();
-    AbilityMetadata abilityData = meta.abilities();
     ViolationMetadata violationLevelData = meta.violationLevel();
     violationLevelData.physicsVelocityVL = 0;
     violationLevelData.physicsVL = Math.max(0, violationLevelData.physicsVL - 10);
-    // check for gui screen
-    if (abilityData.health <= 0f || clientData.protocolVersion() >= VER_1_17) {
-      Synchronizer.synchronizeDelayed(movementData::sprintReset, 1);
-    }
     synchronizeRespawn(player);
   }
 
   private void synchronizeRespawn(Player player) {
-    User user = UserRepository.userOf(player);
     plugin.eventService()
       .feedback()
-      .singleSynchronize(player, user.meta().movement(), (p, movementData) -> {
-        movementData.sneaking = false;
-        movementData.setSprinting(false);
-        movementData.physicsMotionX = 0;
-        movementData.physicsMotionY = 0;
-        movementData.physicsMotionZ = 0;
+      .singleSynchronize(player, UserRepository.userOf(player), (p, user) -> {
+        MovementMetadata movement = user.meta().movement();
+        ProtocolMetadata protocol = user.meta().protocol();
+        movement.sneaking = false;
+        movement.setSprinting(false);
+        if (protocol.protocolVersion() >= VER_1_16) {
+          movement.sprintReset();
+        }
+        movement.physicsMotionX = 0;
+        movement.physicsMotionY = 0;
+        movement.physicsMotionZ = 0;
         user.blockShapeAccess().identityInvalidate();
         user.meta().potions().clearPotionEffects();
       });
@@ -507,7 +504,8 @@ public final class MovementDispatcher implements EventProcessor {
     MovementMetadata movementData = meta.movement();
     Pose pose = movementData.pose();
     movementData.width = pose.width(user);
-    movementData.height = pose.width(user);;
+    movementData.height = pose.width(user);
+    ;
   }
 
   @PacketSubscription(
