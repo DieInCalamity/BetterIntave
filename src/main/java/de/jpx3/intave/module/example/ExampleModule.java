@@ -1,4 +1,4 @@
-package de.jpx3.intave.module.module;
+package de.jpx3.intave.module.example;
 
 import de.jpx3.intave.module.Module;
 

@@ -460,7 +460,7 @@ public final class MovementMetadata {
         -0.4000000059604645D,
         -0.1f
       );
-      return MovementContext.isLavaInBB(player.getWorld(), lavaBoundingBox);
+      return MovementContext.isLavaInBB(user, player.getWorld(), lavaBoundingBox);
     }
   }
 

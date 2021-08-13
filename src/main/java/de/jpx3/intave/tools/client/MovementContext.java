@@ -92,7 +92,7 @@ public final class MovementContext {
     return false;
   }
 
-  public static boolean isAllLiquid(World world, WrappedAxisAlignedBB boundingBox) {
+  public static boolean isAllLiquid(User user, World world, WrappedAxisAlignedBB boundingBox) {
     int minX = WrappedMathHelper.floor(boundingBox.minX);
     int minY = WrappedMathHelper.floor(boundingBox.minY);
     int minZ = WrappedMathHelper.floor(boundingBox.minZ);
@@ -102,7 +102,7 @@ public final class MovementContext {
     for (int x = minX; x <= maxX; ++x) {
       for (int y = minY; y <= maxY; ++y) {
         for (int z = minZ; z <= maxZ; ++z) {
-          Material material = BukkitBlockAccess.blockAccess(world, x, y, z).getType();
+          Material material = BukkitBlockAccess.cacheAppliedTypeAccess(user, world, x, y, z);
           if (!Materials.isLiquid(material)) {
             return false;
           }
@@ -112,7 +112,7 @@ public final class MovementContext {
     return true;
   }
 
-  public static boolean isLavaInBB(World world, WrappedAxisAlignedBB boundingBox) {
+  public static boolean isLavaInBB(User user, World world, WrappedAxisAlignedBB boundingBox) {
     int minX = WrappedMathHelper.floor(boundingBox.minX);
     int minY = WrappedMathHelper.floor(boundingBox.minY);
     int minZ = WrappedMathHelper.floor(boundingBox.minZ);
@@ -122,7 +122,7 @@ public final class MovementContext {
     for (int x = minX; x < maxX; ++x) {
       for (int y = minY; y < maxY; ++y) {
         for (int z = minZ; z < maxZ; ++z) {
-          if (Materials.isLava(BukkitBlockAccess.blockAccess(world, x, y, z).getType())) {
+          if (Materials.isLava(BukkitBlockAccess.cacheAppliedTypeAccess(user, world, x, y, z))) {
             return true;
           }
         }

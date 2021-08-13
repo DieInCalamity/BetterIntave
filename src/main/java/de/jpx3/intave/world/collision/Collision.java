@@ -97,6 +97,9 @@ public final class Collision {
       resolvedBoundingBoxes = Collections.emptyList();
     } else {
       resolvedBoundingBoxes.removeIf(wrappedAxisAlignedBB -> !wrappedAxisAlignedBB.intersectsWith(playerBoundingBox));
+      if (resolvedBoundingBoxes.isEmpty()) {
+        resolvedBoundingBoxes = Collections.emptyList();
+      }
     }
     return resolvedBoundingBoxes;
   }

@@ -17,10 +17,12 @@ public final class BukkitBlockAccess implements BukkitEventSubscriber {
 //    IntavePlugin.singletonInstance().eventLinker().registerEventsIn(new BukkitBlockAccess());
   }
 
+  @Deprecated
   public static Block blockAccess(Location location) {
     return blockAccess(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
   }
 
+  @Deprecated
   public static Block blockAccess(World blockAccess, int x, int y, int z) {
     if (isInLoadedChunk(blockAccess, x, z) || Bukkit.isPrimaryThread()) {
       return blockAccess.getBlockAt(x, y, z);

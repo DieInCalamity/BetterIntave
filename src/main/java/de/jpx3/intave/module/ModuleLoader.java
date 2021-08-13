@@ -1,7 +1,7 @@
 package de.jpx3.intave.module;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.module.module.ExampleModule;
+import de.jpx3.intave.module.example.ExampleModule;
 
 import java.util.Collection;
 import java.util.HashMap;

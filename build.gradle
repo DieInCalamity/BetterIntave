@@ -5,11 +5,10 @@ plugins {
 }
 
 group = 'de.jpx3'
-version = '14.1.8-b3'
+version = '14.1.8-b4'
 description = 'Intave is an event- & packetbased, hyper-threaded & polyheuristic cheat detection software, providing fair play'
 
 def fileName = "Intave"
-def outputDirectory = "C:\\Users\\Richard\\Desktop\\Minecraft Plugins\\bungeecort system\\AAC\\plugins\\"
 
 repositories {
   mavenCentral()
@@ -27,15 +26,6 @@ dependencies {
 
 test {
   useJUnitPlatform()
-}
-
-task compileIntave(dependsOn: build) {
-  doLast {
-    copy {
-      from "build/libs/" + fileName + ".jar"
-      into outputDirectory
-    }
-  }
 }
 
 jar {
