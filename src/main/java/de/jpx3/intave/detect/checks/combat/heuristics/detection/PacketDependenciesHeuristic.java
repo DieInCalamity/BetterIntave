@@ -68,7 +68,7 @@ public final class PacketDependenciesHeuristic extends MetaCheckPart<Heuristics,
         /*
         Speicher pro PacketType ein anderes packetType was davor gesendet wurde in der abhängigkeit mit dem ersten packetType ab.
          */
-        for (int secondTick = firstTick; secondTick > meta.currentTick - 500; secondTick--) {
+        for (int secondTick = firstTick - 1; secondTick > meta.currentTick - 500; secondTick--) {
           ArrayList<PacketType> secondPacketTypes = meta.packetTypeList.get(secondTick);
           if(secondPacketTypes != null) {
 
