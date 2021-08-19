@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 /**
- * A {@link Player}-association oriented
+ * A {@link Player}-association oriented interface that contains all knowledge Intave has of a player
  */
 public interface User {
   Object playerHandle();

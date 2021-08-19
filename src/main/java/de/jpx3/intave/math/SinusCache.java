@@ -1,4 +1,4 @@
-package de.jpx3.intave.tools.client;
+package de.jpx3.intave.math;
 
 public final class SinusCache {
   private static final float[] SIN_TABLE_FAST = new float[4096];
@@ -24,10 +24,6 @@ public final class SinusCache {
       : SIN_TABLE[(int) (value * 10430.378F + 16384.0F) & 65535];
   }
 
-  public static float roundToFloat(double d) {
-    return (float)((double)Math.round(d * 1.0E8D) / 1.0E8D);
-  }
-
   public static void setup() {
     for (int i = 0; i < 65536; ++i) {
       SIN_TABLE[i] = (float) Math.sin((double) i * Math.PI * 2.0D / 65536.0D);
@@ -45,5 +41,9 @@ public final class SinusCache {
     for (int i = 0; i < 4096; ++i) {
       SIN_TABLE_FAST[i] = roundToFloat(Math.sin((double)i * Math.PI * 2d / 4096d));
     }
+  }
+
+  public static float roundToFloat(double d) {
+    return (float)((double)Math.round(d * 1.0E8D) / 1.0E8D);
   }
 }

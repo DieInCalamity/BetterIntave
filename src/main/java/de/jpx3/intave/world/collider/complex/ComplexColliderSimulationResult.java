@@ -1,7 +1,7 @@
 package de.jpx3.intave.world.collider.complex;
 
 import de.jpx3.intave.detect.checks.movement.physics.MotionVector;
-import de.jpx3.intave.tools.MathHelper;
+import de.jpx3.intave.math.MathHelper;
 
 public class ComplexColliderSimulationResult {
   private final static ComplexColliderSimulationResult INVALID_SIMULATION = new ComplexColliderSimulationResult(

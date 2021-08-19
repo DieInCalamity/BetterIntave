@@ -1,4 +1,4 @@
-package de.jpx3.intave.tools.caller;
+package de.jpx3.intave.reflect.caller;
 
 import com.google.common.collect.Maps;
 import org.bukkit.plugin.java.JavaPlugin;

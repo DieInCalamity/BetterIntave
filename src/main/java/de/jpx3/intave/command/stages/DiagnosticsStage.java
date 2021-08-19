@@ -10,7 +10,7 @@ import de.jpx3.intave.detect.Check;
 import de.jpx3.intave.detect.CheckStatistics;
 import de.jpx3.intave.diagnostics.timings.Timing;
 import de.jpx3.intave.diagnostics.timings.Timings;
-import de.jpx3.intave.tools.MathHelper;
+import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.user.User;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;

@@ -1,7 +1,5 @@
 package de.jpx3.intave.command;
 
-import de.jpx3.intave.tools.Levenshtein;
-
 import java.util.*;
 
 public final class LevenshteinPicker {

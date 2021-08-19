@@ -1,4 +1,4 @@
-package de.jpx3.intave.tools.client;
+package de.jpx3.intave.world.effect;
 
 import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
 import de.jpx3.intave.user.User;
@@ -11,7 +11,7 @@ import org.bukkit.potion.PotionEffectType;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_13;
 
 @IdoNotBelongHere
-public final class EffectLogic {
+public final class Effects {
   public final static PotionEffectType EFFECT_LEVITATION = PotionEffectType.getByName("LEVITATION");
   private final static PotionEffectType EFFECT_SLOW_FALLING = PotionEffectType.getByName("SLOW_FALLING");
   private final static PotionEffectType EFFECT_DOLPHIN = PotionEffectType.getByName("DOLPHINS_GRACE");

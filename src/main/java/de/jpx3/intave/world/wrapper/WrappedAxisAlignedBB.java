@@ -1,6 +1,6 @@
 package de.jpx3.intave.world.wrapper;
 
-import de.jpx3.intave.tools.MathHelper;
+import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.user.meta.ProtocolMetadata;

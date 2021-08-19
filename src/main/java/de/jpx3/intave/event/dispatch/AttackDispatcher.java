@@ -16,7 +16,6 @@ import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.tracker.entity.WrappedEntity;
-import de.jpx3.intave.tools.RomanNumberConverter;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.*;
@@ -149,7 +148,7 @@ public final class AttackDispatcher implements EventProcessor {
         ItemMeta itemMeta = item.getItemMeta().clone();
         if (!itemMeta.hasItemFlag(ItemFlag.HIDE_ENCHANTS)) {
           List<String> lore = itemMeta.getLore() == null ? new ArrayList<>() : new ArrayList<>(itemMeta.getLore());
-          lore.add(ChatColor.GRAY + "Sharpness " + RomanNumberConverter.toRomanLiteral(level));
+          lore.add(ChatColor.GRAY + "Sharpness " + toRomanLiteral(level));
           itemMeta.setLore(lore);
         }
         if (!itemMeta.hasEnchants()) {
@@ -177,6 +176,20 @@ public final class AttackDispatcher implements EventProcessor {
 //      }
 //    }
     packet.getItemModifier().write(0, item);
+  }
+
+  private final static int[] ROMAN_STEPS = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
+  private final static String[] ROMAN_LITERALS = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
+
+  public static String toRomanLiteral(int number) {
+    StringBuilder roman = new StringBuilder();
+    for (int i = 0; i < ROMAN_STEPS.length; i++) {
+      while (number >= ROMAN_STEPS[i]) {
+        number -= ROMAN_STEPS[i];
+        roman.append(ROMAN_LITERALS[i]);
+      }
+    }
+    return roman.toString();
   }
 
   @BukkitEventSubscription

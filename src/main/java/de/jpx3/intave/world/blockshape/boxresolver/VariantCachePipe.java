@@ -1,7 +1,7 @@
 package de.jpx3.intave.world.blockshape.boxresolver;
 
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.tools.MemoryWatchdog;
+import de.jpx3.intave.diagnostics.MemoryWatchdog;
 import de.jpx3.intave.world.wrapper.WrappedAxisAlignedBB;
 import org.bukkit.Material;
 import org.bukkit.World;

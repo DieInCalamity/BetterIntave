@@ -5,22 +5,22 @@ import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveBootFailureException;
 import de.jpx3.intave.access.IntaveInternalException;
-import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.detect.checks.movement.Physics;
 import de.jpx3.intave.detect.checks.movement.physics.Pose;
 import de.jpx3.intave.executor.Synchronizer;
+import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.reflect.Lookup;
-import de.jpx3.intave.tools.MathHelper;
-import de.jpx3.intave.tools.caller.CallerResolver;
-import de.jpx3.intave.tools.caller.PluginInvocation;
-import de.jpx3.intave.tools.client.EffectLogic;
-import de.jpx3.intave.tools.client.MovementContext;
+import de.jpx3.intave.reflect.caller.CallerResolver;
+import de.jpx3.intave.reflect.caller.PluginInvocation;
+import de.jpx3.intave.reflect.method.InternalTeleportMethodContainer;
+import de.jpx3.intave.tools.MovementContext;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.MetadataBundle;
 import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.user.meta.ViolationMetadata;
 import de.jpx3.intave.world.collision.Collision;
+import de.jpx3.intave.world.effect.Effects;
 import de.jpx3.intave.world.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.world.wrapper.WrappedBlockPosition;
 import de.jpx3.intave.world.wrapper.WrappedMathHelper;
@@ -32,45 +32,17 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public final class MovementEmulationEngine {
-  private final static boolean WEIRD_BOOLEAN_IN_INVOKE = MinecraftVersions.VER1_17_0.atOrAbove();
-
   private final IntavePlugin plugin;
   private final Physics physicsCheck;
-  private final Set<Object> teleportFlags = new HashSet<>();
-  private Method internalTeleportMethod;
+  private final InternalTeleportMethodContainer teleportMethodContainer;
 
   public MovementEmulationEngine(IntavePlugin plugin) {
     this.plugin = plugin;
     this.physicsCheck = plugin.checkService().searchCheck(Physics.class);
-    this.setup();
-  }
-
-  private void setup() {
-    try {
-      if (teleportFlags.isEmpty()) {
-        teleportFlags.add(Lookup.serverField("PacketPlayOutPosition$EnumPlayerTeleportFlags", "X_ROT").get(null));
-        teleportFlags.add(Lookup.serverField("PacketPlayOutPosition$EnumPlayerTeleportFlags", "Y_ROT").get(null));
-      }
-      Class<?> playerConnectionClass = Lookup.serverClass("PlayerConnection");
-      if (WEIRD_BOOLEAN_IN_INVOKE) {
-        internalTeleportMethod = playerConnectionClass.getDeclaredMethod("internalTeleport", Double.TYPE, Double.TYPE, Double.TYPE, Float.TYPE, Float.TYPE, Set.class, Boolean.TYPE);
-      } else {
-        internalTeleportMethod = playerConnectionClass.getDeclaredMethod("internalTeleport", Double.TYPE, Double.TYPE, Double.TYPE, Float.TYPE, Float.TYPE, Set.class);
-      }
-      if (!internalTeleportMethod.isAccessible()) {
-        internalTeleportMethod.setAccessible(true);
-      }
-    } catch (IllegalAccessException | NoSuchMethodException exception) {
-      throw new IntaveInternalException(exception);
-    }
+    this.teleportMethodContainer = new InternalTeleportMethodContainer();
   }
 
   public void emulationSetBack(
@@ -311,8 +283,8 @@ public final class MovementEmulationEngine {
           motionY = lastMotion.getY() * 0.8f;
           motionY -= 0.02;
         } else {
-          if (EffectLogic.isPotionLevitationActive(player)) {
-            int levitationAmplifier = EffectLogic.effectAmplifier(player, EffectLogic.EFFECT_LEVITATION);
+          if (Effects.isPotionLevitationActive(player)) {
+            int levitationAmplifier = Effects.effectAmplifier(player, Effects.EFFECT_LEVITATION);
             motionY += (0.05D * (double) (levitationAmplifier + 1) - motionY) * 0.2D;
             user.meta().movement().artificialFallDistance = 0f;
           } else {
@@ -411,7 +383,7 @@ public final class MovementEmulationEngine {
           throw new IntaveBootFailureException("Setback location cannot be null");
         }
         if (Math.abs(nativeYaw) > 360f) {
-          internalTeleportExecution(player, dest,  nativeYaw % 360f, nativePitch, false);
+          teleportMethodContainer.teleport(player, dest,  nativeYaw % 360f, nativePitch, false);
         } else {
           Field yawField = Lookup.serverField("Entity", "yaw");
           Field pitchField = Lookup.serverField("Entity", "pitch");
@@ -419,34 +391,13 @@ public final class MovementEmulationEngine {
           float pitch = (float) pitchField.get(playerHandle);
           yawField.set(playerHandle, 0f);
           pitchField.set(playerHandle, 0f);
-          internalTeleportExecution(player, dest, 0, 0, true);
+          teleportMethodContainer.teleport(player, dest, 0, 0, true);
           yawField.set(playerHandle, yaw);
           pitchField.set(playerHandle, pitch);
         }
       } catch (IllegalAccessException exception) {
         throw new IntaveInternalException(exception);
       }
-    }
-  }
-
-  private void internalTeleportExecution(Player player, Location dest, float yaw, float pitch, boolean rotationFlags) {
-    try {
-      User user = UserRepository.userOf(player);
-      if (!user.hasPlayer()) {
-        return;
-      }
-      Object playerConnection = user.playerConnection();
-      Set<Object> rFlags = rotationFlags ? teleportFlags : Collections.emptySet();
-      double posX = dest.getX();
-      double posY = dest.getY();
-      double posZ = dest.getZ();
-      if (WEIRD_BOOLEAN_IN_INVOKE) {
-        internalTeleportMethod.invoke(playerConnection, posX, posY, posZ, yaw, pitch, rFlags, false);
-      } else {
-        internalTeleportMethod.invoke(playerConnection, posX, posY, posZ, yaw, pitch, rFlags);
-      }
-    } catch (InvocationTargetException | IllegalAccessException exception) {
-      exception.printStackTrace();
     }
   }
 

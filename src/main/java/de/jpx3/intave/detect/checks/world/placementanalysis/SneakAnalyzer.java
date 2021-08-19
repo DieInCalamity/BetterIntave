@@ -1,11 +1,11 @@
 package de.jpx3.intave.detect.checks.world.placementanalysis;
 
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.cleanup.GarbageCollector;
 import de.jpx3.intave.detect.MetaCheckPart;
 import de.jpx3.intave.detect.checks.world.PlacementAnalysis;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.tools.AccessHelper;
-import de.jpx3.intave.tools.GarbageCollector;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.EffectMetadata;

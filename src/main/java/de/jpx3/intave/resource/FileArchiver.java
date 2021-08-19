@@ -1,4 +1,4 @@
-package de.jpx3.intave.tools;
+package de.jpx3.intave.resource;
 
 import com.google.common.base.Preconditions;
 import de.jpx3.intave.access.IntaveBootFailureException;

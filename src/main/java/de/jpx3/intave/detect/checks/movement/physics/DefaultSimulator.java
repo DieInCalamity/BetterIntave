@@ -2,10 +2,7 @@ package de.jpx3.intave.detect.checks.movement.physics;
 
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.module.tracker.entity.WrappedEntity;
-import de.jpx3.intave.tools.client.EffectLogic;
-import de.jpx3.intave.tools.client.Materials;
-import de.jpx3.intave.tools.client.MovementContext;
-import de.jpx3.intave.tools.items.Enchantments;
+import de.jpx3.intave.tools.MovementContext;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MetadataBundle;
 import de.jpx3.intave.user.meta.MovementMetadata;
@@ -14,11 +11,14 @@ import de.jpx3.intave.user.meta.ViolationMetadata;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.blockphysic.BlockPhysics;
 import de.jpx3.intave.world.blockphysic.BlockProperties;
+import de.jpx3.intave.world.blockphysic.MaterialMagic;
 import de.jpx3.intave.world.collider.Collider;
 import de.jpx3.intave.world.collider.complex.ComplexColliderSimulationResult;
 import de.jpx3.intave.world.collider.simple.SimpleColliderSimulationResult;
+import de.jpx3.intave.world.effect.Effects;
 import de.jpx3.intave.world.fluid.Fluids;
 import de.jpx3.intave.world.fluid.LegacyWaterflow;
+import de.jpx3.intave.world.items.Enchantments;
 import de.jpx3.intave.world.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.world.wrapper.WrappedMathHelper;
 import org.bukkit.Location;
@@ -79,7 +79,7 @@ public class DefaultSimulator extends Simulator {
         float heightPercentage = LegacyWaterflow.resolveLiquidHeightPercentage(blockData);
         if (movementData.onGround) {
           heightPercentage += movementData.positionY % 1;
-          allowJumpInWater = !Materials.isWater(material) || heightPercentage > 0.5;
+          allowJumpInWater = !MaterialMagic.isWater(material) || heightPercentage > 0.5;
         }
       }
       if (inWater && !allowJumpInWater) {
@@ -524,7 +524,7 @@ public class DefaultSimulator extends Simulator {
     if (f3 > 0.0F) {
       f1 += (0.54600006F - f1) * f3 / 3.0F;
     }
-    if (EffectLogic.isPotionDolphinActive(player)) {
+    if (Effects.isPotionDolphinActive(player)) {
       f1 = 0.96F;
     }
     motionVector.motionX *= f1;
@@ -569,8 +569,8 @@ public class DefaultSimulator extends Simulator {
 
   private void simulateNormalAfter(User user, MotionVector context, double gravity, double multiplier) {
     Player player = user.player();
-    if (EffectLogic.isPotionLevitationActive(player)) {
-      int levitationAmplifier = EffectLogic.effectAmplifier(player, EffectLogic.EFFECT_LEVITATION);
+    if (Effects.isPotionLevitationActive(player)) {
+      int levitationAmplifier = Effects.effectAmplifier(player, Effects.EFFECT_LEVITATION);
       context.motionY += (0.05D * (double) (levitationAmplifier + 1) - context.motionY) * 0.2D;
       user.meta().movement().artificialFallDistance = 0f;
     } else {

@@ -1,5 +1,7 @@
 package de.jpx3.intave.resource;
 
+import de.jpx3.intave.IntavePlugin;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -18,8 +20,15 @@ public interface CompilerStreamFunctionProvider<O> extends Function<List<String>
     return fromStream(resource.read());
   }
 
-  default O fromPath(String path) {
-    return fromStream(CompilerStreamFunctionProvider.class.getResourceAsStream(path));
+  default O fromWithinJar(String path) {
+    InputStream resource = IntavePlugin.class.getResourceAsStream(path);
+    if (resource == null) {
+      resource = IntavePlugin.class.getResourceAsStream(path.substring(1));
+      if (resource == null) {
+        throw new IllegalStateException("Unable to locate resource in jar: " + path);
+      }
+    }
+    return fromStream(resource);
   }
 
   default O fromStream(InputStream inputStream) {

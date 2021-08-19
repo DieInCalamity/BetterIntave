@@ -7,7 +7,6 @@ import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.event.feedback.Request;
 import de.jpx3.intave.module.tracker.entity.WrappedEntity;
 import de.jpx3.intave.tools.AccessHelper;
-import de.jpx3.intave.tools.RotationUtilities;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -62,7 +61,18 @@ public final class ConnectionMetadata {
   }
 
   public double averageMovementPacketTimestamp() {
-    return RotationUtilities.averageOf(movementLagSpikeHistory);
+    return averageOf(movementLagSpikeHistory);
+  }
+
+  private double averageOf(List<? extends Number> data) {
+    double sum = 0;
+    for (Number element : data) {
+      sum += element.doubleValue();
+    }
+    if (sum == 0) {
+      return 0;
+    }
+    return sum / data.size();
   }
 
   public Map<Short, Request<?>> transactionShortKeyMap() {

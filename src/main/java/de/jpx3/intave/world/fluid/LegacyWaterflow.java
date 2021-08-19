@@ -1,9 +1,9 @@
 package de.jpx3.intave.world.fluid;
 
-import de.jpx3.intave.tools.client.Materials;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
+import de.jpx3.intave.world.blockphysic.MaterialMagic;
 import de.jpx3.intave.world.wrapper.*;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -26,7 +26,7 @@ public final class LegacyWaterflow {
       for (int y = minY; y < maxY; ++y) {
         for (int z = minZ; z < maxZ; ++z) {
           Material type = BukkitBlockAccess.cacheAppliedTypeAccess(user, world, x, y, z);
-          if (Materials.isWater(type)) {
+          if (MaterialMagic.isWater(type)) {
             int level = BukkitBlockAccess.cacheAppliedDataAccess(user, world, x, y, z);
             double d0 = (float) (y + 1) - resolveLiquidHeightPercentage(level);
             if ((double) maxY >= d0) {
@@ -94,18 +94,18 @@ public final class LegacyWaterflow {
   private static int resolveLevel(User user, WrappedBlockPosition pos) {
     World world = user.player().getWorld();
     Material clientSideBlock = BukkitBlockAccess.cacheAppliedTypeAccess(user, world, pos.xCoord, pos.yCoord, pos.zCoord);
-    return Materials.isWater(clientSideBlock) ? BukkitBlockAccess.cacheAppliedDataAccess(user, world, pos.xCoord, pos.yCoord, pos.zCoord) : -1;
+    return MaterialMagic.isWater(clientSideBlock) ? BukkitBlockAccess.cacheAppliedDataAccess(user, world, pos.xCoord, pos.yCoord, pos.zCoord) : -1;
   }
 
   private static boolean blocksMovement(User user, WrappedBlockPosition position) {
     Material type = BukkitBlockAccess.cacheAppliedTypeAccess(user, user.player().getWorld(), position.xCoord, position.yCoord, position.zCoord);//blockAt(world, position).getType();
-    return Materials.blocksMovement(type);
+    return MaterialMagic.blocksMovement(type);
   }
 
   private static boolean isBlockSolid(User user, WrappedBlockPosition pos, WrappedEnumDirection side) {
     World world = user.player().getWorld();
     Material type = BukkitBlockAccess.cacheAppliedTypeAccess(user, world, pos.xCoord, pos.yCoord, pos.zCoord);
-    return !Materials.isLiquid(type) && (side == WrappedEnumDirection.UP || (type != Material.ICE && Materials.blockSolid(type)));
+    return !MaterialMagic.isLiquid(type) && (side == WrappedEnumDirection.UP || (type != Material.ICE && MaterialMagic.blockSolid(type)));
   }
 
   public static float resolveLiquidHeightPercentage(int level) {

@@ -84,7 +84,7 @@ public final class PlayerUser implements User {
     this.playerConnection = new WeakReference<>(ReflectiveHandleAccess.playerConnectionOf(player));
     this.metadata = new MetadataBundle(player, this);
     this.permissionCache = new ExpiringPermissionCache(16, TimeUnit.SECONDS);
-    setBlockShapeAccess(MultiChunkKeyOCBlockShapeAccess.ofDefaultResolver(player()));
+    this.blockShapeAccess = MultiChunkKeyOCBlockShapeAccess.withDefaultResolverOf(player());
     this.complexColliderProcessor = Collider.suitableComplexColliderProcessorFor(this);
     this.simpleColliderProcessor = Collider.suitableSimpleColliderProcessorFor(this);
     Synchronizer.synchronize(this::setDefaultMessagingChannel);

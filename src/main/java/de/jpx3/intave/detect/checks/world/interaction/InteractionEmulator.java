@@ -7,13 +7,13 @@ import de.jpx3.intave.access.player.event.BucketAction;
 import de.jpx3.intave.detect.EventProcessor;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
-import de.jpx3.intave.tools.client.Materials;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.world.blockaccess.BlockDataAccess;
 import de.jpx3.intave.world.blockaccess.BlockInnerAccess;
 import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
+import de.jpx3.intave.world.blockphysic.MaterialMagic;
 import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
 import de.jpx3.intave.world.collision.Collision;
 import de.jpx3.intave.world.permission.WorldPermission;
@@ -176,7 +176,7 @@ public final class InteractionEmulator implements EventProcessor {
     switch (itemTypeInHand) {
       case BUCKET: {
         // remove liquid on location if exists
-        if (Materials.isLiquid(placementType)) {
+        if (MaterialMagic.isLiquid(placementType)) {
           // emulate
           if (WorldPermission.bukkitActionPermission(player, BucketAction.FILL_BUCKET, clickedBlock, BlockFace.SELF, itemTypeInHand, null)) {
             blockShapeAccess.override(world, placementLocation.getBlockX(), placementLocation.getBlockY(), placementLocation.getBlockZ(), Material.AIR, 0);

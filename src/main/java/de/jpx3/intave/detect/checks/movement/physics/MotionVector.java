@@ -1,6 +1,6 @@
 package de.jpx3.intave.detect.checks.movement.physics;
 
-import de.jpx3.intave.tools.MathHelper;
+import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.util.Vector;
 

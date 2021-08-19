@@ -4,6 +4,7 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
+import de.jpx3.intave.cleanup.GarbageCollector;
 import de.jpx3.intave.event.dispatch.*;
 import de.jpx3.intave.event.feedback.FeedbackService;
 import de.jpx3.intave.event.mitigate.CombatMitigator;
@@ -14,14 +15,13 @@ import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscriber;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.module.tracker.entity.EntityNoCollisionService;
 import de.jpx3.intave.module.tracker.entity.LazyEntityCollisionService;
+import de.jpx3.intave.reflect.caller.CallerResolver;
+import de.jpx3.intave.reflect.caller.PluginInvocation;
 import de.jpx3.intave.tools.AccessHelper;
-import de.jpx3.intave.tools.GarbageCollector;
-import de.jpx3.intave.tools.caller.CallerResolver;
-import de.jpx3.intave.tools.caller.PluginInvocation;
-import de.jpx3.intave.tools.version.DurationTranslator;
-import de.jpx3.intave.tools.version.Version;
 import de.jpx3.intave.user.UserLifetimeService;
 import de.jpx3.intave.user.permission.BukkitPermissionCheck;
+import de.jpx3.intave.version.DurationTranslator;
+import de.jpx3.intave.version.IntaveVersion;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -78,12 +78,12 @@ public final class EventService implements BukkitEventSubscriber {
       return;
     }
     String currentVersion = IntavePlugin.version();
-    Version version = plugin.versionList().versionInformation(currentVersion);
+    IntaveVersion version = plugin.versionList().versionInformation(currentVersion);
     if (version == null) {
       sendPrefixedMessage(ChatColor.YELLOW + "This server is running an unlisted version of Intave (" + currentVersion + ")", player);
       sendPrefixedMessage(ChatColor.YELLOW + "It is possible that bugs occur", player);
     } else {
-      if (version.typeClassifier() == Version.Status.OUTDATED) {
+      if (version.typeClassifier() == IntaveVersion.Status.OUTDATED) {
         long duration = AccessHelper.now() - version.release();
         String durationAsString = DurationTranslator.translateDuration(duration);
 

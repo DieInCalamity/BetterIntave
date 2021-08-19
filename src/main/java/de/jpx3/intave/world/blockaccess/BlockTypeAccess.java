@@ -39,7 +39,7 @@ public final class BlockTypeAccess {
   private static final TypeTranslations typeTranslations;
 
   static {
-    typeTranslations = translator.fromPath("/mappings/bb-mappings");
+    typeTranslations = translator.fromWithinJar("/mappings/bb-mappings");
   }
 
   public static void setupTranslationsFor(User user) {

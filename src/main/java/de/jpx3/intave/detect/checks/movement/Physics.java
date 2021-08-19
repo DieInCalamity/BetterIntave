@@ -15,9 +15,9 @@ import de.jpx3.intave.detect.CheckViolationLevelDecrementer;
 import de.jpx3.intave.detect.checks.movement.physics.*;
 import de.jpx3.intave.diagnostics.timings.Timings;
 import de.jpx3.intave.executor.Synchronizer;
-import de.jpx3.intave.reflect.method.FallDamageContainerMethod;
-import de.jpx3.intave.tools.MathHelper;
-import de.jpx3.intave.tools.client.MovementContext;
+import de.jpx3.intave.math.MathHelper;
+import de.jpx3.intave.reflect.method.FallDamageMethodContainer;
+import de.jpx3.intave.tools.MovementContext;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.*;
 import de.jpx3.intave.violation.Violation;
@@ -44,8 +44,8 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
 
-import static de.jpx3.intave.tools.MathHelper.formatDouble;
-import static de.jpx3.intave.tools.MathHelper.formatPosition;
+import static de.jpx3.intave.math.MathHelper.formatDouble;
+import static de.jpx3.intave.math.MathHelper.formatPosition;
 
 @Relocate
 public final class Physics extends Check {
@@ -57,7 +57,7 @@ public final class Physics extends Check {
   private final SimulationProcessor simulationProcessor;
   private final SimulationEvaluator simulationEvaluator;
 
-  private FallDamageContainerMethod fallDamageContainerMethod;
+  private final FallDamageMethodContainer fallDamageMethodContainer;
 
   private final boolean highToleranceMode;
 
@@ -71,7 +71,7 @@ public final class Physics extends Check {
     highToleranceMode = configuration().settings().boolBy("high-tolerance", false);
     setDefaultMitigationStrategy(MitigationStrategy.CAREFUL);
 
-    fallDamageContainerMethod = new FallDamageContainerMethod();
+    fallDamageMethodContainer = new FallDamageMethodContainer();
 
     linkCheckToPoseSimulators();
   }
@@ -631,7 +631,7 @@ public final class Physics extends Check {
       Synchronizer.synchronize(() -> {
         Player player = user.player();
         movementData.allowFallDamage = true;
-        fallDamageContainerMethod.dealFallDamage(player, fallDistance);
+        fallDamageMethodContainer.dealFallDamage(player, fallDistance);
         movementData.allowFallDamage = false;
       });
       movementData.artificialFallDistance = 0F;

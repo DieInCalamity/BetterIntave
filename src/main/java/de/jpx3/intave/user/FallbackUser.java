@@ -25,14 +25,11 @@ import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 @Relocate
 public final class FallbackUser implements User {
-  private final Map<Class<? extends CheckCustomMetadata>, CheckCustomMetadata> customMetaPool = new ConcurrentHashMap<>();
-
   private final MetadataBundle metadata;
   private final PermissionCache permissionCache;
   private final ComplexColliderProcessor complexColliderProcessor;
@@ -47,7 +44,7 @@ public final class FallbackUser implements User {
   FallbackUser() {
     this.metadata = new MetadataBundle(null, this);
     this.permissionCache = new ExpiringPermissionCache(16, TimeUnit.SECONDS);
-    setBlockShapeAccess(new BlankUserOCBlockShapeAccess());
+    this.blockShapeAccess = new BlankUserOCBlockShapeAccess();
     this.complexColliderProcessor = Collider.suitableComplexColliderProcessorFor(this);
     this.simpleColliderProcessor = Collider.suitableSimpleColliderProcessorFor(this);
     this.poseSizes = Pose.AT_LEAST_1_8_POSE;

@@ -1,11 +1,12 @@
-package de.jpx3.intave.tools;
+package de.jpx3.intave.reflect.access;
 
+import de.jpx3.intave.math.MathHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 
 import java.lang.reflect.Field;
 
-public final class TPSArrayAccessor {
+public final class ReflectiveTPSAccess {
   private static double[] tpsAccess;
 
   public static void setup() {

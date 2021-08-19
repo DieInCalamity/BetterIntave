@@ -1,4 +1,4 @@
-package de.jpx3.intave.tools;
+package de.jpx3.intave.event.mitigate;
 
 import java.util.HashMap;
 import java.util.Map;

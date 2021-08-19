@@ -1,7 +1,7 @@
 package de.jpx3.intave.detect.checks.movement.physics;
 
-import de.jpx3.intave.tools.MathHelper;
-import de.jpx3.intave.tools.client.MovementContext;
+import de.jpx3.intave.math.MathHelper;
+import de.jpx3.intave.tools.MovementContext;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MetadataBundle;
 import de.jpx3.intave.user.meta.MovementMetadata;

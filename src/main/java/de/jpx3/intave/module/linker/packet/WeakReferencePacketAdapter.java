@@ -3,7 +3,7 @@ package de.jpx3.intave.module.linker.packet;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
-import de.jpx3.intave.tools.Shutdown;
+import de.jpx3.intave.cleanup.Shutdown;
 import org.bukkit.plugin.Plugin;
 
 public abstract class WeakReferencePacketAdapter extends PacketAdapter {

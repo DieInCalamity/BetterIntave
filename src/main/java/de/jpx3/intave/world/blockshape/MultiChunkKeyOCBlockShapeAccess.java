@@ -249,7 +249,7 @@ public final class MultiChunkKeyOCBlockShapeAccess implements OCBlockShapeAccess
     return (posX & 0x3f_ffffL) << 42 | (posY & 0xf_ffffL) | (posZ & 0x3f_ffffL) << 20;
   }
 
-  public static MultiChunkKeyOCBlockShapeAccess ofDefaultResolver(Player player) {
+  public static MultiChunkKeyOCBlockShapeAccess withDefaultResolverOf(Player player) {
     return ofCustomResolver(player, BoundingBoxResolver.pipelineHead());
   }
 

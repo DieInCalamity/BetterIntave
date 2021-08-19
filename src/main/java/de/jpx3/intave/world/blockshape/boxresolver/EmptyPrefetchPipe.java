@@ -1,7 +1,7 @@
 package de.jpx3.intave.world.blockshape.boxresolver;
 
 import de.jpx3.intave.diagnostics.BoundingBoxAccessFlowStudy;
-import de.jpx3.intave.tools.client.Materials;
+import de.jpx3.intave.world.blockphysic.MaterialMagic;
 import de.jpx3.intave.world.wrapper.WrappedAxisAlignedBB;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -32,7 +32,7 @@ public final class EmptyPrefetchPipe implements ResolverPipeline {
   }
 
   private boolean isEmpty(Material type) {
-    if (Materials.isLiquid(type)) {
+    if (MaterialMagic.isLiquid(type)) {
       return true;
     }
     switch (type) {

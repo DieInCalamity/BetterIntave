@@ -11,7 +11,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 
-public final class FallDamageContainerMethod extends ReducedContainerMethod {
+public final class FallDamageMethodContainer extends ReducedMethodContainer {
   private final MethodHandle fallDamageInvokeMethod;
   private final Object fallDamageSource;
 

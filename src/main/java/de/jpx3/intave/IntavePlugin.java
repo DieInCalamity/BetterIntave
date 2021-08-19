@@ -8,6 +8,8 @@ import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.adapter.ViaVersionAdapter;
 import de.jpx3.intave.agent.AgentAccessor;
 import de.jpx3.intave.annotate.Native;
+import de.jpx3.intave.cleanup.GarbageCollector;
+import de.jpx3.intave.cleanup.Shutdown;
 import de.jpx3.intave.command.CommandProcessor;
 import de.jpx3.intave.config.ConfigurationService;
 import de.jpx3.intave.connect.customclient.CustomClientSupportService;
@@ -23,6 +25,7 @@ import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.fakeplayer.event.FakePlayerEventService;
 import de.jpx3.intave.filter.Filters;
 import de.jpx3.intave.lib.asm.Frame;
+import de.jpx3.intave.math.SinusCache;
 import de.jpx3.intave.metrics.Metrics;
 import de.jpx3.intave.module.BootSegment;
 import de.jpx3.intave.module.Modules;
@@ -30,21 +33,20 @@ import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscriptionLinker;
 import de.jpx3.intave.module.linker.packet.PacketSubscriptionLinker;
 import de.jpx3.intave.module.tracker.entity.WrappedEntity;
 import de.jpx3.intave.reflect.access.ReflectiveAccess;
+import de.jpx3.intave.reflect.access.ReflectiveTPSAccess;
 import de.jpx3.intave.reflect.hitbox.typeaccess.DualEntityTypeAccess;
 import de.jpx3.intave.reflect.locate.Locator;
 import de.jpx3.intave.resource.EncryptedResource;
 import de.jpx3.intave.security.*;
 import de.jpx3.intave.security.blacklist.BlackListService;
 import de.jpx3.intave.security.letis.Letis;
-import de.jpx3.intave.tools.Shutdown;
-import de.jpx3.intave.tools.*;
-import de.jpx3.intave.tools.client.SinusCache;
-import de.jpx3.intave.tools.items.ItemProperties;
-import de.jpx3.intave.tools.version.DurationTranslator;
-import de.jpx3.intave.tools.version.Version;
-import de.jpx3.intave.tools.version.VersionList;
+import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.trustfactor.TrustFactorService;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.version.DurationTranslator;
+import de.jpx3.intave.version.IntaveVersion;
+import de.jpx3.intave.version.IntaveVersionList;
+import de.jpx3.intave.version.JavaVersion;
 import de.jpx3.intave.violation.ViolationProcessor;
 import de.jpx3.intave.world.blockaccess.*;
 import de.jpx3.intave.world.blockphysic.BlockPhysics;
@@ -54,6 +56,7 @@ import de.jpx3.intave.world.blockshape.boxresolver.patcher.BoundingBoxPatcher;
 import de.jpx3.intave.world.collider.Collider;
 import de.jpx3.intave.world.collision.CollisionModifiers;
 import de.jpx3.intave.world.fluid.Fluids;
+import de.jpx3.intave.world.items.ItemProperties;
 import de.jpx3.intave.world.permission.WorldPermission;
 import de.jpx3.intave.world.raytrace.Raytracing;
 import de.jpx3.intave.world.wrapper.link.WrapperLinkage;
@@ -86,11 +89,10 @@ public final class IntavePlugin extends JavaPlugin {
 
   static {
     // stage 1
-
   }
 
   private IntaveLogger logger;
-  private Modules modules = new Modules();
+  private final Modules modules = new Modules();
   private ProxyMessenger proxyMessenger;
   private SibylIntegrationService sibylIntegrationService;
   private ConfigurationService configurationService;
@@ -102,7 +104,7 @@ public final class IntavePlugin extends JavaPlugin {
   private CheckService checkService;
   private Filters filters;
   private TrustFactorService trustFactorService;
-  private VersionList versionList;
+  private IntaveVersionList versionList;
   private LabymodShadowIntegration shadowIntegration;
   private CustomClientSupportService customClientSupportService;
   private IntaveAccessService accessService;
@@ -174,7 +176,7 @@ public final class IntavePlugin extends JavaPlugin {
 
       Locator.setup();
       SinusCache.setup();
-      TPSArrayAccessor.setup();
+      ReflectiveTPSAccess.setup();
       Synchronizer.setup();
       ContextSecrets.setup();
       DualEntityTypeAccess.setup();
@@ -497,7 +499,7 @@ public final class IntavePlugin extends JavaPlugin {
       ItemProperties.setup();
       BoundingBoxPatcher.setup();
 
-      versionList = new VersionList();
+      versionList = new IntaveVersionList();
       try {
         versionList.setup();
       } catch (Exception | Error exception) {
@@ -572,10 +574,13 @@ public final class IntavePlugin extends JavaPlugin {
     RuntimeDiagnostics.applicationBoot();
 
     if (JavaVersion.current() < 16) {
-      logger.info(ChatColor.RED + "Upgrading to Java 16 has incredible performance benefits for the entire server");
+      String noticePrefix = ChatColor.DARK_RED + "Notice" + ChatColor.DARK_GRAY + ": ";
+      logger.info(noticePrefix + ChatColor.RED + "Upgrading to Java 16 has incredible performance benefits");
+      logger.info(noticePrefix + ChatColor.RED + "We strongly recommend you update Java now");
+      logger.info(noticePrefix + ChatColor.RED + "Support for older versions of Java might eventually be dropped");
     }
 
-    modules().packetSubscriptionLinker().refreshLinkages();
+    modules().linkers().packetLinker().refreshLinkages();
     displayVersionInformation();
     logger.info( "Intave booted successfully");
 
@@ -630,7 +635,7 @@ public final class IntavePlugin extends JavaPlugin {
 
   @Native
   public void displayVersionInformation() {
-    Version version = versionList.versionInformation(version());
+    IntaveVersion version = versionList.versionInformation(version());
     if (version == null) {
       logger().info(ChatColor.YELLOW + "This version of Intave is not listed in the official version index");
     } else {
@@ -843,12 +848,12 @@ public final class IntavePlugin extends JavaPlugin {
 
   @Deprecated
   public BukkitEventSubscriptionLinker eventLinker() {
-    return modules().bukkitEventLinker();
+    return modules().linkers().bukkitLinker();
   }
 
   @Deprecated
   public PacketSubscriptionLinker packetSubscriptionLinker() {
-    return modules().packetSubscriptionLinker();
+    return modules().linkers().packetLinker();
   }
 
   public ViolationProcessor violationProcessor() {
@@ -859,7 +864,7 @@ public final class IntavePlugin extends JavaPlugin {
     return sibylIntegrationService;
   }
 
-  public VersionList versionList() {
+  public IntaveVersionList versionList() {
     return versionList;
   }
 

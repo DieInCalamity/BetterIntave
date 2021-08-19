@@ -1,6 +1,6 @@
 package de.jpx3.intave.reflect.locate;
 
-import de.jpx3.intave.access.IntaveInternalException;
+import de.jpx3.intave.cleanup.Shutdown;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class Locator {
   private final static ClassAndFieldLocationFileCompiler fileCompiler = new ClassAndFieldLocationFileCompiler();
-  private final static ClassAndFieldLocations CLASS_AND_FIELD_LOCATIONS = fileCompiler.fromPath("/mappings/locate").reduced();
+  private final static ClassAndFieldLocations CLASS_AND_FIELD_LOCATIONS = fileCompiler.fromWithinJar("/mappings/locate").reduced();
   private final static ClassLocations classLocation = CLASS_AND_FIELD_LOCATIONS.classLocations();
   private final static FieldLocations fieldLocations = CLASS_AND_FIELD_LOCATIONS.fieldLocations();
   private final static Map<String, ClassLocation> keyClassAccessCache = new ConcurrentHashMap<>();
@@ -51,16 +51,8 @@ public final class Locator {
   public static Field fieldByKey(String classKey, String fieldKey) {
     String key = classKey + "." + fieldKey;
     FieldLocation fieldLocation = fieldAccessCache.computeIfAbsent(key, s -> fieldLookupByKey(classKey, fieldKey));
-    Class<?> aClass = classByKey(classKey);
-    try {
-      Field declaredField = aClass.getDeclaredField(fieldLocation.targetName());
-      if (!declaredField.isAccessible()) {
-        declaredField.setAccessible(true);
-      }
-      return declaredField;
-    } catch (NoSuchFieldException exception) {
-      throw new IntaveInternalException("Unable to locate " + classKey + "/" + fieldKey, exception);
-    }
+    Class<?> owner = classByKey(classKey);
+    return fieldLocation.access(owner);
   }
 
   public static String fieldNameByKey(String classKey, String fieldKey) {
@@ -98,6 +90,7 @@ public final class Locator {
 
   public static void setup() {
     // nothing!
+    Shutdown.addTask(Locator::close);
   }
 
   public static void close() {

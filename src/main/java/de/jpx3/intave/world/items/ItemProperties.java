@@ -1,4 +1,4 @@
-package de.jpx3.intave.tools.items;
+package de.jpx3.intave.world.items;
 
 import com.comphenix.protocol.utility.MinecraftVersion;
 import com.google.common.collect.Lists;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 import static de.jpx3.intave.adapter.MinecraftVersions.VER1_13_0;
 import static de.jpx3.intave.adapter.MinecraftVersions.VER1_9_0;
-import static de.jpx3.intave.tools.items.Enchantments.tridentRiptideEnchanted;
+import static de.jpx3.intave.world.items.Enchantments.tridentRiptideEnchanted;
 
 public final class ItemProperties {
   public static final Material ITEM_TRIDENT = materialByName("TRIDENT");

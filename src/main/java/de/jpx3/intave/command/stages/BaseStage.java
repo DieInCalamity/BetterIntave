@@ -9,12 +9,12 @@ import de.jpx3.intave.command.Optional;
 import de.jpx3.intave.command.SubCommand;
 import de.jpx3.intave.security.LicenseAccess;
 import de.jpx3.intave.tools.AccessHelper;
-import de.jpx3.intave.tools.version.DurationTranslator;
-import de.jpx3.intave.tools.version.Version;
 import de.jpx3.intave.user.MessageChannel;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.user.permission.BukkitPermissionCheck;
+import de.jpx3.intave.version.DurationTranslator;
+import de.jpx3.intave.version.IntaveVersion;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -162,7 +162,7 @@ public final class BaseStage extends CommandStage {
   private void sendVersionMessage(CommandSender player) {
     boolean hasVersionViewPermission = BukkitPermissionCheck.permissionCheck(player, "intave.command");
 
-    Version versionInformation = IntavePlugin.singletonInstance().versionList().versionInformation(IntavePlugin.version());
+    IntaveVersion versionInformation = IntavePlugin.singletonInstance().versionList().versionInformation(IntavePlugin.version());
     String version;
     if (!hasVersionViewPermission) {
       version = "(version hidden)";

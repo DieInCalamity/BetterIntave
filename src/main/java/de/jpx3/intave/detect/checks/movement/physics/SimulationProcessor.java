@@ -6,15 +6,15 @@ import de.jpx3.intave.diagnostics.KeyPressStudy;
 import de.jpx3.intave.diagnostics.timings.Timings;
 import de.jpx3.intave.event.dispatch.AttackDispatcher;
 import de.jpx3.intave.executor.Synchronizer;
+import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.reflect.access.ReflectiveDataWatcherAccess;
-import de.jpx3.intave.tools.MathHelper;
-import de.jpx3.intave.tools.items.ItemProperties;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.InventoryMetadata;
 import de.jpx3.intave.user.meta.MetadataBundle;
 import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.world.collider.complex.ComplexColliderSimulationResult;
+import de.jpx3.intave.world.items.ItemProperties;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 

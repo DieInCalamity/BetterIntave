@@ -1,4 +1,4 @@
-package de.jpx3.intave.tools.items;
+package de.jpx3.intave.world.items;
 
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;

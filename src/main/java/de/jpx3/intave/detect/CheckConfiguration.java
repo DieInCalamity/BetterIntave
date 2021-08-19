@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import de.jpx3.intave.access.IntaveBootFailureException;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.access.check.MitigationStrategy;
-import de.jpx3.intave.tools.MathHelper;
+import de.jpx3.intave.math.MathHelper;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 

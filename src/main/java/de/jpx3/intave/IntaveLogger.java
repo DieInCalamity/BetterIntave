@@ -3,9 +3,9 @@ package de.jpx3.intave;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.executor.BackgroundExecutor;
+import de.jpx3.intave.resource.FileArchiver;
 import de.jpx3.intave.tools.AccessHelper;
-import de.jpx3.intave.tools.FileArchiver;
-import de.jpx3.intave.tools.JavaVersion;
+import de.jpx3.intave.version.JavaVersion;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 

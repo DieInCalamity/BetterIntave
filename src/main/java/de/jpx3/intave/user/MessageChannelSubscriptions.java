@@ -1,6 +1,6 @@
 package de.jpx3.intave.user;
 
-import de.jpx3.intave.tools.GarbageCollector;
+import de.jpx3.intave.cleanup.GarbageCollector;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;

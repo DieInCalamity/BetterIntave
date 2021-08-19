@@ -1,4 +1,4 @@
-package de.jpx3.intave.tools.caller;
+package de.jpx3.intave.reflect.caller;
 
 public final class PluginInvocation {
   private final String pluginName;

@@ -21,13 +21,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 import static de.jpx3.intave.event.feedback.FeedbackService.TransactionOptions.*;
 
 public final class FeedbackService implements PacketEventSubscriber {
   public final static boolean USE_PING_PONG_PACKETS = MinecraftVersions.VER1_17_0.atOrAbove();
   public final static long TRANSACTION_TIMEOUT = 3000;
-  public final static long TRANSACTION_TIMEOUT_KICK = 20000;
+  public final static long TRANSACTION_TIMEOUT_KICK = TimeUnit.SECONDS.toMillis(40);
   public final static short TRANSACTION_MIN_CODE = -32768;
   public final static short TRANSACTION_MAX_CODE = -16370;
   public final static long OPTIONAL_PENDING_LIMIT = 20;

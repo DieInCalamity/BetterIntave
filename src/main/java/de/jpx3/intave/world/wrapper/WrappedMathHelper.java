@@ -1,6 +1,6 @@
 package de.jpx3.intave.world.wrapper;
 
-import de.jpx3.intave.tools.client.SinusCache;
+import de.jpx3.intave.math.SinusCache;
 
 import java.util.Random;
 import java.util.UUID;

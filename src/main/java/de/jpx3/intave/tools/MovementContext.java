@@ -1,4 +1,4 @@
-package de.jpx3.intave.tools.client;
+package de.jpx3.intave.tools;
 
 import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
 import de.jpx3.intave.user.User;
@@ -8,6 +8,7 @@ import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.blockphysic.BlockProperties;
+import de.jpx3.intave.world.blockphysic.MaterialMagic;
 import de.jpx3.intave.world.collision.Collision;
 import de.jpx3.intave.world.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.world.wrapper.WrappedMathHelper;
@@ -85,7 +86,7 @@ public final class MovementContext {
       for (int y = minY; y <= maxY; ++y) {
         for (int z = minZ; z <= maxZ; ++z) {
           Material material = BukkitBlockAccess.cacheAppliedTypeAccess(user, world, x, y, z);
-          if (Materials.isLiquid(material)) {
+          if (MaterialMagic.isLiquid(material)) {
             return true;
           }
         }
@@ -105,7 +106,7 @@ public final class MovementContext {
       for (int y = minY; y <= maxY; ++y) {
         for (int z = minZ; z <= maxZ; ++z) {
           Material material = BukkitBlockAccess.cacheAppliedTypeAccess(user, world, x, y, z);
-          if (!Materials.isLiquid(material)) {
+          if (!MaterialMagic.isLiquid(material)) {
             return false;
           }
         }
@@ -124,7 +125,7 @@ public final class MovementContext {
     for (int x = minX; x < maxX; ++x) {
       for (int y = minY; y < maxY; ++y) {
         for (int z = minZ; z < maxZ; ++z) {
-          if (Materials.isLava(BukkitBlockAccess.cacheAppliedTypeAccess(user, world, x, y, z))) {
+          if (MaterialMagic.isLava(BukkitBlockAccess.cacheAppliedTypeAccess(user, world, x, y, z))) {
             return true;
           }
         }

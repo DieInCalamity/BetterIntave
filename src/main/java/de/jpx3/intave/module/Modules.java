@@ -1,8 +1,8 @@
 package de.jpx3.intave.module;
 
+import de.jpx3.intave.cleanup.Shutdown;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscriptionLinker;
 import de.jpx3.intave.module.linker.packet.PacketSubscriptionLinker;
-import de.jpx3.intave.tools.Shutdown;
 
 public final class Modules {
   private final ModulePool pool = new ModulePool();
@@ -24,21 +24,38 @@ public final class Modules {
     pool.unloadAll();
   }
 
-  // quick accessors
-
-  public BukkitEventSubscriptionLinker bukkitEventLinker() {
-    return find(BukkitEventSubscriptionLinker.class);
-  }
-
-  public PacketSubscriptionLinker packetSubscriptionLinker() {
-    return find(PacketSubscriptionLinker.class);
-  }
-
   public <T extends Module> T find(Class<T> moduleClass) {
     T module = pool.lookup(moduleClass);
     if (module == null) {
       throw new IllegalStateException("Unable to find module " + moduleClass + ", is it loaded?");
     }
     return module;
+  }
+
+  // quick accessors
+
+  private final LinkerCategory LINKER_CATEGORY = new LinkerCategory();
+  private final DispatchCategory DISPATCH_CATEGORY = new DispatchCategory();
+
+  public LinkerCategory linkers() {
+    return LINKER_CATEGORY;
+  }
+
+  public DispatchCategory dispatch() {
+    return DISPATCH_CATEGORY;
+  }
+
+  public class DispatchCategory {
+    // empty
+  }
+
+  public class LinkerCategory {
+    public BukkitEventSubscriptionLinker bukkitLinker() {
+      return find(BukkitEventSubscriptionLinker.class);
+    }
+
+    public PacketSubscriptionLinker packetLinker() {
+      return find(PacketSubscriptionLinker.class);
+    }
   }
 }

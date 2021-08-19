@@ -13,8 +13,8 @@ import de.jpx3.intave.event.mitigate.placeholder.TextContext;
 import de.jpx3.intave.event.mitigate.placeholder.ViolationPlaceholderContext;
 import de.jpx3.intave.event.mitigate.placeholder.ViolationPlaceholderContext.DetailScope;
 import de.jpx3.intave.executor.Synchronizer;
+import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.tools.AccessHelper;
-import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.user.MessageChannel;
 import de.jpx3.intave.user.MessageChannelSubscriptions;
 import de.jpx3.intave.user.User;
@@ -38,44 +38,34 @@ public final class ViolationProcessor {
 
   public ViolationContext processViolation(Violation violation) {
     ViolationContext violationContext = ViolationContext.of(violation);
-
     Optional<Player> playerSearch = violation.findPlayer();
     if (!playerSearch.isPresent()) {
       return violationContext.counterThreatBecause("Player is not present").complete();
     }
-
     Player player = playerSearch.get();
     User user = UserRepository.userOf(player);
-
     if (user.trustFactor().atLeast(TrustFactor.BYPASS)) {
       return violationContext.ignoreThreatBecause("Player has bypass trust factor").complete();
     }
-
     Check check = violation.check();
     if (!check.enabled()) {
       return violationContext.ignoreThreatBecause("Check is disabled").complete();
     }
-
     if (user.justJoined() || !user.hasPlayer()) {
       return violationContext.counterThreatBecause("Player just joined or is not reachable").complete();
     }
-
     fillInVLContext(violationContext);
-
     processViolationEvent(violationContext);
     processViolationOverflow(violationContext);
     processViolationStatistics(violationContext);
     processViolationVerbose(violationContext);
     processViolationLevelIncrease(violationContext);
-
     lookupThresholdCommands(violationContext);
     processThresholdsEvents(violationContext);
     executeCommands(violationContext);
-
     if (!violationContext.completed() && violationContext.violationLevelPassedPreventionActivation()) {
       violationContext.counterThreatBecause("Activation prevention reached");
     }
-
     return violationContext.complete();
   }
 
@@ -113,19 +103,15 @@ public final class ViolationProcessor {
     }
     Violation violation = violationContext.violation();
     Player player = violation.findPlayer().orElseThrow(IllegalStateException::new);
-
     String checkName = violation.check().name().toLowerCase(Locale.ROOT);
     String message = violation.message();
     String details = violation.details();
-
     double oldVl = violationContext.violationLevelBefore();
     double newVl = violationContext.violationLevelAfter();
-
     IntaveViolationEvent violationEvent = plugin.customEventService().invokeEvent(
       IntaveViolationEvent.class,
       event -> event.copy(player, checkName, message, details, oldVl, newVl)
     );
-
     if (violationEvent.isCancelled()) {
       IntaveViolationEvent.Reaction response = violationEvent.reaction();
       boolean counterThreat = response == IntaveViolationEvent.Reaction.INTERRUPT && violationContext.violationLevelPassedPreventionActivation();
@@ -146,12 +132,10 @@ public final class ViolationProcessor {
     }
     User user = UserRepository.userOf(violationContext.violation().findPlayer().orElseThrow(IllegalStateException::new));
     ViolationMetadata violationLevelData = user.meta().violationLevel();
-
     if (AccessHelper.now() - violationLevelData.detectionCounterReset > 10000) {
       violationLevelData.detectionCounter = 0;
       violationLevelData.detectionCounterReset = AccessHelper.now();
     }
-
     if (violationLevelData.detectionCounter++ > 500) {
       user.synchronizedDisconnect("You are sending too many packets :[");
     }
@@ -185,19 +169,14 @@ public final class ViolationProcessor {
     Player player = violation.findPlayer().orElseThrow(IllegalStateException::new);
     User user = UserRepository.userOf(player);
     String checkName = violation.check().name().toLowerCase(Locale.ROOT);
-
     // default verbose
     broadcastVerbose(player, violationContext);
-
     // console output
     String trustFactor = user.trustFactor().name().toLowerCase().replace("_", "");
     String vlAdded = MathHelper.formatDouble((violationContext.violationLevelAfter() - violationContext.violationLevelBefore()), 2);
     String vlAfterViolation = MathHelper.formatDouble(violationContext.violationLevelAfter(), 2);
     String message = violation.message().trim();
     String details = violation.details().isEmpty() ? "" : "(" + violation.details().trim() + ")" + " ";
-//    if (!enterprise) {
-//      details = "";
-//    }
     String consoleMessage = String.format(
       LOGGER_MESSAGE_LAYOUT, player.getName(), trustFactor,
       message, details, vlAdded, vlAfterViolation, checkName
@@ -227,10 +206,8 @@ public final class ViolationProcessor {
     Violation violation = violationContext.violation();
     Check check = violation.check();
     String threshold = violation.threshold();
-
     double oldVl = violationContext.violationLevelBefore();
     double newVl = violationContext.violationLevelAfter();
-
     Map<Integer, List<String>> thresholds = check.configuration().settings().thresholdsBy(threshold);
     for (int i = (int) oldVl + 1; i <= newVl; i++) {
       List<String> commands = thresholds.get(i);
@@ -250,13 +227,10 @@ public final class ViolationProcessor {
     }
     Violation violation = violationContext.violation();
     Player player = violation.findPlayer().orElseThrow(IllegalStateException::new);
-
     String checkName = violation.check().name().toLowerCase(Locale.ROOT);
     String message = violation.message();
     String details = violation.details();
-
     double afterVL = violationContext.violationLevelAfter();
-
     List<String> newCommands = new ArrayList<>();
     for (String command : violationContext.commands()) {
       ViolationPlaceholderContext placeholderContext = violationContext.placeholderContextOf(DetailScope.FULL /* automaticallly striped when not enterprise */);
@@ -285,7 +259,6 @@ public final class ViolationProcessor {
     Violation violation = violationContext.violation();
     Player player = violation.findPlayer().orElseThrow(IllegalStateException::new);
     String checkName = violation.check().name().toLowerCase(Locale.ROOT);
-
     Synchronizer.synchronize(() -> {
       boolean playerRemoved = command.startsWith("ban") || command.startsWith("kick");
       if (playerRemoved) {

@@ -2,6 +2,7 @@ package de.jpx3.intave.module;
 
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
+import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscriptionLinker;
 import de.jpx3.intave.module.linker.packet.PacketSubscriptionLinker;
 import de.jpx3.intave.module.tracker.entity.EntityTracker;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 public final class ModuleLoader {
   private final Map<Class<? extends Module>, ModuleSettings> pendingModuleClasses = new HashMap<>();
 
+  @Native
   public void setup() {
     prepareModule(BukkitEventSubscriptionLinker.class, ModuleSettings.builder().bootAt(BootSegment.STAGE_3).build());
     prepareModule(PacketSubscriptionLinker.class, ModuleSettings.builder().requiresProtocolLib().bootAt(BootSegment.STAGE_5).build());

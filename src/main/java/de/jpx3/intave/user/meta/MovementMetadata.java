@@ -2,19 +2,25 @@ package de.jpx3.intave.user.meta;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
+import de.jpx3.intave.adapter.MinecraftVersions;
+import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.annotate.DispatchTarget;
 import de.jpx3.intave.annotate.Nullable;
 import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
 import de.jpx3.intave.detect.checks.movement.physics.*;
+import de.jpx3.intave.math.SinusCache;
 import de.jpx3.intave.module.tracker.entity.WrappedEntity;
 import de.jpx3.intave.reflect.access.ReflectiveDataWatcherAccess;
 import de.jpx3.intave.reflect.access.ReflectiveHandleAccess;
-import de.jpx3.intave.tools.client.*;
+import de.jpx3.intave.tools.MovementContext;
+import de.jpx3.intave.tools.RotationHelper;
 import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.blockphysic.BlockProperties;
 import de.jpx3.intave.world.collision.Collision;
+import de.jpx3.intave.world.effect.Effects;
 import de.jpx3.intave.world.fluid.FluidTag;
 import de.jpx3.intave.world.fluid.Fluids;
 import de.jpx3.intave.world.fluid.WrappedFluid;
@@ -158,7 +164,7 @@ public final class MovementMetadata {
     this.player = player;
     this.user = user;
     if (player != null) {
-      this.elytraFlying = PoseHelper.flyingWithElytra(player);
+      this.elytraFlying = flyingWithElytra(player);
     }
   }
 
@@ -242,7 +248,7 @@ public final class MovementMetadata {
       motionY = positionY - verifiedPositionY;
       motionZ = positionZ - verifiedPositionZ;
       boolean falling = motionY() <= 0.0D;
-      if (falling && EffectLogic.isPotionSlowFallingActive(player)) {
+      if (falling && Effects.isPotionSlowFallingActive(player)) {
         artificialFallDistance = 0f;
         gravity = 0.01D;
       } else {
@@ -272,7 +278,7 @@ public final class MovementMetadata {
 
   @IdoNotBelongHere
   private void updateElytra() {
-    if (elytraFlying && !this.onGround && !this.inWater && !EffectLogic.isPotionLevitationActive(player)) {
+    if (elytraFlying && !this.onGround && !this.inWater && !Effects.isPotionLevitationActive(player)) {
       elytraFlying = hasElytraEquipped();
     } else {
       elytraFlying = false;
@@ -319,13 +325,13 @@ public final class MovementMetadata {
     // Beautiful
     if (this.isPoseClear(Pose.SWIMMING)) {
       Pose pose;
-      if (PoseHelper.isSwimming(user)) {
+      if (isSwimming(user)) {
         pose = Pose.SWIMMING;
       } else if (player.isSleeping()) {
         pose = Pose.SLEEPING;
       } else if (elytraFlying) {
         pose = Pose.FALL_FLYING;
-      } else if (PoseHelper.poseSneaking(user)) {
+      } else if (poseSneaking(user)) {
         pose = Pose.CROUCHING;
       } else {
         pose = Pose.STANDING;
@@ -346,6 +352,52 @@ public final class MovementMetadata {
     }
 
     updateSize();
+  }
+
+  private final static boolean ELYTRA_ENABLED = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
+
+  private boolean flyingWithElytra(Player player) {
+    return ELYTRA_ENABLED && canUseElytra(player) && player.isGliding();
+  }
+
+  private boolean canUseElytra(Player player) {
+    User user = UserRepository.userOf(player);
+    MetadataBundle meta = user.meta();
+    ProtocolMetadata clientData = meta.protocol();
+    return clientData.canUseElytra();
+  }
+
+  private boolean isSwimming(User user) {
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movement();
+    ProtocolMetadata clientData = meta.protocol();
+    if (!clientData.swimmingMechanics()) {
+      return false;
+    }
+    boolean sprinting = movementData.lastSprinting;
+    boolean swimming = movementData.pose() == Pose.SWIMMING;
+    if (swimming) {
+      return sprinting && movementData.inWater;
+    } else {
+      return sprinting && ((movementData.pose() == Pose.FALL_FLYING && movementData.inWater) || movementData.areEyesInWater());
+    }
+  }
+
+  public boolean poseSneaking(User user) {
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movement();
+    ProtocolMetadata clientData = meta.protocol();
+    InventoryMetadata inventoryData = meta.inventory();
+    boolean sneakingAllowed = movementData.sneaking && !inventoryData.inventoryOpen();
+    boolean actualSneaking;
+    if (clientData.delayedSneak()) {
+      actualSneaking = movementData.lastSneaking;
+    } else if (clientData.alternativeSneak()) {
+      actualSneaking = movementData.lastSneaking || sneakingAllowed;
+    } else {
+      actualSneaking = sneakingAllowed;
+    }
+    return actualSneaking;
   }
 
   @IdoNotBelongHere

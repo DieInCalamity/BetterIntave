@@ -1,9 +1,9 @@
 package de.jpx3.intave.world.fluid;
 
-import de.jpx3.intave.tools.client.Materials;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
+import de.jpx3.intave.world.blockphysic.MaterialMagic;
 import de.jpx3.intave.world.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.world.wrapper.WrappedMathHelper;
 import de.jpx3.intave.world.wrapper.WrappedVector;
@@ -51,7 +51,7 @@ public abstract class FluidEngine {
               waterFlowTotal = waterFlowTotal.add(flowVector);
               ++countedWaterCollisions;
             }
-          } else if (Materials.isWater(blockClientSide)) {
+          } else if (MaterialMagic.isWater(blockClientSide)) {
             inWater = true;
           }
         }

@@ -1,15 +1,15 @@
-package de.jpx3.intave.tools.version;
+package de.jpx3.intave.version;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public final class Version {
+public final class IntaveVersion {
   private final String version;
   private final long release;
   private final Status typeClassifier;
 
-  public Version(String version, long release, Status typeClassifier) {
+  public IntaveVersion(String version, long release, Status typeClassifier) {
     this.version = version;
     this.release = release;
     this.typeClassifier = typeClassifier;

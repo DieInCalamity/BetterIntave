@@ -2,10 +2,10 @@ package de.jpx3.intave.user;
 
 import com.google.common.collect.Maps;
 import de.jpx3.intave.IntaveControl;
+import de.jpx3.intave.cleanup.Shutdown;
+import de.jpx3.intave.diagnostics.MemoryWatchdog;
 import de.jpx3.intave.event.mitigate.EntityNoDamageTickChanger;
 import de.jpx3.intave.tools.AccessHelper;
-import de.jpx3.intave.tools.MemoryWatchdog;
-import de.jpx3.intave.tools.Shutdown;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

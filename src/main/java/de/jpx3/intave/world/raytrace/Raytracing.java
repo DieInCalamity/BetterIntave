@@ -2,10 +2,9 @@ package de.jpx3.intave.world.raytrace;
 
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.diagnostics.timings.Timings;
+import de.jpx3.intave.math.SinusCache;
 import de.jpx3.intave.module.tracker.entity.WrappedEntity;
 import de.jpx3.intave.reflect.patchy.PatchyLoadingInjector;
-import de.jpx3.intave.tools.client.RotationHelper;
-import de.jpx3.intave.tools.client.SinusCache;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.MetadataBundle;
@@ -159,7 +158,7 @@ public final class Raytracing {
       if (lastReach < attackReachDistance)
         break;
 
-      WrappedVector interpolatedLookVec = RotationHelper.wrappedVectorForRotation(pitch, prevYaw, fastMath);
+      WrappedVector interpolatedLookVec = wrappedVectorForRotation(pitch, prevYaw, fastMath);
       WrappedVector lookVector = eyeVector.addVector(
         interpolatedLookVec.xCoord * blockReachDistance,
         interpolatedLookVec.yCoord * blockReachDistance,
@@ -195,6 +194,14 @@ public final class Raytracing {
 
     Timings.SERVICE_RAYTRACER_ENTITY.stop();
     return new EntityInteractionRaytrace(lastHitVec, lastReach);
+  }
+
+  private static WrappedVector wrappedVectorForRotation(float pitch, float prevYaw, boolean fastMath) {
+    float var3 = SinusCache.cos(-prevYaw * 0.017453292f - (float) Math.PI, fastMath);
+    float var4 = SinusCache.sin(-prevYaw * 0.017453292F - (float) Math.PI, fastMath);
+    float var5 = -SinusCache.cos(-pitch * 0.017453292f, fastMath);
+    float var6 = SinusCache.sin(-pitch * 0.017453292f, fastMath);
+    return new WrappedVector(var4 * var5, var6, var3 * var5);
   }
 
   public static class EntityInteractionRaytrace {

@@ -1,7 +1,7 @@
 package de.jpx3.intave.world.wrapper;
 
+import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.reflect.Lookup;
-import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.world.wrapper.link.WrapperLinkage;
 import org.bukkit.Location;
 import org.bukkit.World;

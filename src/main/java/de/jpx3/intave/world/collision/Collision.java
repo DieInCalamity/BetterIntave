@@ -2,13 +2,13 @@ package de.jpx3.intave.world.collision;
 
 import de.jpx3.intave.annotate.DoNotFlowObfuscate;
 import de.jpx3.intave.annotate.Relocate;
-import de.jpx3.intave.tools.client.Materials;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.world.blockaccess.BlockDataAccess;
 import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
+import de.jpx3.intave.world.blockphysic.MaterialMagic;
 import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
 import de.jpx3.intave.world.blockshape.boxresolver.BoundingBoxResolver;
 import de.jpx3.intave.world.blockshape.boxresolver.ResolverPipeline;
@@ -238,7 +238,7 @@ public final class Collision {
         for (int z = minZ; z <= maxZ; z++) {
           Block block = BukkitBlockAccess.blockAccess(world, x, y, z);
           Material type = BlockTypeAccess.typeAccess(block);
-          if (!Materials.isLiquid(type) && BlockTypeAccess.typeAccess(block) != Material.AIR) {
+          if (!MaterialMagic.isLiquid(type) && BlockTypeAccess.typeAccess(block) != Material.AIR) {
             return true;
           }
         }

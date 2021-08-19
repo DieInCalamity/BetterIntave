@@ -1,4 +1,4 @@
-package de.jpx3.intave.tools.version;
+package de.jpx3.intave.version;
 
 import java.util.concurrent.TimeUnit;
 

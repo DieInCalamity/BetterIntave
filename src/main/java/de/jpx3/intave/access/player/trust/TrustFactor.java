@@ -1,6 +1,6 @@
 package de.jpx3.intave.access.player.trust;
 
-import de.jpx3.intave.tools.MathHelper;
+import de.jpx3.intave.math.MathHelper;
 import org.bukkit.ChatColor;
 
 public enum TrustFactor implements Comparable<TrustFactor> {

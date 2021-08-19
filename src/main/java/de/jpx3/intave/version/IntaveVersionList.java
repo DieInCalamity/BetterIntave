@@ -1,4 +1,4 @@
-package de.jpx3.intave.tools.version;
+package de.jpx3.intave.version;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -11,11 +11,11 @@ import java.io.StringReader;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-public final class VersionList {
-  private final List<Version> content = new ArrayList<>();
-  private final Map<String, Version> contentLookup = new HashMap<>();
+public final class IntaveVersionList {
+  private final List<IntaveVersion> content = new ArrayList<>();
+  private final Map<String, IntaveVersion> contentLookup = new HashMap<>();
 
-  public VersionList() {
+  public IntaveVersionList() {
   }
 
   public void setup() {
@@ -33,20 +33,20 @@ public final class VersionList {
       String name = jsonObject.get("name").getAsString();
       String release = jsonObject.get("release").getAsString();
       String status = jsonObject.get("status").getAsString();
-      Version version = new Version(
+      IntaveVersion version = new IntaveVersion(
         name, Long.parseLong(release),
-        Version.Status.fromName(status)
+        IntaveVersion.Status.fromName(status)
       );
       content.add(version);
       contentLookup.put(version.version().toLowerCase(Locale.ROOT), version);
     }
   }
 
-  public Version versionInformation(String version) {
+  public IntaveVersion versionInformation(String version) {
     return contentLookup.get(version.toLowerCase(Locale.ROOT));
   }
 
-  public List<Version> content() {
+  public List<IntaveVersion> content() {
     return content;
   }
 }
