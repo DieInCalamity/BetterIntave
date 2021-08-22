@@ -12,6 +12,7 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.violation.Violation;
 import de.jpx3.intave.violation.ViolationContext;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public final class PacketOrderAnalyzer extends MetaCheckPart<PlacementAnalysis, 
     PlacementOrderMeta meta = metaOf(player);
 
     long now = AccessHelper.now();
-    if (blockingPlacementPacket(packet)) {
+    if (blockingPlacementPacket(packet) || user.meta().protocol().combatUpdate()) {
       return;
     }
 
