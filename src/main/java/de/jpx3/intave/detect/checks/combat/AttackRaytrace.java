@@ -98,8 +98,9 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
       }
 
       Attack attack = new Attack(packetClone, entityId, shouldResend);
-      if (attackRaytraceMeta.pendingAttacks.size() < 4) {
-        attackRaytraceMeta.pendingAttacks.add(attack);
+      List<Attack> pendingAttacks = attackRaytraceMeta.pendingAttacks;
+      if (pendingAttacks.size() < 4) {
+        pendingAttacks.add(attack);
       }
     }
   }
@@ -226,6 +227,14 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
 
   private boolean validReachStanding(User user, WrappedEntity entity) {
     Player player = user.player();
+    int maximumPendingFeedbackPackets = trustFactorSetting("pending-allowance", player);
+    long pendingFeedbackPackets = entity.pendingFeedbackPackets();
+    boolean entityHasNotTimedOut = pendingFeedbackPackets < maximumPendingFeedbackPackets;
+
+    if (!entityHasNotTimedOut) {
+      return false;
+    }
+
     double minReach = findLowestPossibleReachIterative(user, entity, false, true);
     double blockReachDistance = Raytracing.reachDistance(player);
 
@@ -237,6 +246,14 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     Player player = user.player();
     double blockReachDistance = Raytracing.reachDistance(player);
     float rotationYaw = movementData.rotationYaw % 360;
+
+    int maximumPendingFeedbackPackets = trustFactorSetting("pending-allowance", player);
+    long pendingFeedbackPackets = entity.pendingFeedbackPackets();
+    boolean entityHasNotTimedOut = pendingFeedbackPackets < maximumPendingFeedbackPackets;
+
+    if (!entityHasNotTimedOut) {
+      return false;
+    }
 
     // mouse delay fix
     Raytracing.EntityInteractionRaytrace distanceOfResult = Raytracing.doubleMDFEntityRaytrace(
@@ -436,9 +453,15 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     float rotationYaw = movementData.rotationYaw % 360;
     float lastRotationYaw = movementData.lastRotationYaw % 360;
     double blockReachDistance = Raytracing.reachDistance(meta);
-
+    int maximumPendingFeedbackPackets = trustFactorSetting("pending-allowance", player);
     double minReach = 10;
-    for (WrappedEntity.EntityPositionContext possiblePosition : clonedEntity.positionHistory) {
+    List<WrappedEntity.EntityPositionContext> positionHistory = clonedEntity.positionHistory;
+    int from = positionHistory.size() - 1;
+    for (int i = from; i >= 0; i--) {
+      if (from - i > maximumPendingFeedbackPackets) {
+        continue;
+      }
+      WrappedEntity.EntityPositionContext possiblePosition = positionHistory.get(i);
       clonedEntity.position = possiblePosition.clone();
       // mouse delay fix
       Raytracing.EntityInteractionRaytrace resultWithoutIncrement = Raytracing.doubleMDFEntityRaytrace(

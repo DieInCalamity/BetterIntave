@@ -18,7 +18,7 @@ import org.bukkit.entity.Player;
 
 public final class Raytracing {
   private static Raytracer raytracer;
-  private static final boolean[] BOOLEANSTATES = new boolean[] { false, true };
+  private static final boolean[] PESSIMISTIC_BOOLEAN_ORDER = new boolean[] { false, true };
 
   public static void setup() {
     String className;
@@ -154,7 +154,7 @@ public final class Raytracing {
     double attackReachDistance = reachDistance(player);
     double lastReach = 10;
     WrappedVector lastHitVec = null;
-    for(boolean fastMath : BOOLEANSTATES) {
+    for (boolean fastMath : PESSIMISTIC_BOOLEAN_ORDER) {
       if (lastReach < attackReachDistance)
         break;
 

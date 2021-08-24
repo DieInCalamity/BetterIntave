@@ -379,7 +379,7 @@ public class WrappedEntity implements Cloneable {
     clone.isClone = true;
     clone.position = position.clone();
     clone.alternativePosition = alternativePosition.clone();
-    clone.positionHistory = new CopyOnWriteArrayList<> (positionHistory);
+    clone.positionHistory = new CopyOnWriteArrayList<>(positionHistory);
     return clone;
   }
 
