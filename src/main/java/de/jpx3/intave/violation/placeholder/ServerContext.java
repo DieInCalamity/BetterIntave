@@ -5,7 +5,7 @@ import de.jpx3.intave.reflect.access.ReflectiveTPSAccess;
 
 import java.util.Map;
 
-public final class ServerContext extends PlaceholderContext {
+public final class ServerContext implements PlaceholderContext {
   @Override
   public Map<String, String> replacements() {
     return ImmutableMap.of(

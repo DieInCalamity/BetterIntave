@@ -5,14 +5,14 @@ import de.jpx3.intave.math.MathHelper;
 
 import java.util.Map;
 
-public final class ViolationPlaceholderContext extends PlaceholderContext {
+public final class ViolationContext implements PlaceholderContext {
   private final String check;
   private final String message;
   private final String details;
   private final double preVL;
   private final double postVL;
 
-  public ViolationPlaceholderContext(
+  public ViolationContext(
     String check,
     String message,
     String details,

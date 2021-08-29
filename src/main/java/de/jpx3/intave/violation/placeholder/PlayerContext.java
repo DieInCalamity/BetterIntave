@@ -7,7 +7,7 @@ import java.net.InetAddress;
 import java.util.Map;
 import java.util.UUID;
 
-public final class PlayerContext extends PlaceholderContext {
+public final class PlayerContext implements PlaceholderContext {
   private final String playerName;
   private final UUID uuid;
   private final InetAddress address;

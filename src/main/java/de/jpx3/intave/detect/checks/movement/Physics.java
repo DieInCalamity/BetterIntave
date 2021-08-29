@@ -65,7 +65,7 @@ public final class Physics extends Check {
     this.simulationProcessor = new PredictionSimulationProcessor();
     this.simulationEvaluator = new SimulationEvaluator();
     this.highToleranceMode = configuration().settings().boolBy("high-tolerance", false);
-    setDefaultMitigationStrategy(MitigationStrategy.CAREFUL);
+    setDefaultMitigationStrategy(IntaveControl.GOMME_MODE ? MitigationStrategy.AGGRESSIVE : MitigationStrategy.CAREFUL);
     this.fallDamageMethodContainer = new FallDamageMethodContainer();
     linkCheckToPoseSimulators();
   }
@@ -496,6 +496,9 @@ public final class Physics extends Check {
           break;
         case CAREFUL:
           setback = deepPitchViolationOverflow && highPitchAggressiveViolationOverflow && (violationLevelAfter > 30 || user.justJoined());
+          if (receivedMotionY > Math.max(0.42f, movementData.jumpMotion() + 0.01)) {
+            setback = true;
+          }
           manualOverrideDistance = 0.75;
           break;
         case LENIENT:
@@ -570,11 +573,11 @@ public final class Physics extends Check {
 //      debug += inventoryData.heldItem().getType().name();
 //      debug += " flying:" + movementData.pastFlyingPacketAccurate;
 //      debug += " gliding:" + movementData.elytraFlying;
-//      debug += " y:" + movementData.motionY();
+      debug += " y:" + formatDouble(movementData.motionY(),4);
 
       List<String> tags = new ArrayList<>();
 
-      tags.add("dist=" + (movementData.recentlyEncounteredFlyingPacket(1) && violationLevelIncrease == 0 ? formatDouble(0d, 10) : formatDouble(distance, 10)));
+      tags.add("dist=" + (movementData.recentlyEncounteredFlyingPacket(1) ? "~" + formatDouble(distance, 10) : formatDouble(distance, 10)));
       if (collidedWithBoat) {
         tags.add("boat");
       }

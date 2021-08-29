@@ -1,6 +1,6 @@
 package de.jpx3.intave.user.permission;
 
-import de.jpx3.intave.tool.AccessHelper;
+import de.jpx3.intave.event.AccessHelper;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

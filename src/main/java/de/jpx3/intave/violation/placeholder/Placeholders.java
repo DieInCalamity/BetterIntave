@@ -1,5 +1,8 @@
 package de.jpx3.intave.violation.placeholder;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +25,7 @@ public final class Placeholders {
     String initialString,
     PlaceholderContext... context
   ) {
-    return replacePlaceholders(initialString, PlaceholderCombiner.combine(context).replacements());
+    return replacePlaceholders(initialString, combine(context).replacements());
   }
 
   private static String replacePlaceholders(
@@ -46,5 +49,20 @@ public final class Placeholders {
       );
     }
     return initialString;
+  }
+
+  public static PlaceholderContext combine(PlaceholderContext... contexts) {
+    Map<String, String> globalContext = Maps.newHashMap();
+    for (PlaceholderContext context : contexts) {
+      if (context == null) continue;
+      globalContext.putAll(context.replacements());
+    }
+    Map<String, String> immutableContextMap = ImmutableMap.copyOf(globalContext);
+    return new PlaceholderContext() {
+      @Override
+      public Map<String, String> replacements() {
+        return immutableContextMap;
+      }
+    };
   }
 }

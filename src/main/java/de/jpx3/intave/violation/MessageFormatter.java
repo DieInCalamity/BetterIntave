@@ -5,12 +5,12 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.violation.placeholder.Placeholders;
 import de.jpx3.intave.violation.placeholder.TextContext;
-import de.jpx3.intave.violation.placeholder.ViolationPlaceholderContext;
+import de.jpx3.intave.violation.placeholder.ViolationContext;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public final class MessageFormatter {
-  public static String resolveVerboseMessage(Player player, ViolationPlaceholderContext violationPlaceholderContext) {
+  public static String resolveVerboseMessage(Player player, ViolationContext violationPlaceholderContext) {
     String messageLayout = resolveLayout("verbose");
     User user = UserRepository.userOf(player);
     String output = Placeholders.replacePlaceholders(
@@ -39,7 +39,7 @@ public final class MessageFormatter {
     return output;
   }
 
-  public static String resolveCommandReplacements(Player player, String command, ViolationPlaceholderContext violationPlaceholderContext) {
+  public static String resolveCommandReplacements(Player player, String command, ViolationContext violationPlaceholderContext) {
     User user = UserRepository.userOf(player);
     String output = Placeholders.replacePlaceholders(
       command,

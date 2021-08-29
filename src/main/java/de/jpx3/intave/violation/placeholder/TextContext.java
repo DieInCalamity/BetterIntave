@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
 
-public final class TextContext extends PlaceholderContext{
+public final class TextContext implements PlaceholderContext{
   private final String text;
 
   public TextContext(String text) {

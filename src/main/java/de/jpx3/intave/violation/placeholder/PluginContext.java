@@ -5,7 +5,7 @@ import de.jpx3.intave.IntavePlugin;
 
 import java.util.Map;
 
-public final class PluginContext extends PlaceholderContext {
+public final class PluginContext implements PlaceholderContext {
   @Override
   public Map<String, String> replacements() {
     String prefix = IntavePlugin.prefix();

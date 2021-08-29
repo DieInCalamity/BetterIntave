@@ -9,23 +9,24 @@ import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.connect.proxy.protocol.packets.IntavePacketOutKicked;
 import de.jpx3.intave.detect.Check;
 import de.jpx3.intave.detect.CheckStatistics;
+import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.math.MathHelper;
-import de.jpx3.intave.tool.AccessHelper;
 import de.jpx3.intave.user.MessageChannel;
 import de.jpx3.intave.user.MessageChannelSubscriptions;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.ViolationMetadata;
 import de.jpx3.intave.violation.placeholder.TextContext;
-import de.jpx3.intave.violation.placeholder.ViolationPlaceholderContext;
-import de.jpx3.intave.violation.placeholder.ViolationPlaceholderContext.DetailScope;
+import de.jpx3.intave.violation.placeholder.ViolationContext;
+import de.jpx3.intave.violation.placeholder.ViolationContext.DetailScope;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.function.Predicate;
 
+import static de.jpx3.intave.math.MathHelper.formatDouble;
 import static de.jpx3.intave.violation.Violation.ViolationFlags.DONT_PROCESS_VIOSTAT;
 
 @HighOrderService
@@ -36,8 +37,8 @@ public final class ViolationProcessor {
     this.plugin = plugin;
   }
 
-  public ViolationContext processViolation(Violation violation) {
-    ViolationContext violationContext = ViolationContext.of(violation);
+  public de.jpx3.intave.violation.ViolationContext processViolation(Violation violation) {
+    de.jpx3.intave.violation.ViolationContext violationContext = de.jpx3.intave.violation.ViolationContext.of(violation);
     Optional<Player> playerSearch = violation.findPlayer();
     if (!playerSearch.isPresent()) {
       return violationContext.counterThreatBecause("Player is not present").complete();
@@ -70,7 +71,7 @@ public final class ViolationProcessor {
   }
 
   private void fillInVLContext(
-    ViolationContext violationContext
+    de.jpx3.intave.violation.ViolationContext violationContext
   ) {
     if (violationContext.completed()) {
       return;
@@ -95,7 +96,7 @@ public final class ViolationProcessor {
   }
 
   private void processViolationEvent(
-    ViolationContext violationContext
+    de.jpx3.intave.violation.ViolationContext violationContext
   ) {
     if (violationContext.completed()) {
       return;
@@ -124,7 +125,7 @@ public final class ViolationProcessor {
   }
 
   private void processViolationOverflow(
-    ViolationContext violationContext
+    de.jpx3.intave.violation.ViolationContext violationContext
   ) {
     if (violationContext.completed()) {
       return;
@@ -143,7 +144,7 @@ public final class ViolationProcessor {
   }
 
   private void processViolationStatistics(
-    ViolationContext violationContext
+    de.jpx3.intave.violation.ViolationContext violationContext
   ) {
     if (violationContext.completed()) {
       return;
@@ -160,7 +161,7 @@ public final class ViolationProcessor {
 
   private final static String LOGGER_MESSAGE_LAYOUT = "%s/%s %s %s(+%s -> %s on %s)";
 
-  private void processViolationVerbose(ViolationContext violationContext) {
+  private void processViolationVerbose(de.jpx3.intave.violation.ViolationContext violationContext) {
     if (violationContext.completed()) {
       return;
     }
@@ -172,8 +173,8 @@ public final class ViolationProcessor {
     broadcastVerbose(player, violationContext);
     // console output
     String trustFactor = user.trustFactor().name().toLowerCase().replace("_", "");
-    String vlAdded = MathHelper.formatDouble((violationContext.violationLevelAfter() - violationContext.violationLevelBefore()), 2);
-    String vlAfterViolation = MathHelper.formatDouble(violationContext.violationLevelAfter(), 2);
+    String vlAdded = formatDouble((violationContext.violationLevelAfter() - violationContext.violationLevelBefore()), 2);
+    String vlAfterViolation = formatDouble(violationContext.violationLevelAfter(), 2);
     String message = violation.message().trim();
     String details = violation.details().isEmpty() ? "" : "(" + violation.details().trim() + ")" + " ";
     String consoleMessage = String.format(
@@ -183,7 +184,7 @@ public final class ViolationProcessor {
     plugin.logger().violation(consoleMessage);
   }
 
-  private void processViolationLevelIncrease(ViolationContext violationContext) {
+  private void processViolationLevelIncrease(de.jpx3.intave.violation.ViolationContext violationContext) {
     if (violationContext.completed()) {
       return;
     }
@@ -198,7 +199,7 @@ public final class ViolationProcessor {
     } catch (Exception ignored) {}
   }
 
-  private void lookupThresholdCommands(ViolationContext violationContext) {
+  private void lookupThresholdCommands(de.jpx3.intave.violation.ViolationContext violationContext) {
     if (violationContext.completed()) {
       return;
     }
@@ -219,7 +220,7 @@ public final class ViolationProcessor {
 
   @Native
   private void processThresholdsEvents(
-    ViolationContext violationContext
+    de.jpx3.intave.violation.ViolationContext violationContext
   ) {
     if (violationContext.completed() || violationContext.commands().isEmpty()) {
       return;
@@ -232,7 +233,7 @@ public final class ViolationProcessor {
     double afterVL = violationContext.violationLevelAfter();
     List<String> newCommands = new ArrayList<>();
     for (String command : violationContext.commands()) {
-      ViolationPlaceholderContext placeholderContext = violationContext.placeholderContextOf(DetailScope.FULL /* automaticallly striped when not enterprise */);
+      ViolationContext placeholderContext = violationContext.placeholderContextOf(DetailScope.FULL /* automaticallly striped when not enterprise */);
       String executedCommand = MessageFormatter.resolveCommandReplacements(player, command, placeholderContext);
       IntaveCommandExecutionEvent commandTriggerEvent = plugin.customEventService().invokeEvent(
         IntaveCommandExecutionEvent.class,
@@ -245,7 +246,7 @@ public final class ViolationProcessor {
     violationContext.setCommands(newCommands);
   }
 
-  private void executeCommands(ViolationContext violationContext) {
+  private void executeCommands(de.jpx3.intave.violation.ViolationContext violationContext) {
     if (violationContext.completed() || violationContext.commands().isEmpty()) {
       return;
     }
@@ -254,7 +255,7 @@ public final class ViolationProcessor {
     }
   }
 
-  private void executeCommand(ViolationContext violationContext, String command) {
+  private void executeCommand(de.jpx3.intave.violation.ViolationContext violationContext, String command) {
     Violation violation = violationContext.violation();
     Player player = violation.findPlayer().orElseThrow(IllegalStateException::new);
     String checkName = violation.check().name().toLowerCase(Locale.ROOT);
@@ -288,7 +289,7 @@ public final class ViolationProcessor {
 
   private final static MessageChannel VERBOSE_MESSAGE_CHANNEL = MessageChannel.VERBOSE;
 
-  public void broadcastVerbose(Player target, ViolationContext violationContext) {
+  public void broadcastVerbose(Player target, de.jpx3.intave.violation.ViolationContext violationContext) {
     String message = MessageFormatter.resolveVerboseMessage(
       target, violationContext.placeholderContextOf(DetailScope.FULL)
     );

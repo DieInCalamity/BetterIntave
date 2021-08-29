@@ -20,7 +20,6 @@ import de.jpx3.intave.module.tracker.entity.LazyEntityCollisionService;
 import de.jpx3.intave.reflect.access.ReflectiveDataWatcherAccess;
 import de.jpx3.intave.reflect.caller.CallerResolver;
 import de.jpx3.intave.reflect.caller.PluginInvocation;
-import de.jpx3.intave.tool.AccessHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserLifetimeService;
 import de.jpx3.intave.user.UserRepository;

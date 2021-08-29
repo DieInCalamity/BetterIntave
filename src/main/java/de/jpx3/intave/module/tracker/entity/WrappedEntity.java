@@ -5,11 +5,11 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
+import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.module.feedback.FeedbackTracker;
 import de.jpx3.intave.module.feedback.PendingCountingFeedbackTracker;
 import de.jpx3.intave.reflect.entity.size.HitboxSize;
 import de.jpx3.intave.reflect.entity.type.EntityTypeData;
-import de.jpx3.intave.tool.AccessHelper;
 import de.jpx3.intave.world.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.world.wrapper.WrappedMathHelper;
 

@@ -4,11 +4,11 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveBootFailureException;
 import de.jpx3.intave.annotate.Native;
+import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.resource.EncryptedResource;
 import de.jpx3.intave.security.ContextSecrets;
 import de.jpx3.intave.security.LicenseAccess;
 import de.jpx3.intave.security.SSLConnectionVerifier;
-import de.jpx3.intave.tool.AccessHelper;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import javax.crypto.Cipher;

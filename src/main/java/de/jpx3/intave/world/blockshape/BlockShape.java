@@ -2,7 +2,7 @@ package de.jpx3.intave.world.blockshape;
 
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.diagnostic.MemoryTraced;
-import de.jpx3.intave.tool.AccessHelper;
+import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.world.blockaccess.BlockVariantRegister;
 import de.jpx3.intave.world.wrapper.WrappedAxisAlignedBB;
 import org.bukkit.Material;

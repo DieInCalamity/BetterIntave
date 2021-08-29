@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Map;
 
-public final class UserContext extends PlaceholderContext {
+public final class UserContext implements PlaceholderContext {
   private final User user;
 
   public UserContext(User user) {

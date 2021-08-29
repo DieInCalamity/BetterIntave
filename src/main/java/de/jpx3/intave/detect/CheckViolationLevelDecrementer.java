@@ -1,7 +1,7 @@
 package de.jpx3.intave.detect;
 
+import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.math.MathHelper;
-import de.jpx3.intave.tool.AccessHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.ViolationMetadata;
 

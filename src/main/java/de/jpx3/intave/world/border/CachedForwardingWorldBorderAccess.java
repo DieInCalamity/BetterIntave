@@ -1,7 +1,7 @@
 package de.jpx3.intave.world.border;
 
 import de.jpx3.intave.cleanup.GarbageCollector;
-import de.jpx3.intave.tool.AccessHelper;
+import de.jpx3.intave.event.AccessHelper;
 import org.bukkit.Location;
 import org.bukkit.World;
 

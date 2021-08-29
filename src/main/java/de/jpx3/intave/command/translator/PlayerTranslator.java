@@ -2,7 +2,7 @@ package de.jpx3.intave.command.translator;
 
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.command.TypeTranslator;
-import de.jpx3.intave.tool.AccessHelper;
+import de.jpx3.intave.event.AccessHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;

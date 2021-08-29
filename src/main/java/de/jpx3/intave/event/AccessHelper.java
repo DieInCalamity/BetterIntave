@@ -1,4 +1,4 @@
-package de.jpx3.intave.tool;
+package de.jpx3.intave.event;
 
 import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
 import org.bukkit.Bukkit;

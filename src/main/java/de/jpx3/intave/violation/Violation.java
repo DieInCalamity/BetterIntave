@@ -3,7 +3,7 @@ package de.jpx3.intave.violation;
 import com.google.common.base.Preconditions;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.Check;
-import de.jpx3.intave.tool.AccessHelper;
+import de.jpx3.intave.event.AccessHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
