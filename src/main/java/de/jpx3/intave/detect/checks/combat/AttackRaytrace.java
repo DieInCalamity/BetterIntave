@@ -93,11 +93,9 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
           }
         }
       }
-
       if (checkAgain) {
         event.setCancelled(true);
       }
-
       Attack attack = new Attack(packetClone, entityId, checkAgain);
       List<Attack> pendingAttacks = attackRaytraceMeta.pendingAttacks;
       if (pendingAttacks.size() < 4) {
@@ -146,9 +144,10 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
         // stops raytrace if the entity is null or the player is in the death screen
         boolean entityIsAlive = unsynchronizedHealth > 0 && !(entity instanceof WrappedEntity.Destroyed);
         boolean entityHasNotTimedOut = pendingFeedbackPackets < maximumPendingFeedbackPackets;
+//        player.sendMessage(remainingAttack + " " + entity.typeData.name());
 
         if (entityIsAlive && entityHasNotTimedOut) {
-          if (entity.mountedEntity() == null && !player.isInsideVehicle() && entity.entityTypeData.isLivingEntity() && !abilityData.ignoringMovementPackets()) {
+          if (entity.mountedEntity() == null && !player.isInsideVehicle() && entity.typeData.isLivingEntity() && !abilityData.ignoringMovementPackets()) {
             if (clientData.protocolVersion() >= VER_1_9) {
               // >= 1.9.x
               if (entity.clientSynchronized
@@ -341,6 +340,8 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
       }
     });
 
+//    player.sendMessage(attackRaytraceResult + " " + distanceOfResult.reach);
+
     attackRaytraceMeta.lastHitVec = distanceOfResult.hitVec;
 //    if (movementData.inVehicle()) {
 //      message += " (vehicle)";
@@ -460,7 +461,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     int maximumPendingFeedbackPackets = trustFactorSetting("pending-allowance", player);
     double minReach = 10;
     WrappedEntity clonedEntity = entity.temporaryCopy();
-    boolean livingEntity = entity.entityTypeData.isLivingEntity();
+    boolean livingEntity = entity.typeData.isLivingEntity();
     List<WrappedEntity.EntityPositionContext> positionHistory = clonedEntity.positionHistory;
     int from = positionHistory.size() - 1;
     for (int i = from; i >= 0; i--) {

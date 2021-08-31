@@ -211,8 +211,8 @@ public final class EntityTypeResolver {
   }
 
   private EntityTypeData convertHitboxBoundariesToBaby(EntityTypeData entityTypeData) {
-    HitboxSize hitBoxSize = HitboxSize.of(entityTypeData.hitBoxBoundaries().width() * 0.5f, entityTypeData.hitBoxBoundaries().length() * 0.5f);
-    return new EntityTypeData(entityTypeData.entityName(), hitBoxSize, entityTypeData.entityTypeId(), entityTypeData.isLivingEntity());
+    HitboxSize hitBoxSize = HitboxSize.of(entityTypeData.size().width() * 0.5f, entityTypeData.size().length() * 0.5f);
+    return new EntityTypeData(entityTypeData.name(), hitBoxSize, entityTypeData.identifier(), entityTypeData.isLivingEntity());
   }
 
   public HitboxSize hitBoxBoundariesByBukkitEntity(Entity bukkitEntity) {

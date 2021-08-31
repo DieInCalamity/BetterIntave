@@ -28,7 +28,7 @@ public class WrappedEntity {
   private static WrappedEntity DESTROYED_ENTITY;
   private final static boolean NEW_POSITION_PROCESSING_1_9 = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
   private final static boolean NEW_POSITION_PROCESSING_1_14 = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_14_0);
-  public EntityTypeData entityTypeData;
+  public EntityTypeData typeData;
 
   private final int entityId;
 
@@ -71,12 +71,12 @@ public class WrappedEntity {
 
   public WrappedEntity(
     int entityId,
-    EntityTypeData entityTypeData,
+    EntityTypeData typeData,
     boolean player
   ) {
     this.player = player;
     this.entityId = entityId;
-    this.entityTypeData = entityTypeData;
+    this.typeData = typeData;
 
     this.position = new EntityPositionContext();
     this.lastPosition = new EntityPositionContext();
@@ -126,7 +126,7 @@ public class WrappedEntity {
    * FLYING, LOOK, POSITION, POSITION_LOOK
    */
   void onLivingUpdate() {
-    if (entityTypeData.isLivingEntity() && position.newPosRotationIncrements > 0) {
+    if (typeData.isLivingEntity() && position.newPosRotationIncrements > 0) {
       double newPosX = position.posX + (position.newPosX - position.posX) / (double) position.newPosRotationIncrements;
       double newPosY = position.posY + (position.newPosY - position.posY) / (double) position.newPosRotationIncrements;
       double shiftedNewY = alternativePosition.posY + (alternativePosition.newPosY - alternativePosition.posY) / (double) position.newPosRotationIncrements;
@@ -294,7 +294,7 @@ public class WrappedEntity {
    * @param newPosRotationIncrements the value which is used to interpolate the movement of the entity in new ticks
    */
   public void setPositionAndRotationEntityLiving(double x, double y, double z, int newPosRotationIncrements) {
-    if (!entityTypeData.isLivingEntity()) {
+    if (!typeData.isLivingEntity()) {
       setPosition(x, y, z);
       return;
     }
@@ -306,7 +306,7 @@ public class WrappedEntity {
   }
 
   public void setPositionAndRotationEntityLiving(double alternativeY) {
-    if (!entityTypeData.isLivingEntity()) {
+    if (!typeData.isLivingEntity()) {
       setShiftedPositionY(alternativeY);
       return;
     }
@@ -354,7 +354,7 @@ public class WrappedEntity {
    * Returns the type name of this entity.
    */
   public String entityName() {
-    return entityTypeData.entityName();
+    return typeData.name();
   }
 
   public int entityId() {
@@ -375,7 +375,7 @@ public class WrappedEntity {
   }
 
   public WrappedEntity temporaryCopy()  {
-    WrappedEntity clone = new WrappedEntity(entityId, entityTypeData, player);
+    WrappedEntity clone = new WrappedEntity(entityId, typeData, player);
     clone.temporaryCopy = true;
     clone.position = position.clone();
     clone.alternativePosition = alternativePosition.clone();
@@ -388,8 +388,8 @@ public class WrappedEntity {
     double y = position.posY;
     double z = position.posZ;
 
-    double halfWidth = entity.entityTypeData.hitBoxBoundaries().width() / 2.0;
-    double length = entity.entityTypeData.hitBoxBoundaries().length();
+    double halfWidth = entity.typeData.size().width() / 2.0;
+    double length = entity.typeData.size().length();
     return new WrappedAxisAlignedBB(
       x - halfWidth, y, z - halfWidth,
       x + halfWidth, y + length, z + halfWidth

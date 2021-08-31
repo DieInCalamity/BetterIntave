@@ -131,7 +131,7 @@ public final class BlockUpdateTracker extends Module {
     changes.close();
 
     World world = player.getWorld();
-    FeedbackCallback<Void> process = (player1, target) -> {
+    FeedbackCallback<Object> process = (player1, target) -> {
       OCBlockShapeAccess blockShapeAccess = UserRepository.userOf(player1).blockShapeAccess();
       for (int i = 0; i < blockPositions.size(); i++) {
         BlockPosition blockPosition = blockPositions.get(i);

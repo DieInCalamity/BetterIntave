@@ -120,7 +120,7 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
     AttackMetadata attackData = user.meta().attack();
     ProtocolMetadata clientData = user.meta().protocol();
     WrappedEntity entity = attackData.lastAttackedEntity();
-    if (entity == null || !entity.clientSynchronized || !entity.entityTypeData.isLivingEntity() || !entity.entityTypeData.isLivingEntity()) {
+    if (entity == null || !entity.clientSynchronized || !entity.typeData.isLivingEntity() || !entity.typeData.isLivingEntity()) {
       return;
     }
     if (clientData.protocolVersion() != VER_1_8) {

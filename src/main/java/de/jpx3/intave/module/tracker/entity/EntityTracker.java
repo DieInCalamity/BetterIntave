@@ -95,7 +95,7 @@ public final class EntityTracker extends Module {
     List<WrappedEntity> validEntities = new ArrayList<>();
     for (WrappedEntity entity : synchronizeData.entities().values()) {
       boolean firstSurvive = false;
-      if (entity.entityTypeData != null && entity.entityTypeData.isLivingEntity()) {
+      if (entity.typeData != null && entity.typeData.isLivingEntity()) {
         WrappedEntity.EntityPositionContext positions = entity.position;
         location.setX(positions.posX);
         location.setY(positions.posY);
@@ -364,7 +364,7 @@ public final class EntityTracker extends Module {
 
     if(entity == null) return;
 
-    if (entity.entityTypeData.isLivingEntity() && entity.tracingEnabled()) {
+    if (entity.typeData.isLivingEntity() && entity.tracingEnabled()) {
       FeedbackCallback<PacketEvent> task = (player1, event1) -> {
         entity.verifiedPosition = false;
         entity.handleEntityTeleport(packet);
@@ -422,7 +422,7 @@ public final class EntityTracker extends Module {
 
     if(entity == null) return;
 
-    if (entity.entityTypeData.isLivingEntity() && entity.tracingEnabled()) {
+    if (entity.typeData.isLivingEntity() && entity.tracingEnabled()) {
       FeedbackCallback<PacketEvent> task = (player1, event1) -> {
         entity.verifiedPosition = false;
         entity.handleEntityMovement(packet);
@@ -562,7 +562,7 @@ public final class EntityTracker extends Module {
     boolean player
   ) {
     WrappedEntity entity;
-    if (entityTypeData.entityName() != null && entityTypeData.entityName().contains("Firework")) {
+    if (entityTypeData.name() != null && entityTypeData.name().contains("Firework")) {
       entity = new WrappedEntityFirework(user, entityId, entityTypeData);
     } else {
       entity = new WrappedEntity(entityId, entityTypeData, player);
@@ -624,16 +624,16 @@ public final class EntityTracker extends Module {
     if (entity == null) {
       return;
     }
-    if (!entity.entityTypeData.isLivingEntity()) {
+    if (!entity.typeData.isLivingEntity()) {
       return;
     }
 
     List<WrappedWatchableObject> watchableObjects = packet.getWatchableCollectionModifier().read(0);
     if (watchableObjects != null) {
-      int entityTypeId = entity.entityTypeData.entityTypeId();
+      int entityTypeId = entity.typeData.identifier();
       EntityTypeData entityTypeData = entityTypeResolver.entityTypeDataOfEntityMetaData(event, entityTypeId, watchableObjects);
       if (entityTypeData != null) {
-        entity.entityTypeData = entityTypeData;
+        entity.typeData = entityTypeData;
       } else {
 //        IntaveLogger.logger().info("Unable to update entity metadata of entity " + entityId + " of type " + entityTypeId);
       }
