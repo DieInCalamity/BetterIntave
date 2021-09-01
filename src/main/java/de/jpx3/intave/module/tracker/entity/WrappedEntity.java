@@ -415,7 +415,7 @@ public class WrappedEntity {
 
   public static final class Destroyed extends WrappedEntity {
     public Destroyed() {
-      super(0, new EntityTypeData("destroyed", HitboxSize.zero(),-1, false), false);
+      super(0, new EntityTypeData("destroyed", HitboxSize.zero(),-1, false, 8), false);
     }
 
     @Override

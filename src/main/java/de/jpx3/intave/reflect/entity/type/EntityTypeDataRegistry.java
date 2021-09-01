@@ -74,11 +74,11 @@ final class EntityTypeDataRegistry implements EntityTypeDataResolver {
   }
 
   private static void registerLivingEntity(int identifier, String name, HitboxSize dimensions) {
-    entityTypeRegister.put(identifier, new EntityTypeData(name, dimensions, identifier, true));
+    entityTypeRegister.put(identifier, new EntityTypeData(name, dimensions, identifier, true, 9));
   }
 
   private static void registerTileEntity(int identifier, String name, HitboxSize dimensions) {
-    entityTypeRegister.put(identifier, new EntityTypeData(name, dimensions, identifier, false));
+    entityTypeRegister.put(identifier, new EntityTypeData(name, dimensions, identifier, false, 10));
   }
 
   @Override

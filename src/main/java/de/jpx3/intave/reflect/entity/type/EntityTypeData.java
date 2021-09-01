@@ -7,12 +7,14 @@ public final class EntityTypeData {
   private final HitboxSize hitBoxSize;
   private final int entityTypeId;
   private final boolean isLivingEntity;
+  public final int creationID;
 
-  public EntityTypeData(String entityName, HitboxSize hitBoxSize, int entityTypeId, boolean isLivingEntity) {
+  public EntityTypeData(String entityName, HitboxSize hitBoxSize, int entityTypeId, boolean isLivingEntity, int creationID) {
     this.entityName = entityName;
     this.hitBoxSize = hitBoxSize;
     this.entityTypeId = entityTypeId;
     this.isLivingEntity = isLivingEntity;
+    this.creationID = creationID;
   }
 
   public boolean isLivingEntity() {
