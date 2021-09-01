@@ -48,7 +48,7 @@ final class ServerEntityTypeDataLookup implements EntityTypeDataResolver {
   public EntityTypeData resolveFor(int entityType, boolean isLivingEntity) {
     String entityName = nameOf(entityType);
     HitboxSize hitBoxSize = dimensionsOf(entityType);
-    return new EntityTypeData(entityName, hitBoxSize, entityType, isLivingEntity);
+    return new EntityTypeData(entityName, hitBoxSize, entityType, isLivingEntity, 11);
   }
 
   @PatchyAutoTranslation

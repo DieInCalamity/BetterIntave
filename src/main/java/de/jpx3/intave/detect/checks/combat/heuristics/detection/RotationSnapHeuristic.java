@@ -291,7 +291,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
       Anomaly anomaly = Anomaly.anomalyOf(key, confidence, Anomaly.Type.KILLAURA, description, anomalyOptions(isPartner()));
       parentCheck().saveAnomaly(player, anomaly);
     } else if(confidence.level() > 0) {
-      description += " nonflag(" + violationToAdd + "/" + confidence.level() +")";
+      description += " nonflag(" + violationToAdd + "/" + confidence.level() + "/" + meta.internalViolation + ")";
       Anomaly anomaly = Anomaly.anomalyOf(key, Confidence.NONE, Anomaly.Type.KILLAURA, description, anomalyOptions(isPartner()));
       parentCheck().saveAnomaly(player, anomaly);
     }

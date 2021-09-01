@@ -244,7 +244,7 @@ public final class EntityTracker extends Module {
 
       HitboxSize hitBoxSize = HitboxSize.player();
       entityIsPlayer = true;
-      entityTypeData = new EntityTypeData(entityName, hitBoxSize, 105, true);
+      entityTypeData = new EntityTypeData(entityName, hitBoxSize, 105, true, 1);
     }
     if (entityTypeData == null) {
       if (IntaveControl.DISABLE_LICENSE_CHECK) {
