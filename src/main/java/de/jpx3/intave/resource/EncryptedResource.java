@@ -3,9 +3,8 @@ package de.jpx3.intave.resource;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.annotate.Native;
-import de.jpx3.intave.event.AccessHelper;
-import de.jpx3.intave.reflect.caller.CallerResolver;
-import de.jpx3.intave.reflect.caller.PluginInvocation;
+import de.jpx3.intave.clazz.trace.Caller;
+import de.jpx3.intave.clazz.trace.PluginInvocation;
 import de.jpx3.intave.security.ContextSecrets;
 import de.jpx3.intave.security.HashAccess;
 
@@ -48,8 +47,8 @@ public final class EncryptedResource implements Resource {
     if (!fileStore().exists()) {
       throw new IllegalStateException();
     }
-    fileStore().setLastModified(AccessHelper.now());
-    PluginInvocation pluginInvocation = CallerResolver.callerPluginInfo();
+    fileStore().setLastModified(System.currentTimeMillis());
+    PluginInvocation pluginInvocation = Caller.pluginInfo();
     if (pluginInvocation != null && !pluginInvocation.pluginName().equals("Intave")) {
       throw new IllegalStateException("Unable to access resource file \"" + resourceId() + "\", is it corrupted?");
     }
@@ -89,7 +88,7 @@ public final class EncryptedResource implements Resource {
       exception.printStackTrace();
       return false;
     }
-    PluginInvocation pluginInvocation = CallerResolver.callerPluginInfo();
+    PluginInvocation pluginInvocation = Caller.pluginInfo();
     if (pluginInvocation == null || !pluginInvocation.pluginName().equals("Intave")) {
       throw new IllegalStateException("Unable to access resource file \"" + resourceId() + "\", is it corrupted?");
     }
@@ -121,7 +120,7 @@ public final class EncryptedResource implements Resource {
       byteBuffer.put(encryptedData);
       ReadableByteChannel byteChannel = Channels.newChannel(new ByteArrayInputStream(byteBuffer.array()));
       fileChannel.transferFrom(byteChannel, 0, Long.MAX_VALUE);
-      file.setLastModified(AccessHelper.now());
+      file.setLastModified(System.currentTimeMillis());
       fileChannel.close();
       removeFileLock(fileChannel);
     } catch (Exception exception) {

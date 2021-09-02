@@ -2,8 +2,8 @@ package de.jpx3.intave.reflect.access;
 
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.reflect.patchy.PatchyLoadingInjector;
-import de.jpx3.intave.reflect.patchy.annotate.PatchyAutoTranslation;
+import de.jpx3.intave.clazz.rewrite.PatchyAutoTranslation;
+import de.jpx3.intave.clazz.rewrite.PatchyLoadingInjector;
 import net.minecraft.server.v1_8_R3.Block;
 
 public final class ReflectiveBlockAccess {

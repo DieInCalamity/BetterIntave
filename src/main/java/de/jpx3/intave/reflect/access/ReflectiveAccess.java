@@ -2,9 +2,9 @@ package de.jpx3.intave.reflect.access;
 
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.reflect.Lookup;
-import de.jpx3.intave.reflect.entity.size.HitboxSizeAccess;
-import de.jpx3.intave.reflect.patchy.PatchyLoadingInjector;
+import de.jpx3.intave.clazz.Lookup;
+import de.jpx3.intave.clazz.rewrite.PatchyLoadingInjector;
+import de.jpx3.intave.entity.size.HitboxSizeAccess;
 
 import java.lang.reflect.Field;
 
@@ -29,9 +29,9 @@ public final class ReflectiveAccess {
 
     // DataWatcher
     if (DATA_WATCHER_NEW_ACCESS_VER) {
-      PatchyLoadingInjector.loadUnloadedClassPatched(classLoader, "de.jpx3.intave.reflect.datawatcher.ModernDataWatcherAccess");
+      PatchyLoadingInjector.loadUnloadedClassPatched(classLoader, "de.jpx3.intave.entity.datawatcher.ModernDataWatcherAccess");
     } else {
-      PatchyLoadingInjector.loadUnloadedClassPatched(classLoader, "de.jpx3.intave.reflect.datawatcher.LegacyDataWatcherAccess");
+      PatchyLoadingInjector.loadUnloadedClassPatched(classLoader, "de.jpx3.intave.entity.datawatcher.LegacyDataWatcherAccess");
     }
   }
 

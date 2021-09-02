@@ -1,9 +1,8 @@
 package de.jpx3.intave.fakeplayer.movement;
 
-import de.jpx3.intave.event.AccessHelper;
-import de.jpx3.intave.world.collider.simple.SimpleColliderSimulationResult;
-import de.jpx3.intave.world.collision.Collision;
-import de.jpx3.intave.world.wrapper.WrappedAxisAlignedBB;
+import de.jpx3.intave.block.collision.Collision;
+import de.jpx3.intave.player.collider.simple.SimpleColliderSimulationResult;
+import de.jpx3.intave.shade.BoundingBox;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -57,7 +56,7 @@ public abstract class Movement extends HeadRotationMovement {
     double startMotionX = this.motionX;
     double startMotionZ = this.motionZ;
     SimpleColliderSimulationResult result = collide(
-      WrappedAxisAlignedBB.createFromPosition(location.getX(), location.getY(), location.getZ()),
+      BoundingBox.fromPosition(location.getX(), location.getY(), location.getZ()),
       motionX, motionY, motionZ
     );
     if (doBlockCollisions()) {
@@ -90,19 +89,19 @@ public abstract class Movement extends HeadRotationMovement {
     this.location.setPitch(this.rotationPitch);
   }
 
-  private SimpleColliderSimulationResult collide(WrappedAxisAlignedBB boundingBox, double motionX, double motionY, double motionZ) {
-    List<WrappedAxisAlignedBB> collisionBoxes = Collision.resolve(location.getWorld(), boundingBox.addCoord(motionX, motionY, motionZ));
+  private SimpleColliderSimulationResult collide(BoundingBox boundingBox, double motionX, double motionY, double motionZ) {
+    List<BoundingBox> collisionBoxes = Collision.resolve(location.getWorld(), boundingBox.addCoord(motionX, motionY, motionZ));
     double startMotionY = motionY;
-    for (WrappedAxisAlignedBB collisionBox : collisionBoxes) {
+    for (BoundingBox collisionBox : collisionBoxes) {
       motionY = collisionBox.calculateYOffset(boundingBox, motionY);
     }
     boundingBox = (boundingBox.offset(0.0D, motionY, 0.0D));
     boolean onGround = startMotionY != motionY && startMotionY < 0.0D;
-    for (WrappedAxisAlignedBB collisionBox : collisionBoxes) {
+    for (BoundingBox collisionBox : collisionBoxes) {
       motionX = collisionBox.calculateXOffset(boundingBox, motionX);
     }
     boundingBox = boundingBox.offset(motionX, 0.0D, 0.0D);
-    for (WrappedAxisAlignedBB collisionBox : collisionBoxes) {
+    for (BoundingBox collisionBox : collisionBoxes) {
       motionZ = collisionBox.calculateZOffset(boundingBox, motionZ);
     }
     return new SimpleColliderSimulationResult(motionX, motionY, motionZ, onGround, startMotionY != motionY);
@@ -154,6 +153,6 @@ public abstract class Movement extends HeadRotationMovement {
   }
 
   public boolean moveOnTopOfPlayer() {
-    return AccessHelper.now() - this.moveOnTopOfPlayerTime < 7000;
+    return System.currentTimeMillis() - this.moveOnTopOfPlayerTime < 7000;
   }
 }

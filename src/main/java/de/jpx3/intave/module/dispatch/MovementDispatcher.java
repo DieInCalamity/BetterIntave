@@ -7,12 +7,12 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.Relocate;
-import de.jpx3.intave.detect.CheckService;
-import de.jpx3.intave.detect.checks.movement.Physics;
-import de.jpx3.intave.detect.checks.movement.Timer;
-import de.jpx3.intave.detect.checks.movement.physics.Pose;
-import de.jpx3.intave.detect.checks.world.InteractionRaytrace;
-import de.jpx3.intave.event.AccessHelper;
+import de.jpx3.intave.block.collision.Collision;
+import de.jpx3.intave.check.CheckService;
+import de.jpx3.intave.check.movement.Physics;
+import de.jpx3.intave.check.movement.Timer;
+import de.jpx3.intave.check.movement.physics.Pose;
+import de.jpx3.intave.check.world.InteractionRaytrace;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.fakeplayer.FakePlayer;
 import de.jpx3.intave.math.MathHelper;
@@ -27,12 +27,11 @@ import de.jpx3.intave.module.linker.packet.PrioritySlot;
 import de.jpx3.intave.module.tracker.entity.WrappedEntity;
 import de.jpx3.intave.packet.converter.PlayerAction;
 import de.jpx3.intave.packet.converter.PlayerActionResolver;
+import de.jpx3.intave.shade.BoundingBox;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.*;
 import de.jpx3.intave.violation.Violation;
-import de.jpx3.intave.world.collision.Collision;
-import de.jpx3.intave.world.wrapper.WrappedAxisAlignedBB;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
@@ -110,10 +109,10 @@ public final class MovementDispatcher extends Module {
     Player player = respawn.getPlayer();
     User user = UserRepository.userOf(player);
     Location respawnLocation = respawn.getRespawnLocation().clone();
-    WrappedAxisAlignedBB bb = WrappedAxisAlignedBB.createFromPosition(user, respawnLocation);
+    BoundingBox bb = BoundingBox.fromPosition(user, respawnLocation);
     while (respawnLocation.getY() < 256 && Collision.isInsideBlocks(player, bb)) {
       respawnLocation.add(0, 1, 0);
-      bb = WrappedAxisAlignedBB.createFromPosition(user, respawnLocation);
+      bb = BoundingBox.fromPosition(user, respawnLocation);
     }
     respawn.setRespawnLocation(respawnLocation);
   }
@@ -449,7 +448,7 @@ public final class MovementDispatcher extends Module {
       movementData.pastInventoryOpen++;
     }
     if (movementData.physicsJumped) {
-      movementData.lastJumpTimestamps = AccessHelper.now();
+      movementData.lastJumpTimestamps = System.currentTimeMillis();
     }
     inventoryData.pastHotBarSlotChange++;
     inventoryData.pastItemUsageTransition++;
@@ -491,7 +490,7 @@ public final class MovementDispatcher extends Module {
     }
 
     updateSize(user);
-    movementData.applyClientKeys = false;
+    movementData.externalKeyApply = false;
   }
 
   private void updateSize(User user) {
@@ -516,7 +515,7 @@ public final class MovementDispatcher extends Module {
     int strafeKey = (int) (packet.getFloat().read(0) / 0.98f);
     int forwardKey = (int) (packet.getFloat().read(1) / 0.98f);
     Boolean jumping = packet.getBooleans().read(0);
-    movementData.applyClientKeys = true;
+    movementData.externalKeyApply = true;
     movementData.clientStrafeKey = strafeKey;
     movementData.clientInputKey = forwardKey;
     movementData.clientPressedJump = jumping;
@@ -678,14 +677,14 @@ public final class MovementDispatcher extends Module {
         break;
       case PRESS_SHIFT_KEY:
       case START_SNEAKING:
-        if (AccessHelper.now() - punishmentData.timeLastSneakToggleCancel < 1000) {
+        if (System.currentTimeMillis() - punishmentData.timeLastSneakToggleCancel < 1000) {
           event.setCancelled(true);
         }
         if (movementData.hasRidingEntity()) {
           movementData.dismountRidingEntity();
           movementData.sneaking = false;
         }
-        movementData.lastSneakingTimestamps = AccessHelper.now();
+        movementData.lastSneakingTimestamps = System.currentTimeMillis();
         movementData.sneaking = true;
         break;
       case RELEASE_SHIFT_KEY:

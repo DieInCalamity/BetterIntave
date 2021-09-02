@@ -8,7 +8,7 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedAttribute;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.refactoring.SplitMeUp;
-import de.jpx3.intave.detect.checks.combat.Heuristics;
+import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.fakeplayer.FakePlayer;
 import de.jpx3.intave.module.Module;

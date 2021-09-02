@@ -4,7 +4,6 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveBootFailureException;
 import de.jpx3.intave.annotate.Native;
-import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.resource.EncryptedResource;
 import de.jpx3.intave.security.ContextSecrets;
 import de.jpx3.intave.security.LicenseAccess;
@@ -213,7 +212,7 @@ public final class ConfigurationLoader {
       if (!configurationCache.exists()) {
         throw new IllegalStateException();
       }
-      configurationCache.setLastModified(AccessHelper.now());
+      configurationCache.setLastModified(System.currentTimeMillis());
       FileInputStream fileInputStream = new FileInputStream(configurationCache);
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
       byte[] buf = new byte[4096];

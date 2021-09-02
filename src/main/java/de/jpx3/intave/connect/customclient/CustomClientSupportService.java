@@ -10,12 +10,11 @@ import com.google.gson.JsonParser;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
+import de.jpx3.intave.check.EventProcessor;
+import de.jpx3.intave.clazz.Lookup;
 import de.jpx3.intave.connect.sibyl.LabyModChannelHelper;
-import de.jpx3.intave.detect.EventProcessor;
-import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
-import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.ConnectionMetadata;
@@ -79,9 +78,9 @@ public final class CustomClientSupportService implements EventProcessor {
       if (messageKey.equalsIgnoreCase("clientconfig")) {
         User user = UserRepository.userOf(player);
         ConnectionMetadata connectionData = user.meta().connection();
-        if (AccessHelper.now() - connectionData.lastCCCInfoMessageSent > 4000) {
+        if (System.currentTimeMillis() - connectionData.lastCCCInfoMessageSent > 4000) {
           IntaveLogger.logger().info(player.getName() + " has sent a custom client configuration (client has special Intave support)");
-          connectionData.lastCCCInfoMessageSent = AccessHelper.now();
+          connectionData.lastCCCInfoMessageSent = System.currentTimeMillis();
         }
         String messageContent = LabyModChannelHelper.readString(bytes, 32767);
         JsonElement jsonElement = jsonParser.parse(messageContent);

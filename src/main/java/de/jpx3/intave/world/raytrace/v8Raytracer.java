@@ -1,12 +1,12 @@
 package de.jpx3.intave.world.raytrace;
 
-import de.jpx3.intave.reflect.patchy.annotate.PatchyAutoTranslation;
-import de.jpx3.intave.reflect.patchy.annotate.PatchyTranslateParameters;
+import de.jpx3.intave.block.shape.BlockShape;
+import de.jpx3.intave.block.shape.OCBlockShapeAccess;
+import de.jpx3.intave.clazz.rewrite.PatchyAutoTranslation;
+import de.jpx3.intave.clazz.rewrite.PatchyTranslateParameters;
+import de.jpx3.intave.shade.MovingObjectPosition;
+import de.jpx3.intave.shade.NativeVector;
 import de.jpx3.intave.user.UserRepository;
-import de.jpx3.intave.world.blockshape.BlockShape;
-import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
-import de.jpx3.intave.world.wrapper.WrappedMovingObjectPosition;
-import de.jpx3.intave.world.wrapper.WrappedVector;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
@@ -16,27 +16,27 @@ import org.bukkit.entity.Player;
 public final class v8Raytracer implements Raytracer {
   @Override
   @PatchyAutoTranslation
-  public WrappedMovingObjectPosition raytrace(World world, Player player, WrappedVector eyeVector, WrappedVector targetVector) {
+  public MovingObjectPosition raytrace(World world, Player player, NativeVector eyeVector, NativeVector targetVector) {
     WorldServer handle = ((CraftWorld) world).getHandle();
     Vec3D nativeEyeVector = (Vec3D) eyeVector.convertToNativeVec3();
     Vec3D nativeTargetVector = (Vec3D) targetVector.convertToNativeVec3();
-    MovingObjectPosition movingObjectPosition = performRaytrace(player, handle, nativeEyeVector, nativeTargetVector);
-    return WrappedMovingObjectPosition.fromNativeMovingObjectPosition(movingObjectPosition);
+    net.minecraft.server.v1_8_R3.MovingObjectPosition movingObjectPosition = performRaytrace(player, handle, nativeEyeVector, nativeTargetVector);
+    return MovingObjectPosition.fromNativeMovingObjectPosition(movingObjectPosition);
   }
 
   @PatchyAutoTranslation
   @PatchyTranslateParameters
-  private MovingObjectPosition performRaytrace(
+  private net.minecraft.server.v1_8_R3.MovingObjectPosition performRaytrace(
     Player player, WorldServer world,
     Vec3D nativeLookVector, Vec3D nativePosition
   ) {
-    WrappedVector lookVector = WrappedVector.fromNative(nativeLookVector);
-    WrappedVector position = WrappedVector.fromNative(nativePosition);
+    NativeVector lookVector = NativeVector.fromNative(nativeLookVector);
+    NativeVector position = NativeVector.fromNative(nativePosition);
     if (includesInvalidCoordinate(lookVector) || includesInvalidCoordinate(position)) {
       return null;
     }
 
-    MovingObjectPosition movingobjectposition;
+    net.minecraft.server.v1_8_R3.MovingObjectPosition movingobjectposition;
     int positionX = MathHelper.floor(position.xCoord);
     int positionY = MathHelper.floor(position.yCoord);
     int positionZ = MathHelper.floor(position.zCoord);
@@ -48,7 +48,7 @@ public final class v8Raytracer implements Raytracer {
     IBlockData iblockdata = typeOf(player, world, blockposition);//world.getType(blockposition);
     Block block = iblockdata.getBlock();
     if (block.a(iblockdata, false) &&
-      (movingobjectposition = (MovingObjectPosition) movingObjectPosition(world, block, blockposition, (Vec3D) lookVector.convertToNativeVec3(), (Vec3D) position.convertToNativeVec3())) != null
+      (movingobjectposition = (net.minecraft.server.v1_8_R3.MovingObjectPosition) movingObjectPosition(world, block, blockposition, (Vec3D) lookVector.convertToNativeVec3(), (Vec3D) position.convertToNativeVec3())) != null
     ) {
       return movingobjectposition;
     }
@@ -115,13 +115,13 @@ public final class v8Raytracer implements Raytracer {
       }
       if (d3 < d4 && d3 < d5) {
         enumdirection = positionX > lookX ? EnumDirection.WEST : EnumDirection.EAST;
-        lookVector = new WrappedVector(d0, lookVector.yCoord + d7 * d3, lookVector.zCoord + d8 * d3);
+        lookVector = new NativeVector(d0, lookVector.yCoord + d7 * d3, lookVector.zCoord + d8 * d3);
       } else if (d4 < d5) {
         enumdirection = positionY > lookY ? EnumDirection.DOWN : EnumDirection.UP;
-        lookVector = new WrappedVector(lookVector.xCoord + d6 * d4, d1, lookVector.zCoord + d8 * d4);
+        lookVector = new NativeVector(lookVector.xCoord + d6 * d4, d1, lookVector.zCoord + d8 * d4);
       } else {
         enumdirection = positionZ > lookZ ? EnumDirection.NORTH : EnumDirection.SOUTH;
-        lookVector = new WrappedVector(lookVector.xCoord + d6 * d5, lookVector.yCoord + d7 * d5, d2);
+        lookVector = new NativeVector(lookVector.xCoord + d6 * d5, lookVector.yCoord + d7 * d5, d2);
       }
       lookX = MathHelper.floor(lookVector.xCoord) - (enumdirection == EnumDirection.EAST ? 1 : 0);
       lookY = MathHelper.floor(lookVector.yCoord) - (enumdirection == EnumDirection.UP ? 1 : 0);
@@ -132,7 +132,7 @@ public final class v8Raytracer implements Raytracer {
 
       // block1.a refers to getCollisionBoundingBox
       if (block1.a(iblockdata1, false)) {
-        MovingObjectPosition movingobjectposition2 = (MovingObjectPosition) movingObjectPosition(world, block1, blockposition, (Vec3D) lookVector.convertToNativeVec3(), (Vec3D) position.convertToNativeVec3());
+        net.minecraft.server.v1_8_R3.MovingObjectPosition movingobjectposition2 = (net.minecraft.server.v1_8_R3.MovingObjectPosition) movingObjectPosition(world, block1, blockposition, (Vec3D) lookVector.convertToNativeVec3(), (Vec3D) position.convertToNativeVec3());
         if (movingobjectposition2 != null) {
           return movingobjectposition2;
         }
@@ -163,7 +163,7 @@ public final class v8Raytracer implements Raytracer {
     }
   }
 
-  private boolean includesInvalidCoordinate(WrappedVector wrappedVector) {
-    return Double.isNaN(wrappedVector.xCoord) || Double.isNaN(wrappedVector.yCoord) || Double.isNaN(wrappedVector.zCoord);
+  private boolean includesInvalidCoordinate(NativeVector nativeVector) {
+    return Double.isNaN(nativeVector.xCoord) || Double.isNaN(nativeVector.yCoord) || Double.isNaN(nativeVector.zCoord);
   }
 }

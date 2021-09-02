@@ -1,7 +1,7 @@
 package de.jpx3.intave.reflect.access;
 
 import com.google.common.collect.Lists;
-import de.jpx3.intave.reflect.patchy.annotate.PatchyAutoTranslation;
+import de.jpx3.intave.clazz.rewrite.PatchyAutoTranslation;
 
 import java.util.List;
 import java.util.UUID;

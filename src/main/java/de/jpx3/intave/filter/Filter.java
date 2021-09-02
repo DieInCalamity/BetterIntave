@@ -1,7 +1,7 @@
 package de.jpx3.intave.filter;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.detect.EventProcessor;
+import de.jpx3.intave.check.EventProcessor;
 
 public class Filter implements EventProcessor {
   private final String name;

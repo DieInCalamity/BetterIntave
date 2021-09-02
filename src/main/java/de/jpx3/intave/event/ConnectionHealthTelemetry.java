@@ -5,6 +5,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
 import de.jpx3.intave.executor.TaskTracker;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.linker.packet.PacketEventSubscriber;
@@ -19,6 +20,7 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.Map;
 
+@IdoNotBelongHere
 public final class ConnectionHealthTelemetry implements PacketEventSubscriber {
   private final IntavePlugin plugin;
   private final static long TIMEOUT_DURATION = 1000 * 30;
@@ -29,7 +31,7 @@ public final class ConnectionHealthTelemetry implements PacketEventSubscriber {
     int taskId = this.plugin.getServer().getScheduler().scheduleAsyncRepeatingTask(plugin, () -> {
       for (Player player : Bukkit.getOnlinePlayers()) {
         User user = UserRepository.userOf(player);
-        long dur = AccessHelper.now() - lastKeepAliveResponse(user);
+        long dur = System.currentTimeMillis() - lastKeepAliveResponse(user);
         if (TIMEOUT_DURATION < dur) {
           IntaveLogger.logger().pushPrintln("[Intave] " + player.getName() + " was not responding to keep-alive packets for at least 30 seconds");
           user.synchronizedDisconnect("Timed out");
@@ -65,7 +67,7 @@ public final class ConnectionHealthTelemetry implements PacketEventSubscriber {
   private long lastKeepAliveResponse(User user) {
     ConnectionMetadata synchronizeData = user.meta().connection();
     Map<Long, Long> remainingPingPackets = synchronizeData.pingPackets();
-    long last = AccessHelper.now();
+    long last = System.currentTimeMillis();
     for (Long value : remainingPingPackets.values()) {
       last = Math.min(value, last);
     }
@@ -87,7 +89,7 @@ public final class ConnectionHealthTelemetry implements PacketEventSubscriber {
     } else {
       id = packet.getIntegers().read(0);
     }
-    user.meta().connection().pingPackets().put(id, AccessHelper.now());
+    user.meta().connection().pingPackets().put(id, System.currentTimeMillis());
   }
 
   @PacketSubscription(
@@ -114,7 +116,7 @@ public final class ConnectionHealthTelemetry implements PacketEventSubscriber {
     }
     List<Long> differenceBalance = synchronizeData.latencyDifferenceBalance();
     Long timeSent = remainingPingPackets.remove(id);
-    long difference = MathHelper.minmax(0, AccessHelper.now() - timeSent, 1000);
+    long difference = MathHelper.minmax(0, System.currentTimeMillis() - timeSent, 1000);
     synchronizeData.latency = (int) (((synchronizeData.latency * 3d) + difference) / 4d);
     long pingChange = Math.abs(difference - synchronizeData.lastKeepAliveDifference);
     int size = 8;

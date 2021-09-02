@@ -1,7 +1,7 @@
 package de.jpx3.intave.module;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.detect.EventProcessor;
+import de.jpx3.intave.check.EventProcessor;
 
 public abstract class Module implements EventProcessor {
   protected IntavePlugin plugin;

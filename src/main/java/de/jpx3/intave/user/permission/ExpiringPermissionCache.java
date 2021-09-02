@@ -1,7 +1,5 @@
 package de.jpx3.intave.user.permission;
 
-import de.jpx3.intave.event.AccessHelper;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -49,7 +47,7 @@ public final class ExpiringPermissionCache implements PermissionCache {
 
     public void setAccess(boolean access) {
       this.access = access;
-      this.checked = AccessHelper.now();
+      this.checked = System.currentTimeMillis();
     }
 
     public long checked() {
@@ -57,7 +55,7 @@ public final class ExpiringPermissionCache implements PermissionCache {
     }
 
     public boolean expired() {
-      return AccessHelper.now() - checked > duration;
+      return System.currentTimeMillis() - checked > duration;
     }
   }
 }

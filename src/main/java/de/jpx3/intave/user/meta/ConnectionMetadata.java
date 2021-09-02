@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import de.jpx3.intave.annotate.DispatchTarget;
 import de.jpx3.intave.annotate.Relocate;
-import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.module.feedback.FeedbackRequest;
 import de.jpx3.intave.module.tracker.entity.WrappedEntity;
 import org.bukkit.entity.Player;
@@ -35,7 +34,7 @@ public final class ConnectionMetadata {
   public short transactionCounter = Short.MIN_VALUE;
   public long transactionNumCounter = 0;
   public long lastReceivedTransactionNum = -1;
-  public long lastSynchronization = AccessHelper.now();
+  public long lastSynchronization = System.currentTimeMillis();
   public long transactionPacketCounter;
   public long transactionPacketCounterReset;
 
@@ -51,7 +50,7 @@ public final class ConnectionMetadata {
 
   @DispatchTarget
   public void receiveMovement() {
-    long now = AccessHelper.now();
+    long now = System.currentTimeMillis();
     if (this.lastMovementTimestamps != 0) {
       long difference = now - lastMovementTimestamps;
       movementLagSpikeHistory.add(difference);

@@ -1,7 +1,7 @@
 package de.jpx3.intave.packet.converter;
 
 import com.comphenix.protocol.events.PacketContainer;
-import de.jpx3.intave.reflect.Lookup;
+import de.jpx3.intave.clazz.Lookup;
 
 public final class PlayerActionResolver {
   private final static Class<?> SERVER_CLASS = Lookup.serverClass("PacketPlayInEntityAction$EnumPlayerAction");

@@ -5,14 +5,13 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
-import de.jpx3.intave.event.AccessHelper;
+import de.jpx3.intave.entity.size.HitboxSize;
+import de.jpx3.intave.entity.type.EntityTypeData;
 import de.jpx3.intave.math.Hypot;
 import de.jpx3.intave.module.feedback.FeedbackTracker;
 import de.jpx3.intave.module.feedback.PendingCountingFeedbackTracker;
-import de.jpx3.intave.reflect.entity.size.HitboxSize;
-import de.jpx3.intave.reflect.entity.type.EntityTypeData;
-import de.jpx3.intave.world.wrapper.WrappedAxisAlignedBB;
-import de.jpx3.intave.world.wrapper.WrappedMathHelper;
+import de.jpx3.intave.shade.BoundingBox;
+import de.jpx3.intave.shade.WrappedMathHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +57,7 @@ public class WrappedEntity {
   public final boolean player;
   private int deathTime;
   private WrappedEntity mountedOnEntity;
-  private WrappedAxisAlignedBB boundingBox;
+  private BoundingBox boundingBox;
   private boolean enabledResponseTracing;
 
   /**
@@ -90,7 +89,7 @@ public class WrappedEntity {
     public double newPosX, newPosY, newPosZ;
     public int newPosRotationIncrements;
 
-    public final long created = AccessHelper.now();
+    public final long created = System.currentTimeMillis();
 
     @Override
     public EntityPositionContext clone()  {
@@ -247,7 +246,7 @@ public class WrappedEntity {
   }
 
   /**
-   * Used to set the position of an entity and moves its {@link WrappedAxisAlignedBB}. On the client side this is also
+   * Used to set the position of an entity and moves its {@link BoundingBox}. On the client side this is also
    * applied for rotation changes.
    */
   public void setPositionAndRotationSpawnMob(double x, double y, double z, double alternativeY) {
@@ -362,11 +361,11 @@ public class WrappedEntity {
   }
 
   /**
-   * Resolves the current {@link WrappedAxisAlignedBB} of the entity.
+   * Resolves the current {@link BoundingBox} of the entity.
    *
-   * @return the {@link WrappedAxisAlignedBB}
+   * @return the {@link BoundingBox}
    */
-  public WrappedAxisAlignedBB entityBoundingBox() {
+  public BoundingBox entityBoundingBox() {
     if (boundingBox != null) {
       return boundingBox;
     }
@@ -383,14 +382,14 @@ public class WrappedEntity {
     return clone;
   }
 
-  public static WrappedAxisAlignedBB entityBoundingBoxFrom(EntityPositionContext position, WrappedEntity entity) {
+  public static BoundingBox entityBoundingBoxFrom(EntityPositionContext position, WrappedEntity entity) {
     double x = position.posX;
     double y = position.posY;
     double z = position.posZ;
 
     double halfWidth = entity.typeData.size().width() / 2.0;
     double length = entity.typeData.size().length();
-    return new WrappedAxisAlignedBB(
+    return new BoundingBox(
       x - halfWidth, y, z - halfWidth,
       x + halfWidth, y + length, z + halfWidth
     );

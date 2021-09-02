@@ -1,7 +1,6 @@
 package de.jpx3.intave.world.border;
 
 import de.jpx3.intave.cleanup.GarbageCollector;
-import de.jpx3.intave.event.AccessHelper;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -41,16 +40,16 @@ public final class CachedForwardingWorldBorderAccess implements WorldBorderAcces
 
     public WorldBorderAccessCache(T target) {
       this.target = target;
-      this.time = AccessHelper.now();
+      this.time = System.currentTimeMillis();
     }
 
     public void typeFlush(T newValue) {
       target = newValue;
-      time = AccessHelper.now();
+      time = System.currentTimeMillis();
     }
 
     public boolean expired() {
-      return AccessHelper.now() - time > CACHE_EXPIRY;
+      return System.currentTimeMillis() - time > CACHE_EXPIRY;
     }
 
     public T target() {

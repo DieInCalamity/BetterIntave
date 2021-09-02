@@ -5,7 +5,7 @@ import com.google.common.collect.Maps;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.check.CheckStatisticsAccess;
 import de.jpx3.intave.access.check.UnknownCheckException;
-import de.jpx3.intave.detect.Check;
+import de.jpx3.intave.check.Check;
 
 import java.util.Map;
 

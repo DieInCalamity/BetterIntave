@@ -5,7 +5,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.cleanup.GarbageCollector;
-import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
@@ -62,10 +61,10 @@ public final class ClientWarningModule extends Module {
   @Native
   private void warn(Player player, ClientData clientData) {
     Long lastInformation = lastInformationPrinted.computeIfAbsent(player.getUniqueId(), uuid -> 0L);
-    if (AccessHelper.now() - lastInformation < 1000) {
+    if (System.currentTimeMillis() - lastInformation < 1000) {
       return;
     }
-    lastInformationPrinted.put(player.getUniqueId(), AccessHelper.now());
+    lastInformationPrinted.put(player.getUniqueId(), System.currentTimeMillis());
 
     String message = ChatColor.RED + "[CW] " + player.getName() + " joined with " + clientData.name();
     for (Player authenticatedPlayer : Bukkit.getOnlinePlayers()) {

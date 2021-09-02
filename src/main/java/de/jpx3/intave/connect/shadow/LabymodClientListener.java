@@ -5,10 +5,10 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.clazz.Lookup;
 import de.jpx3.intave.connect.sibyl.LabyModChannelHelper;
 import de.jpx3.intave.module.linker.packet.PacketEventSubscriber;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
-import de.jpx3.intave.reflect.Lookup;
 import io.netty.buffer.ByteBuf;
 import org.bukkit.entity.Player;
 

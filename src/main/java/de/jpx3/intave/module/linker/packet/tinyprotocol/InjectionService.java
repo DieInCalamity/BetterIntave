@@ -2,7 +2,7 @@ package de.jpx3.intave.module.linker.packet.tinyprotocol;
 
 import com.comphenix.protocol.PacketType;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.detect.EventProcessor;
+import de.jpx3.intave.check.EventProcessor;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.module.linker.packet.FilteringPacketAdapter;
 import org.bukkit.Bukkit;

@@ -1,7 +1,7 @@
 package de.jpx3.intave.user.meta;
 
-import de.jpx3.intave.detect.MetaCheck;
-import de.jpx3.intave.detect.MetaCheckPart;
+import de.jpx3.intave.check.MetaCheck;
+import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.user.User;
 
 /**

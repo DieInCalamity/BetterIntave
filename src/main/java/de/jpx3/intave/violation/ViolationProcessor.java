@@ -6,10 +6,9 @@ import de.jpx3.intave.access.check.event.IntaveViolationEvent;
 import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.annotate.HighOrderService;
 import de.jpx3.intave.annotate.Native;
+import de.jpx3.intave.check.Check;
+import de.jpx3.intave.check.CheckStatistics;
 import de.jpx3.intave.connect.proxy.protocol.packets.IntavePacketOutKicked;
-import de.jpx3.intave.detect.Check;
-import de.jpx3.intave.detect.CheckStatistics;
-import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.user.MessageChannel;
@@ -134,9 +133,9 @@ public final class ViolationProcessor {
     Player player = violation.findPlayer().orElseThrow(IllegalStateException::new);
     User user = UserRepository.userOf(player);
     ViolationMetadata violationLevelData = user.meta().violationLevel();
-    if (AccessHelper.now() - violationLevelData.detectionCounterReset > 10000) {
+    if (System.currentTimeMillis() - violationLevelData.detectionCounterReset > 10000) {
       violationLevelData.detectionCounter = 0;
-      violationLevelData.detectionCounterReset = AccessHelper.now();
+      violationLevelData.detectionCounterReset = System.currentTimeMillis();
     }
     if (violationLevelData.detectionCounter++ > 300) {
       user.synchronizedDisconnect("You are sending too many packets :[");

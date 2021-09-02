@@ -1,7 +1,7 @@
 package de.jpx3.intave.reflect.method;
 
 import com.comphenix.protocol.utility.MinecraftVersion;
-import de.jpx3.intave.reflect.Lookup;
+import de.jpx3.intave.clazz.Lookup;
 
 public abstract class ReducedMethodContainer {
   protected Class<?> serverClass(String className) {

@@ -1,7 +1,7 @@
 package de.jpx3.intave.packet.reader;
 
 import com.google.common.base.Charsets;
-import de.jpx3.intave.reflect.Lookup;
+import de.jpx3.intave.clazz.Lookup;
 import io.netty.buffer.ByteBuf;
 
 public final class PayloadInReader extends AbstractPacketReader {

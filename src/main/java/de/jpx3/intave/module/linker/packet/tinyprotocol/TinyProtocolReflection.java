@@ -1,6 +1,6 @@
 package de.jpx3.intave.module.linker.packet.tinyprotocol;
 
-import de.jpx3.intave.reflect.locate.Locator;
+import de.jpx3.intave.clazz.locate.Locator;
 import org.bukkit.Bukkit;
 
 import java.lang.reflect.Constructor;

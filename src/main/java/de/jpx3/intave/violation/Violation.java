@@ -2,9 +2,9 @@ package de.jpx3.intave.violation;
 
 import com.google.common.base.Preconditions;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.detect.Check;
-import de.jpx3.intave.event.AccessHelper;
+import de.jpx3.intave.check.Check;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.Optional;
@@ -57,7 +57,11 @@ public final class Violation {
 
   public Optional<Player> findPlayer() {
     Player player = Bukkit.getPlayer(id);
-    return AccessHelper.isOnline(player) ? Optional.of(player) : Optional.empty();
+    return isOnline(player) ? Optional.of(player) : Optional.empty();
+  }
+
+  private boolean isOnline(OfflinePlayer player) {
+    return player != null && (player.isOnline() || Bukkit.getPlayer(player.getUniqueId()) != null);
   }
 
   public UUID playerId() {

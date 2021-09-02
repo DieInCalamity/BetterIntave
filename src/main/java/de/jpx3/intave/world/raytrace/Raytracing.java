@@ -1,16 +1,16 @@
 package de.jpx3.intave.world.raytrace;
 
 import de.jpx3.intave.adapter.MinecraftVersions;
+import de.jpx3.intave.clazz.rewrite.PatchyLoadingInjector;
 import de.jpx3.intave.diagnostic.timings.Timings;
 import de.jpx3.intave.math.SinusCache;
 import de.jpx3.intave.module.tracker.entity.WrappedEntity;
-import de.jpx3.intave.reflect.patchy.PatchyLoadingInjector;
+import de.jpx3.intave.shade.BoundingBox;
+import de.jpx3.intave.shade.MovingObjectPosition;
+import de.jpx3.intave.shade.NativeVector;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.MetadataBundle;
-import de.jpx3.intave.world.wrapper.WrappedAxisAlignedBB;
-import de.jpx3.intave.world.wrapper.WrappedMovingObjectPosition;
-import de.jpx3.intave.world.wrapper.WrappedVector;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -142,7 +142,7 @@ Raytracing {
    */
   public static EntityInteractionRaytrace entityRaytrace(
     Player player,
-    WrappedAxisAlignedBB entityBoundingBox,
+    BoundingBox entityBoundingBox,
     double alternativeYDifference,
     double prevPosX, double prevPosY, double prevPosZ,
     float prevYaw, float pitch,
@@ -150,27 +150,27 @@ Raytracing {
     EntityRaytraceBlockConstraint rayTraceBlocks
   ) {
     Timings.SERVICE_RAYTRACER_ENTITY.start();
-    WrappedVector eyeVector = positionEyes(player, prevPosX, prevPosY, prevPosZ);
+    NativeVector eyeVector = positionEyes(player, prevPosX, prevPosY, prevPosZ);
     double blockReachDistance = 6d;
     double attackReachDistance = reachDistance(player);
     double lastReach = 10;
-    WrappedVector lastHitVec = null;
+    NativeVector lastHitVec = null;
     for (boolean fastMath : PESSIMISTIC_BOOLEAN_ORDER) {
       if (lastReach < attackReachDistance)
         break;
 
-      WrappedVector interpolatedLookVec = wrappedVectorForRotation(pitch, prevYaw, fastMath);
-      WrappedVector lookVector = eyeVector.addVector(
+      NativeVector interpolatedLookVec = wrappedVectorForRotation(pitch, prevYaw, fastMath);
+      NativeVector lookVector = eyeVector.addVector(
         interpolatedLookVec.xCoord * blockReachDistance,
         interpolatedLookVec.yCoord * blockReachDistance,
         interpolatedLookVec.zCoord * blockReachDistance
       );
 
-      WrappedAxisAlignedBB hitBox = entityBoundingBox.expand(boundingBoxExpansion, boundingBoxExpansion, boundingBoxExpansion);
+      BoundingBox hitBox = entityBoundingBox.expand(boundingBoxExpansion, boundingBoxExpansion, boundingBoxExpansion);
       if (alternativeYDifference != 0) {
         hitBox = hitBox.addJustMaxY(alternativeYDifference);
       }
-      WrappedMovingObjectPosition movingObjectPosition = hitBox.calculateIntercept(eyeVector, lookVector);
+      MovingObjectPosition movingObjectPosition = hitBox.calculateIntercept(eyeVector, lookVector);
       if (hitBox.isVecInside(eyeVector)) {
         lastReach = 0;
         lastHitVec = null;
@@ -178,7 +178,7 @@ Raytracing {
         double distanceToEntity = eyeVector.distanceTo(movingObjectPosition.hitVec);
         double reach;
         if (rayTraceBlocks == EntityRaytraceBlockConstraint.ACCEPT_BLOCKS) {
-          WrappedMovingObjectPosition blockMovingPosition = Raytracing.blockRayTrace(player.getWorld(), player, eyeVector, lookVector);
+          MovingObjectPosition blockMovingPosition = Raytracing.blockRayTrace(player.getWorld(), player, eyeVector, lookVector);
           double distanceToBlock = blockMovingPosition == null || blockMovingPosition.hitVec == null ? 10 : eyeVector.distanceTo(blockMovingPosition.hitVec);
           reach = distanceToBlock < distanceToEntity ? 10 : distanceToEntity;
         } else {
@@ -197,41 +197,41 @@ Raytracing {
     return new EntityInteractionRaytrace(lastHitVec, lastReach);
   }
 
-  private static WrappedVector wrappedVectorForRotation(float pitch, float prevYaw, boolean fastMath) {
+  private static NativeVector wrappedVectorForRotation(float pitch, float prevYaw, boolean fastMath) {
     float var3 = SinusCache.cos(-prevYaw * 0.017453292f - (float) Math.PI, fastMath);
     float var4 = SinusCache.sin(-prevYaw * 0.017453292F - (float) Math.PI, fastMath);
     float var5 = -SinusCache.cos(-pitch * 0.017453292f, fastMath);
     float var6 = SinusCache.sin(-pitch * 0.017453292f, fastMath);
-    return new WrappedVector(var4 * var5, var6, var3 * var5);
+    return new NativeVector(var4 * var5, var6, var3 * var5);
   }
 
   public static class EntityInteractionRaytrace {
-    public final WrappedVector hitVec;
+    public final NativeVector hitVec;
     public final double reach;
-    public EntityInteractionRaytrace(WrappedVector hitVec, double distance) {
+    public EntityInteractionRaytrace(NativeVector hitVec, double distance) {
       this.hitVec = hitVec;
       this.reach = distance;
     }
   }
 
-  private static WrappedVector positionEyes(Player player, double prevPosX, double prevPosY, double prevPosZ) {
-    return new WrappedVector(prevPosX, prevPosY + resolvePlayerEyeHeight(player), prevPosZ);
+  private static NativeVector positionEyes(Player player, double prevPosX, double prevPosY, double prevPosZ) {
+    return new NativeVector(prevPosX, prevPosY + resolvePlayerEyeHeight(player), prevPosZ);
   }
 
-  public static WrappedMovingObjectPosition blockRayTrace(Player player, Location playerLocation) {
+  public static MovingObjectPosition blockRayTrace(Player player, Location playerLocation) {
     double blockReachDistance = resolveBlockReachDistance(player.getGameMode());
     double eyeHeight = resolvePlayerEyeHeight(player);
     return blockRayTrace(player, playerLocation, playerLocation, blockReachDistance, eyeHeight, 1.0f);
   }
 
-  public static WrappedMovingObjectPosition blockRayTrace(Player player, Location location, Location prevLocation, double blockReachDistance, double eyeHeight, float partialTicks) {
-    WrappedVector eyeVector = resolvePositionEyes(location, prevLocation, eyeHeight, partialTicks);
-    WrappedVector vec4 = resolveLookVector(location, prevLocation, partialTicks);
-    WrappedVector targetVector = eyeVector.addVector(vec4.xCoord * blockReachDistance, vec4.yCoord * blockReachDistance, vec4.zCoord * blockReachDistance);
+  public static MovingObjectPosition blockRayTrace(Player player, Location location, Location prevLocation, double blockReachDistance, double eyeHeight, float partialTicks) {
+    NativeVector eyeVector = resolvePositionEyes(location, prevLocation, eyeHeight, partialTicks);
+    NativeVector vec4 = resolveLookVector(location, prevLocation, partialTicks);
+    NativeVector targetVector = eyeVector.addVector(vec4.xCoord * blockReachDistance, vec4.yCoord * blockReachDistance, vec4.zCoord * blockReachDistance);
     return blockRayTrace(location.getWorld(), player, eyeVector, targetVector);
   }
 
-  public static WrappedMovingObjectPosition blockRayTrace(World world, Player player, WrappedVector eyeVector, WrappedVector targetVector) {
+  public static MovingObjectPosition blockRayTrace(World world, Player player, NativeVector eyeVector, NativeVector targetVector) {
     try {
       Timings.SERVICE_RAYTRACER_BLOCK.start();
       return raytracer.raytrace(world, player, eyeVector, targetVector);
@@ -240,12 +240,12 @@ Raytracing {
     }
   }
 
-  public static WrappedVector resolvePositionEyes(Location location, Location prevLocation, double eyeHeight, float partialTicks) {
+  public static NativeVector resolvePositionEyes(Location location, Location prevLocation, double eyeHeight, float partialTicks) {
     double posX = location.getX();
     double posY = location.getY();
     double posZ = location.getZ();
     if (partialTicks == 1.0f) {
-      return new WrappedVector(posX, posY + eyeHeight, posZ);
+      return new NativeVector(posX, posY + eyeHeight, posZ);
     }
     double prevPosX = prevLocation.getX();
     double prevPosY = prevLocation.getY();
@@ -253,10 +253,10 @@ Raytracing {
     double d0 = prevPosX + (posX - prevPosX) * partialTicks;
     double d2 = prevPosY + (posY - prevPosY) * partialTicks + eyeHeight;
     double d3 = prevPosZ + (posZ - prevPosZ) * partialTicks;
-    return new WrappedVector(d0, d2, d3);
+    return new NativeVector(d0, d2, d3);
   }
 
-  private static WrappedVector resolveLookVector(Location location, Location prevLocation, float partialTicks) {
+  private static NativeVector resolveLookVector(Location location, Location prevLocation, float partialTicks) {
     float rotationYawHead = location.getYaw();
     float rotationPitch = location.getPitch();
     if (partialTicks == 1.0f) {
@@ -269,12 +269,12 @@ Raytracing {
     return resolveVectorForRotation(f, f2);
   }
 
-  private static WrappedVector resolveVectorForRotation(float pitch, float yaw) {
+  private static NativeVector resolveVectorForRotation(float pitch, float yaw) {
     float f = SinusCache.cos(-yaw * 0.017453292f - 3.1415927f, false);
     float f2 = SinusCache.sin(-yaw * 0.017453292f - 3.1415927f, false);
     float f3 = -SinusCache.cos(-pitch * 0.017453292f, false);
     float f4 = SinusCache.sin(-pitch * 0.017453292f, false);
-    return new WrappedVector(f2 * f3, f4, f * f3);
+    return new NativeVector(f2 * f3, f4, f * f3);
   }
 
   private static double resolvePlayerEyeHeight(Player player) {

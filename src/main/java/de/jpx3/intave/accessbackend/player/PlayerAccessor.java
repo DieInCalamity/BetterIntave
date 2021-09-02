@@ -10,10 +10,10 @@ import de.jpx3.intave.access.player.PlayerAccess;
 import de.jpx3.intave.access.player.PlayerClicks;
 import de.jpx3.intave.access.player.PlayerConnection;
 import de.jpx3.intave.access.player.trust.TrustFactor;
+import de.jpx3.intave.clazz.trace.Caller;
+import de.jpx3.intave.clazz.trace.PluginInvocation;
 import de.jpx3.intave.cleanup.GarbageCollector;
 import de.jpx3.intave.cleanup.ReferenceMap;
-import de.jpx3.intave.reflect.caller.CallerResolver;
-import de.jpx3.intave.reflect.caller.PluginInvocation;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import org.bukkit.entity.Player;
@@ -101,7 +101,7 @@ public final class PlayerAccessor {
 
       @Override
       public void setTrustFactor(TrustFactor factor) {
-        PluginInvocation pluginInvocation = CallerResolver.callerPluginInfo();
+        PluginInvocation pluginInvocation = Caller.pluginInfo();
         String message;
         if (pluginInvocation == null) {
           message = "Changed trustfactor of " + player.getName() + " to " + factor.name() + " (unknown origin)";

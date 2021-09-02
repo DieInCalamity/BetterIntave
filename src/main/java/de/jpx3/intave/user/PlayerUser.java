@@ -9,18 +9,23 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.annotate.Relocate;
+import de.jpx3.intave.block.access.BlockTypeAccess;
+import de.jpx3.intave.block.shape.MultiChunkKeyOCBlockShapeAccess;
+import de.jpx3.intave.block.shape.OCBlockShapeAccess;
+import de.jpx3.intave.check.movement.physics.Pose;
 import de.jpx3.intave.connect.customclient.CustomClientSupportConfig;
 import de.jpx3.intave.connect.shadow.ShadowPacketDataLink;
-import de.jpx3.intave.detect.checks.movement.physics.Pose;
-import de.jpx3.intave.event.AccessHelper;
+import de.jpx3.intave.entity.size.HitboxSize;
 import de.jpx3.intave.event.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.event.mitigate.HurtimeModifier;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.fakeplayer.FakePlayer;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.feedback.FeedbackSender;
+import de.jpx3.intave.player.collider.Collider;
+import de.jpx3.intave.player.collider.complex.ComplexColliderProcessor;
+import de.jpx3.intave.player.collider.simple.SimpleColliderProcessor;
 import de.jpx3.intave.reflect.access.ReflectiveHandleAccess;
-import de.jpx3.intave.reflect.entity.size.HitboxSize;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.ConnectionMetadata;
 import de.jpx3.intave.user.meta.MetadataBundle;
@@ -30,13 +35,9 @@ import de.jpx3.intave.user.permission.ExpiringPermissionCache;
 import de.jpx3.intave.user.permission.PermissionCache;
 import de.jpx3.intave.violation.placeholder.PlayerContext;
 import de.jpx3.intave.violation.placeholder.UserContext;
-import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
-import de.jpx3.intave.world.blockshape.MultiChunkKeyOCBlockShapeAccess;
-import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
-import de.jpx3.intave.world.collider.Collider;
-import de.jpx3.intave.world.collider.complex.ComplexColliderProcessor;
-import de.jpx3.intave.world.collider.simple.SimpleColliderProcessor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.lang.ref.WeakReference;
@@ -73,7 +74,7 @@ final class PlayerUser implements User {
   private boolean hasShadow;
   private CustomClientSupportConfig customClientSupportConfig = CustomClientSupportConfig.createDefault();
   private ShadowPacketDataLink shadowRepo = null;
-  private final long birthTimestamp = AccessHelper.now();
+  private final long birthTimestamp = System.currentTimeMillis();
 
   private final UserContext playerPlaceholderContext = new UserContext(this);
   private final PlayerContext playerContext;
@@ -155,13 +156,17 @@ final class PlayerUser implements User {
 
   @Override
   public boolean justJoined() {
-    return AccessHelper.now() - birthTimestamp < 5000;
+    return System.currentTimeMillis() - birthTimestamp < 5000;
   }
 
   @Override
   public boolean hasPlayer() {
     Player player = this.player.get();
-    return AccessHelper.isOnline(player);
+    return isOnline(player);
+  }
+
+  private boolean isOnline(OfflinePlayer player) {
+    return player != null && (player.isOnline() || Bukkit.getPlayer(player.getUniqueId()) != null);
   }
 
   @Override

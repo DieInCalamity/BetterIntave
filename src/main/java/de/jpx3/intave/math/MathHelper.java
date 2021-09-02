@@ -1,6 +1,6 @@
 package de.jpx3.intave.math;
 
-import de.jpx3.intave.detect.checks.movement.physics.MotionVector;
+import de.jpx3.intave.check.movement.physics.MotionVector;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 

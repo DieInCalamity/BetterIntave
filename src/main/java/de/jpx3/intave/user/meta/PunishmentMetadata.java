@@ -2,7 +2,6 @@ package de.jpx3.intave.user.meta;
 
 import com.google.common.collect.Lists;
 import de.jpx3.intave.annotate.Relocate;
-import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.event.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.event.mitigate.HurtimeModifier;
 import org.bukkit.entity.Entity;
@@ -78,7 +77,7 @@ public final class PunishmentMetadata {
       }, true),
       new AttackNerfer(AttackNerfStrategy.GARBAGE_HITS, GARBAGE_HITS_DURATION, event -> {
         int entityId = event.getEntity().getEntityId();
-        long lastValidAttack = AccessHelper.now() - lastTimeValidHurttimeAttack.computeIfAbsent(entityId, x -> 0L);
+        long lastValidAttack = System.currentTimeMillis() - lastTimeValidHurttimeAttack.computeIfAbsent(entityId, x -> 0L);
         if (lastValidAttack < delay) {
           event.setCancelled(true);
         } else {
@@ -92,7 +91,7 @@ public final class PunishmentMetadata {
           } else {
             delay = 700;
           }
-          lastTimeValidHurttimeAttack.put(entityId, AccessHelper.now());
+          lastTimeValidHurttimeAttack.put(entityId, System.currentTimeMillis());
         }
       })
     );
@@ -146,11 +145,11 @@ public final class PunishmentMetadata {
     }
 
     public void activate() {
-      activated = AccessHelper.now();
+      activated = System.currentTimeMillis();
     }
 
     public boolean active() {
-      return AccessHelper.now() - activated < duration;
+      return System.currentTimeMillis() - activated < duration;
     }
 
     public boolean inverseEvent() {

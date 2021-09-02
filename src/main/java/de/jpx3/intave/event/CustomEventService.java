@@ -6,11 +6,13 @@ import de.jpx3.intave.access.IntaveEvent;
 import de.jpx3.intave.access.check.event.IntaveCommandExecutionEvent;
 import de.jpx3.intave.access.check.event.IntaveViolationEvent;
 import de.jpx3.intave.access.player.event.*;
+import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
 
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+@IdoNotBelongHere
 public final class CustomEventService {
   private final IntavePlugin plugin;
   private final Map<Class<? extends IntaveEvent>, ThreadLocal<IntaveEvent>> eventAccess = Maps.newHashMap();

@@ -1,13 +1,13 @@
 package de.jpx3.intave.world.raytrace;
 
-import de.jpx3.intave.reflect.patchy.annotate.PatchyAutoTranslation;
-import de.jpx3.intave.reflect.patchy.annotate.PatchyTranslateParameters;
+import de.jpx3.intave.block.access.BlockVariantRegister;
+import de.jpx3.intave.block.shape.OCBlockShapeAccess;
+import de.jpx3.intave.clazz.rewrite.PatchyAutoTranslation;
+import de.jpx3.intave.clazz.rewrite.PatchyTranslateParameters;
+import de.jpx3.intave.shade.BoundingBox;
+import de.jpx3.intave.shade.MovingObjectPosition;
+import de.jpx3.intave.shade.NativeVector;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.world.blockaccess.BlockVariantRegister;
-import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
-import de.jpx3.intave.world.wrapper.WrappedAxisAlignedBB;
-import de.jpx3.intave.world.wrapper.WrappedMovingObjectPosition;
-import de.jpx3.intave.world.wrapper.WrappedVector;
 import net.minecraft.server.v1_14_R1.*;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
@@ -22,7 +22,7 @@ import java.util.List;
 public final class v14Raytracer implements Raytracer {
   @Override
   @PatchyAutoTranslation
-  public WrappedMovingObjectPosition raytrace(World world, Player player, WrappedVector eyeVector, WrappedVector targetVector) {
+  public MovingObjectPosition raytrace(World world, Player player, NativeVector eyeVector, NativeVector targetVector) {
     RayTrace raytraceConfiguration = new RayTrace(
       (Vec3D) eyeVector.convertToNativeVec3(),
       (Vec3D) targetVector.convertToNativeVec3(),
@@ -33,7 +33,7 @@ public final class v14Raytracer implements Raytracer {
     MovingObjectPositionBlock movingObjectPositionBlock =
 //      traceProcess(UserRepository.userOf(player), raytraceConfiguration);
       ((CraftWorld) world).getHandle().rayTrace(raytraceConfiguration);
-    return WrappedMovingObjectPosition.fromNativeMovingObjectPosition(movingObjectPositionBlock);
+    return MovingObjectPosition.fromNativeMovingObjectPosition(movingObjectPositionBlock);
   }
 
   @PatchyAutoTranslation
@@ -165,12 +165,12 @@ public final class v14Raytracer implements Raytracer {
 
   @PatchyAutoTranslation
   @PatchyTranslateParameters
-  private List<AxisAlignedBB> translateBoxes(List<WrappedAxisAlignedBB> wrapped) {
+  private List<AxisAlignedBB> translateBoxes(List<BoundingBox> wrapped) {
     if (wrapped.isEmpty()) {
       return Collections.emptyList();
     }
     List<AxisAlignedBB> axisAlignedBBS = new ArrayList<>();
-    for (WrappedAxisAlignedBB wrap : wrapped) {
+    for (BoundingBox wrap : wrapped) {
       axisAlignedBBS.add(new AxisAlignedBB(
         wrap.minX, wrap.minY, wrap.minZ,
         wrap.maxX, wrap.maxY, wrap.maxZ

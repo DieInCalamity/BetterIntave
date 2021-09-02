@@ -6,9 +6,11 @@ import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.adapter.ViaVersionAdapter;
 import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
+import de.jpx3.intave.clazz.trace.Caller;
+import de.jpx3.intave.clazz.trace.PluginInvocation;
 import de.jpx3.intave.cleanup.GarbageCollector;
 import de.jpx3.intave.event.mitigate.CombatMitigator;
-import de.jpx3.intave.event.mitigate.MovementEmulationEngine;
+import de.jpx3.intave.event.mitigate.MovementEmulator;
 import de.jpx3.intave.event.mitigate.ReconDelayLimiter;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.Modules;
@@ -17,16 +19,14 @@ import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscriber;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.module.tracker.entity.EntityCollisionDisabler;
 import de.jpx3.intave.module.tracker.entity.LazyEntityCollisionService;
+import de.jpx3.intave.player.item.ItemProperties;
 import de.jpx3.intave.reflect.access.ReflectiveDataWatcherAccess;
-import de.jpx3.intave.reflect.caller.CallerResolver;
-import de.jpx3.intave.reflect.caller.PluginInvocation;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserLifetimeService;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.permission.BukkitPermissionCheck;
 import de.jpx3.intave.version.DurationTranslator;
 import de.jpx3.intave.version.IntaveVersion;
-import de.jpx3.intave.world.items.ItemProperties;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -41,11 +41,12 @@ import org.bukkit.event.world.WorldUnloadEvent;
 
 import static de.jpx3.intave.reflect.access.ReflectiveDataWatcherAccess.WATCHER_BLOCKING_ID;
 
+@Deprecated
 public final class EventService implements BukkitEventSubscriber {
   private final static boolean DISABLE_ENTITY_COLLISIONS = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
 
   private final IntavePlugin plugin;
-  private MovementEmulationEngine emulationEngine;
+  private MovementEmulator emulationEngine;
   private CombatMitigator combatMitigator;
   private ReconDelayLimiter reconDelayLimiter;
 
@@ -55,7 +56,7 @@ public final class EventService implements BukkitEventSubscriber {
 
   @Deprecated
   public void setup() {
-    this.emulationEngine = new MovementEmulationEngine(plugin);
+    this.emulationEngine = new MovementEmulator(plugin);
     this.combatMitigator = new CombatMitigator(plugin);
     this.reconDelayLimiter = new ReconDelayLimiter(plugin);
     new UserLifetimeService(plugin);
@@ -84,7 +85,7 @@ public final class EventService implements BukkitEventSubscriber {
       sendPrefixedMessage(ChatColor.YELLOW + "It is possible that bugs occur", player);
     } else {
       if (version.typeClassifier() == IntaveVersion.Status.OUTDATED) {
-        long duration = AccessHelper.now() - version.release();
+        long duration = System.currentTimeMillis() - version.release();
         String durationAsString = DurationTranslator.translateDuration(duration);
 
         sendPrefixedMessage(ChatColor.RED + "This server is running an outdated version of Intave ("+durationAsString+" old)", player);
@@ -100,7 +101,7 @@ public final class EventService implements BukkitEventSubscriber {
   @IdoNotBelongHere
   public void on(PlayerTeleportEvent teleport) {
     if (IntaveControl.DEBUG_TELEPORT_CAUSE_AND_CAUSER) {
-      PluginInvocation pluginInvocation = CallerResolver.callerPluginInfo();
+      PluginInvocation pluginInvocation = Caller.pluginInfo();
       String pluginClass = pluginInvocation == null ? "no other plugin" : pluginInvocation.className();
       teleport.getPlayer().sendMessage("Teleport " + teleport.getCause() + " " + teleport.getTo() + " by " + pluginClass);
     }
@@ -156,7 +157,7 @@ public final class EventService implements BukkitEventSubscriber {
 
   @Deprecated
   @IdoNotBelongHere
-  public MovementEmulationEngine emulationEngine() {
+  public MovementEmulator emulationEngine() {
     return emulationEngine;
   }
 

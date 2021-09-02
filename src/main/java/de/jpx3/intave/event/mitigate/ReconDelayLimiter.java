@@ -1,7 +1,6 @@
 package de.jpx3.intave.event.mitigate;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscriber;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.violation.placeholder.Placeholders;
@@ -43,8 +42,8 @@ public final class ReconDelayLimiter implements BukkitEventSubscriber {
 
   @BukkitEventSubscription
   public void on(AsyncPlayerPreLoginEvent login) {
-    long ipDelayLeft = AccessHelper.now() - lastKicked.getOrDefault(login.getUniqueId(), 0L);
-    long accDelayLeft = AccessHelper.now() - lastKickedIp.getOrDefault(login.getAddress(), 0L);
+    long ipDelayLeft = System.currentTimeMillis() - lastKicked.getOrDefault(login.getUniqueId(), 0L);
+    long accDelayLeft = System.currentTimeMillis() - lastKickedIp.getOrDefault(login.getAddress(), 0L);
 
     if (ipDelayLeft < delay || accDelayLeft < delay) {
       String message = rawMessage;
@@ -61,8 +60,8 @@ public final class ReconDelayLimiter implements BukkitEventSubscriber {
 
   public void ban(InetAddress address, UUID uuid, String check) {
     if (!address.getHostAddress().contains("127.0.0.1")) {
-      lastKickedIp.put(address, AccessHelper.now());
+      lastKickedIp.put(address, System.currentTimeMillis());
     }
-    lastKicked.put(uuid, AccessHelper.now());
+    lastKicked.put(uuid, System.currentTimeMillis());
   }
 }

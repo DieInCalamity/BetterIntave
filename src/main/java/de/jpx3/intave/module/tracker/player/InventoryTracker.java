@@ -8,22 +8,21 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
-import de.jpx3.intave.event.AccessHelper;
+import de.jpx3.intave.block.access.BlockTypeAccess;
+import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketId;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
+import de.jpx3.intave.player.item.ItemProperties;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.InventoryMetadata;
 import de.jpx3.intave.user.meta.MetadataBundle;
 import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.user.meta.PunishmentMetadata;
-import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
-import de.jpx3.intave.world.collision.Collision;
-import de.jpx3.intave.world.items.ItemProperties;
 import org.bukkit.World;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -253,7 +252,7 @@ public final class InventoryTracker extends Module {
     boolean requestedItemUse = requestedItemUse(packet);
     boolean sword = heldItem != null && heldItem.getType().name().endsWith("_SWORD");
 
-    if (requestedItemUse && sword && AccessHelper.now() - punishmentData.timeLastBlockCancel < 5000) {
+    if (requestedItemUse && sword && System.currentTimeMillis() - punishmentData.timeLastBlockCancel < 5000) {
       event.setCancelled(true);
       return;
     }

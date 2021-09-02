@@ -1,7 +1,7 @@
 package de.jpx3.intave.world.border;
 
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.reflect.patchy.PatchyLoadingInjector;
+import de.jpx3.intave.clazz.rewrite.PatchyLoadingInjector;
 import org.bukkit.Location;
 import org.bukkit.World;
 

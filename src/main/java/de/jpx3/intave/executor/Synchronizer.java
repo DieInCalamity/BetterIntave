@@ -3,8 +3,8 @@ package de.jpx3.intave.executor;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.UnsupportedFallbackOperationException;
+import de.jpx3.intave.clazz.Lookup;
 import de.jpx3.intave.diagnostic.timings.Timings;
-import de.jpx3.intave.reflect.Lookup;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitScheduler;
 

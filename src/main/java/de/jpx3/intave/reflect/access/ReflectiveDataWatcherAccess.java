@@ -1,9 +1,9 @@
 package de.jpx3.intave.reflect.access;
 
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.reflect.datawatcher.DataWatcherAccess;
-import de.jpx3.intave.reflect.datawatcher.LegacyDataWatcherAccess;
-import de.jpx3.intave.reflect.datawatcher.ModernDataWatcherAccess;
+import de.jpx3.intave.entity.datawatcher.DataWatcherAccess;
+import de.jpx3.intave.entity.datawatcher.LegacyDataWatcherAccess;
+import de.jpx3.intave.entity.datawatcher.ModernDataWatcherAccess;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.reflect.access.ReflectiveAccess.DATA_WATCHER_NEW_ACCESS_VER;

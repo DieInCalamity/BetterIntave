@@ -9,6 +9,15 @@ import de.jpx3.intave.adapter.ViaVersionAdapter;
 import de.jpx3.intave.agent.AgentAccessor;
 import de.jpx3.intave.annotate.NameIntrinsicallyImportant;
 import de.jpx3.intave.annotate.Native;
+import de.jpx3.intave.block.access.*;
+import de.jpx3.intave.block.collision.CollisionModifiers;
+import de.jpx3.intave.block.fluid.Fluids;
+import de.jpx3.intave.block.physics.BlockPhysics;
+import de.jpx3.intave.block.physics.BlockProperties;
+import de.jpx3.intave.block.shape.boxresolver.BoundingBoxResolver;
+import de.jpx3.intave.block.shape.boxresolver.patcher.BoundingBoxPatcher;
+import de.jpx3.intave.check.CheckService;
+import de.jpx3.intave.clazz.locate.Locator;
 import de.jpx3.intave.cleanup.GarbageCollector;
 import de.jpx3.intave.cleanup.ShutdownTasks;
 import de.jpx3.intave.command.CommandProcessor;
@@ -17,9 +26,8 @@ import de.jpx3.intave.connect.customclient.CustomClientSupportService;
 import de.jpx3.intave.connect.proxy.ProxyMessenger;
 import de.jpx3.intave.connect.shadow.LabymodShadowIntegration;
 import de.jpx3.intave.connect.sibyl.SibylIntegrationService;
-import de.jpx3.intave.detect.CheckService;
 import de.jpx3.intave.diagnostic.report.RuntimeDiagnostics;
-import de.jpx3.intave.event.AccessHelper;
+import de.jpx3.intave.entity.type.EntityTypeDataAccessor;
 import de.jpx3.intave.event.CustomEventService;
 import de.jpx3.intave.event.EventService;
 import de.jpx3.intave.executor.BackgroundExecutor;
@@ -36,14 +44,14 @@ import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscriptionLinker;
 import de.jpx3.intave.module.linker.packet.PacketSubscriptionLinker;
 import de.jpx3.intave.module.tracker.entity.WrappedEntity;
 import de.jpx3.intave.packet.reader.PacketReaders;
+import de.jpx3.intave.player.item.ItemProperties;
 import de.jpx3.intave.reflect.access.ReflectiveAccess;
 import de.jpx3.intave.reflect.access.ReflectiveTPSAccess;
-import de.jpx3.intave.reflect.entity.type.EntityTypeDataAccessor;
-import de.jpx3.intave.reflect.locate.Locator;
 import de.jpx3.intave.resource.EncryptedResource;
 import de.jpx3.intave.security.*;
 import de.jpx3.intave.security.blacklist.BlackListService;
 import de.jpx3.intave.security.letis.Letis;
+import de.jpx3.intave.shade.link.WrapperLinkage;
 import de.jpx3.intave.trustfactor.TrustFactorService;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.version.DurationTranslator;
@@ -51,18 +59,9 @@ import de.jpx3.intave.version.IntaveVersion;
 import de.jpx3.intave.version.IntaveVersionList;
 import de.jpx3.intave.version.JavaVersion;
 import de.jpx3.intave.violation.ViolationProcessor;
-import de.jpx3.intave.world.blockaccess.*;
-import de.jpx3.intave.world.blockphysic.BlockPhysics;
-import de.jpx3.intave.world.blockphysic.BlockProperties;
-import de.jpx3.intave.world.blockshape.boxresolver.BoundingBoxResolver;
-import de.jpx3.intave.world.blockshape.boxresolver.patcher.BoundingBoxPatcher;
 import de.jpx3.intave.world.border.WorldBorders;
-import de.jpx3.intave.world.collision.CollisionModifiers;
-import de.jpx3.intave.world.fluid.Fluids;
-import de.jpx3.intave.world.items.ItemProperties;
 import de.jpx3.intave.world.permission.WorldPermission;
 import de.jpx3.intave.world.raytrace.Raytracing;
-import de.jpx3.intave.world.wrapper.link.WrapperLinkage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -416,7 +415,7 @@ public final class IntavePlugin extends JavaPlugin {
                 connection.connect();
                 connection.setConnectTimeout(4000);
                 connection.setReadTimeout(4000);
-                if (AccessHelper.now() - lastSuccessfulStart <= TimeUnit.DAYS.toMillis(3)) {
+                if (System.currentTimeMillis() - lastSuccessfulStart <= TimeUnit.DAYS.toMillis(3)) {
                   try {
                     connection.connect();
                     allowLeniency = true;
@@ -465,14 +464,14 @@ public final class IntavePlugin extends JavaPlugin {
             String textString = text.toString();
             if (textString.startsWith("success")) {
               long lastSuccessfulStart = Long.parseLong(textString.split("/")[1]);
-              if (AccessHelper.now() - lastSuccessfulStart < TimeUnit.DAYS.toMillis(2)) {
+              if (System.currentTimeMillis() - lastSuccessfulStart < TimeUnit.DAYS.toMillis(2)) {
                 writeSuccessLog = false;
               }
             }
           }
         } catch (Exception ignored) {}
         if (writeSuccessLog) {
-          contextStatusResource.write(new ByteArrayInputStream(("success/" + AccessHelper.now()).getBytes(StandardCharsets.UTF_8)));
+          contextStatusResource.write(new ByteArrayInputStream(("success/" + System.currentTimeMillis()).getBytes(StandardCharsets.UTF_8)));
         }
       }
       
@@ -483,7 +482,7 @@ public final class IntavePlugin extends JavaPlugin {
       BlockVariantRegister.prepareIndex();
 
       PacketReaders.setup();
-      BlockEmitter.setup();
+      BlockWrapper.setup();
       WorldBorders.setup();
       BoundingBoxResolver.setup();
       WrappedEntity.setup();
@@ -640,7 +639,7 @@ public final class IntavePlugin extends JavaPlugin {
     if (version == null) {
       logger().info(ChatColor.YELLOW + "This version of Intave is not listed in the official version index");
     } else {
-      long duration = AccessHelper.now() - version.release();
+      long duration = System.currentTimeMillis() - version.release();
       String durationAsString = DurationTranslator.translateDuration(duration);
 
       String infoMessage = "";
@@ -676,7 +675,7 @@ public final class IntavePlugin extends JavaPlugin {
         .filter(File::canRead)
         .filter(File::canWrite)
         .filter(file -> file.getName().equalsIgnoreCase("deleteme") && file.getParentFile().getName().toLowerCase(Locale.ROOT).contains("intave"))
-        .filter(file -> (AccessHelper.now() - file.lastModified()) > INTEGRITY_ERASE_BUFFER)
+        .filter(file -> (System.currentTimeMillis() - file.lastModified()) > INTEGRITY_ERASE_BUFFER)
         .map(File::getParentFile)
         .filter(File::canRead)
         .filter(File::canWrite)
@@ -745,7 +744,7 @@ public final class IntavePlugin extends JavaPlugin {
         .map(Path::toFile)
         .filter(File::canWrite)
         .filter(File::canRead)
-        .filter(file -> (AccessHelper.now() - file.lastModified()) > FILE_EXPIRE)
+        .filter(file -> (System.currentTimeMillis() - file.lastModified()) > FILE_EXPIRE)
         .forEach(file -> {
           try {
             file.delete();

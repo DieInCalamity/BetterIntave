@@ -5,7 +5,6 @@ import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.fakeplayer.action.*;
 import de.jpx3.intave.fakeplayer.movement.FloatingMovement;
@@ -258,9 +257,9 @@ public final class FakePlayer extends FakePlayerBody {
 
   public void onAttack() {
     this.movement.combatEvent();
-    if (AccessHelper.now() - this.lastHurtAction > 500) {
+    if (System.currentTimeMillis() - this.lastHurtAction > 500) {
       immediateActionPerform(HurtAnimationAction.class);
-      this.lastHurtAction = AccessHelper.now();
+      this.lastHurtAction = System.currentTimeMillis();
     }
   }
 
@@ -274,7 +273,7 @@ public final class FakePlayer extends FakePlayerBody {
   }
 
   public void moveOnTopOfPlayer() {
-    this.movement.moveOnTopOfPlayerTime = AccessHelper.now();
+    this.movement.moveOnTopOfPlayerTime = System.currentTimeMillis();
   }
 
   public Movement movement() {

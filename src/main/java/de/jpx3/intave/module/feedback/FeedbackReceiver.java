@@ -6,7 +6,6 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.executor.TaskTracker;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
@@ -178,11 +177,11 @@ public final class FeedbackReceiver extends Module {
   private static long oldestPendingTransaction(User user) {
     ConnectionMetadata synchronizeData = user.meta().connection();
     Map<Short, FeedbackRequest<?>> transactionFeedBackMap = synchronizeData.transactionShortKeyMap();
-    long duration = AccessHelper.now();
+    long duration = System.currentTimeMillis();
     for (FeedbackRequest<?> value : transactionFeedBackMap.values()) {
       duration = Math.min(duration, value.requested());
     }
-    return AccessHelper.now() - duration;
+    return System.currentTimeMillis() - duration;
   }
 
   public User userOf(Player player) {

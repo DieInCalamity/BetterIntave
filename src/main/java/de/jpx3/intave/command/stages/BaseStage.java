@@ -7,7 +7,6 @@ import de.jpx3.intave.command.CommandStage;
 import de.jpx3.intave.command.Forward;
 import de.jpx3.intave.command.Optional;
 import de.jpx3.intave.command.SubCommand;
-import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.security.LicenseAccess;
 import de.jpx3.intave.user.MessageChannel;
 import de.jpx3.intave.user.User;
@@ -192,7 +191,7 @@ public final class BaseStage extends CommandStage {
       version = "(version hidden)";
     } else if (versionInformation != null) {
       boolean outdated = versionInformation.outdated();
-      version = IntavePlugin.version() + " (" + (outdated ? "outdated, " : "") + DurationTranslator.translateDuration(AccessHelper.now() - versionInformation.release()) + " old)";
+      version = IntavePlugin.version() + " (" + (outdated ? "outdated, " : "") + DurationTranslator.translateDuration(System.currentTimeMillis() - versionInformation.release()) + " old)";
     } else {
       version = IntavePlugin.version() + " (unlisted)";
     }

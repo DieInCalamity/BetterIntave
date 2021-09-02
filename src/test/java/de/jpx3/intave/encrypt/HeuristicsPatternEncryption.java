@@ -1,7 +1,7 @@
 package de.jpx3.intave.encrypt;
 
-import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
-import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
+import de.jpx3.intave.check.combat.heuristics.Anomaly;
+import de.jpx3.intave.check.combat.heuristics.Confidence;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

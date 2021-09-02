@@ -2,7 +2,6 @@ package de.jpx3.intave.resource;
 
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.annotate.Native;
-import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.security.ContextSecrets;
 import de.jpx3.intave.security.HashAccess;
 
@@ -51,7 +50,7 @@ public final class CachedResource implements Resource {
 
   public boolean prepareFile() {
     File file = fileStore();
-    long fileLastModified = AccessHelper.now() - file.lastModified();
+    long fileLastModified = System.currentTimeMillis() - file.lastModified();
     boolean invalidFile = !file.exists() || fileLastModified > expireDuration || file.length() == 0;
 
     if (invalidFile) {
@@ -237,7 +236,7 @@ public final class CachedResource implements Resource {
       }
       FileChannel outputChannel = acquireOutputFileChannel();//new FileOutputStream(fileStore());
       outputChannel.transferFrom(byteChannel, 0, Long.MAX_VALUE);
-      file.setLastModified(AccessHelper.now());
+      file.setLastModified(System.currentTimeMillis());
       removeFileLock(outputChannel);
       outputChannel.close();
     } catch (Exception exception) {

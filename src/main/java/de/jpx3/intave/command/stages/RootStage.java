@@ -4,26 +4,26 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.annotate.Native;
+import de.jpx3.intave.block.shape.BlockShape;
+import de.jpx3.intave.block.shape.OCBlockShapeAccess;
+import de.jpx3.intave.check.Check;
+import de.jpx3.intave.check.CheckStatistics;
+import de.jpx3.intave.check.combat.Heuristics;
+import de.jpx3.intave.check.combat.heuristics.Anomaly;
+import de.jpx3.intave.check.combat.heuristics.Confidence;
+import de.jpx3.intave.check.combat.heuristics.MiningStrategy;
 import de.jpx3.intave.command.CommandStage;
 import de.jpx3.intave.command.Optional;
 import de.jpx3.intave.command.SubCommand;
-import de.jpx3.intave.detect.Check;
-import de.jpx3.intave.detect.CheckStatistics;
-import de.jpx3.intave.detect.checks.combat.Heuristics;
-import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
-import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
-import de.jpx3.intave.detect.checks.combat.heuristics.MiningStrategy;
 import de.jpx3.intave.diagnostic.KeyPressStudy;
 import de.jpx3.intave.diagnostic.MemoryTraced;
 import de.jpx3.intave.diagnostic.MemoryWatchdog;
 import de.jpx3.intave.diagnostic.timings.Timing;
 import de.jpx3.intave.diagnostic.timings.Timings;
 import de.jpx3.intave.math.MathHelper;
+import de.jpx3.intave.shade.BoundingBox;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
-import de.jpx3.intave.world.blockshape.BlockShape;
-import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
-import de.jpx3.intave.world.wrapper.WrappedAxisAlignedBB;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -377,7 +377,7 @@ public final class RootStage extends CommandStage {
   private final static Map<Class<?>, String> CLASS_NAME = new HashMap<>();
 
   static {
-    CLASS_NAME.put(WrappedAxisAlignedBB.class, "BoundingBoxes");
+    CLASS_NAME.put(BoundingBox.class, "BoundingBoxes");
     CLASS_NAME.put(BlockShape.class, "BlockShapes");
   }
 

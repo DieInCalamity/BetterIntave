@@ -5,7 +5,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.PlayerInfoData;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.packet.converter.PlayerInfoDataConverter;
 import org.bukkit.Bukkit;
@@ -41,7 +40,7 @@ public final class VanishFilter extends Filter {
       playerInfoDataList.removeIf(playerInfoData -> {
         UUID otherId = playerInfoData.getProfile().getUUID();
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(otherId);
-        if (AccessHelper.isOnline(offlinePlayer)) {
+        if (isOnline(offlinePlayer)) {
           Player otherPlayer = offlinePlayer.getPlayer();
           return !player.canSee(otherPlayer);
         }
@@ -49,6 +48,10 @@ public final class VanishFilter extends Filter {
       });
       Collections.shuffle(playerInfoDataList);
     }
+  }
+
+  private boolean isOnline(OfflinePlayer player) {
+    return player != null && (player.isOnline() || Bukkit.getPlayer(player.getUniqueId()) != null);
   }
 
   @Override

@@ -8,23 +8,23 @@ import de.jpx3.intave.annotate.DispatchTarget;
 import de.jpx3.intave.annotate.Nullable;
 import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
-import de.jpx3.intave.detect.checks.movement.physics.*;
+import de.jpx3.intave.block.access.BukkitBlockAccess;
+import de.jpx3.intave.block.collision.Collision;
+import de.jpx3.intave.block.fluid.FluidTag;
+import de.jpx3.intave.block.fluid.Fluids;
+import de.jpx3.intave.block.fluid.WrappedFluid;
+import de.jpx3.intave.block.physics.BlockProperties;
+import de.jpx3.intave.check.movement.physics.*;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.math.SinusCache;
 import de.jpx3.intave.module.tracker.entity.WrappedEntity;
+import de.jpx3.intave.player.effect.Effects;
 import de.jpx3.intave.reflect.access.ReflectiveDataWatcherAccess;
 import de.jpx3.intave.reflect.access.ReflectiveHandleAccess;
+import de.jpx3.intave.shade.BoundingBox;
+import de.jpx3.intave.shade.WrappedMathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
-import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
-import de.jpx3.intave.world.blockphysic.BlockProperties;
-import de.jpx3.intave.world.collision.Collision;
-import de.jpx3.intave.world.effect.Effects;
-import de.jpx3.intave.world.fluid.FluidTag;
-import de.jpx3.intave.world.fluid.Fluids;
-import de.jpx3.intave.world.fluid.WrappedFluid;
-import de.jpx3.intave.world.wrapper.WrappedAxisAlignedBB;
-import de.jpx3.intave.world.wrapper.WrappedMathHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -82,7 +82,7 @@ public final class MovementMetadata {
   // Timestamps
   public long lastSneakingTimestamps, lastJumpTimestamps;
 
-  private volatile WrappedAxisAlignedBB boundingBox = WrappedAxisAlignedBB.fromBounds(0, 0, 0, 0, 0, 0);
+  private volatile BoundingBox boundingBox = BoundingBox.fromBounds(0, 0, 0, 0, 0, 0);
   private boolean boundingBoxSetup = false;
 
   public Vector emulationVelocity;
@@ -131,7 +131,7 @@ public final class MovementMetadata {
   public int physicsEatingSlotSwitchVL;
 
   // Phase prevention
-  public List<WrappedAxisAlignedBB> phaseIntersectingBoundingBoxes;
+  public List<BoundingBox> phaseIntersectingBoundingBoxes;
   public boolean currentlyInBlock;
   // Entity collision
   public boolean enforceBoatStep;
@@ -153,7 +153,7 @@ public final class MovementMetadata {
   public boolean pushedByEntity;
 
   // Key inputs sent by the client
-  public boolean applyClientKeys = false;
+  public boolean externalKeyApply = false;
   public int clientInputKey = 0;
   public int clientStrafeKey = 0;
   public boolean clientPressedJump = false;
@@ -182,7 +182,7 @@ public final class MovementMetadata {
     this.frictionPosSubtraction = version <= VER_1_15 ? 1.0 : 0.5000001;
     this.hasJumpFactor = version >= VER_1_15;
     Location location = player.getLocation();
-    boundingBox = WrappedAxisAlignedBB.createFromPosition(user, location.getX(), location.getY(), location.getZ());
+    boundingBox = BoundingBox.fromPosition(user, location.getX(), location.getY(), location.getZ());
     boundingBoxSetup = true;
   }
 
@@ -538,7 +538,7 @@ public final class MovementMetadata {
     if (clientData.waterUpdate()) {
       return aquaticUpdateInLava;
     } else {
-      WrappedAxisAlignedBB lavaBoundingBox = boundingBox.expand(
+      BoundingBox lavaBoundingBox = boundingBox.expand(
         -0.1f,
         -0.4000000059604645D,
         -0.1f
@@ -649,7 +649,7 @@ public final class MovementMetadata {
     return new MotionVector(motionX, motionY, motionZ);
   }
 
-  public WrappedAxisAlignedBB boundingBox() {
+  public BoundingBox boundingBox() {
     return boundingBox;
   }
 
@@ -721,7 +721,7 @@ public final class MovementMetadata {
     return motionMultiplier;
   }
 
-  public void setBoundingBox(WrappedAxisAlignedBB entityBoundingBox) {
+  public void setBoundingBox(BoundingBox entityBoundingBox) {
     if (!boundingBoxSetup) {
       setupDefaults();
     }

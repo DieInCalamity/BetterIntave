@@ -8,7 +8,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.user.User;
@@ -212,9 +211,9 @@ public final class FeedbackSender extends Module {
     ConnectionMetadata connectionData = user.meta().connection();
     connectionData.transactionPacketCounter++;
 
-    if (AccessHelper.now() - connectionData.transactionPacketCounterReset > 3000) {
+    if (System.currentTimeMillis() - connectionData.transactionPacketCounterReset > 3000) {
       connectionData.transactionPacketCounter = 0;
-      connectionData.transactionPacketCounterReset = AccessHelper.now();
+      connectionData.transactionPacketCounterReset = System.currentTimeMillis();
     }
   }
 

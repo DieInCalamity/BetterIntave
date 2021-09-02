@@ -7,7 +7,6 @@ import com.comphenix.protocol.wrappers.PlayerInfoData;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.fakeplayer.FakePlayer;
 import de.jpx3.intave.module.linker.packet.PacketEventSubscriber;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
@@ -47,7 +46,7 @@ public final class PlayerPingPacketDispatcher implements PacketEventSubscriber {
     if (action != EnumWrappers.PlayerInfoAction.UPDATE_LATENCY) {
       return;
     }
-    if (AccessHelper.now() - fakePlayer.lastPingPacketSent >= MIN_TIME_BETWEEN_PLAYER_INFO_UPDATE) {
+    if (System.currentTimeMillis() - fakePlayer.lastPingPacketSent >= MIN_TIME_BETWEEN_PLAYER_INFO_UPDATE) {
       List<PlayerInfoData> playerInfoData = packet.getPlayerInfoDataLists().readSafely(0);
       appendToPingPacket(fakePlayer, playerInfoData, packet);
     }
@@ -65,6 +64,6 @@ public final class PlayerPingPacketDispatcher implements PacketEventSubscriber {
     PlayerInfoData playerInfoData = new PlayerInfoData(profile, latency, fakePlayer.gameMode(), wrappedChatComponent);
     playerInfoDataList.add(playerInfoData);
     packet.getPlayerInfoDataLists().write(0, playerInfoDataList);
-    fakePlayer.lastPingPacketSent = AccessHelper.now();
+    fakePlayer.lastPingPacketSent = System.currentTimeMillis();
   }
 }

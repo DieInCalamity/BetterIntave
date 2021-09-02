@@ -2,7 +2,6 @@ package de.jpx3.intave;
 
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
-import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.executor.BackgroundExecutor;
 import de.jpx3.intave.resource.FileArchiver;
 import de.jpx3.intave.version.JavaVersion;
@@ -160,13 +159,13 @@ public final class IntaveLogger extends PluginLogger {
     try {
       boolean compressLogsLater = false;
       if (activeFileName != null) {
-        if (AccessHelper.now() - lastNameCheck > 10000) {
+        if (System.currentTimeMillis() - lastNameCheck > 10000) {
           if (!activeFileName.equalsIgnoreCase(activeFileName())) {
             setup();
             activeFileName = activeFileName();
             compressLogsLater = true;
           }
-          lastNameCheck = AccessHelper.now();
+          lastNameCheck = System.currentTimeMillis();
         }
       }
 
@@ -267,7 +266,7 @@ public final class IntaveLogger extends PluginLogger {
   private final static ThreadLocal<Format> dateFormat = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy_MM_dd"));
 
   private String activeFileName() {
-    String timestamp = dateFormat.get().format(AccessHelper.now());
+    String timestamp = dateFormat.get().format(System.currentTimeMillis());
     return "intave" + timestamp + ".log";
   }
 

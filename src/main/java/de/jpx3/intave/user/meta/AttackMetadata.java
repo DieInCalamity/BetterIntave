@@ -2,9 +2,8 @@ package de.jpx3.intave.user.meta;
 
 import de.jpx3.intave.annotate.Nullable;
 import de.jpx3.intave.annotate.Relocate;
-import de.jpx3.intave.detect.checks.combat.heuristics.MiningStrategy;
-import de.jpx3.intave.detect.checks.combat.heuristics.mining.MiningStrategyContainer;
-import de.jpx3.intave.event.AccessHelper;
+import de.jpx3.intave.check.combat.heuristics.MiningStrategy;
+import de.jpx3.intave.check.combat.heuristics.mine.MiningStrategyContainer;
 import de.jpx3.intave.fakeplayer.FakePlayer;
 import de.jpx3.intave.module.tracker.entity.EntityTracker;
 import de.jpx3.intave.module.tracker.entity.WrappedEntity;
@@ -87,11 +86,11 @@ public final class AttackMetadata {
   }
 
   public boolean recentlyAttacked(long time) {
-    return AccessHelper.now() - lastAttack <= time;
+    return System.currentTimeMillis() - lastAttack <= time;
   }
 
   public boolean recentlySwitchedEntity(long time) {
-    return AccessHelper.now() - lastEntitySwitch <= time;
+    return System.currentTimeMillis() - lastEntitySwitch <= time;
   }
 
   public double lastReach() {
@@ -133,11 +132,11 @@ public final class AttackMetadata {
     WrappedEntity lastAttackedEntity = this.lastAttackedEntity;
     WrappedEntity attackedEntity = EntityTracker.entityByIdentifier(UserRepository.userOf(player), lastAttackedEntityID);
     if (attackedEntity != null && attackedEntity != lastAttackedEntity) {
-      this.lastEntitySwitch = AccessHelper.now();
+      this.lastEntitySwitch = System.currentTimeMillis();
     }
 
     this.lastAttackedEntity = attackedEntity;
-    this.lastAttack = AccessHelper.now();
+    this.lastAttack = System.currentTimeMillis();
   }
 
   public void nullifyLastAttackedEntity() {

@@ -1,8 +1,8 @@
 package de.jpx3.intave.diagnostic;
 
 import de.jpx3.intave.IntaveControl;
-import de.jpx3.intave.world.blockshape.BlockShape;
-import de.jpx3.intave.world.wrapper.WrappedAxisAlignedBB;
+import de.jpx3.intave.block.shape.BlockShape;
+import de.jpx3.intave.shade.BoundingBox;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +14,7 @@ public abstract class MemoryTraced {
   private final static Map<Class<?>, Integer> BYTES = new HashMap<>();
 
   static {
-    BYTES.put(WrappedAxisAlignedBB.class, Double.BYTES * 6);
+    BYTES.put(BoundingBox.class, Double.BYTES * 6);
     BYTES.put(BlockShape.class, Double.BYTES * 6 + Integer.BYTES * 3 + Long.BYTES);
   }
 

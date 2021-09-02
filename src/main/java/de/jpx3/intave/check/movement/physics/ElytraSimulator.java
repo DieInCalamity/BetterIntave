@@ -1,0 +1,78 @@
+package de.jpx3.intave.check.movement.physics;
+
+import de.jpx3.intave.player.collider.Collider;
+import de.jpx3.intave.player.collider.complex.ComplexColliderSimulationResult;
+import de.jpx3.intave.shade.WrappedMathHelper;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.MovementMetadata;
+import org.bukkit.util.Vector;
+
+public final class ElytraSimulator extends DefaultSimulator {
+  @Override
+  public ComplexColliderSimulationResult performSimulation(
+    User user, MotionVector context,
+    float forward, float strafe,
+    boolean attackReduce, boolean jumped, boolean handActive
+  ) {
+    MovementMetadata movementData = user.meta().movement();
+    float rotationPitch = movementData.rotationPitch;
+    Vector lookVector = movementData.lookVector;
+
+    double positionX = movementData.verifiedPositionX;
+    double positionY = movementData.verifiedPositionY;
+    double positionZ = movementData.verifiedPositionZ;
+
+    float f = rotationPitch * 0.017453292F;
+    double rotationVectorDistance = Math.sqrt(lookVector.getX() * lookVector.getX() + lookVector.getZ() * lookVector.getZ());
+    double dist2 = Math.sqrt(context.motionX * context.motionX + context.motionZ * context.motionZ);
+    double rotationVectorLength = Math.sqrt(lookVector.lengthSquared());
+    float pitchCosine = WrappedMathHelper.cos(f);
+    pitchCosine = (float) ((double) pitchCosine * (double) pitchCosine * Math.min(1.0D, rotationVectorLength / 0.4D));
+    context.motionY += movementData.gravity * (-1 + pitchCosine * 0.75);
+
+    if (context.motionY < 0.0D && rotationVectorDistance > 0.0D) {
+      double d2 = context.motionY * -0.1D * (double) pitchCosine;
+      context.motionY += d2;
+      context.motionX += lookVector.getX() * d2 / rotationVectorDistance;
+      context.motionZ += lookVector.getZ() * d2 / rotationVectorDistance;
+    }
+
+    if (f < 0.0F && rotationVectorDistance > 0.0D) {
+      double d9 = dist2 * (double) (-WrappedMathHelper.sin(f)) * 0.04D;
+      context.motionY += d9 * 3.2D;
+      context.motionX += -lookVector.getX() * d9 / rotationVectorDistance;
+      context.motionZ += -lookVector.getZ() * d9 / rotationVectorDistance;
+    }
+
+    if (rotationVectorDistance > 0.0D) {
+      context.motionX += (lookVector.getX() / rotationVectorDistance * dist2 - context.motionX) * 0.1D;
+      context.motionZ += (lookVector.getZ() / rotationVectorDistance * dist2 - context.motionZ) * 0.1D;
+    }
+
+    context.motionX *= 0.99f;
+    context.motionY *= 0.98f;
+    context.motionZ *= 0.99f;
+
+    ComplexColliderSimulationResult collisionResult = Collider.simulateComplexCollision(
+      user, context, movementData.inWeb,
+      positionX, positionY, positionZ
+    );
+    notePossibleFlyingPacket(user, collisionResult);
+    return collisionResult;
+  }
+
+  @Override
+  public void prepareNextTick(User user, double positionX, double positionY, double positionZ, double motionX, double motionY, double motionZ) {
+    super.prepareNextTick(user, positionX, positionY, positionZ, motionX, motionY, motionZ);
+  }
+
+  @Override
+  public String debugName() {
+    return "ELYTRA";
+  }
+
+  @Override
+  public boolean affectedByMovementKeys() {
+    return false;
+  }
+}

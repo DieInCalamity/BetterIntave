@@ -5,7 +5,6 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveBootFailureException;
 import de.jpx3.intave.annotate.HighOrderService;
 import de.jpx3.intave.annotate.Native;
-import de.jpx3.intave.event.AccessHelper;
 import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -58,7 +57,7 @@ public final class ConfigurationService {
     boolean partner = (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
 
     boolean useExternalConfigurationFile = (/*enterprise && */configurationKey.equalsIgnoreCase("file")) || IntaveControl.USE_EXTERNAL_CONFIGURATION_FILE;
-    boolean configurationCacheOutdated = AccessHelper.now() - loader().configurationCache().lastModified() > 1000 * 60 * 60 * 2;
+    boolean configurationCacheOutdated = System.currentTimeMillis() - loader().configurationCache().lastModified() > 1000 * 60 * 60 * 2;
 
     if (useExternalConfigurationFile || configurationCacheOutdated) {
       loader.loadConfigurationUpdatedForcefully();

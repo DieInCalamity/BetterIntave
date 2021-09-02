@@ -10,17 +10,17 @@ import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.annotate.DispatchTarget;
 import de.jpx3.intave.annotate.KeepEnumInternalNames;
+import de.jpx3.intave.clazz.Lookup;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketEventSubscriber;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
-import de.jpx3.intave.reflect.Lookup;
+import de.jpx3.intave.shade.BoundingBox;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.MovementMetadata;
-import de.jpx3.intave.world.wrapper.WrappedAxisAlignedBB;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -255,7 +255,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     movementData.physicsMotionZ = 0.0;
 
     movementData.lastOnGround = false;
-    movementData.setBoundingBox(WrappedAxisAlignedBB.createFromPosition(user, movementData.teleportLocation));
+    movementData.setBoundingBox(BoundingBox.fromPosition(user, movementData.teleportLocation));
   }
 
   private static final class TeleportPositionFlagsHelper {
