@@ -50,8 +50,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import static de.jpx3.intave.module.feedback.TransactionOptions.SELF_SYNCHRONIZATION;
-import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_13;
-import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_9;
 
 @Relocate
 final class PlayerUser implements User {
@@ -91,14 +89,7 @@ final class PlayerUser implements User {
     this.simpleColliderProcessor = Collider.suitableSimpleColliderProcessorFor(this);
     Synchronizer.synchronize(this::setDefaultMessagingChannel);
     this.playerContext = PlayerContext.of(player);
-    int version = metadata.protocol().protocolVersion();
-    if (version >= VER_1_13) {
-      this.poseSizes = Pose.AT_LEAST_1_13_POSE;
-    } else if (version >= VER_1_9) {
-      this.poseSizes = Pose.AT_LEAST_1_9_POSE;
-    } else {
-      this.poseSizes = Pose.AT_LEAST_1_8_POSE;
-    }
+    this.poseSizes = Pose.poseSizesByVersion(metadata.protocol().protocolVersion());
     this.metadata.setup();
   }
 
