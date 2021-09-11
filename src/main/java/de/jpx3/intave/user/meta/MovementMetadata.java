@@ -37,6 +37,7 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_14;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_15;
 
 @Relocate
@@ -335,9 +336,36 @@ public final class MovementMetadata {
 
   @IdoNotBelongHere
   public void updatePose() {
-    // Beautiful
-    if (this.isPoseClear(Pose.SWIMMING)) {
-      Pose pose;
+    boolean modernPose = user.meta().protocol().protocolVersion() >= VER_1_14;
+    Pose pose;
+    if (modernPose) {
+      if (this.isPoseClear(Pose.SWIMMING)) {
+        if (isSwimming(user)) {
+          pose = Pose.SWIMMING;
+        } else if (player.isSleeping()) {
+          pose = Pose.SLEEPING;
+        } else if (elytraFlying) {
+          pose = Pose.FALL_FLYING;
+        } else if (poseSneaking(user)) {
+          pose = Pose.CROUCHING;
+        } else {
+          pose = Pose.STANDING;
+        }
+
+        Pose pose1;
+        if (!this.isPoseClear(pose)) {
+          if (this.isPoseClear(Pose.CROUCHING)) {
+            pose1 = Pose.CROUCHING;
+          } else {
+            pose1 = Pose.SWIMMING;
+          }
+        } else {
+          pose1 = pose;
+        }
+
+        this.pose = pose1;
+      }
+    } else {
       if (isSwimming(user)) {
         pose = Pose.SWIMMING;
       } else if (player.isSleeping()) {
@@ -349,19 +377,7 @@ public final class MovementMetadata {
       } else {
         pose = Pose.STANDING;
       }
-
-      Pose pose1;
-      if (!this.isPoseClear(pose)) {
-        if (this.isPoseClear(Pose.CROUCHING)) {
-          pose1 = Pose.CROUCHING;
-        } else {
-          pose1 = Pose.SWIMMING;
-        }
-      } else {
-        pose1 = pose;
-      }
-
-      this.pose = pose1;
+      this.pose = pose;
     }
 
     updateSize();
