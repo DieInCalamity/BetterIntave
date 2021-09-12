@@ -35,30 +35,34 @@ public final class DoubleEntityActionHeuristic extends MetaCheckPart<Heuristics,
     MovementMetadata movementData = user.meta().movement();
     PlayerAction action = resolveActionFromPacket(event.getPacket());
     ProtocolMetadata protocolMetadata = user.meta().protocol();
+    DoubleEntityActionHeuristicMeta meta = metaOf(user);
 
     String message = null;
     if(action == PlayerAction.START_SNEAKING) {
-      if(movementData.sneaking) {
+      if(meta.isSneaking != null && meta.isSneaking) {
         message = "sent start_sneak packet twice";
       }
+      meta.isSneaking = true;
     }
     if(action == PlayerAction.STOP_SNEAKING) {
-      if(!movementData.sneaking) {
+      if(meta.isSneaking != null && !meta.isSneaking) {
         message = "sent stop_sneak packet twice";
       }
+      meta.isSneaking = false;
     }
     if(action == PlayerAction.START_SPRINTING) {
-      if(movementData.sprinting) {
+      if(meta.isSprinting != null && meta.isSprinting) {
         message = "sent start_sprint packet twice";
       }
+      meta.isSprinting = true;
     }
     if(action == PlayerAction.STOP_SPRINTING) {
-      if(!movementData.sprinting) {
+      if(meta.isSprinting != null && !meta.isSprinting) {
         message = "sent stop_sprint packet twice";
       }
+      meta.isSprinting = false;
     }
 
-    DoubleEntityActionHeuristicMeta meta = metaOf(user);
     if(message != null && meta.ticksSinceJoin > 10) {
       message += " " + protocolMetadata.protocolVersion();
       // Be careful before setting a confidence because it false flags when reloading the server
@@ -85,6 +89,8 @@ public final class DoubleEntityActionHeuristic extends MetaCheckPart<Heuristics,
   }
 
   public static class DoubleEntityActionHeuristicMeta extends CheckCustomMetadata {
+    private Boolean isSprinting = null;
+    private Boolean isSneaking = null;
     int ticksSinceJoin = 0;
   }
 }
