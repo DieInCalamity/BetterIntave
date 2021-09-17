@@ -4,9 +4,9 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.check.Check;
 import de.jpx3.intave.check.world.placementanalysis.*;
+import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.ProtocolMetadata;
-import de.jpx3.intave.violation.mitigate.AttackNerfStrategy;
 
 public final class PlacementAnalysis extends Check {
   private final IntavePlugin plugin;

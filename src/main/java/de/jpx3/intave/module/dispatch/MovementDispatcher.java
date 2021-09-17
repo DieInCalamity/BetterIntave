@@ -24,6 +24,7 @@ import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.linker.packet.PrioritySlot;
 import de.jpx3.intave.module.tracker.entity.WrappedEntity;
+import de.jpx3.intave.module.violation.Violation;
 import de.jpx3.intave.packet.converter.PlayerAction;
 import de.jpx3.intave.packet.converter.PlayerActionResolver;
 import de.jpx3.intave.player.fake.FakePlayer;
@@ -31,7 +32,6 @@ import de.jpx3.intave.shade.BoundingBox;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.*;
-import de.jpx3.intave.violation.Violation;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
@@ -277,14 +277,14 @@ public final class MovementDispatcher extends Module {
     if (distance > 50) {
       event.setCancelled(true);
       Vector vector = new Vector(movementData.physicsMotionX, movementData.physicsMotionY, movementData.physicsMotionZ);
-      plugin.eventService().emulationEngine().emulationSetBack(player, vector, 10, false);
+      Modules.mitigate().movement().emulationSetBack(player, vector, 10, false);
       String message = "sent unsafe position";
       String details = "moved " + MathHelper.formatDouble(distance, 2) + " blocks";
       Violation violation = Violation.builderFor(Physics.class)
         .forPlayer(player).withMessage(message).withDetails(details)
         .withVL(25)
         .build();
-      plugin.violationProcessor().processViolation(violation);
+      Modules.violationProcessor().processViolation(violation);
       return;
     }
 

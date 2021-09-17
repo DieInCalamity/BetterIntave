@@ -31,12 +31,9 @@ import de.jpx3.intave.connect.sibyl.SibylIntegrationService;
 import de.jpx3.intave.diagnostic.report.RuntimeDiagnostics;
 import de.jpx3.intave.entity.size.HitboxSizeAccess;
 import de.jpx3.intave.entity.type.EntityTypeDataAccessor;
-import de.jpx3.intave.event.CustomEventService;
-import de.jpx3.intave.event.EventService;
 import de.jpx3.intave.executor.BackgroundExecutor;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.executor.TaskTracker;
-import de.jpx3.intave.filter.Filters;
 import de.jpx3.intave.lib.asm.Frame;
 import de.jpx3.intave.math.SinusCache;
 import de.jpx3.intave.metric.Metrics;
@@ -61,7 +58,6 @@ import de.jpx3.intave.version.DurationTranslator;
 import de.jpx3.intave.version.IntaveVersion;
 import de.jpx3.intave.version.IntaveVersionList;
 import de.jpx3.intave.version.JavaVersion;
-import de.jpx3.intave.violation.ViolationProcessor;
 import de.jpx3.intave.world.border.WorldBorders;
 import de.jpx3.intave.world.permission.WorldPermission;
 import de.jpx3.intave.world.raytrace.Raytracing;
@@ -101,12 +97,8 @@ public final class IntavePlugin extends JavaPlugin {
   private SibylIntegrationService sibylIntegrationService;
   private ConfigurationService configurationService;
   private ComponentLoader componentLoader;
-  private EventService eventService;
   private FakePlayerEventService fakePlayerEventService;
-  private CustomEventService customEventService;
-  private ViolationProcessor violationProcessor;
   private CheckService checkService;
-  private Filters filters;
   private TrustFactorService trustFactorService;
   private IntaveVersionList versions;
   private LabymodShadowIntegration shadowIntegration;
@@ -526,18 +518,13 @@ public final class IntavePlugin extends JavaPlugin {
 
       // stage 8
       Modules.proceedBoot(BootSegment.STAGE_8);
-      filters = new Filters(this);
-      filters.setup();
       shadowIntegration = new LabymodShadowIntegration(this);
       shadowIntegration.setup();
       accessService = new IntaveAccessService(this);
       accessService.setup();
       customClientSupportService = new CustomClientSupportService(this);
       customClientSupportService.setup();
-      customEventService = new CustomEventService(this);
       checkService = new CheckService(this);
-      violationProcessor = new ViolationProcessor(this);
-      eventService = new EventService(this);
       fakePlayerEventService = new FakePlayerEventService(this);
       proxyMessenger = new ProxyMessenger(this);
       sibylIntegrationService = new SibylIntegrationService(this);
@@ -556,8 +543,6 @@ public final class IntavePlugin extends JavaPlugin {
 
       trustFactorService.setup();
       checkService.setup();
-      customEventService.setup();
-      eventService.setup();
       fakePlayerEventService.setup();
       blackListService.setup();
     } catch (Exception exception) {
@@ -818,10 +803,6 @@ public final class IntavePlugin extends JavaPlugin {
     return trustFactorService;
   }
 
-  public CustomEventService customEventService() {
-    return customEventService;
-  }
-
   public IntaveLogger logger() {
     return logger;
   }
@@ -838,11 +819,6 @@ public final class IntavePlugin extends JavaPlugin {
     return configurationService;
   }
 
-  @Deprecated
-  public EventService eventService() {
-    return eventService;
-  }
-
   public FakePlayerEventService fakePlayerEventService() {
     return fakePlayerEventService;
   }
@@ -855,10 +831,6 @@ public final class IntavePlugin extends JavaPlugin {
   @Deprecated
   public PacketSubscriptionLinker packetSubscriptionLinker() {
     return Modules.linker().packetEvents();
-  }
-
-  public ViolationProcessor violationProcessor() {
-    return this.violationProcessor;
   }
 
   public SibylIntegrationService sibylIntegrationService() {
