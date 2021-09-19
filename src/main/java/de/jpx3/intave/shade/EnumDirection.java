@@ -243,7 +243,7 @@ public enum EnumDirection {
    * Get a Facing by it's index (0-5). The order is D-U-N-S-W-E. Named getFront for legacy reasons.
    */
   public static EnumDirection getFront(int index) {
-    return VALUES[WrappedMathHelper.abs_int(index % VALUES.length)];
+    return VALUES[ClientMathHelper.abs_int(index % VALUES.length)];
   }
 
   /**
@@ -257,7 +257,7 @@ public enum EnumDirection {
    * Get the Facing corresponding to the given angle (0-360). An angle of 0 is SOUTH, an angle of 90 would be WEST.
    */
   public static EnumDirection fromAngle(double angle) {
-    return getHorizontal(WrappedMathHelper.floor(angle / 90.0D + 0.5D) & 3);
+    return getHorizontal(ClientMathHelper.floor(angle / 90.0D + 0.5D) & 3);
   }
 
   /**

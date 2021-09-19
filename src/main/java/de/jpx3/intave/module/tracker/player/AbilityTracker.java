@@ -10,7 +10,7 @@ import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketId;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.tracker.entity.EntityTracker;
-import de.jpx3.intave.shade.WrappedMathHelper;
+import de.jpx3.intave.shade.ClientMathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.AbilityMetadata;
@@ -132,7 +132,7 @@ public final class AbilityTracker extends Module {
       return;
     }
     Float value = packet.getFloat().read(0);
-    int gameTypeIdentifier = WrappedMathHelper.floor_float(value + 0.5F);
+    int gameTypeIdentifier = ClientMathHelper.floor_float(value + 0.5F);
     GameMode gameMode = gameModeOf(gameTypeIdentifier);
     abilityData.setPendingGameMode(gameMode);
     Modules.feedback().synchronize(

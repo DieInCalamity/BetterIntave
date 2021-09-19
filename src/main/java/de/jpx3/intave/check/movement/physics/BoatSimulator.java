@@ -1,9 +1,9 @@
 package de.jpx3.intave.check.movement.physics;
 
 import de.jpx3.intave.block.access.VolatileBlockAccess;
+import de.jpx3.intave.block.fluid.Fluid;
 import de.jpx3.intave.block.fluid.FluidTag;
 import de.jpx3.intave.block.fluid.Fluids;
-import de.jpx3.intave.block.fluid.WrappedFluid;
 import de.jpx3.intave.block.physics.BlockProperties;
 import de.jpx3.intave.math.SinusCache;
 import de.jpx3.intave.player.Collider;
@@ -17,8 +17,8 @@ import org.bukkit.Material;
 
 import javax.annotation.Nullable;
 
-import static de.jpx3.intave.shade.WrappedMathHelper.ceil;
-import static de.jpx3.intave.shade.WrappedMathHelper.floor;
+import static de.jpx3.intave.shade.ClientMathHelper.ceil;
+import static de.jpx3.intave.shade.ClientMathHelper.floor;
 
 public final class BoatSimulator extends DefaultSimulator {
   @Override
@@ -76,7 +76,7 @@ public final class BoatSimulator extends DefaultSimulator {
     for (int x = minX; x < maxX; ++x) {
       for (int y = minY; y < maxY; ++y) {
         for (int z = minZ; z < maxZ; ++z) {
-          WrappedFluid fluid = Fluids.fluidAt(user, x, y, z);
+          Fluid fluid = Fluids.fluidAt(user, x, y, z);
           if (fluid.isIn(FluidTag.WATER)) {
             float f = y + fluid.height();
             movement.waterLevel = Math.max(f, movement.waterLevel);
@@ -103,7 +103,7 @@ public final class BoatSimulator extends DefaultSimulator {
     for (int x = minX; x < maxX; ++x) {
       for (int y = minY; y < maxY; ++y) {
         for (int z = minZ; z < maxZ; ++z) {
-          WrappedFluid fluid = Fluids.fluidAt(user, x, y, z);
+          Fluid fluid = Fluids.fluidAt(user, x, y, z);
           if (fluid.isIn(FluidTag.WATER) && d0 < (double) ((float) y + fluid.height())) {
             if (!fluid.source()) {
               return Status.UNDER_FLOWING_WATER;
@@ -191,14 +191,14 @@ public final class BoatSimulator extends DefaultSimulator {
   }
 
   private float getBoatGlide(User user) {
-    BoundingBox axisalignedbb = user.meta().movement().boundingBox();
-    BoundingBox axisalignedbb1 = new BoundingBox(axisalignedbb.minX, axisalignedbb.minY - 0.001D, axisalignedbb.minZ, axisalignedbb.maxX, axisalignedbb.minY, axisalignedbb.maxZ);
-    int minX = floor(axisalignedbb1.minX) - 1;
-    int maxX = ceil(axisalignedbb1.maxX) + 1;
-    int minY = floor(axisalignedbb1.minY) - 1;
-    int maxY = ceil(axisalignedbb1.maxY) + 1;
-    int minZ = floor(axisalignedbb1.minZ) - 1;
-    int maxZ = ceil(axisalignedbb1.maxZ) + 1;
+    BoundingBox boundingBox = user.meta().movement().boundingBox();
+    BoundingBox boundingBox1 = new BoundingBox(boundingBox.minX, boundingBox.minY - 0.001D, boundingBox.minZ, boundingBox.maxX, boundingBox.minY, boundingBox.maxZ);
+    int minX = floor(boundingBox1.minX) - 1;
+    int maxX = ceil(boundingBox1.maxX) + 1;
+    int minY = floor(boundingBox1.minY) - 1;
+    int maxY = ceil(boundingBox1.maxY) + 1;
+    int minZ = floor(boundingBox1.minZ) - 1;
+    int maxZ = ceil(boundingBox1.maxZ) + 1;
     float f = 0.0F;
     int k1 = 0;
 

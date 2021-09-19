@@ -1,5 +1,6 @@
 package de.jpx3.intave.block.variant;
 
+import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.clazz.rewrite.PatchyAutoTranslation;
 import de.jpx3.intave.clazz.rewrite.PatchyLoadingInjector;
@@ -14,8 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class BlockVariantConverter {
   static {
-    ClassLoader classLoader = BlockVariantConverter.class.getClassLoader();
-    PatchyLoadingInjector.loadUnloadedClassPatched(classLoader, "de.jpx3.intave.block.variant.BlockVariantConverter$Bridge");
+    ClassLoader classLoader = IntavePlugin.class.getClassLoader();
+    String className = "de.jpx3.intave.block.variant.BlockVariantConverter$Bridge";
+    PatchyLoadingInjector.loadUnloadedClassPatched(classLoader, className);
   }
 
   public static Map<Integer, BlockVariant> translate(Material type, Map<Integer, Object> natives) {

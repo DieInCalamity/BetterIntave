@@ -43,6 +43,7 @@ public final class VolatileBlockAccess implements BukkitEventSubscriber {
   public static Material typeAccess(User user, Location location) {
     return typeAccess(user, location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
   }
+
   public static Material typeAccess(User user, int blockX, int blockY, int blockZ) {
     World world = user.player().getWorld();
     return typeAccess(user, world, blockX, blockY, blockZ);

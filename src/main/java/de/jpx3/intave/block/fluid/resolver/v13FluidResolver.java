@@ -1,8 +1,8 @@
 package de.jpx3.intave.block.fluid.resolver;
 
+import de.jpx3.intave.block.fluid.Fluid;
 import de.jpx3.intave.block.fluid.FluidEngine;
 import de.jpx3.intave.block.fluid.FluidTag;
-import de.jpx3.intave.block.fluid.WrappedFluid;
 import de.jpx3.intave.clazz.rewrite.PatchyAutoTranslation;
 import de.jpx3.intave.clazz.rewrite.PatchyTranslateParameters;
 import de.jpx3.intave.shade.NativeVector;
@@ -15,24 +15,24 @@ import net.minecraft.server.v1_13_R2.*;
 public final class v13FluidResolver extends FluidEngine {
   @Override
   @PatchyAutoTranslation
-  protected WrappedFluid fluidAt(User user, int x, int y, int z) {
+  protected Fluid fluidAt(User user, int x, int y, int z) {
     MovementMetadata movementData = user.meta().movement();
     World world = (World) movementData.nmsWorld();
     if (!world.isChunkLoaded(x >> 4, z >> 4, false)) {
-      return WrappedFluid.empty();
+      return Fluid.empty();
     }
-    Fluid fluid = world.getFluid(new BlockPosition(x, y, z));
+    net.minecraft.server.v1_13_R2.Fluid fluid = world.getFluid(new BlockPosition(x, y, z));
     FluidTag fluidTag = resolveFluidTagOf(fluid);
     if (fluidTag == FluidTag.EMPTY) {
-      return WrappedFluid.empty();
+      return Fluid.empty();
     }
     float height = fluid.getHeight();
-    return WrappedFluid.construct(fluidTag, fluid.d(), height);
+    return Fluid.construct(fluidTag, fluid.d(), height);
   }
 
   @PatchyAutoTranslation
   @PatchyTranslateParameters
-  private FluidTag resolveFluidTagOf(Fluid fluid) {
+  private FluidTag resolveFluidTagOf(net.minecraft.server.v1_13_R2.Fluid fluid) {
     if (fluid.e()) {
       return FluidTag.EMPTY;
     }

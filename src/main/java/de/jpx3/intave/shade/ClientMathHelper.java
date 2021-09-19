@@ -9,7 +9,7 @@ import java.util.function.IntPredicate;
 /**
  * Represents the client's MathHelper.
  */
-public final class WrappedMathHelper {
+public final class ClientMathHelper {
   /**
    * Though it looks like an array, this is really more like a mapping.  Key (index of this array) is the upper 5 bits
    * of the result of multiplying a 32-bit unsigned integer by the B(2, 5) De Bruijn sequence 0x077CB531.  Value (value
@@ -403,8 +403,8 @@ public final class WrappedMathHelper {
     return j << 16 | k << 8 | l;
   }
 
-  public static long getPositionLong(double value) {
-    return WrappedMathHelper.floor_double_long(value * 4096.0D);
+  public static long positionLong(double value) {
+    return floor_double_long(value * 4096.0D);
   }
 
   /**

@@ -3,7 +3,7 @@ package de.jpx3.intave.block.shape.pipe.patch;
 import de.jpx3.intave.block.access.BlockVariantAccess;
 import de.jpx3.intave.block.type.BlockTypeAccess;
 import de.jpx3.intave.shade.BoundingBox;
-import de.jpx3.intave.shade.WrappedMathHelper;
+import de.jpx3.intave.shade.ClientMathHelper;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -25,7 +25,7 @@ final class BambooBlockPatch extends BoundingBoxPatch {
     if (bbs.isEmpty()) {
       return bbs;
     }
-    long randomCoordinate = WrappedMathHelper.coordinateRandom(posX, 0, posZ);
+    long randomCoordinate = ClientMathHelper.coordinateRandom(posX, 0, posZ);
     double offsetX = ((double) ((float) (randomCoordinate & 15L) / 15.0F) - 0.5D) * 0.5D;
     double offsetZ = ((double) ((float) (randomCoordinate >> 8 & 15L) / 15.0F) - 0.5D) * 0.5D;
     double offsetY = 0.0;

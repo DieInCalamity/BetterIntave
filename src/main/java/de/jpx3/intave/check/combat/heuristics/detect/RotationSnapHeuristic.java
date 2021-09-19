@@ -19,7 +19,7 @@ import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.module.tracker.entity.WrappedEntity;
 import de.jpx3.intave.shade.BoundingBox;
-import de.jpx3.intave.shade.WrappedMathHelper;
+import de.jpx3.intave.shade.ClientMathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.AttackMetadata;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
@@ -164,7 +164,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
 
 //      String key = resolveKeysFromInput(movementData.keyForward, movementData.keyStrafe);
 //      String lastKey = resolveKeysFromInput(meta.lastKeyForward, meta.lastKeyStrafe);
-        boolean silentMovement = (int) (WrappedMathHelper.wrapAngleTo180_double(directionLast - direction) / 45d) == 0;
+        boolean silentMovement = (int) (ClientMathHelper.wrapAngleTo180_double(directionLast - direction) / 45d) == 0;
         if (movementData.keyForward != meta.lastKeyForward || movementData.keyStrafe != meta.lastKeyStrafe) {
           if (silentMovement && (movementData.keyForward != 0 || movementData.keyStrafe != 0) && (meta.lastKeyForward != 0 || meta.lastKeyStrafe != 0)) {
             meta.silentMovements[0] = KeyStates.SILENTMOVE;

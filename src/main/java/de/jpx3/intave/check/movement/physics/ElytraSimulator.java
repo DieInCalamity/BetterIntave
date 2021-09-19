@@ -8,8 +8,8 @@ import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import static de.jpx3.intave.shade.WrappedMathHelper.cos;
-import static de.jpx3.intave.shade.WrappedMathHelper.sin;
+import static de.jpx3.intave.shade.ClientMathHelper.cos;
+import static de.jpx3.intave.shade.ClientMathHelper.sin;
 
 public final class ElytraSimulator extends DefaultSimulator {
   @Override

@@ -57,7 +57,7 @@ public class NativeVector {
    * Normalizes the vector to a length of 1 (except if it is the zero vector)
    */
   public NativeVector normalize() {
-    double d0 = WrappedMathHelper.sqrt_double(this.xCoord * this.xCoord + this.yCoord * this.yCoord + this.zCoord * this.zCoord);
+    double d0 = ClientMathHelper.sqrt_double(this.xCoord * this.xCoord + this.yCoord * this.yCoord + this.zCoord * this.zCoord);
     return d0 < 1.0E-4D ? new NativeVector(0.0D, 0.0D, 0.0D) : new NativeVector(this.xCoord / d0, this.yCoord / d0, this.zCoord / d0);
   }
 
@@ -111,7 +111,7 @@ public class NativeVector {
     double d0 = vec.xCoord - this.xCoord;
     double d1 = vec.yCoord - this.yCoord;
     double d2 = vec.zCoord - this.zCoord;
-    return WrappedMathHelper.sqrt_double(d0 * d0 + d1 * d1 + d2 * d2);
+    return ClientMathHelper.sqrt_double(d0 * d0 + d1 * d1 + d2 * d2);
   }
 
   public double distanceToBox(BoundingBox boundingBox) {
@@ -125,7 +125,7 @@ public class NativeVector {
     double d0 = vector.getX() - this.xCoord;
     double d1 = vector.getY() - this.yCoord;
     double d2 = vector.getZ() - this.zCoord;
-    return WrappedMathHelper.sqrt_double(d0 * d0 + d1 * d1 + d2 * d2);
+    return ClientMathHelper.sqrt_double(d0 * d0 + d1 * d1 + d2 * d2);
   }
 
   /**
@@ -142,7 +142,7 @@ public class NativeVector {
    * Returns the length of the vector.
    */
   public double lengthVector() {
-    return WrappedMathHelper.sqrt_double(this.xCoord * this.xCoord + this.yCoord * this.yCoord + this.zCoord * this.zCoord);
+    return ClientMathHelper.sqrt_double(this.xCoord * this.xCoord + this.yCoord * this.yCoord + this.zCoord * this.zCoord);
   }
 
   /**

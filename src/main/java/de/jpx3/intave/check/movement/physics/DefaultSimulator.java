@@ -14,7 +14,7 @@ import de.jpx3.intave.player.Enchantments;
 import de.jpx3.intave.player.collider.complex.ComplexColliderSimulationResult;
 import de.jpx3.intave.player.collider.simple.SimpleColliderSimulationResult;
 import de.jpx3.intave.shade.BoundingBox;
-import de.jpx3.intave.shade.WrappedMathHelper;
+import de.jpx3.intave.shade.ClientMathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MetadataBundle;
 import de.jpx3.intave.user.meta.MovementMetadata;
@@ -172,8 +172,8 @@ public class DefaultSimulator extends Simulator {
     performRelativeMoveSimulationOfState(context, movementData.friction(), yawSine, yawCosine, moveForward, moveStrafe);
     if (MovementHelper.isOnLadder(user, movementData.verifiedPositionX, movementData.verifiedPositionY, movementData.verifiedPositionZ)) {
       float f6 = 0.15F;
-      context.motionX = WrappedMathHelper.clamp_double(context.motionX, -f6, f6);
-      context.motionZ = WrappedMathHelper.clamp_double(context.motionZ, -f6, f6);
+      context.motionX = ClientMathHelper.clamp_double(context.motionX, -f6, f6);
+      context.motionZ = ClientMathHelper.clamp_double(context.motionZ, -f6, f6);
       if (context.motionY < -0.15D) {
         context.motionY = -0.15D;
       }
@@ -333,9 +333,9 @@ public class DefaultSimulator extends Simulator {
     double gravity = movementData.gravity;
     double slipperiness;
     if (movementData.lastOnGround) {
-      double blockPositionX = WrappedMathHelper.floor(movementData.verifiedPositionX);
-      double blockPositionY = WrappedMathHelper.floor(movementData.verifiedPositionY - movementData.frictionPosSubtraction());
-      double blockPositionZ = WrappedMathHelper.floor(movementData.verifiedPositionZ);
+      double blockPositionX = ClientMathHelper.floor(movementData.verifiedPositionX);
+      double blockPositionY = ClientMathHelper.floor(movementData.verifiedPositionY - movementData.frictionPosSubtraction());
+      double blockPositionZ = ClientMathHelper.floor(movementData.verifiedPositionZ);
       Location blockBelow = new Location(world, blockPositionX, blockPositionY, blockPositionZ);
       slipperiness = MovementHelper.currentSlipperiness(user, blockBelow);
     } else {
@@ -416,9 +416,9 @@ public class DefaultSimulator extends Simulator {
     double positionY = movementData.positionY;
     double positionZ = movementData.positionZ;
 
-    int blockCollisionPosX = WrappedMathHelper.floor(positionX);
-    int blockCollisionPosY = WrappedMathHelper.floor(positionY - 0.2f);
-    int blockCollisionPosZ = WrappedMathHelper.floor(positionZ);
+    int blockCollisionPosX = ClientMathHelper.floor(positionX);
+    int blockCollisionPosY = ClientMathHelper.floor(positionY - 0.2f);
+    int blockCollisionPosZ = ClientMathHelper.floor(positionZ);
     Material block = VolatileBlockAccess.typeAccess(user, world, blockCollisionPosX, blockCollisionPosY, blockCollisionPosZ);
 
     if (block == Material.AIR) {
@@ -462,12 +462,12 @@ public class DefaultSimulator extends Simulator {
 
     movementData.aquaticUpdateInLava = false;
 
-    int blockPositionStartX = WrappedMathHelper.floor(entityBoundingBox.minX + 0.001);
-    int blockPositionStartY = WrappedMathHelper.floor(entityBoundingBox.minY + 0.001);
-    int blockPositionStartZ = WrappedMathHelper.floor(entityBoundingBox.minZ + 0.001);
-    int blockPositionEndX = WrappedMathHelper.floor(entityBoundingBox.maxX - 0.001);
-    int blockPositionEndY = WrappedMathHelper.floor(entityBoundingBox.maxY - 0.001);
-    int blockPositionEndZ = WrappedMathHelper.floor(entityBoundingBox.maxZ - 0.001);
+    int blockPositionStartX = ClientMathHelper.floor(entityBoundingBox.minX + 0.001);
+    int blockPositionStartY = ClientMathHelper.floor(entityBoundingBox.minY + 0.001);
+    int blockPositionStartZ = ClientMathHelper.floor(entityBoundingBox.minZ + 0.001);
+    int blockPositionEndX = ClientMathHelper.floor(entityBoundingBox.maxX - 0.001);
+    int blockPositionEndY = ClientMathHelper.floor(entityBoundingBox.maxY - 0.001);
+    int blockPositionEndZ = ClientMathHelper.floor(entityBoundingBox.maxZ - 0.001);
 
     Location blockCollisionFrom = new Location(world, positionX, positionY, positionZ);
     for (int x = blockPositionStartX; x <= blockPositionEndX; x++) {
@@ -598,9 +598,9 @@ public class DefaultSimulator extends Simulator {
     MovementMetadata movementData = user.meta().movement();
     double xDistance = movementData.positionX - entity.position.posX;
     double zDistance = movementData.positionZ - entity.position.posZ;
-    double biggerDistance = WrappedMathHelper.abs_max(xDistance, zDistance);
+    double biggerDistance = ClientMathHelper.abs_max(xDistance, zDistance);
     if (biggerDistance >= (double) 0.01F) {
-      biggerDistance = WrappedMathHelper.sqrt_double(biggerDistance);
+      biggerDistance = ClientMathHelper.sqrt_double(biggerDistance);
       xDistance = xDistance / biggerDistance;
       zDistance = zDistance / biggerDistance;
       double pushFactor = 1.0D / biggerDistance;

@@ -30,10 +30,13 @@ import de.jpx3.intave.player.Collider;
 import de.jpx3.intave.player.collider.complex.ComplexColliderSimulationResult;
 import de.jpx3.intave.player.collider.simple.SimpleColliderSimulationResult;
 import de.jpx3.intave.shade.BoundingBox;
-import de.jpx3.intave.shade.WrappedMathHelper;
+import de.jpx3.intave.shade.ClientMathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.*;
-import org.bukkit.*;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -359,7 +362,7 @@ public final class Physics extends Check {
         double blockPositionY = (boundingBox.minY + boundingBox.maxY) / 2.0;
         double blockPositionZ = (boundingBox.minZ + boundingBox.maxZ) / 2.0;
         Block block = VolatileBlockAccess.unsafe__BlockAccess(player.getWorld(), blockPositionX, blockPositionY, blockPositionZ);
-        boolean currentlyInOverride = blockStateAccess.currentlyInOverride(WrappedMathHelper.floor(blockPositionX), WrappedMathHelper.floor(blockPositionY), WrappedMathHelper.floor(blockPositionZ));
+        boolean currentlyInOverride = blockStateAccess.currentlyInOverride(ClientMathHelper.floor(blockPositionX), ClientMathHelper.floor(blockPositionY), ClientMathHelper.floor(blockPositionZ));
         boolean altered = BlockTypeAccess.hasTranslation(user, BlockTypeAccess.typeAccess(block));
 
         String colliderName;

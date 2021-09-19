@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
-import static de.jpx3.intave.shade.WrappedMathHelper.floor;
+import static de.jpx3.intave.shade.ClientMathHelper.floor;
 
 @Relocate
 @DoNotFlowObfuscate

@@ -18,8 +18,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static de.jpx3.intave.check.world.PlacementAnalysis.COMMON_FLAG_MESSAGE;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.LOOK;
@@ -63,7 +63,11 @@ public final class RotationSpeedAnalyzer extends MetaCheckPart<PlacementAnalysis
     meta.lastBlockPlacement = System.currentTimeMillis();
     if (place.getBlock().getY() < player.getLocation().getBlockY() && blockAgainstWasPlaced(user, place.getBlockAgainst())) {
       List<Float> rotationHistory = meta.rotationHistory;
-      double rotationSum = rotationHistory.stream().mapToDouble(value -> value).sum();
+      double rotationSum = 0.0;
+      for (Float value : rotationHistory) {
+        double v = value;
+        rotationSum += v;
+      }
       if (rotationSum > 3000) {
         Violation violation = Violation.builderFor(PlacementAnalysis.class)
           .forPlayer(player).withDefaultThreshold()
@@ -95,8 +99,8 @@ public final class RotationSpeedAnalyzer extends MetaCheckPart<PlacementAnalysis
   }
 
   public static class RotationSpeedMeta extends CheckCustomMetadata {
-    private final List<Float> rotationHistory = new ArrayList<>();
-    private final List<Vector> lastBlocksPlaced = new ArrayList<>();
+    private final List<Float> rotationHistory = new CopyOnWriteArrayList<>();
+    private final List<Vector> lastBlocksPlaced = new CopyOnWriteArrayList<>();
     private long lastBlockPlacement;
   }
 }

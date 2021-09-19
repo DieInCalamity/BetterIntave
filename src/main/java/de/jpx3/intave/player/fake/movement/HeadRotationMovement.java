@@ -1,7 +1,7 @@
 package de.jpx3.intave.player.fake.movement;
 
 import de.jpx3.intave.math.MathHelper;
-import de.jpx3.intave.shade.WrappedMathHelper;
+import de.jpx3.intave.shade.ClientMathHelper;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -31,7 +31,7 @@ public class HeadRotationMovement {
 
   private float updatePitch() {
     float newPitch = (float) ThreadLocalRandom.current().nextDouble(prevRotationPitch - 15.0, prevRotationPitch + 15.0);
-    newPitch = WrappedMathHelper.clamp_float(newPitch, -50, 50);
+    newPitch = ClientMathHelper.clamp_float(newPitch, -50, 50);
     if (inRange(newPitch)) {
       prevRotationPitch = newPitch;
     }

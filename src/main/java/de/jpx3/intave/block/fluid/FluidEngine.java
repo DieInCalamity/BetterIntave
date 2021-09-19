@@ -9,15 +9,15 @@ import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.Material;
 import org.bukkit.World;
 
-import static de.jpx3.intave.shade.WrappedMathHelper.ceil;
-import static de.jpx3.intave.shade.WrappedMathHelper.floor;
+import static de.jpx3.intave.shade.ClientMathHelper.ceil;
+import static de.jpx3.intave.shade.ClientMathHelper.floor;
 
 public abstract class FluidEngine {
-  public final WrappedFluid fluidAt(User user, double x, double y, double z) {
+  public final Fluid fluidAt(User user, double x, double y, double z) {
     return fluidAt(user, floor(x), floor(y), floor(z));
   }
 
-  protected abstract WrappedFluid fluidAt(User user, int x, int y, int z);
+  protected abstract Fluid fluidAt(User user, int x, int y, int z);
 
   protected abstract NativeVector flowVectorAt(User user, int x, int y, int z);
 
@@ -40,9 +40,9 @@ public abstract class FluidEngine {
       for (int y = minY; y < maxY; ++y) {
         for (int z = minZ; z < maxZ; ++z) {
           Material blockClientSide = VolatileBlockAccess.typeAccess(user, world, x, y, z);
-          WrappedFluid wrappedFluid = fluidAt(user, x, y, z);
-          if (wrappedFluid.isIn(FluidTag.WATER)) {
-            double d1 = (float) y + wrappedFluid.height();
+          Fluid fluid = fluidAt(user, x, y, z);
+          if (fluid.isIn(FluidTag.WATER)) {
+            double d1 = (float) y + fluid.height();
             if (d1 >= wrappedBoundingBox.minY) {
               inWater = true;
               d0 = Math.max(d1 - wrappedBoundingBox.minY, d0);

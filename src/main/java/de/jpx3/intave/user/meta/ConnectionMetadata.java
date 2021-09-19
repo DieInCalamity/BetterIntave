@@ -99,13 +99,10 @@ public final class ConnectionMetadata {
     return entitiesById.get(identifier);
   }
 
-  // are destroyed entities really required to be saved?!
-
   public void destroyEntity(int entityId) {
     entitiesById.put(entityId, WrappedEntity.destroyedEntity());
     for (int i = 0; i < entities.size(); i++) {
-      WrappedEntity wrappedEntity = entities.get(i);
-      if (wrappedEntity.entityId() == entityId) {
+      if (entities.get(i).entityId() == entityId) {
         entities.set(i, WrappedEntity.destroyedEntity());
       }
     }

@@ -24,7 +24,7 @@ import org.bukkit.material.Directional;
 import org.bukkit.material.MaterialData;
 import org.bukkit.material.Openable;
 
-import static de.jpx3.intave.shade.WrappedMathHelper.floor;
+import static de.jpx3.intave.shade.ClientMathHelper.floor;
 
 public final class MovementHelper {
   @Deprecated

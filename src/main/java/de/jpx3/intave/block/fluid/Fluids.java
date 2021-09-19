@@ -5,7 +5,7 @@ import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.clazz.rewrite.PatchyLoadingInjector;
 import de.jpx3.intave.shade.BoundingBox;
-import de.jpx3.intave.shade.WrappedMathHelper;
+import de.jpx3.intave.shade.ClientMathHelper;
 import de.jpx3.intave.user.User;
 import org.bukkit.Location;
 
@@ -35,16 +35,16 @@ public final class Fluids {
     return engine != null && engine.handleFluidAcceleration(user, boundingBox);
   }
 
-  public static WrappedFluid fluidAt(User user, int x, int y, int z) {
+  public static Fluid fluidAt(User user, int x, int y, int z) {
     return engine.fluidAt(user, x, y, z);
   }
 
-  public static WrappedFluid fluidAt(User user, Location location) {
+  public static Fluid fluidAt(User user, Location location) {
     return fluidAt(user, location.getX(), location.getY(), location.getZ());
   }
 
-  public static WrappedFluid fluidAt(User user, double x, double y, double z) {
-    return engine.fluidAt(user, WrappedMathHelper.floor(x), WrappedMathHelper.floor(y), WrappedMathHelper.floor(z));
+  public static Fluid fluidAt(User user, double x, double y, double z) {
+    return engine.fluidAt(user, ClientMathHelper.floor(x), ClientMathHelper.floor(y), ClientMathHelper.floor(z));
   }
 
   public static boolean fluidStateEmpty(User user, double x, double y, double z) {

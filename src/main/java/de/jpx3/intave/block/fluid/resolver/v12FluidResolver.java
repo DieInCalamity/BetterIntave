@@ -2,16 +2,16 @@ package de.jpx3.intave.block.fluid.resolver;
 
 import de.jpx3.intave.block.access.BlockVariantAccess;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
+import de.jpx3.intave.block.fluid.Fluid;
 import de.jpx3.intave.block.fluid.FluidEngine;
 import de.jpx3.intave.block.fluid.FluidTag;
 import de.jpx3.intave.block.fluid.LegacyWaterflow;
-import de.jpx3.intave.block.fluid.WrappedFluid;
 import de.jpx3.intave.block.physics.MaterialMagic;
 import de.jpx3.intave.block.type.BlockTypeAccess;
 import de.jpx3.intave.shade.BlockPosition;
 import de.jpx3.intave.shade.BoundingBox;
+import de.jpx3.intave.shade.ClientMathHelper;
 import de.jpx3.intave.shade.NativeVector;
-import de.jpx3.intave.shade.WrappedMathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.Material;
@@ -21,11 +21,11 @@ import org.bukkit.entity.Player;
 
 public final class v12FluidResolver extends FluidEngine {
   @Override
-  protected WrappedFluid fluidAt(User user, int x, int y, int z) {
+  protected Fluid fluidAt(User user, int x, int y, int z) {
     Player player = user.player();
     Block block = VolatileBlockAccess.unsafe__BlockAccess(user.player().getWorld(), x, y, z);
     if (block.getY() < 0) {
-      return WrappedFluid.empty();
+      return Fluid.empty();
     }
     float height = LegacyWaterflow.resolveLiquidHeightPercentage(BlockVariantAccess.variantAccess(block));
     Material type = BlockTypeAccess.typeAccess(block, player);
@@ -35,7 +35,7 @@ public final class v12FluidResolver extends FluidEngine {
     } else if (MaterialMagic.isLava(type)) {
       fluidTag = FluidTag.LAVA;
     }
-    return WrappedFluid.construct(fluidTag, true, height);
+    return Fluid.construct(fluidTag, true, height);
   }
 
   @Override
@@ -50,12 +50,12 @@ public final class v12FluidResolver extends FluidEngine {
     MovementMetadata movementData = user.meta().movement();
     BoundingBox entityBoundingBox = boundingBox.shrink(0.001D);
 
-    int minX = WrappedMathHelper.floor(entityBoundingBox.minX);
-    int minY = WrappedMathHelper.floor(entityBoundingBox.minY);
-    int minZ = WrappedMathHelper.floor(entityBoundingBox.minZ);
-    int maxX = WrappedMathHelper.ceil(entityBoundingBox.maxX);
-    int maxY = WrappedMathHelper.ceil(entityBoundingBox.maxY);
-    int maxZ = WrappedMathHelper.ceil(entityBoundingBox.maxZ);
+    int minX = ClientMathHelper.floor(entityBoundingBox.minX);
+    int minY = ClientMathHelper.floor(entityBoundingBox.minY);
+    int minZ = ClientMathHelper.floor(entityBoundingBox.minZ);
+    int maxX = ClientMathHelper.ceil(entityBoundingBox.maxX);
+    int maxY = ClientMathHelper.ceil(entityBoundingBox.maxY);
+    int maxZ = ClientMathHelper.ceil(entityBoundingBox.maxZ);
 
     double d0 = 0;
     boolean inWater = false;

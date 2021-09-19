@@ -1,14 +1,14 @@
 package de.jpx3.intave.block.fluid;
 
-public final class WrappedFluid {
-  private final static WrappedFluid EMPTY = WrappedFluid.construct(FluidTag.EMPTY, true, 0);
+public final class Fluid {
+  private final static Fluid EMPTY = Fluid.construct(FluidTag.EMPTY, true, 0);
 
   private final FluidTag fluidTag;
   private final boolean empty;
   private final boolean source;
   private final float height;
 
-  private WrappedFluid(FluidTag fluidTag, boolean source, float height) {
+  private Fluid(FluidTag fluidTag, boolean source, float height) {
     this.fluidTag = fluidTag;
     this.source = source;
     this.height = height;
@@ -35,11 +35,11 @@ public final class WrappedFluid {
     return source;
   }
 
-  public static WrappedFluid empty() {
+  public static Fluid empty() {
     return EMPTY;
   }
 
-  public static WrappedFluid construct(FluidTag fluidTag, boolean source, float height) {
-    return new WrappedFluid(fluidTag, source, height);
+  public static Fluid construct(FluidTag fluidTag, boolean source, float height) {
+    return new Fluid(fluidTag, source, height);
   }
 }

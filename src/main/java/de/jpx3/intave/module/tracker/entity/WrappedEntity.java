@@ -11,7 +11,7 @@ import de.jpx3.intave.math.Hypot;
 import de.jpx3.intave.module.feedback.FeedbackTracker;
 import de.jpx3.intave.module.feedback.PendingCountingFeedbackTracker;
 import de.jpx3.intave.shade.BoundingBox;
-import de.jpx3.intave.shade.WrappedMathHelper;
+import de.jpx3.intave.shade.ClientMathHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +20,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class WrappedEntity {
   /*
   Dead entities are used to identify recently removed entities.
-
   Some packets are synchronized and some are processed immediately so
   this type of entity ensures that the synchrosized packets are handled correctly.
- */
+  */
   private static WrappedEntity DESTROYED_ENTITY;
   private final static boolean NEW_POSITION_PROCESSING_1_9 = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
   private final static boolean NEW_POSITION_PROCESSING_1_14 = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_14_0);
@@ -164,9 +163,9 @@ public class WrappedEntity {
       newPosX = packet.getDoubles().read(0);
       newPosY = packet.getDoubles().read(1);
       newPosZ = packet.getDoubles().read(2);
-      serverPosX = WrappedMathHelper.getPositionLong(newPosX);
-      serverPosY = WrappedMathHelper.getPositionLong(newPosY);
-      serverPosZ = WrappedMathHelper.getPositionLong(newPosZ);
+      serverPosX = ClientMathHelper.positionLong(newPosX);
+      serverPosY = ClientMathHelper.positionLong(newPosY);
+      serverPosZ = ClientMathHelper.positionLong(newPosZ);
     } else {
       serverPosX = packet.getIntegers().read(1);
       serverPosY = packet.getIntegers().read(2);

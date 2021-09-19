@@ -22,7 +22,7 @@ import de.jpx3.intave.module.feedback.FeedbackTracker;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.player.fake.FakePlayer;
-import de.jpx3.intave.shade.WrappedMathHelper;
+import de.jpx3.intave.shade.ClientMathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.*;
@@ -447,13 +447,13 @@ public final class EntityTracker extends Module {
     long serverPosZ;
 
     if (NEW_POSITION_PROCESSING_1_9) {
-      serverPosX = WrappedMathHelper.getPositionLong(location.getX());
-      serverPosY = WrappedMathHelper.getPositionLong(location.getY());
-      serverPosZ = WrappedMathHelper.getPositionLong(location.getZ());
+      serverPosX = ClientMathHelper.positionLong(location.getX());
+      serverPosY = ClientMathHelper.positionLong(location.getY());
+      serverPosZ = ClientMathHelper.positionLong(location.getZ());
     } else {
-      serverPosX = WrappedMathHelper.floor(location.getX() * 32d);
-      serverPosY = WrappedMathHelper.floor(location.getY() * 32d);
-      serverPosZ = WrappedMathHelper.floor(location.getZ() * 32d);
+      serverPosX = ClientMathHelper.floor(location.getX() * 32d);
+      serverPosY = ClientMathHelper.floor(location.getY() * 32d);
+      serverPosZ = ClientMathHelper.floor(location.getZ() * 32d);
     }
 
     EntityTypeData entityTypeData = entityTypeResolver.entityTypeDataOfBukkitEntity(bukkitEntity);
@@ -527,9 +527,9 @@ public final class EntityTracker extends Module {
     ConnectionMetadata synchronizeData = user.meta().connection();
 //    Map<Integer, WrappedEntity> entities = synchronizeData.entities();
     WrappedEntity entity = createEntityOf(user, entityId, entityTypeData, player);
-    entity.serverPosX = WrappedMathHelper.getPositionLong(posX);
-    entity.serverPosY = WrappedMathHelper.getPositionLong(posY);
-    entity.serverPosZ = WrappedMathHelper.getPositionLong(posZ);
+    entity.serverPosX = ClientMathHelper.positionLong(posX);
+    entity.serverPosY = ClientMathHelper.positionLong(posY);
+    entity.serverPosZ = ClientMathHelper.positionLong(posZ);
     entity.setPositionAndRotationSpawnMob(posX, posY, posZ, posY);
 //    entities.put(entityId, entity);
     synchronizeData.enterEntity(entity);

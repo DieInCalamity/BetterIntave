@@ -2,7 +2,7 @@ package de.jpx3.intave.module.tracker.entity;
 
 import de.jpx3.intave.check.movement.physics.Pose;
 import de.jpx3.intave.entity.type.EntityTypeData;
-import de.jpx3.intave.shade.WrappedMathHelper;
+import de.jpx3.intave.shade.ClientMathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.util.Vector;
@@ -42,10 +42,10 @@ public final class WrappedEntityFirework extends WrappedEntity {
   private Vector vectorForRotation(float yaw, float pitch) {
     float f = pitch * ((float)Math.PI / 180F);
     float f1 = -yaw * ((float)Math.PI / 180F);
-    float f2 = WrappedMathHelper.cos(f1);
-    float f3 = WrappedMathHelper.sin(f1);
-    float f4 = WrappedMathHelper.cos(f);
-    float f5 = WrappedMathHelper.sin(f);
+    float f2 = ClientMathHelper.cos(f1);
+    float f3 = ClientMathHelper.sin(f1);
+    float f4 = ClientMathHelper.cos(f);
+    float f5 = ClientMathHelper.sin(f);
     return new Vector(f3 * f4, -f5, (double)(f2 * f4));
   }
 }

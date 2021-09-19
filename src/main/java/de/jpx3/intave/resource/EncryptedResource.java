@@ -6,7 +6,6 @@ import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.clazz.trace.Caller;
 import de.jpx3.intave.clazz.trace.PluginInvocation;
 import de.jpx3.intave.security.ContextSecrets;
-import de.jpx3.intave.security.HashAccess;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -68,7 +67,6 @@ public final class EncryptedResource implements Resource {
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       GCMParameterSpec parameterSpec = new GCMParameterSpec(128, iv);
       cipher.init(Cipher.DECRYPT_MODE, secretKey, parameterSpec);
-      fileInputStream.close();
       removeFileLock(fileInputStream);
       return new ByteArrayInputStream(cipher.doFinal(cipherBytes));
     } catch (Exception | Error throwable) {
@@ -121,7 +119,6 @@ public final class EncryptedResource implements Resource {
       ReadableByteChannel byteChannel = Channels.newChannel(new ByteArrayInputStream(byteBuffer.array()));
       fileChannel.transferFrom(byteChannel, 0, Long.MAX_VALUE);
       file.setLastModified(System.currentTimeMillis());
-      fileChannel.close();
       removeFileLock(fileChannel);
     } catch (Exception exception) {
 //      exception.printStackTrace();
@@ -160,27 +157,9 @@ public final class EncryptedResource implements Resource {
     File lockFile = new File(file + ".sig");
     try {
       lockFile.createNewFile();
-      RandomAccessFile accessFile = null;
-      Exception exceptionReserve = null;
-      int k = 4 * 8;
-      while (k-- > 0) { // god why
-        try {
-          accessFile = new RandomAccessFile(lockFile, "rw");
-          break;
-        } catch (Exception exception) {
-          exceptionReserve = exception;
-          try {
-            Thread.sleep(ThreadLocalRandom.current().nextInt(125, 350));
-          } catch (InterruptedException e) {
-            e.printStackTrace();
-          }
-        }
-      }
-      if (accessFile == null) {
-        throw new IllegalStateException(exceptionReserve);
-      }
+      RandomAccessFile accessFile = new RandomAccessFile(lockFile, "rw");
       lockChannel = accessFile.getChannel();
-      String hash = HashAccess.hashOf(file);
+      String hash = String.valueOf(ThreadLocalRandom.current().nextInt(Integer.MIN_VALUE, Integer.MAX_VALUE));
       lockChannel.write(ByteBuffer.wrap(hash.getBytes(StandardCharsets.UTF_8)));
       lock = lockChannel.lock();
     } catch (IOException e) {
@@ -196,7 +175,9 @@ public final class EncryptedResource implements Resource {
       channel.close();
       lock.close();
       lockChannel.close();
-      lockFile.delete();
+      if (!lockFile.delete()) {
+        lockFile.deleteOnExit();
+      }
     } catch (IOException e) {
       e.printStackTrace();
     }

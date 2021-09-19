@@ -10,7 +10,6 @@ import net.minecraft.server.v1_14_R1.IBlockData;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_14_R1.block.data.CraftBlockData;
 
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,9 +31,11 @@ public final class BlockVariantRegister {
     if (!REGISTER_ACTIVE) {
       return;
     }
-    Arrays.stream(Material.values())
-      .filter(Material::isBlock)
-      .forEach(type -> Indexer.index(type, blockDataIndex::put, blockDataRegister::put));
+    for (Material type : Material.values()) {
+      if (type.isBlock()) {
+        Indexer.index(type, blockDataIndex::put, blockDataRegister::put);
+      }
+    }
   }
 
   public static BlockVariant variantOf(Material type, int variantIndex) {
