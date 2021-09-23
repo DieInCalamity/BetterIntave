@@ -1,6 +1,7 @@
 package de.jpx3.intave.check.movement.physics;
 
 import de.jpx3.intave.adapter.MinecraftVersions;
+import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.fluid.Fluids;
 import de.jpx3.intave.block.fluid.LegacyWaterflow;
@@ -200,6 +201,7 @@ public class DefaultSimulator extends Simulator {
     }
   }
 
+  @IdoNotBelongHere
   private void tryRelinkFlyingPosition(User user, Motion context) {
     Player player = user.player();
     MovementMetadata movementData = user.meta().movement();
@@ -296,6 +298,7 @@ public class DefaultSimulator extends Simulator {
     context.motionZ = colliderResult.motionZ();
   }
 
+  @IdoNotBelongHere
   public void notePossibleFlyingPacket(User user, ComplexColliderSimulationResult collisionResult) {
     MovementMetadata movementData = user.meta().movement();
     Motion context = collisionResult.motion();

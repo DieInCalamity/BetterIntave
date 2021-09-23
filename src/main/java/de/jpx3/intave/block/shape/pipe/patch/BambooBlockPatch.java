@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 final class BambooBlockPatch extends BoundingBoxPatch {
-  private final static BoundingBox COLLISION_BOX = new BoundingBox(6.5D / 16.0, 0.0D, 6.5D / 16.0, 9.5D / 16.0, 1.0, 9.5D / 16.0);
+  private final static BoundingBox COLLISION_BOX = BoundingBox.fromX16Bounds(6.5D, 0.0D, 6.5D, 9.5D, 16.0, 9.5D);
 
   @Override
   public List<BoundingBox> patch(World world, Player player, Block block, List<BoundingBox> bbs) {

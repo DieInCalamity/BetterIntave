@@ -60,7 +60,6 @@ public final class ChatWordFilter extends Filter {
     }
 
     boolean bypassRestrictions = messageContainsOwner || messageContainsSomeoneWithsReceiversIp;
-
     if (bypassRestrictions) {
       return;
     }

@@ -1,6 +1,7 @@
 package de.jpx3.intave.block.state;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import de.jpx3.intave.block.access.BlockVariantAccess;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.shape.BlockShape;
@@ -19,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static de.jpx3.intave.IntaveControl.DISABLE_BLOCK_CACHING_ENTIRELY;
 
@@ -27,9 +27,9 @@ public final class MultiChunkKeyBlockStateAccess implements BlockStateAccess {
   private final static int BUILD_LIMIT = 255;
   private final Player player;
   private final ShapeResolverPipeline shapeResolver;
-  private final Map<Long, BlockState> blockCache = new ConcurrentHashMap<>(4096);
-  private final Map<Location, BlockState> locatedReplacements = new ConcurrentHashMap<>(64);
-  private final Map<Long, BlockState> indexedReplacements = new ConcurrentHashMap<>(64);
+  private final Map<Long, BlockState> blockCache = Maps.newConcurrentMap();
+  private final Map<Location, BlockState> locatedReplacements = Maps.newConcurrentMap();
+  private final Map<Long, BlockState> indexedReplacements = Maps.newConcurrentMap();
   private final List<Location> replacementLocations = Lists.newCopyOnWriteArrayList();
   private int originChunkX, originChunkZ;
   private int chunkX, chunkZ;

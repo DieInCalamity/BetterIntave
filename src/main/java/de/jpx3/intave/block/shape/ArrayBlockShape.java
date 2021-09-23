@@ -47,35 +47,22 @@ public final class ArrayBlockShape extends MemoryTraced implements BlockShape {
 
   @Override
   public BlockShape contextualized(int posX, int posY, int posZ) {
-    return new ArrayBlockShape(contextualize(boundingBoxes(), posX, posY, posZ));
+    List<BlockShape> list = new ArrayList<>();
+    for (BlockShape blockShape : contents) {
+      BlockShape contextualized = blockShape.contextualized(posX, posY, posZ);
+      list.add(contextualized);
+    }
+    return new ArrayBlockShape(list);
   }
 
   @Override
   public BlockShape normalized(int posX, int posY, int posZ) {
-    return new ArrayBlockShape(normalize(boundingBoxes(), posX, posY, posZ));
-  }
-
-  private static List<BlockShape> contextualize(List<BoundingBox> boundingBoxes, int posX, int posY, int posZ) {
-    if (boundingBoxes.isEmpty()) {
-      return Collections.emptyList();
+    List<BlockShape> list = new ArrayList<>();
+    for (BlockShape blockShape : contents) {
+      BlockShape normalized = blockShape.normalized(posX, posY, posZ);
+      list.add(normalized);
     }
-    List<BlockShape> result = new ArrayList<>(boundingBoxes.size());
-    for (int i = 0; i < boundingBoxes.size(); i++) {
-      BoundingBox boundingBox = boundingBoxes.get(i);
-      result.add(i, boundingBox.contextualized(posX, posY, posZ));
-    }
-    return result;
-  }
-
-  private static List<BlockShape> normalize(List<BoundingBox> boundingBoxes, int posX, int posY, int posZ) {
-    if (boundingBoxes.isEmpty()) {
-      return Collections.emptyList();
-    }
-    List<BlockShape> result = new ArrayList<>(boundingBoxes);
-    for (int i = 0; i < result.size(); i++) {
-      result.set(i, result.get(i).normalized(posX, posY, posZ));
-    }
-    return result;
+    return new ArrayBlockShape(list);
   }
 
   @Override
@@ -95,7 +82,12 @@ public final class ArrayBlockShape extends MemoryTraced implements BlockShape {
 
   @Override
   public boolean isEmpty() {
-    return contents.length == 0;
+    for (BlockShape content : contents) {
+      if (content.isEmpty()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override

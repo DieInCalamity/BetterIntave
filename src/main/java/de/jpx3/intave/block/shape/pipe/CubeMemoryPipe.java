@@ -41,7 +41,7 @@ public final class CubeMemoryPipe implements ShapeResolverPipeline {
     }
     BlockShape shape = forward.resolve(world, player, type, blockState, posX, posY, posZ);
     if (isInLoadedChunk(world, posX, posZ)) {
-      boolean solid = isCubic(shape.boundingBoxes(), posX, posY, posZ);
+      boolean solid = shape instanceof CubeShape || isCubic(shape.boundingBoxes(), posX, posY, posZ);
       if (solid) {
         downstreamTypeReset(type); // flush downstream type
       }

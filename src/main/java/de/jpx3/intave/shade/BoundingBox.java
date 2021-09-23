@@ -129,19 +129,6 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
   }
 
   /**
-   * returns an AABB with corners x1, y1, z1 and x2, y2, z2
-   */
-  public static BoundingBox fromBounds(double x1, double y1, double z1, double x2, double y2, double z2) {
-    double d0 = Math.min(x1, x2);
-    double d1 = Math.min(y1, y2);
-    double d2 = Math.min(z1, z2);
-    double d3 = Math.max(x1, x2);
-    double d4 = Math.max(y1, y2);
-    double d5 = Math.max(z1, z2);
-    return new BoundingBox(d0, d1, d2, d3, d4, d5);
-  }
-
-  /**
    * Offsets the current bounding box by the specified coordinates. Args: x, y, z
    */
   public BoundingBox offset(double x, double y, double z) {
@@ -151,9 +138,9 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
   @Override
   public double allowedOffset(Direction.Axis axis, BoundingBox other, double offset) {
     // always collide if axis is selected
-    boolean collidesInXAxis = axis == X_AXIS || other.max(X_AXIS) > this.min(X_AXIS) && other.min(X_AXIS) < this.max(X_AXIS);
-    boolean collidesInYAxis = axis == Y_AXIS || (collidesInXAxis && other.max(Y_AXIS) > this.min(Y_AXIS) && other.min(Y_AXIS) < this.max(Y_AXIS));
-    boolean collidesInZAxis = axis == Z_AXIS || (collidesInYAxis && other.max(Z_AXIS) > this.min(Z_AXIS) && other.min(Z_AXIS) < this.max(Z_AXIS));
+    boolean collidesInXAxis = axis == X_AXIS || other.maxX > this.minX && other.minX < this.maxX;
+    boolean collidesInYAxis = axis == Y_AXIS || (collidesInXAxis && other.maxY > this.minY && other.minY < this.maxY);
+    boolean collidesInZAxis = axis == Z_AXIS || (collidesInYAxis && other.maxZ > this.minZ && other.minZ < this.maxZ);
 
     if (collidesInXAxis && collidesInYAxis && collidesInZAxis) {
       if (offset > 0.0D && other.max(axis) <= this.min(axis)) {
@@ -491,6 +478,35 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
     temp = Double.doubleToLongBits(maxZ);
     result = 31 * result + (int) (temp ^ (temp >>> 32));
     return result;
+  }
+
+  public static BoundingBox fromBounds(
+    double x1, double y1, double z1,
+    double x2, double y2, double z2
+  ) {
+    double d0 = Math.min(x1, x2);
+    double d1 = Math.min(y1, y2);
+    double d2 = Math.min(z1, z2);
+    double d3 = Math.max(x1, x2);
+    double d4 = Math.max(y1, y2);
+    double d5 = Math.max(z1, z2);
+    return new BoundingBox(d0, d1, d2, d3, d4, d5);
+  }
+
+  public static BoundingBox fromX16Bounds(
+    double x1, double y1, double z1,
+    double x2, double y2, double z2
+  ) {
+    double d0 = Math.min(x1, x2);
+    double d1 = Math.min(y1, y2);
+    double d2 = Math.min(z1, z2);
+    double d3 = Math.max(x1, x2);
+    double d4 = Math.max(y1, y2);
+    double d5 = Math.max(z1, z2);
+    return new BoundingBox(
+      d0 / 16D, d1 / 16D, d2 / 16D,
+      d3 / 16D, d4 / 16D, d5 / 16D
+    );
   }
 
   public static BoundingBox fromPosition(User user, Location location) {

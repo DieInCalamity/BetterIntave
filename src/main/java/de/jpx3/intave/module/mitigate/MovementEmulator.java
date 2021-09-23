@@ -19,7 +19,6 @@ import de.jpx3.intave.player.Effects;
 import de.jpx3.intave.shade.BlockPosition;
 import de.jpx3.intave.shade.BoundingBox;
 import de.jpx3.intave.shade.ClientMathHelper;
-import de.jpx3.intave.shade.Direction;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.MetadataBundle;
@@ -34,6 +33,8 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
 import java.lang.reflect.Field;
+
+import static de.jpx3.intave.shade.Direction.Axis.*;
 
 public final class MovementEmulator extends Module {
   private Physics physicsCheck;
@@ -443,15 +444,15 @@ public final class MovementEmulator extends Module {
     BlockShape collisionBox = Collision.colliderShapeFor(player, entityBoundingBox.expand(motionX, motionY, motionZ));
 
     // motion y
-    motionY = collisionBox.allowedOffset(Direction.Axis.Y_AXIS, entityBoundingBox, motionY);
+    motionY = collisionBox.allowedOffset(Y_AXIS, entityBoundingBox, motionY);
     entityBoundingBox = (entityBoundingBox.offset(0.0D, motionY, 0.0D));
 
     // motion x
-    motionX = collisionBox.allowedOffset(Direction.Axis.X_AXIS, entityBoundingBox, motionX);
+    motionX = collisionBox.allowedOffset(X_AXIS, entityBoundingBox, motionX);
     entityBoundingBox = entityBoundingBox.offset(motionX, 0.0D, 0.0D);
 
     // motion z
-    motionZ = collisionBox.allowedOffset(Direction.Axis.Z_AXIS, entityBoundingBox, motionZ);
+    motionZ = collisionBox.allowedOffset(Z_AXIS, entityBoundingBox, motionZ);
 
     return new Vector(motionX, motionY, motionZ);
   }

@@ -65,7 +65,7 @@ final class BubbleColumnPhysics implements BlockPhysic {
   }
 
   @Override
-  public List<Material> materials() {
+  public List<Material> applicableMaterials() {
     return Collections.singletonList(bubbleColumnBlock);
   }
 }

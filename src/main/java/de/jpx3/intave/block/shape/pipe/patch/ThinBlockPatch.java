@@ -19,18 +19,18 @@ final class ThinBlockPatch extends BoundingBoxPatch {
   private static final BoundingBox[] STATES_8 = new BoundingBox[] {
     new BoundingBox(0.0F, 0.0F, 0.4375F, 1.0F, 1.0F, 0.5625F), // full ew connection
     new BoundingBox(0.4375F, 0.0F, 0.0F, 0.5625F, 1.0F, 1.0F), // full ns connection
-    new BoundingBox(0.4375F, 0.0F, 0.0F, 0.5625F, 1.0F, 0.5F), // north
+    new BoundingBox(0.4375F * 16, 0.0F, 0.0F, 0.5625F, 1.0F, 0.5F), // north
     new BoundingBox(0.5F, 0.0F, 0.4375F, 1.0F, 1.0F, 0.5625F), // east
     new BoundingBox(0.4375F, 0.0F, 0.5F, 0.5625F, 1.0F, 1.0F), // south
     new BoundingBox(0.0F, 0.0F, 0.4375F, 0.5F, 1.0F, 0.5625F), // west
   };
 
   private static final BoundingBox[] STATES_9 = new BoundingBox[] {
-    new BoundingBox(0.4375D, 0.0D, 0.4375D, 0.5625D, 1.0D, 0.5625D), // base
-    new BoundingBox(0.4375D, 0.0D, 0.0D, 0.5625D, 1.0D, 0.5625D), // north
-    new BoundingBox(0.4375D, 0.0D, 0.4375D, 1.0D, 1.0D, 0.5625D), // east
-    new BoundingBox(0.4375D, 0.0D, 0.4375D, 0.5625D, 1.0D, 1.0D), // south
-    new BoundingBox(0.0D, 0.0D, 0.4375D, 0.5625D, 1.0D, 0.5625D), // west
+    BoundingBox.fromX16Bounds(7, 0, 7, 9, 16, 9), // base
+    BoundingBox.fromX16Bounds(7, 0, 0, 9, 16, 9), // north
+    BoundingBox.fromX16Bounds(7, 0, 7, 16, 16, 9), // east
+    BoundingBox.fromX16Bounds(7, 0, 7, 9, 16, 16), // south
+    BoundingBox.fromX16Bounds(0, 0, 7, 9, 16, 9), // west
   };
 
   public ThinBlockPatch() {

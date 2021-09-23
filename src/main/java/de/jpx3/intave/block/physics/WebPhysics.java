@@ -35,7 +35,7 @@ final class WebPhysics implements BlockPhysic {
   }
 
   @Override
-  public List<Material> materials() {
+  public List<Material> applicableMaterials() {
     return material;
   }
 }

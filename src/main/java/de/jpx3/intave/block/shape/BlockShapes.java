@@ -16,15 +16,20 @@ public final class BlockShapes {
     return new CubeShape(0, 0, 0);
   }
 
+  public static BlockShape cubicShapeAt(int posX, int posY, int posZ) {
+    return new CubeShape(posX, posY, posZ);
+  }
+
   public static BlockShape shapeOf(List<BoundingBox> boundingBoxes) {
-    if (boundingBoxes.isEmpty()) {
-      return emptyShape();
-    } else if (boundingBoxes.size() == 1) {
-      return boundingBoxes.get(0);
-    } else if (boundingBoxes.size() == 2) {
-      return new MergeBlockShape(boundingBoxes.get(0), boundingBoxes.get(1));
-    } else {
-      return new ArrayBlockShape(new ArrayList<>(boundingBoxes));
+    switch (boundingBoxes.size()) {
+      case 0:
+        return emptyShape();
+      case 1:
+        return boundingBoxes.get(0);
+      case 2:
+        return new MergeBlockShape(boundingBoxes.get(0), boundingBoxes.get(1));
+      default:
+        return new ArrayBlockShape(new ArrayList<>(boundingBoxes));
     }
   }
 

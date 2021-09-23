@@ -86,7 +86,7 @@ public final class Collision {
 
   @Deprecated
   // I suck, please remove
-  public static List<BoundingBox> resolveBoxes(Player player, BoundingBox playerBoundingBox) {
+  public static List<BoundingBox> __INVALID__resolveBoxes(Player player, BoundingBox playerBoundingBox) {
     int minX = floor(playerBoundingBox.minX);
     int maxX = floor(playerBoundingBox.maxX + 1.0D);
     int minY = floor(playerBoundingBox.minY);
@@ -195,7 +195,7 @@ public final class Collision {
           }
           boolean blockOutsideBorder = !blockInsideBorder(world, x, z);
           if (blockOutsideBorder && !movementData.outsideBorder) {
-            BoundingBox borderShape = new BoundingBox(x, y, z, x + 1, y, z + 1);
+            BoundingBox borderShape = BoundingBox.fromBounds(x, y, z, x + 1, y, z + 1);
             if (borderShape.intersectsWith(playerBoundingBox)) {
               shapeCombiner = shapeCombiner.append(borderShape);
             }
@@ -212,8 +212,7 @@ public final class Collision {
   private final static ShapeResolverPipeline boundingBoxResolver = ShapeResolver.pipelineHead();
 
   @Deprecated
-  // this is not really performant - please remove me ~richy
-  public static List<BoundingBox> resolveBoxes(
+  public static List<BoundingBox> __INVALID__resolveBoxes(
     World world,
     BoundingBox boundingBox
   ) {

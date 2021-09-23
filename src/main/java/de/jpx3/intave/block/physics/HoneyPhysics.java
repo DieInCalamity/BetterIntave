@@ -59,7 +59,7 @@ final class HoneyPhysics implements BlockPhysic {
   }
 
   @Override
-  public List<Material> materials() {
+  public List<Material> applicableMaterials() {
     return ImmutableList.of(honeyBlock);
   }
 }

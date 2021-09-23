@@ -12,7 +12,6 @@ public interface BlockShape {
 
   boolean intersectsWith(BoundingBox boundingBox);
   BlockShape contextualized(int posX, int posY, int posZ);
-
   BlockShape normalized(int posX, int posY, int posZ);
 
   @Deprecated

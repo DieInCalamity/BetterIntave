@@ -39,5 +39,5 @@ public interface BlockPhysic {
     return true;
   }
 
-  List<Material> materials();
+  List<Material> applicableMaterials();
 }

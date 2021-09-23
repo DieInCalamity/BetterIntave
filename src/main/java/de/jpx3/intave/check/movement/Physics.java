@@ -354,7 +354,7 @@ public final class Physics extends Check {
     boolean boundingBoxIntersectionCurrent = Collision.present(user.player(), currentBoundingBox);
     boolean movedIntoBlock = !boundingBoxIntersectionLast && boundingBoxIntersectionCurrent;
     if (boundingBoxIntersectionCurrent && !spectator) {
-      List<BoundingBox> intersectionBoundingBoxesCurrent = Collision.resolveBoxes(user.player(), currentBoundingBox);
+      List<BoundingBox> intersectionBoundingBoxesCurrent = Collision.__INVALID__resolveBoxes(user.player(), currentBoundingBox);
       if (movedIntoBlock) {
         movementData.invalidMovement = true;
 
@@ -573,14 +573,14 @@ public final class Physics extends Check {
       debug += " " + violationLevelInfo;
 
 //      debug += "(ai " + movementData.aiMoveSpeed()+ ")";
-//      debug += " (sprint " + movementData.sprinting + ")";
+      debug += " (sprint " + movementData.sprinting + ")";
 //      debug += " (sneak " + movementData.sneaking + "/"+movementData.actualSneaking()+")";
 //      debug += " (size:" + movementData.width + "," + movementData.height + ")";
 //      debug += " hand=" + shortenBoolean(meta.inventory().handActive());
 //      debug += inventoryData.heldItem().getType().name();
 //      debug += " flying:" + movementData.pastFlyingPacketAccurate;
-      debug += " gliding:" + shortenBoolean(movementData.elytraFlying);
-      debug += " y:" + formatDouble(movementData.motionY(),4);
+//      debug += " gliding:" + shortenBoolean(movementData.elytraFlying);
+//      debug += " y:" + formatDouble(movementData.motionY(),4);
 
       List<String> tags = new ArrayList<>();
 

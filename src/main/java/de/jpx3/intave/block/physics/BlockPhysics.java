@@ -12,7 +12,7 @@ import java.util.Map;
 
 public final class BlockPhysics {
   private final static MinecraftVersion MINECRAFT_VERSION = MinecraftVersion.getCurrentVersion();
-  private final static Map<Material, BlockPhysic> blockAccessCache = new HashMap<>();
+  private final static Map<Material, BlockPhysic> materialLookup = new HashMap<>();
 
   public static void setup() {
     setup(BedPhysics.class);
@@ -31,8 +31,8 @@ public final class BlockPhysics {
       BlockPhysic block = blockClass.newInstance();
       block.setup(MINECRAFT_VERSION);
       if (block.supportedOnServerVersion()) {
-        for (Material material : block.materials()) {
-          blockAccessCache.put(material, block);
+        for (Material material : block.applicableMaterials()) {
+          materialLookup.put(material, block);
         }
       }
     } catch (InstantiationException | IllegalAccessException exception) {
@@ -47,7 +47,7 @@ public final class BlockPhysics {
     Location location, Location from,
     double motionX, double motionY, double motionZ
   ) {
-    BlockPhysic collision = findCustomPhysicsEntry(material);
+    BlockPhysic collision = physicLookup(material);
     return collision != null ? collision.entityCollidedWithBlock(user, location, from, motionX, motionY, motionZ) : null;
   }
 
@@ -57,7 +57,7 @@ public final class BlockPhysics {
     Material material,
     double motionX, double motionY, double motionZ
   ) {
-    BlockPhysic collision = findCustomPhysicsEntry(material);
+    BlockPhysic collision = physicLookup(material);
     return collision != null ? collision.entityCollidedWithBlock(user, motionX, motionY, motionZ) : null;
   }
 
@@ -67,18 +67,18 @@ public final class BlockPhysics {
     Material material,
     double motionX, double motionY, double motionZ
   ) {
-    BlockPhysic collision = findCustomPhysicsEntry(material);
+    BlockPhysic collision = physicLookup(material);
     return collision != null ? collision.landed(user, motionX, motionY, motionZ) : null;
   }
 
   public static void fallenUpon(User user, Material material) {
-    BlockPhysic collision = findCustomPhysicsEntry(material);
+    BlockPhysic collision = physicLookup(material);
     if (collision != null) {
       collision.fallenUpon(user);
     }
   }
 
-  private static BlockPhysic findCustomPhysicsEntry(Material material) {
-    return blockAccessCache.get(material);
+  private static BlockPhysic physicLookup(Material material) {
+    return materialLookup.get(material);
   }
 }

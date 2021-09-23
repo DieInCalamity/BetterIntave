@@ -94,7 +94,7 @@ public final class SprintOnAttackHeuristic extends MetaCheckPart<Heuristics, Spr
             "200",
             Confidence.NONE,
             Anomaly.Type.KILLAURA,
-            "sprint-toggles aligned bevor attacks (" + MathHelper.formatDouble(ratioBefore, 2) + "%)", Anomaly.AnomalyOption.DELAY_16s
+            "sprint-toggles aligned with attacks (" + MathHelper.formatDouble(ratioBefore, 2) + "%)", Anomaly.AnomalyOption.DELAY_16s
           );
           parentCheck().saveAnomaly(player, anomaly);
         }

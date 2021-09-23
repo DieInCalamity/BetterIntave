@@ -34,9 +34,15 @@ public final class v17b1ShapeDrill extends AbstractShapeDrill {
       return BlockShapes.emptyShape();
     }
     VoxelShape collisionShape = blockData.getCollisionShape(blockAccess, blockPosition);
-    if (VoxelShapes.b() == collisionShape) {
-      return BlockShapes.cubicShape();
+    // check if shape is static empty
+    if (VoxelShapes.a() == collisionShape) {
+      return BlockShapes.emptyShape();
     }
+    // check if shape is static cube
+    if (VoxelShapes.b() == collisionShape) {
+      return BlockShapes.cubicShapeAt(posX, posY, posZ);
+    }
+    // convert complex blocks to native BBs
     List<AxisAlignedBB> nativeBoxes = collisionShape.toList();
     return translateWithOffset(nativeBoxes, posX, posY, posZ);
   }
