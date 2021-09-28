@@ -11,6 +11,8 @@ check:
     # Trustfactor mappings and high-tolerance modes are supported throughout all of them
     mitigation: CAREFUL
 
+    reset-item-usage: true
+
     thresholds:
       50: "intave internals sendnotify &c{player}&7/{trust-color}&7 is moving incorrectly"
       100:

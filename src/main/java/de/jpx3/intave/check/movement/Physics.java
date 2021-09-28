@@ -58,7 +58,7 @@ public final class Physics extends Check {
   private final SimulationProcessor simulationProcessor;
   private final SimulationEvaluator simulationEvaluator;
   private final FallDamageApplier fallDamageApplier;
-  private final boolean highToleranceMode;
+  private final boolean highToleranceMode, resetItemUsage;
 
   public Physics(IntavePlugin plugin) {
     super("Physics", "physics");
@@ -67,6 +67,7 @@ public final class Physics extends Check {
     this.simulationProcessor = new PredictionSimulationProcessor();
     this.simulationEvaluator = new SimulationEvaluator();
     this.highToleranceMode = configuration().settings().boolBy("high-tolerance", false);
+    this.resetItemUsage = configuration().settings().boolBy("reset-item-usage", true);
     setDefaultMitigationStrategy(MitigationStrategy.CAREFUL);
     this.fallDamageApplier = new FallDamageApplier();
     linkCheckToPoseSimulators();

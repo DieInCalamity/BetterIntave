@@ -172,6 +172,7 @@ public final class PredictionSimulationProcessor implements SimulationProcessor 
     motionVector.resetTo(movementData);
     movementData.keyForward = keyForward;
     movementData.keyStrafe = keyStrafe;
+    movementData.refreshFriction(sprinting);
     ComplexColliderSimulationResult simulationResult =
       simulator.performSimulation(user, motionVector, moveForward, moveStrafe, attackReduce, sprinting, jumped, handActive);
     Timings.CHECK_PHYSICS_PROC_PRED_BIA.stop();
@@ -249,7 +250,7 @@ public final class PredictionSimulationProcessor implements SimulationProcessor 
 
     boolean handActive = inventoryData.handActive();
     boolean attackReduce = !AttackDispatcher.REDUCING_DISABLED && movementData.sprintingAllowed() && user.meta().movement().pastPlayerAttackPhysics == 0;
-    boolean sprinting = movementData.sprinting;
+    boolean sprinting = movementData.sprintingAllowed();
     if (sprinting && keyForward != 1) {
       keyForward = 0;
       keyStrafe = 0;
@@ -264,6 +265,7 @@ public final class PredictionSimulationProcessor implements SimulationProcessor 
     motion.resetTo(movementData);
     movementData.keyForward = keyForward;
     movementData.keyStrafe = keyStrafe;
+    movementData.refreshFriction(sprinting);
     ComplexColliderSimulationResult simulationResult = simulator.performSimulation(user, motion, moveForward, moveStrafe, attackReduce, sprinting, jumped, handActive);
     Timings.CHECK_PHYSICS_PROC_LK_BIA.stop();
     Timings.CHECK_PHYSICS_PROC_BIA.stop();
@@ -295,6 +297,7 @@ public final class PredictionSimulationProcessor implements SimulationProcessor 
 
     SIMULATION:
     for (boolean sprinting : movementData.sprintingAllowed() || movementData.hasSprintSpeed ? /* surprisingly pessimistic */ PESSIMISTIC_BOOLEAN_ORDER : NEVER) {
+      movementData.refreshFriction(sprinting);
       for (boolean useItemState : inventoryData.handActive() ? OPTIMISTIC_BOOLEAN_ORDER : PESSIMISTIC_BOOLEAN_ORDER) {
         if (skipUseItem && useItemState) {
           continue;
@@ -433,7 +436,7 @@ public final class PredictionSimulationProcessor implements SimulationProcessor 
     Motion predictedMotion = collisionResult.motion();
     double distance = compareReceivedMotionWithMotion(user, predictedMotion);
     if (forceApply || inventoryData.handActive() == handActive || distance < 0.001) {
-      result.tryAppendToState(collisionResult, distance, keyForward, keyStrafe, attackReduce, jumped, handActive);
+      result.tryAppendToState(collisionResult, distance, keyForward, keyStrafe, attackReduce, sprinting, jumped, handActive);
     }
     return distance;
   }

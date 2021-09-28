@@ -12,6 +12,7 @@ public final class SimulationStack {
   private ComplexColliderSimulationResult collisionResult;
   private int forward, strafe;
   private boolean jumped;
+  private boolean sprinted;
   private boolean reduced;
   private double smallestDistance;
   private boolean handActive;
@@ -36,11 +37,12 @@ public final class SimulationStack {
     int forward,
     int strafe,
     boolean attackReduce,
+    boolean sprinted,
     boolean jumped,
     boolean handActive
   ) {
     if (newDistance < this.smallestDistance) {
-      appendToState(collisionResult, newDistance, forward, strafe, attackReduce, jumped, handActive);
+      appendToState(collisionResult, newDistance, forward, strafe, attackReduce, sprinted, jumped, handActive);
     }
   }
 
@@ -50,6 +52,7 @@ public final class SimulationStack {
     int forward,
     int strafe,
     boolean attackReduce,
+    boolean sprinted,
     boolean jumped,
     boolean handActive
   ) {
@@ -58,6 +61,7 @@ public final class SimulationStack {
     this.forward = forward;
     this.strafe = strafe;
     this.reduced = attackReduce;
+    this.sprinted = sprinted;
     this.jumped = jumped;
     this.handActive = handActive;
   }
@@ -80,6 +84,10 @@ public final class SimulationStack {
 
   public boolean jumped() {
     return jumped;
+  }
+
+  public boolean sprinted() {
+    return sprinted;
   }
 
   public boolean reduced() {

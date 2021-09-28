@@ -39,6 +39,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.comphenix.protocol.wrappers.WrappedAttributeModifier.Operation.ADD_PERCENTAGE;
+import static de.jpx3.intave.check.movement.physics.MovementHelper.resolveFriction;
 import static de.jpx3.intave.reflect.access.ReflectiveHandleAccess.handleOf;
 import static de.jpx3.intave.shade.ClientMathHelper.*;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_14;
@@ -512,10 +513,14 @@ public final class MovementMetadata {
     if (lastSprinting) {
       jumpMovementFactor = (float) ((double) jumpMovementFactor + (double) 0.02f * 0.3d);
     }
-    if (abilityData.probablyFlying()) {
-      this.jumpMovementFactor = abilityData.flySpeed() * (float) (lastSprinting ? 2 : 1);
-    }
-    friction = MovementHelper.resolveFriction(user, meta.movement().sprinting, verifiedPositionX, verifiedPositionY, verifiedPositionZ);
+//    if (abilityData.probablyFlying()) {
+//      // ?!
+//      this.jumpMovementFactor = abilityData.flySpeed() * (float) (lastSprinting ? 2 : 1);
+//    }
+  }
+
+  public void refreshFriction(boolean sprinting) {
+    friction = resolveFriction(user, sprinting, verifiedPositionX, verifiedPositionY, verifiedPositionZ);
   }
 
   public boolean blockOnPositionSoulSpeedAffected() {
@@ -695,15 +700,19 @@ public final class MovementMetadata {
     return jumpMovementFactor;
   }
 
+  @Deprecated
   // Override on vehicle movement
   public void setJumpMovementFactor(float jumpMovementFactor, boolean sprinting) {
     this.jumpMovementFactor = jumpMovementFactor;
-    friction = MovementHelper.resolveFriction(user, sprinting, verifiedPositionX, verifiedPositionY, verifiedPositionZ);
+//    friction = MovementHelper.resolveFriction(user, sprinting, verifiedPositionX, verifiedPositionY, verifiedPositionZ);
+    refreshFriction(sprinting);
   }
 
+  @Deprecated
   public void setAiMoveSpeed(float aiMoveSpeed) {
     this.aiMoveSpeed = aiMoveSpeed;
-    friction = MovementHelper.resolveFriction(user, sprinting, verifiedPositionX, verifiedPositionY, verifiedPositionZ);
+//    friction = MovementHelper.resolveFriction(user, sprinting, verifiedPositionX, verifiedPositionY, verifiedPositionZ);
+    refreshFriction(sprinting);
   }
 
   public int pastFlyingPacketAccurate() {

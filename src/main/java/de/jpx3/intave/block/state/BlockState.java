@@ -24,13 +24,13 @@ public final class BlockState extends MemoryTraced {
   private final static BlockState EMPTY = new BlockState(BlockShapes.emptyShape(), Material.AIR, 0);
   private final BlockShape shape;
   private final Material type;
-  private final int variant;
+  private final int variantIndex;
   private final long creation = System.currentTimeMillis();
 
-  public BlockState(BlockShape shape, Material type, int variant) {
+  public BlockState(BlockShape shape, Material type, int variantIndex) {
     this.shape = shape;
     this.type = type;
-    this.variant = variant;
+    this.variantIndex = variantIndex;
   }
 
   /**
@@ -54,7 +54,7 @@ public final class BlockState extends MemoryTraced {
    * @return the blocks variant
    */
   public int variantIndex() {
-    return variant;
+    return variantIndex;
   }
 
   /**
@@ -71,7 +71,7 @@ public final class BlockState extends MemoryTraced {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     BlockState that = (BlockState) o;
-    if (variant != that.variant) return false;
+    if (variantIndex != that.variantIndex) return false;
     if (creation != that.creation) return false;
     if (!Objects.equals(shape, that.shape)) return false;
     return type == that.type;
@@ -81,7 +81,7 @@ public final class BlockState extends MemoryTraced {
   public int hashCode() {
     int result = shape != null ? shape.hashCode() : 0;
     result = 31 * result + (type != null ? type.hashCode() : 0);
-    result = 31 * result + variant;
+    result = 31 * result + variantIndex;
     result = 31 * result + (int) (creation ^ (creation >>> 32));
     return result;
   }

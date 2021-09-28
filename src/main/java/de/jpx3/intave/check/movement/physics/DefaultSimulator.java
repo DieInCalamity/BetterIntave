@@ -91,7 +91,7 @@ public class DefaultSimulator extends Simulator {
         motion.motionY += 0.03999999910593033D;
       } else {
         motion.motionY = movementData.jumpMotion();
-        if (movementData.sprintingAllowed()) {
+        if (/*movementData.sprintingAllowed()*/sprinting) {
           motion.motionX -= yawSine * 0.2F;
           motion.motionZ += yawCosine * 0.2F;
         }

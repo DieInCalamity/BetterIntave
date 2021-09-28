@@ -20,8 +20,6 @@ import org.jetbrains.annotations.NotNull;
 public interface BlockStateLookup {
   /**
    * Resolve-if-not-cached and retrieve the bounding boxes of the specified block.
-   * @param chunkX the chunk x coordinate
-   * @param chunkZ the chunk z coordinate
    * @param posX the blocks x coordinate
    * @param posY the blocks y coordinate
    * @param posZ the blocks z coordinate
