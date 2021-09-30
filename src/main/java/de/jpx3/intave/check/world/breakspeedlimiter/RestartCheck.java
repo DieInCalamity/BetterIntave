@@ -18,14 +18,13 @@ import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.violation.Violation;
 import de.jpx3.intave.module.violation.ViolationContext;
 import de.jpx3.intave.module.violation.ViolationProcessor;
+import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-
-import java.lang.reflect.InvocationTargetException;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
@@ -139,11 +138,7 @@ public final class RestartCheck extends MetaCheckPart<BreakSpeedLimiter, Restart
 
     BlockPosition position = new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
     packet.getBlockPositionModifier().write(0, position);
-    try {
-      ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
-    } catch (InvocationTargetException exception) {
-      exception.printStackTrace();
-    }
+    PacketSender.sendServerPacket(player, packet);
   }
 
   public static final class BreakSpeedStartMeta extends CheckCustomMetadata {

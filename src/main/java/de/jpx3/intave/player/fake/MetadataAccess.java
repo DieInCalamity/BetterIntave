@@ -7,13 +7,12 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import de.jpx3.intave.adapter.MinecraftVersions;
+import de.jpx3.intave.packet.PacketSender;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public final class MetadataAccess {
-  private final static ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
   private final static int SPRINT_BYTE = 3;
 
   public static void setSprinting(
@@ -101,15 +100,12 @@ public final class MetadataAccess {
     FakePlayerIdentity identity,
     List<WrappedWatchableObject> watchableObjects
   ) {
+    ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
     PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
     packet.getIntegers().writeSafely(0, identity.identifier());
     packet.getWatchableCollectionModifier().writeSafely(0, watchableObjects);
     packet.getBooleans().writeSafely(0, true);
-    try {
-      protocolManager.sendServerPacket(player, packet);
-    } catch (InvocationTargetException e) {
-      e.printStackTrace();
-    }
+    PacketSender.sendServerPacket(player, packet);
   }
 
   private final static boolean SERIALIZE = MinecraftVersions.VER1_9_0.atOrAbove();

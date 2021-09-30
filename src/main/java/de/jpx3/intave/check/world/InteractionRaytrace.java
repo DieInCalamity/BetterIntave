@@ -30,6 +30,7 @@ import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.tracker.player.AbilityTracker;
 import de.jpx3.intave.module.violation.Violation;
 import de.jpx3.intave.module.violation.ViolationContext;
+import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.packet.reader.BlockInteractionReader;
 import de.jpx3.intave.packet.reader.EntityReader;
 import de.jpx3.intave.packet.reader.PacketReaders;
@@ -153,7 +154,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
 
     EnumWrappers.Direction direction = packet.getDirections().readSafely(0);
     int enumDirection = direction == null ? 0 : direction.ordinal();
-    boolean blocking = blockPosition.getX() == 0 && blockPosition.getY() == 0 &&  blockPosition.getZ() == 0 && enumDirection == 0;
+    boolean blocking = blockPosition.getX() == 0 && blockPosition.getY() == 0 && blockPosition.getZ() == 0 && enumDirection == 0;
     if (enumDirection == 255 || blocking) {
       return;
     }
@@ -569,11 +570,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     com.comphenix.protocol.wrappers.BlockPosition position = new com.comphenix.protocol.wrappers.BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
     packet.getBlockData().write(0, blockData);
     packet.getBlockPositionModifier().write(0, position);
-    try {
-      ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
-    } catch (InvocationTargetException exception) {
-      exception.printStackTrace();
-    }
+    PacketSender.sendServerPacket(player, packet);
   }
 
   private void receiveExcludedPacket(Player player, PacketContainer packet) {

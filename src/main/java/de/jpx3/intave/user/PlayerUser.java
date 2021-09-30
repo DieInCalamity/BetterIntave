@@ -23,6 +23,7 @@ import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.module.mitigate.HurtimeModifier;
 import de.jpx3.intave.module.violation.placeholder.PlayerContext;
 import de.jpx3.intave.module.violation.placeholder.UserContext;
+import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.player.collider.Collider;
 import de.jpx3.intave.player.collider.complex.ComplexColliderProcessor;
 import de.jpx3.intave.player.collider.simple.SimpleColliderProcessor;
@@ -41,7 +42,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.lang.ref.WeakReference;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -414,11 +414,7 @@ final class PlayerUser implements User {
     packet.getFloat().write(0, healthScale);
     packet.getFloat().write(1, saturationLevel);
     packet.getIntegers().write(0, foodLevel);
-    try {
-      ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
-    } catch (InvocationTargetException exception) {
-      exception.printStackTrace();
-    }
+    PacketSender.sendServerPacket(player, packet);
   }
 
   private IntavePlugin plugin() {

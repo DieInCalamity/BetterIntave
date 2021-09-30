@@ -12,6 +12,7 @@ import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.cleanup.ShutdownTasks;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.klass.Lookup;
+import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import io.netty.buffer.ByteBuf;
@@ -94,13 +95,7 @@ public final class LabymodShadowIntegration {
       Class<Object> packetDataSerializerClass = (Class<Object>) Lookup.serverClass("PacketDataSerializer");
       Object packetDataSerializer = packetDataSerializerClass.getConstructor(ByteBuf.class).newInstance(Unpooled.wrappedBuffer(bytesToSend));
       packetContainer.getSpecificModifier(packetDataSerializerClass).write(0, packetDataSerializer);
-      Synchronizer.synchronize(() -> {
-        try {
-          ProtocolLibrary.getProtocolManager().sendServerPacket(player, packetContainer);
-        } catch (InvocationTargetException e) {
-          e.printStackTrace();
-        }
-      });
+      Synchronizer.synchronize(() -> PacketSender.sendServerPacket(player, packetContainer));
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
       e.printStackTrace();
     }

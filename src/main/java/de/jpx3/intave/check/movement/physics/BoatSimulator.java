@@ -186,7 +186,6 @@ public final class BoatSimulator extends BaseSimulator {
     }
 
     float rotationYaw = movement.rotationYaw;
-    movement.rotationYaw += rotationYaw;
     context.motionX += SinusCache.sin(-rotationYaw * ((float) Math.PI / 180F), false) * f;
     context.motionZ += SinusCache.cos(rotationYaw * ((float) Math.PI / 180F), false) * f;
   }

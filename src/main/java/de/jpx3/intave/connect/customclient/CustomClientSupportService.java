@@ -15,6 +15,7 @@ import de.jpx3.intave.connect.sibyl.LabyModChannelHelper;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.klass.Lookup;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
+import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.ConnectionMetadata;
@@ -22,8 +23,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-
-import java.lang.reflect.InvocationTargetException;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.CUSTOM_PAYLOAD;
 
@@ -86,8 +85,8 @@ public final class CustomClientSupportService implements EventProcessor {
         JsonElement jsonElement = jsonParser.parse(messageContent);
         CustomClientSupportConfig customClientSupportConfig = CustomClientSupportConfig.createFrom(jsonElement);
         user.setCustomClientSupport(customClientSupportConfig);
-        sendCustomDataPacket(player, "clientconfig","received", "minecraft", "intave");
-        sendCustomDataPacket(player, "clientconfig","received", "intave", "customclient");
+        sendCustomDataPacket(player, "clientconfig", "received", "minecraft", "intave");
+        sendCustomDataPacket(player, "clientconfig", "received", "intave", "customclient");
       }
     } catch (RuntimeException exception) {
       exception.printStackTrace();
@@ -109,13 +108,7 @@ public final class CustomClientSupportService implements EventProcessor {
       Class<Object> packetDataSerializerClass = (Class<Object>) Lookup.serverClass("PacketDataSerializer");
       Object packetDataSerializer = packetDataSerializerClass.getConstructor(ByteBuf.class).newInstance(Unpooled.wrappedBuffer(LabyModChannelHelper.getBytesToSend(channel, data)));
       packetContainer.getSpecificModifier(packetDataSerializerClass).write(0, packetDataSerializer);
-      Synchronizer.synchronize(() -> {
-        try {
-          ProtocolLibrary.getProtocolManager().sendServerPacket(player, packetContainer);
-        } catch (InvocationTargetException exception) {
-          exception.printStackTrace();
-        }
-      });
+      Synchronizer.synchronize(() -> PacketSender.sendServerPacket(player, packetContainer));
     } catch (Exception exception) {
       exception.printStackTrace();
     }

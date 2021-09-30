@@ -9,6 +9,7 @@ import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.type.BlockTypeAccess;
 import de.jpx3.intave.executor.Synchronizer;
+import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.shade.ClientMathHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -16,7 +17,6 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +31,7 @@ import static de.jpx3.intave.player.fake.TablistMutator.removeFromTabList;
 
 public abstract class FakePlayerBody extends FakePlayerIdentity {
   private final static boolean MODERN_POSITION_PROCESSING = MinecraftVersions.VER1_9_0.atOrAbove();
-  private final static Map<Integer, Object> METADATA = new HashMap<Integer, Object>(){{
+  private final static Map<Integer, Object> METADATA = new HashMap<Integer, Object>() {{
     // Entity
     put(0, (byte) 0);
     put(1, MODERN_POSITION_PROCESSING ? 300 : (short) 300);
@@ -320,11 +320,7 @@ public abstract class FakePlayerBody extends FakePlayerIdentity {
     if (threadEscape(() -> send(packet))) {
       return;
     }
-    try {
-      ProtocolLibrary.getProtocolManager().sendServerPacket(this.observer, packet);
-    } catch (InvocationTargetException e) {
-      e.printStackTrace();
-    }
+    PacketSender.sendServerPacket(this.observer, packet);
   }
 
   private boolean threadEscape(Runnable apply) {

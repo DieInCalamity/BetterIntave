@@ -8,6 +8,7 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.PlayerInfoData;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
+import de.jpx3.intave.packet.PacketSender;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.InvocationTargetException;
@@ -41,11 +42,7 @@ public final class TablistMutator {
     playerInformationList.add(playerInfoData);
     packet.getPlayerInfoAction().writeSafely(0, EnumWrappers.PlayerInfoAction.ADD_PLAYER);
     packet.getPlayerInfoDataLists().writeSafely(0, playerInformationList);
-    try {
-      protocolManager.sendServerPacket(player, packet);
-    } catch (InvocationTargetException e) {
-      e.printStackTrace();
-    }
+    PacketSender.sendServerPacket(player, packet);
   }
 
   public static void removeFromTabList(
@@ -63,10 +60,6 @@ public final class TablistMutator {
     playerInformationList.add(playerInfoData);
     packet.getPlayerInfoAction().writeSafely(0, EnumWrappers.PlayerInfoAction.REMOVE_PLAYER);
     packet.getPlayerInfoDataLists().writeSafely(0, playerInformationList);
-    try {
-      protocolManager.sendServerPacket(player, packet);
-    } catch (InvocationTargetException e) {
-      e.printStackTrace();
-    }
+    PacketSender.sendServerPacket(player, packet);
   }
 }

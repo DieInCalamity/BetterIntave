@@ -138,7 +138,6 @@ public final class ProtocolMetadata {
   }
 
   public boolean applyModernCollider() {
-    // >= 1.14
     return protocolVersion >= VER_1_14;
   }
 
@@ -155,32 +154,26 @@ public final class ProtocolMetadata {
   }
 
   public boolean roundEnvironmentNumbers() {
-    // < 1.14
     return protocolVersion < VER_1_14;
   }
 
   public boolean sprintWhenSneaking() {
-    // >= 1.14
     return protocolVersion >= VER_1_14;
   }
 
   public boolean sprintWhenHandActive() {
-    // >= 1.9
     return protocolVersion >= VER_1_9;
   }
 
   public boolean delayedSneak() {
-    // 1.15
     return protocolVersion >= VER_1_15;
   }
 
   public boolean alternativeSneak() {
-    // < 1.15 && >= 1.14
     return protocolVersion < VER_1_15 && protocolVersion >= VER_1_14;
   }
 
   public boolean motionResetOnCollision() {
-    // 1.14
     return protocolVersion < VER_1_14;
   }
 
@@ -189,12 +182,10 @@ public final class ProtocolMetadata {
   }
 
   public boolean beeUpdate() {
-    // 1.15
     return protocolVersion >= VER_1_15;
   }
 
   public boolean waterUpdate() {
-    // >= 1.13
     return protocolVersion >= VER_1_13;
   }
 

@@ -18,6 +18,7 @@ import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.violation.Violation;
+import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.packet.reader.BlockInteractionReader;
 import de.jpx3.intave.packet.reader.PacketReaders;
 import de.jpx3.intave.shade.Direction;
@@ -31,7 +32,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,7 +62,8 @@ public final class BlockRotationAnalyzer extends MetaCheckPart<PlacementAnalysis
 
     BlockRotationMeta meta = metaOf(user);
 
-    BlockInteractionReader reader = PacketReaders.readerOf(packet);;
+    BlockInteractionReader reader = PacketReaders.readerOf(packet);
+    ;
     com.comphenix.protocol.wrappers.BlockPosition blockPosition = reader.blockPosition();
 
     if (blockPosition == null || event.isCancelled() || movement.hasRidingEntity()) {
@@ -97,7 +98,7 @@ public final class BlockRotationAnalyzer extends MetaCheckPart<PlacementAnalysis
 
     if (movement.rotationPitch > 85 && average < 400) {
       if (meta.vl++ > 3) {
-        String details = "pitch of "+((int) movement.rotationPitch)+" placing blocks in " + MathHelper.formatDouble(average, 2) + " ms/block";
+        String details = "pitch of " + ((int) movement.rotationPitch) + " placing blocks in " + MathHelper.formatDouble(average, 2) + " ms/block";
         Violation violation = Violation.builderFor(PlacementAnalysis.class)
           .forPlayer(player).withMessage(COMMON_FLAG_MESSAGE).withDetails(details)
           .withDefaultThreshold().withVL(0).build();
@@ -105,7 +106,7 @@ public final class BlockRotationAnalyzer extends MetaCheckPart<PlacementAnalysis
       }
 //      event.setCancelled(true);
 //      Synchronizer.synchronizeDelayed(() -> refreshBlocksAround(player, blockPosition.toLocation(player.getWorld())), 20);
-    } else if (meta.vl > 0){
+    } else if (meta.vl > 0) {
       meta.vl /= 0.98;
       meta.vl -= 0.002;
     }
@@ -134,11 +135,7 @@ public final class BlockRotationAnalyzer extends MetaCheckPart<PlacementAnalysis
     com.comphenix.protocol.wrappers.BlockPosition position = new com.comphenix.protocol.wrappers.BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
     packet.getBlockData().write(0, blockData);
     packet.getBlockPositionModifier().write(0, position);
-    try {
-      ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
-    } catch (InvocationTargetException exception) {
-      exception.printStackTrace();
-    }
+    PacketSender.sendServerPacket(player, packet);
   }
 
   public static class BlockRotationMeta extends CheckCustomMetadata {

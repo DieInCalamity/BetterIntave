@@ -4,10 +4,9 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import de.jpx3.intave.executor.Synchronizer;
+import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.player.fake.FakePlayer;
 import org.bukkit.entity.Player;
-
-import java.lang.reflect.InvocationTargetException;
 
 public abstract class Action {
   protected final Player observer;
@@ -35,17 +34,14 @@ public abstract class Action {
 
   public abstract void perform();
 
-  public void performMissed() {}
+  public void performMissed() {
+  }
 
   protected PacketContainer create(PacketType packetType) {
     return ProtocolLibrary.getProtocolManager().createPacket(packetType);
   }
 
   protected void send(PacketContainer packet) {
-    try {
-      ProtocolLibrary.getProtocolManager().sendServerPacket(observer, packet);
-    } catch (InvocationTargetException exception) {
-      exception.printStackTrace();
-    }
+    PacketSender.sendServerPacket(observer, packet);
   }
 }

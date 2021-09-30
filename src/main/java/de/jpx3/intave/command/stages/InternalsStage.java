@@ -1,7 +1,6 @@
 package de.jpx3.intave.command.stages;
 
 import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import de.jpx3.intave.IntavePlugin;
@@ -11,6 +10,7 @@ import de.jpx3.intave.command.SubCommand;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.executor.TaskTracker;
 import de.jpx3.intave.module.Modules;
+import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.user.UserRepository;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -21,7 +21,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -59,7 +58,8 @@ public final class InternalsStage extends CommandStage {
   @Forward(
     target = BotStage.class
   )
-  public void botCommand(CommandSender commandSender) {}
+  public void botCommand(CommandSender commandSender) {
+  }
 
   @SubCommand(
     selectors = "entitylag",
@@ -100,12 +100,8 @@ public final class InternalsStage extends CommandStage {
     newPacket.getDataWatcherModifier().
       write(0, fallbackDatawatcher);
 
-    try {
-      UserRepository.userOf(player).ignoreNextOutboundPacket();
-      ProtocolLibrary.getProtocolManager().sendServerPacket(player, newPacket);
-    } catch (InvocationTargetException e) {
-      e.printStackTrace();
-    }
+    UserRepository.userOf(player).ignoreNextOutboundPacket();
+    PacketSender.sendServerPacket(player, newPacket);
   }
 
   private WrappedDataWatcher defaultWatcherOf(World world, EntityType type) {

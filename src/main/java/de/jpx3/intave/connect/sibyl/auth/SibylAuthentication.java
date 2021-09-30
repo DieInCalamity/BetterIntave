@@ -20,6 +20,7 @@ import de.jpx3.intave.klass.Lookup;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscriber;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
+import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.security.LicenseAccess;
 import de.jpx3.intave.user.MessageChannelSubscriptions;
 import io.netty.buffer.ByteBuf;
@@ -38,16 +39,12 @@ import static de.jpx3.intave.IntaveControl.SIBYL_DEBUG;
 
 
 /**
+ * The Sibyl authentication protocol (SAP)
  *
- *  The Sibyl authentication protocol (SAP)
- *
- *  Client sends greeting to server
- *  Server sends greeting back with SERVER_GREET_RESPONSE_KEY and the license name
- *  Client makes an auth key request with the license name to intave.de
- *  Client sends auth key to server
- *  Server gets a request with the secret authkey and the license name to intave.de
- *  Server accepts the client and unlocks the protocol or reject the connection
- *
+ * Client sends greeting to server Server sends greeting back with SERVER_GREET_RESPONSE_KEY and the license name Client
+ * makes an auth key request with the license name to intave.de Client sends auth key to server Server gets a request
+ * with the secret authkey and the license name to intave.de Server accepts the client and unlocks the protocol or
+ * reject the connection
  */
 
 
@@ -74,7 +71,7 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
 
     switch (action) {
       case "greet":
-        if ((boolean)whitelisted(player) && authStateOf(player) == SibylAuthenticationState.N) {
+        if ((boolean) whitelisted(player) && authStateOf(player) == SibylAuthenticationState.N) {
           String license = String.valueOf(LicenseAccess.rawLicense());
           String splitLicense = license.substring(0, license.length() / 3);
           JsonObject object = new JsonObject();
@@ -87,7 +84,7 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
         break;
       case "auth":
         try {
-          if ((boolean)whitelisted(player) && authStateOf(player) == SibylAuthenticationState.AW_AK) {
+          if ((boolean) whitelisted(player) && authStateOf(player) == SibylAuthenticationState.AW_AK) {
             String authkey = jsonObject.get("key").getAsString();
             setAuthState(player, SibylAuthenticationState.AW_AKV);
             verifyAuthKey(authkey, success -> {
@@ -134,6 +131,7 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
   }
 
   private List<Object> internalWhitelist = new ArrayList<>();
+
   {
     registerWhitelisted(UUID.randomUUID());
     registerWhitelisted(UUID.randomUUID());
@@ -200,7 +198,7 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
 
   @Native
   public void sendMessageToClient(Player player, String channel, String messageKey, JsonElement jsonElement) {
-    if (!((boolean)whitelisted(player))) {
+    if (!((boolean) whitelisted(player))) {
       return;
     }
     if (whitelisted(new Object[]{}) != null) {
@@ -221,13 +219,7 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
       Class<Object> packetDataSerializerClass = (Class<Object>) Lookup.serverClass("PacketDataSerializer");
       Object packetDataSerializer = packetDataSerializerClass.getConstructor(ByteBuf.class).newInstance(Unpooled.wrappedBuffer(bytesToSend));
       packetContainer.getSpecificModifier(packetDataSerializerClass).write(0, packetDataSerializer);
-      Synchronizer.synchronize(() -> {
-        try {
-          ProtocolLibrary.getProtocolManager().sendServerPacket(player, packetContainer);
-        } catch (InvocationTargetException e) {
-          e.printStackTrace();
-        }
-      });
+      Synchronizer.synchronize(() -> PacketSender.sendServerPacket(player, packetContainer));
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
       e.printStackTrace();
     }

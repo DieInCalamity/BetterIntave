@@ -12,6 +12,7 @@ import de.jpx3.intave.connect.sibyl.auth.SibylAuthentication;
 import de.jpx3.intave.connect.sibyl.data.packet.SibylPacket;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.klass.Lookup;
+import de.jpx3.intave.packet.PacketSender;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.bukkit.entity.Player;
@@ -50,13 +51,7 @@ public final class SibylPacketTransmitter {
       Class<Object> packetDataSerializerClass = (Class<Object>) Lookup.serverClass("PacketDataSerializer");
       Object packetDataSerializer = packetDataSerializerClass.getConstructor(ByteBuf.class).newInstance(Unpooled.wrappedBuffer(bytesToSend));
       packetContainer.getSpecificModifier(packetDataSerializerClass).write(0, packetDataSerializer);
-      Synchronizer.synchronize(() -> {
-        try {
-          ProtocolLibrary.getProtocolManager().sendServerPacket(player, packetContainer);
-        } catch (InvocationTargetException e) {
-          e.printStackTrace();
-        }
-      });
+      Synchronizer.synchronize(() -> PacketSender.sendServerPacket(player, packetContainer));
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
       e.printStackTrace();
     }

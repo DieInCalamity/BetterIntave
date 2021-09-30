@@ -1,16 +1,14 @@
 package de.jpx3.intave.module.patcher;
 
-import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
+import de.jpx3.intave.packet.PacketSender;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-
-import java.lang.reflect.InvocationTargetException;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
 
@@ -34,10 +32,6 @@ public final class PacketResynchronizer extends Module {
   }
 
   private void sendPacket(Player player, PacketContainer packet) {
-    try {
-      ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
-    } catch (InvocationTargetException exception) {
-      exception.printStackTrace();
-    }
+    PacketSender.sendServerPacket(player, packet);
   }
 }

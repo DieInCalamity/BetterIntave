@@ -16,6 +16,7 @@ import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.player.dmc.DamageModify;
 import de.jpx3.intave.player.fake.FakePlayer;
 import de.jpx3.intave.user.User;
@@ -34,7 +35,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -224,10 +224,6 @@ public final class AttackDispatcher extends Module {
     WrappedAttribute attribute = WrappedAttribute.newBuilder().packet(packet).attributeKey("generic.attackDamage").baseValue(0).modifiers(Collections.emptyList()).build();
     packet.getAttributeCollectionModifier().write(0, Lists.newArrayList(attribute));
 
-    try {
-      ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
-    } catch (InvocationTargetException e) {
-      e.printStackTrace();
-    }
+    PacketSender.sendServerPacket(player, packet);
   }
 }

@@ -9,13 +9,13 @@ import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.Module;
+import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.ConnectionMetadata;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -228,11 +228,7 @@ public final class FeedbackSender extends Module {
   }
 
   private void sendPacket(Player receiver, PacketContainer packet) {
-    try {
-      protocolManager.sendServerPacket(receiver, packet);
-    } catch (InvocationTargetException exception) {
-      exception.printStackTrace();
-    }
+    PacketSender.sendServerPacket(receiver, packet);
   }
 
   private static long pendingTransactions(User user) {
