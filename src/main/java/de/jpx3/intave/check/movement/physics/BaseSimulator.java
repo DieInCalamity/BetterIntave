@@ -121,7 +121,6 @@ class BaseSimulator extends Simulator {
       motion.motionX *= motionMultiplier.getX();
       motion.motionY *= motionMultiplier.getY();
       motion.motionZ *= motionMultiplier.getZ();
-      // ?
       movementData.physicsMotionX = 0;
       movementData.physicsMotionY = 0;
       movementData.physicsMotionZ = 0;
@@ -443,9 +442,6 @@ class BaseSimulator extends Simulator {
       );
       if (collisionVector != null) {
         motion.resetTo(collisionVector);
-//        motion.motionX = collisionVector.getX();
-//        motion.motionY = collisionVector.getY();
-//        motion.motionZ = collisionVector.getZ();
       } else {
         motion.motionY = 0.0;
       }
@@ -459,9 +455,6 @@ class BaseSimulator extends Simulator {
       );
       if (collisionVector != null) {
         motion.resetTo(collisionVector);
-//        motion.motionX = collisionVector.getX();
-//        motion.motionY = collisionVector.getY();
-//        motion.motionZ = collisionVector.getZ();
       }
     }
 
@@ -490,9 +483,6 @@ class BaseSimulator extends Simulator {
           );
           if (collisionMotion != null) {
             motion.resetTo(collisionMotion);
-//            motion.motionX = collisionMotion.motionX();
-//            motion.motionY = collisionMotion.motionY();
-//            motion.motionZ = collisionMotion.motionZ();
           }
         }
       }
