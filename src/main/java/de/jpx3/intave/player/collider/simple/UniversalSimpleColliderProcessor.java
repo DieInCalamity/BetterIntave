@@ -13,7 +13,7 @@ public final class UniversalSimpleColliderProcessor implements SimpleColliderPro
   @Override
   public SimpleColliderSimulationResult collide(User user, BoundingBox boundingBox, double motionX, double motionY, double motionZ) {
     Player player = user.player();
-    BlockShape collider = Collision.colliderShapeFor(
+    BlockShape collider = Collision.collisionShape(
       player, boundingBox.expand(motionX, motionY, motionZ)
     );
     double startMotionY = motionY;
@@ -32,7 +32,7 @@ public final class UniversalSimpleColliderProcessor implements SimpleColliderPro
     double motionX = motion.motionX;
     double motionY = motion.motionY;
     double motionZ = motion.motionZ;
-    BlockShape collider = Collision.colliderShapeFor(
+    BlockShape collider = Collision.collisionShape(
       player, boundingBox.expand(motionX, motionY, motionZ)
     );
     double startMotionY = motionY;

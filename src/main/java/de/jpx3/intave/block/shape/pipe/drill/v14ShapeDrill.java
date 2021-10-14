@@ -20,7 +20,7 @@ public final class v14ShapeDrill extends AbstractShapeDrill {
     net.minecraft.server.v1_14_R1.World handle = ((CraftWorld) world).getHandle();
     BlockPosition blockPosition = new BlockPosition(posX, posY, posZ);
     // do not attempt to merge this class with v13BoundingBoxDrill
-    IBlockData blockData = (IBlockData) BlockVariantRegister.rawBlockDataOf(type, blockState);
+    IBlockData blockData = (IBlockData) BlockVariantRegister.rawVariantOf(type, blockState);
     if (blockData == null) {
       return BlockShapes.emptyShape();
     }

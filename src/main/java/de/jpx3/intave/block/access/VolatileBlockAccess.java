@@ -36,6 +36,11 @@ public final class VolatileBlockAccess {
     return fallbackBlock(blockAccess);
   }
 
+  private static Block fallbackBlock(World world) {
+    Location spawnLocation = world.getSpawnLocation();
+    return world.getBlockAt(spawnLocation.getBlockX(), -1, spawnLocation.getBlockZ());
+  }
+
   public static Material typeAccess(User user, Location location) {
     return typeAccess(user, location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
   }
@@ -49,17 +54,11 @@ public final class VolatileBlockAccess {
     return typeAccess(user, world, blockX, blockY, blockZ);
   }
 
-  public static Material typeAccess(User user, World blockAccess, int blockX, int blockY, int blockZ) {
-    if (isInLoadedChunk(blockAccess, blockX, blockZ) || Bukkit.isPrimaryThread()) {
-      return user.blockStates().typeAt(blockX, blockY, blockZ);
-    }
-    return Material.AIR;
+  public static Material typeAccess(User user, World blockAccess, double x, double y, double z) {
+    return typeAccess(user, blockAccess, floor(x), floor(y), floor(z));
   }
 
-  public static Material typeAccess(User user, World blockAccess, double x, double y, double z) {
-    int blockX = floor(x);
-    int blockY = floor(y);
-    int blockZ = floor(z);
+  public static Material typeAccess(User user, World blockAccess, int blockX, int blockY, int blockZ) {
     if (isInLoadedChunk(blockAccess, blockX, blockZ) || Bukkit.isPrimaryThread()) {
       return user.blockStates().typeAt(blockX, blockY, blockZ);
     }
@@ -93,11 +92,6 @@ public final class VolatileBlockAccess {
       return user.blockStates().variantIndexAt(blockX, blockY, blockZ);
     }
     return 0;
-  }
-
-  private static Block fallbackBlock(World world) {
-    Location spawnLocation = world.getSpawnLocation();
-    return world.getBlockAt(spawnLocation.getBlockX(), -1, spawnLocation.getBlockZ());
   }
 
   private static int floor(double value) {

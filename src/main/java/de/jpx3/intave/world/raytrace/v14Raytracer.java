@@ -142,7 +142,7 @@ public final class v14Raytracer implements Raytracer {
     }
     org.bukkit.Material type = blockStateAccess.typeAt(var1.getX(), var1.getY(), var1.getZ());
     int variantIndex = blockStateAccess.variantIndexAt(var1.getX(), var1.getY(), var1.getZ());
-    IBlockData blockVariant = (IBlockData) BlockVariantRegister.rawBlockDataOf(type, variantIndex);
+    IBlockData blockVariant = (IBlockData) BlockVariantRegister.rawVariantOf(type, variantIndex);
     Vec3D var4 = var0x.b();
     Vec3D var5 = var0x.a();
     VoxelShape var6 = voxelShapeAt(user, var1);//var0x.a(blockVariant, blockAccess, var1);

@@ -34,6 +34,7 @@ final class HorseSimulator extends BaseSimulator {
     movementData.setJumpMovementFactor(0.02f, sprinting);
     movementData.setAiMoveSpeed(0.2f);
 
+    // highly risky
     return super.performSimulation(user, motion, horseForward, horseStrafe, attackReduce, sprinting, jumped, handActive);
   }
 

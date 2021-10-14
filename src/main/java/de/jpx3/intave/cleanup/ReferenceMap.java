@@ -134,7 +134,7 @@ public final class ReferenceMap<K, V> implements Map<K, V> {
   @Override
   public V computeIfAbsent(K key, @NotNull Function<? super K, ? extends V> mappingFunction) {
     Reference<V> reference = map.computeIfAbsent(key, k -> referencer.apply(mappingFunction.apply(k)));
-    return reference == null ? null : reference.get();
+    return reference == null ? mappingFunction.apply(key) : reference.get();
   }
 
   @Override

@@ -38,14 +38,14 @@ public final class Collider {
     return universalSimpleColliderProcessor;
   }
 
-  public static ComplexColliderSimulationResult simulateComplexCollision(
+  public static ComplexColliderSimulationResult complexCollision(
     User user, Motion motion, boolean inWeb,
     double positionX, double positionY, double positionZ
   ) {
     return user.complexColliderProcessor().collide(user, motion, inWeb, positionX, positionY, positionZ);
   }
 
-  public static SimpleColliderSimulationResult simulateSimpleCollision(
+  public static SimpleColliderSimulationResult simpleCollision(
     Player player,
     Position position,
     Motion motion
@@ -55,7 +55,7 @@ public final class Collider {
     return user.simpleColliderProcessor().collide(user, boundingBox, motion);
   }
 
-  public static SimpleColliderSimulationResult simulateSimpleCollision(
+  public static SimpleColliderSimulationResult simpleCollision(
     Player player,
     double positionX, double positionY, double positionZ,
     double motionX, double motionY, double motionZ

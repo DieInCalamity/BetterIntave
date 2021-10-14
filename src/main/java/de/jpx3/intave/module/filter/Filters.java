@@ -13,10 +13,11 @@ import java.util.List;
 public final class Filters extends Module {
   private final List<Filter> filters = new ArrayList<>();
 
-  public void setup() {
+  public void enable() {
     setup(EquipmentFilter.class);
     setup(HealthFilter.class);
     setup(VanishFilter.class);
+    setup(CommandFilter.class);
     linkEnabled();
   }
 
