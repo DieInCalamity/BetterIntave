@@ -28,7 +28,7 @@ import static de.jpx3.intave.shade.ClientMathHelper.floor;
 @Relocate
 @DoNotFlowObfuscate
 public final class Collision {
-  public static BlockShape colliderShapeFor(Player player, BoundingBox playerBoundingBox) {
+  public static BlockShape collisionShape(Player player, BoundingBox playerBoundingBox) {
     int minX = floor(playerBoundingBox.minX);
     int maxX = floor(playerBoundingBox.maxX);
     int minY = floor(playerBoundingBox.minY);

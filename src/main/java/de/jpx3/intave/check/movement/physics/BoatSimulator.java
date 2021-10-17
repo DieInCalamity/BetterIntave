@@ -24,35 +24,32 @@ import static de.jpx3.intave.shade.ClientMathHelper.floor;
 public final class BoatSimulator extends BaseSimulator {
   @Override
   public Simulation performSimulation(
-    User user,
-    Motion motion,
-    float keyForward, float keyStrafe,
-    boolean attackReduce, boolean sprinting,
-    boolean jumped, boolean handActive
+    User user, Motion motion,
+    MovementConfiguration configuration
   ) {
     MovementMetadata movement = user.meta().movement();
 
     movement.previousBoatStatus = movement.boatStatus;
-    movement.boatStatus = getBoatStatus(user);
-    movement.boatGlide = getBoatGlide(user);
+    movement.boatStatus = boatStatus(user);
+    movement.boatGlide = boatGlide(user);
     updateMotion(user, motion);
     controlBoat(user, motion);
-    ComplexColliderSimulationResult collision = Collider.simulateComplexCollision(
+    ComplexColliderSimulationResult collision = Collider.complexCollision(
       user, motion, movement.inWeb, movement.verifiedPositionX, movement.verifiedPositionY, movement.verifiedPositionZ
     );
-    return Simulation.of(user, /*temporary solution */MovementConfiguration.select((int)keyForward,(int) keyStrafe, attackReduce, sprinting, jumped, handActive), collision);
+    return Simulation.of(user, configuration, collision);
   }
 
-  private Status getBoatStatus(User user) {
+  private Status boatStatus(User user) {
     MovementMetadata movement = user.meta().movement();
-    Status boatStatus = this.getUnderwaterStatus(user);
+    Status boatStatus = this.underwaterStatus(user);
     if (boatStatus != null) {
       movement.waterLevel = movement.boundingBox().maxY;
       return boatStatus;
     } else if (this.checkInWater(user)) {
       return Status.IN_WATER;
     } else {
-      float f = this.getBoatGlide(user);
+      float f = this.boatGlide(user);
       if (f > 0.0F) {
         movement.boatGlide = f;
         return Status.ON_LAND;
@@ -89,7 +86,7 @@ public final class BoatSimulator extends BaseSimulator {
   }
 
   @Nullable
-  private Status getUnderwaterStatus(User user) {
+  private Status underwaterStatus(User user) {
     MovementMetadata movement = user.meta().movement();
     BoundingBox boundingBox = movement.boundingBox();
     double d0 = boundingBox.maxY + 0.001D;
@@ -189,7 +186,7 @@ public final class BoatSimulator extends BaseSimulator {
     context.motionZ += SinusCache.cos(rotationYaw * ((float) Math.PI / 180F), false) * f;
   }
 
-  private float getBoatGlide(User user) {
+  private float boatGlide(User user) {
     BoundingBox boundingBox = user.meta().movement().boundingBox();
     BoundingBox boundingBox1 = new BoundingBox(boundingBox.minX, boundingBox.minY - 0.001D, boundingBox.minZ, boundingBox.maxX, boundingBox.minY, boundingBox.maxZ);
     int minX = floor(boundingBox1.minX) - 1;

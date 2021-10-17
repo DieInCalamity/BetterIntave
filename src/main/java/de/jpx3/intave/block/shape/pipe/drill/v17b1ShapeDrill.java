@@ -25,7 +25,7 @@ public final class v17b1ShapeDrill extends AbstractShapeDrill {
   public BlockShape resolve(World world, Player player, Material type, int blockState, int posX, int posY, int posZ) {
     WorldServer handle = ((CraftWorld) world).getHandle();
     BlockPosition blockPosition = new BlockPosition(posX, posY, posZ);
-    IBlockData blockData = (IBlockData) BlockVariantRegister.rawBlockDataOf(type, blockState);
+    IBlockData blockData = (IBlockData) BlockVariantRegister.rawVariantOf(type, blockState);
     if (blockData == null) {
       return BlockShapes.emptyShape();
     }

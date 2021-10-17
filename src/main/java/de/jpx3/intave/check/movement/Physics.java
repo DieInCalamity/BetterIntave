@@ -183,7 +183,7 @@ public final class Physics extends Check {
     double motionX = physicsMotionX * 0.91f;
     double motionY = (physicsMotionY - 0.08) * 0.98f;
     double motionZ = physicsMotionZ * 0.91f;
-    SimpleColliderSimulationResult colliderResult = Collider.simulateSimpleCollision(
+    SimpleColliderSimulationResult colliderResult = Collider.simpleCollision(
       user.player(),
       movementData.verifiedPositionX, movementData.verifiedPositionY, movementData.verifiedPositionZ,
       motionX, motionY, motionZ
@@ -200,7 +200,7 @@ public final class Physics extends Check {
     double motionY = (movementData.physicsMotionYBeforeVelocity - 0.08) * 0.98f;
     double motionZ = movementData.physicsMotionZBeforeVelocity * 0.91f;
     if (motionX != 0 && motionY != 0 && motionZ != 0) {
-      SimpleColliderSimulationResult colliderResult = Collider.simulateSimpleCollision(
+      SimpleColliderSimulationResult colliderResult = Collider.simpleCollision(
         user.player(),
         movementData.verifiedPositionX, movementData.verifiedPositionY, movementData.verifiedPositionZ,
         motionX, motionY, motionZ

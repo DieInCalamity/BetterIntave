@@ -29,32 +29,32 @@ public final class ModernComplexColliderProcessor implements ComplexColliderProc
     double startMotionY = motion.motionY;
     double startMotionZ = motion.motionZ;
     boolean step = false;
-    BlockShape firstCollider = Collision.colliderShapeFor(
+    BlockShape collisionShape = Collision.collisionShape(
       player, movement.boundingBox().expand(motion.motionX, motion.motionY, motion.motionZ)
     );
     BoundingBox startBoundingBox = movement.boundingBox();
     BoundingBox shiftedBoundingBox = movement.boundingBox();
     if (motion.motionY != 0.0) {
-      motion.motionY = firstCollider.allowedOffset(Y_AXIS, shiftedBoundingBox, motion.motionY);
+      motion.motionY = collisionShape.allowedOffset(Y_AXIS, shiftedBoundingBox, motion.motionY);
       if (motion.motionY != 0.0) {
         shiftedBoundingBox = shiftedBoundingBox.offset(0.0D, motion.motionY, 0.0D);
       }
     }
     boolean flag = Math.abs(motion.motionX) < Math.abs(motion.motionZ);
     if (flag && motion.motionZ != 0.0) {
-      motion.motionZ = firstCollider.allowedOffset(Z_AXIS, shiftedBoundingBox, motion.motionZ);
+      motion.motionZ = collisionShape.allowedOffset(Z_AXIS, shiftedBoundingBox, motion.motionZ);
       if (motion.motionZ != 0.0) {
         shiftedBoundingBox = shiftedBoundingBox.offset(0.0, 0.0, motion.motionZ);
       }
     }
     if (motion.motionX != 0.0) {
-      motion.motionX = firstCollider.allowedOffset(X_AXIS, shiftedBoundingBox, motion.motionX);
+      motion.motionX = collisionShape.allowedOffset(X_AXIS, shiftedBoundingBox, motion.motionX);
       if (motion.motionX != 0.0) {
         shiftedBoundingBox = shiftedBoundingBox.offset(motion.motionX, 0.0D, 0.0D);
       }
     }
     if (!flag && motion.motionZ != 0.0) {
-      motion.motionZ = firstCollider.allowedOffset(Z_AXIS, shiftedBoundingBox, motion.motionZ);
+      motion.motionZ = collisionShape.allowedOffset(Z_AXIS, shiftedBoundingBox, motion.motionZ);
       if (motion.motionZ != 0.0) {
         shiftedBoundingBox = shiftedBoundingBox.offset(0.0, 0.0, motion.motionZ);
       }
@@ -67,30 +67,30 @@ public final class ModernComplexColliderProcessor implements ComplexColliderProc
       BoundingBox boundingBox3 = shiftedBoundingBox;
       shiftedBoundingBox = startBoundingBox;
       motion.motionY = movement.stepHeight;
-      BlockShape secondCollider = Collision.colliderShapeFor(
+      BlockShape stepCollisionShape = Collision.collisionShape(
         player,
         shiftedBoundingBox.expand(startMotionX, motion.motionY, startMotionZ)
       );
       BoundingBox boundingBox4 = shiftedBoundingBox;
       BoundingBox boundingBox5 = boundingBox4.expand(startMotionX, 0.0D, startMotionZ);
       double d9 = motion.motionY;
-      d9 = secondCollider.allowedOffset(Y_AXIS, boundingBox5, d9);
+      d9 = stepCollisionShape.allowedOffset(Y_AXIS, boundingBox5, d9);
       boundingBox4 = boundingBox4.offset(0.0D, d9, 0.0D);
       double d16 = startMotionZ;
-      d16 = secondCollider.allowedOffset(Z_AXIS, boundingBox4, d16);
+      d16 = stepCollisionShape.allowedOffset(Z_AXIS, boundingBox4, d16);
       boundingBox4 = boundingBox4.offset(0.0D, 0.0D, d16);
       double d15 = startMotionX;
-      d15 = secondCollider.allowedOffset(X_AXIS, boundingBox4, d15);
+      d15 = stepCollisionShape.allowedOffset(X_AXIS, boundingBox4, d15);
       boundingBox4 = boundingBox4.offset(d15, 0.0D, 0.0D);
       BoundingBox boundingBox14 = shiftedBoundingBox;
       double d17 = motion.motionY;
-      d17 = secondCollider.allowedOffset(Y_AXIS, boundingBox14, d17);
+      d17 = stepCollisionShape.allowedOffset(Y_AXIS, boundingBox14, d17);
       boundingBox14 = boundingBox14.offset(0.0D, d17, 0.0D);
       double d18 = startMotionX;
-      d18 = secondCollider.allowedOffset(X_AXIS, boundingBox14, d18);
+      d18 = stepCollisionShape.allowedOffset(X_AXIS, boundingBox14, d18);
       boundingBox14 = boundingBox14.offset(d18, 0.0D, 0.0D);
       double d19 = startMotionZ;
-      d19 = secondCollider.allowedOffset(Z_AXIS, boundingBox14, d19);
+      d19 = stepCollisionShape.allowedOffset(Z_AXIS, boundingBox14, d19);
       boundingBox14 = boundingBox14.offset(0.0D, 0.0D, d19);
       double d20 = d15 * d15 + d16 * d16;
       double d10 = d18 * d18 + d19 * d19;
@@ -105,7 +105,7 @@ public final class ModernComplexColliderProcessor implements ComplexColliderProc
         motion.motionY = -d17;
         shiftedBoundingBox = boundingBox14;
       }
-      motion.motionY = secondCollider.allowedOffset(Y_AXIS, shiftedBoundingBox, motion.motionY);
+      motion.motionY = stepCollisionShape.allowedOffset(Y_AXIS, shiftedBoundingBox, motion.motionY);
       shiftedBoundingBox = shiftedBoundingBox.offset(0.0, motion.motionY, 0.0);
       if (copyX * copyX + copyZ * copyZ >= motion.motionX * motion.motionX + motion.motionZ * motion.motionZ) {
         motion.motionX = copyX;

@@ -52,7 +52,7 @@ public final class ModuleLoader {
     prepareModule("de.jpx3.intave.module.event.CustomEvents", defaultBoot);
     prepareModule("de.jpx3.intave.module.patcher.PacketResynchronizer", defaultBoot);
     prepareModule("de.jpx3.intave.module.violation.ViolationProcessor", defaultBoot);
-    prepareModule("de.jpx3.intave.module.filter.Filters", defaultBoot);
+    prepareModule("de.jpx3.intave.module.filter.Filters", lateBoot);
     prepareModule("de.jpx3.intave.module.player.UserLifetimeService", defaultBoot);
     prepareModule("de.jpx3.intave.module.player.MiscBukkitEvents", defaultBoot);
 

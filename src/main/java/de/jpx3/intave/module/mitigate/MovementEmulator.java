@@ -477,7 +477,7 @@ public final class MovementEmulator extends Module {
     BoundingBox entityBoundingBox,
     double motionX, double motionY, double motionZ
   ) {
-    BlockShape collisionBox = Collision.colliderShapeFor(player, entityBoundingBox.expand(motionX, motionY, motionZ));
+    BlockShape collisionBox = Collision.collisionShape(player, entityBoundingBox.expand(motionX, motionY, motionZ));
 
     // motion y
     motionY = collisionBox.allowedOffset(Y_AXIS, entityBoundingBox, motionY);
