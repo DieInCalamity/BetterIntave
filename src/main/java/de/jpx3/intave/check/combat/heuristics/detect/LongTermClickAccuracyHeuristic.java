@@ -11,7 +11,9 @@ import de.jpx3.intave.check.combat.heuristics.Anomaly;
 import de.jpx3.intave.check.combat.heuristics.Confidence;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
+import de.jpx3.intave.module.tracker.entity.EntityShade;
 import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.AttackMetadata;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import org.bukkit.entity.Player;
 
@@ -35,17 +37,17 @@ public final class LongTermClickAccuracyHeuristic extends MetaCheckPart<Heuristi
   public void evaluateFightAccuracy(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-//    UserMetaAttackData attackData = user.meta().attackData();
+    AttackMetadata attackData = user.meta().attack();
     ClickAccuracyMeta heuristicMeta = metaOf(user);
     PacketType packetType = event.getPacketType();
     PacketContainer packet = event.getPacket();
-//    WrappedEntity attackedEntity = attackData.lastAttackedEntity();
-//    if (attackedEntity != null && !attackedEntity.moving(0.05)) {
-//      return;
-//    }
-//    if (!attackData.recentlyAttacked(500) || attackData.recentlySwitchedEntity(1000)) {
-//      return;
-//    }
+    EntityShade entity = attackData.lastAttackedEntity();
+    if (entity == null || !entity.moving(0.05) || entity.ticksAlive < 200) {
+      return;
+    }
+    if (!attackData.recentlyAttacked(500) || attackData.recentlySwitchedEntity(1000)) {
+      return;
+    }
     if (packetType == PacketType.Play.Client.ARM_ANIMATION) {
       heuristicMeta.swings++;
     } else {
