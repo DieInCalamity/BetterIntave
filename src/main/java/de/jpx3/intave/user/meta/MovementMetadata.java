@@ -61,8 +61,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   @Deprecated
   // Use #pose for checking a player's pose
   public boolean elytraFlying;
-  public boolean fireworkTolerant;
-  public boolean onFirework;
+  public int fireworkRocketsTicks = 100;
 
   public boolean onGround, lastOnGround, step;
   public boolean collidedHorizontally, collidedVertically;
@@ -601,7 +600,7 @@ public final class MovementMetadata implements SimulationEnvironment {
     int speedAmplifier = potionData.potionEffectSpeedAmplifier();
     double baseSpeed = 0.271;
     if (speedAmplifier != 0) {
-      baseSpeed *= 1.0 + (0.2 * speedAmplifier);
+      baseSpeed *= 1.0 + (0.4 * speedAmplifier);
     }
     if (sneaking) {
       baseSpeed *= 0.2;
