@@ -9,6 +9,7 @@ import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
+import de.jpx3.intave.check.movement.physics.Pose;
 import de.jpx3.intave.entity.EntityLookup;
 import de.jpx3.intave.entity.size.HitboxSize;
 import de.jpx3.intave.entity.type.EntityTypeData;
@@ -23,7 +24,11 @@ import de.jpx3.intave.player.fake.FakePlayer;
 import de.jpx3.intave.shade.ClientMathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
-import de.jpx3.intave.user.meta.*;
+import de.jpx3.intave.user.meta.AbilityMetadata;
+import de.jpx3.intave.user.meta.AttackMetadata;
+import de.jpx3.intave.user.meta.ConnectionMetadata;
+import de.jpx3.intave.user.meta.MetadataBundle;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -38,7 +43,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.OptionalInt;
 
-import static de.jpx3.intave.module.feedback.TransactionOptions.APPEND_ON_OVERFLOW;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
@@ -131,7 +135,7 @@ public final class EntityTracker extends Module {
     PacketContainer packet = event.getPacket();
     Player player = event.getPlayer();
 
-    if(event.getPacketType() == PacketType.Play.Server.MOUNT) {
+    if (event.getPacketType() == PacketType.Play.Server.MOUNT) {
       //1.9+ servers
       int[] entityIDs = event.getPacket().getIntegerArrays().read(0);
       int vehicleEntityID = packet.getIntegers().read(0);
@@ -139,7 +143,7 @@ public final class EntityTracker extends Module {
       for (int entityID : entityIDs) {
         processAttachEntity(player, entityID, vehicleEntityID);
       }
-    } else if(event.getPacketType() == PacketType.Play.Server.ATTACH_ENTITY && !NEW_POSITION_PROCESSING_1_9) {
+    } else if (event.getPacketType() == PacketType.Play.Server.ATTACH_ENTITY && !NEW_POSITION_PROCESSING_1_9) {
       // TODO: check if "&& !NEW_POSITION_PROCESSING_1_9" is useless
       // 1.8 servers
       int type = packet.getIntegers().read(0);
@@ -253,9 +257,9 @@ public final class EntityTracker extends Module {
     processPacketSpawnMob(user, event.getPacketType(), entityTypeData, packet, entityId, entityIsPlayer);
   }
 
-  private final boolean INT_LIST_ENTITY_DESTROY = MinecraftVersions.VER1_17_1.atOrAbove();;
-  private final boolean SINGLE_INT_ENTITY_DESTROY = !INT_LIST_ENTITY_DESTROY && MinecraftVersions.VER1_17_0.atOrAbove();;
-  private final boolean INT_ARRAY_ENTITY_DESTROY = !SINGLE_INT_ENTITY_DESTROY;;
+  private final boolean INT_LIST_ENTITY_DESTROY = MinecraftVersions.VER1_17_1.atOrAbove();
+  private final boolean SINGLE_INT_ENTITY_DESTROY = !INT_LIST_ENTITY_DESTROY && MinecraftVersions.VER1_17_0.atOrAbove();
+  private final boolean INT_ARRAY_ENTITY_DESTROY = !SINGLE_INT_ENTITY_DESTROY;
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
@@ -290,11 +294,7 @@ public final class EntityTracker extends Module {
     User user = UserRepository.userOf(player);
     ConnectionMetadata synchronizeData = user.meta().connection();
     EntityShade entityShade = synchronizeData.entityBy(entityID);
-    if (entityShade instanceof EntityShadeFirework) {
-      Modules.feedback().tracedSingleSynchronize(player, entityID, this::processEntityDestroy, entityShade.feedbackTracker(), APPEND_ON_OVERFLOW);
-    } else {
-      processEntityDestroy(player, entityID);
-    }
+    processEntityDestroy(player, entityID);
   }
 
   private void processEntityDestroy(Player player, int entityId) {
@@ -360,7 +360,8 @@ public final class EntityTracker extends Module {
     PacketContainer packet = event.getPacket();
     final EntityShade entity = wrappedEntityByEntityTeleportPacket(event);
 
-    if(entity == null) return;
+    if (entity == null)
+      return;
 
     if (entity.typeData.isLivingEntity() && entity.tracingEnabled()) {
       FeedbackCallback<PacketEvent> task = (player1, event1) -> {
@@ -418,7 +419,9 @@ public final class EntityTracker extends Module {
      gets teleported afterwards because the Bukkit location isn't specific enough */
     EntityShade entity = entityByIdentifier(user, entityId);
 
-    if(entity == null) return;
+    if (entity == null) {
+      return;
+    }
 
     if (entity.typeData.isLivingEntity() && entity.tracingEnabled()) {
       FeedbackCallback<PacketEvent> task = (player1, event1) -> {
@@ -562,13 +565,7 @@ public final class EntityTracker extends Module {
     EntityTypeData entityTypeData,
     boolean player
   ) {
-    EntityShade entity;
-    if (entityTypeData.name() != null && entityTypeData.name().contains("Firework")) {
-      entity = new EntityShadeFirework(user, entityId, entityTypeData);
-    } else {
-      entity = new EntityShade(entityId, entityTypeData, player);
-    }
-    return entity;
+    return new EntityShade(entityId, entityTypeData, player);
   }
 
   @PacketSubscription(
@@ -622,32 +619,110 @@ public final class EntityTracker extends Module {
       return;
     }
     EntityShade entity = entityByIdentifier(user, entityId);
-    if (entity == null) {
-      return;
-    }
-    if (!entity.typeData.isLivingEntity()) {
+    EntityTypeData type = entity.typeData;
+    if (entity == null || type == null) {
       return;
     }
 
+    boolean livingEntity = entity.typeData.isLivingEntity();
+    int entityTypeId = type.identifier();
+
+    boolean fireWorkRocket = type.name() != null && type.name().contains("Firework");
     List<WrappedWatchableObject> watchableObjects = packet.getWatchableCollectionModifier().read(0);
-    if (watchableObjects != null) {
-      int entityTypeId = entity.typeData.identifier();
+
+    // Firework
+    if (fireWorkRocket) {
+      handleFirework(player, watchableObjects);
+    } else if (livingEntity && watchableObjects != null) {
+      // Health
+      processHealthMetaData(player, entity, watchableObjects);
+
+      // Entity Size
       EntityTypeData entityTypeData = entityTypeResolver.entityTypeDataOfEntityMetaData(event, entityTypeId, watchableObjects);
       if (entityTypeData != null) {
         entity.typeData = entityTypeData;
       } else {
 //        IntaveLogger.logger().info("Unable to update entity metadata of entity " + entityId + " of type " + entityTypeId);
       }
+    }
+  }
 
-      Float health = readHealthOf(watchableObjects);
-      if (health != null) {
-        boolean synchronize = entity.clientSynchronized && entity.tracingEnabled();
-        if (synchronize) {
-          FeedbackTracker tracker = entity.feedbackTracker();
-          Modules.feedback().tracedSingleSynchronize(player, entity, (p, e) -> updateHealthState(e, health), tracker);
-        } else {
-          updateHealthState(entity, health);
+  private void handleFirework(
+    Player player,
+    List<WrappedWatchableObject> watchableObjects
+  ) {
+    if (!MinecraftVersions.VER1_12_0.atOrAbove()) {
+      return;
+    }
+
+    for (WrappedWatchableObject watchableObject : watchableObjects) {
+      if (watchableObject != null) {
+        int index = watchableObject.getIndex();
+        Object value = watchableObject.getValue();
+
+        if (!MinecraftVersions.VER1_13_0.atOrAbove()) {
+          if (processFireworkLegacy(player, index, value)) {
+            return;
+          }
+        } else if (processFireworkModern(player, index, value)){
+          return;
         }
+      }
+    }
+  }
+
+  private boolean processFireworkLegacy(Player player, int index, Object value) {
+    User user = UserRepository.userOf(player);
+
+    if (index == 7) {
+      if (!(value instanceof Integer)) {
+        return false;
+      }
+      int entityId = (int) value;
+      MovementMetadata movement = user.meta().movement();
+
+      if (movement.pose() == Pose.FALL_FLYING && entityId == player.getEntityId()) {
+        movement.fireworkRocketsTicks = 0;
+      }
+
+      return true;
+    }
+    return false;
+  }
+
+  private boolean processFireworkModern(Player player, int index, Object value) {
+    User user = UserRepository.userOf(player);
+
+    if (index == 8 && value instanceof OptionalInt) {
+      OptionalInt optionalId = (OptionalInt) value;
+      if (!optionalId.isPresent()) {
+        return false;
+      }
+      int entityId = optionalId.getAsInt();
+      MovementMetadata movement = user.meta().movement();
+
+      if (movement.pose() == Pose.FALL_FLYING && entityId == player.getEntityId()) {
+        movement.fireworkRocketsTicks = 0;
+      }
+
+      return true;
+    }
+    return false;
+  }
+
+  private void processHealthMetaData(
+    Player player,
+    EntityShade entity,
+    List<WrappedWatchableObject> watchableObjects
+  ) {
+    Float health = readHealthOf(watchableObjects);
+    if (health != null) {
+      boolean synchronize = entity.clientSynchronized && entity.tracingEnabled();
+      if (synchronize) {
+        FeedbackTracker tracker = entity.feedbackTracker();
+        Modules.feedback().tracedSingleSynchronize(player, entity, (p, e) -> updateHealthState(e, health), tracker);
+      } else {
+        updateHealthState(entity, health);
       }
     }
   }

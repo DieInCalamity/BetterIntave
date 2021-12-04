@@ -71,6 +71,8 @@ public final class EntityTypeResolver {
     }
   }
 
+  private final static int ENTITY_DEAD_TYPE_FIELD = MinecraftVersions.VER1_12_0.atOrAbove() ? 6 : 9;
+
   public EntityTypeData entityTypeDataOfDeadEntity(PacketEvent event) {
     PacketContainer packet = event.getPacket();
     int entityId = packet.getIntegers().read(0);
@@ -84,12 +86,13 @@ public final class EntityTypeResolver {
     } else {
       if (ENTITY_TYPE_ACCESS_UNDER_1_14) {
         try {
-          int deadEntityType = packet.getIntegers().read(9);
+          int deadEntityType = packet.getIntegers().read(ENTITY_DEAD_TYPE_FIELD);
           String name = nameByDeadEntityType(deadEntityType);
           HitboxSize boundaries = hitboxBoundariesByDeadEntityType(deadEntityType);
           return new EntityTypeData(name, boundaries, -1, false, 2);
         } catch (FieldAccessException exception) {
-//          IntaveLogger.logger().info("Can't access type data of " + entityId);
+         // IntaveLogger.logger().info("Can't access type data of " + entityId);
+         // exception.printStackTrace();
         }
         return new EntityTypeData("could not be created", HitboxSize.zero(), -2, false, 3);
       } else {
@@ -98,7 +101,7 @@ public final class EntityTypeResolver {
         String entityClassName = entityClass.getSimpleName();
         if (IntaveControl.DISABLE_LICENSE_CHECK) {
           // still necessary?
-          IntaveLogger.logger().info("Zero BoundingBox 2 (Entity " + entityClassName+ ")");
+          IntaveLogger.logger().info("Zero BoundingBox 2 (Entity " + entityClassName + ")");
         }
         return new EntityTypeData(entityClassName, HitboxSize.zero(), -2, false, 4);
       }
@@ -232,9 +235,9 @@ public final class EntityTypeResolver {
     HitboxSize hitBoxSize = hitBoxBoundariesByBukkitEntity(entity);
     String name = entityNameByBukkitEntity(entity);
 
-    if(entity.getType() == EntityType.ZOMBIE || entity.getType() == EntityType.PIG_ZOMBIE) {
+    if (entity.getType() == EntityType.ZOMBIE || entity.getType() == EntityType.PIG_ZOMBIE) {
       Zombie zombie = (Zombie) entity;
-      if(zombie.isBaby()) {
+      if (zombie.isBaby()) {
         // setting the hitbox of the zombie to a normal zombie hitbox which is the same as a player hitbox
         hitBoxSize = HitboxSize.playerDefault();
       }

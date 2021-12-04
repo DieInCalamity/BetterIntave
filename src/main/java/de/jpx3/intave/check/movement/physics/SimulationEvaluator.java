@@ -66,10 +66,9 @@ public final class SimulationEvaluator {
     }
 
     // Firework
-    if (movementData.fireworkTolerant) {
+    if (movementData.fireworkRocketsTicks < 10) {
       legitimateDeviation = Math.max(legitimateDeviation, 0.8);
-    }
-    if (movementData.onFirework) {
+    } else if (movementData.fireworkRocketsTicks < 30) {
       legitimateDeviation = Math.max(legitimateDeviation, 0.4);
     }
 
@@ -244,12 +243,9 @@ public final class SimulationEvaluator {
     }
 
     // Firework
-    if (movementData.fireworkTolerant) {
+    if (movementData.fireworkRocketsTicks < 30) {
       // srsly who cares
       legitimateDeviation = Math.max(legitimateDeviation, 3);
-    }
-    if (movementData.onFirework) {
-      legitimateDeviation = Math.max(legitimateDeviation, 1);
     }
 
     // Flying packet
