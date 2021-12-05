@@ -619,8 +619,11 @@ public final class EntityTracker extends Module {
       return;
     }
     EntityShade entity = entityByIdentifier(user, entityId);
+    if (entity == null) {
+      return;
+    }
     EntityTypeData type = entity.typeData;
-    if (entity == null || type == null) {
+    if (type == null) {
       return;
     }
 
