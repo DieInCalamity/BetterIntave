@@ -1,10 +1,6 @@
-package de.jpx3.intave.block.fluid.resolver;
+package de.jpx3.intave.block.fluid;
 
 import de.jpx3.intave.block.access.VolatileBlockAccess;
-import de.jpx3.intave.block.fluid.Fluid;
-import de.jpx3.intave.block.fluid.FluidEngine;
-import de.jpx3.intave.block.fluid.FluidTag;
-import de.jpx3.intave.block.fluid.LegacyWaterflow;
 import de.jpx3.intave.block.physics.MaterialMagic;
 import de.jpx3.intave.block.type.BlockTypeAccess;
 import de.jpx3.intave.block.variant.BlockVariantAccess;
@@ -19,7 +15,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-public final class v12FluidResolver extends FluidEngine {
+public final class v12FluidResolver extends FluidResolver {
   @Override
   protected Fluid fluidAt(User user, int x, int y, int z) {
     Player player = user.player();

@@ -6,6 +6,7 @@ import de.jpx3.intave.diagnostic.KeyPressStudy;
 import de.jpx3.intave.diagnostic.timings.Timings;
 import de.jpx3.intave.math.Hypot;
 import de.jpx3.intave.module.dispatch.AttackDispatcher;
+import de.jpx3.intave.player.ItemProperties;
 import de.jpx3.intave.shade.Motion;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.InventoryMetadata;
@@ -115,8 +116,9 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     boolean packetsSuggestsHandIsActive = inventoryData.handActive();
     if (packetsSuggestsHandIsActive && !movementSuggestsHandIsActive) {
       boolean releaseHandConditions = Hypot.fast(movementData.motionX(), movementData.motionZ()) > 0.3 || movementData.lastTeleport >= 2;
-      if (releaseHandConditions && itemUsageReset) {
-        user.meta().inventory().releaseItemNextTick();
+      boolean itemIsBow = ItemProperties.isBow(meta.inventory().activeItem());
+      if (releaseHandConditions && !itemIsBow && itemUsageReset) {
+        meta.inventory().releaseItemNextTick();
       }
     }
     movementData.keyForward = simulationStack.forward();

@@ -29,7 +29,6 @@ import de.jpx3.intave.player.collider.Collider;
 import de.jpx3.intave.player.collider.complex.ComplexColliderSimulationResult;
 import de.jpx3.intave.player.collider.simple.SimpleColliderSimulationResult;
 import de.jpx3.intave.shade.BoundingBox;
-import de.jpx3.intave.shade.ClientMathHelper;
 import de.jpx3.intave.shade.Motion;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.*;
@@ -46,6 +45,7 @@ import java.util.List;
 
 import static de.jpx3.intave.math.MathHelper.formatDouble;
 import static de.jpx3.intave.math.MathHelper.formatPosition;
+import static de.jpx3.intave.shade.ClientMathHelper.floor;
 
 @Relocate
 public final class Physics extends Check {
@@ -375,7 +375,7 @@ public final class Physics extends Check {
         double blockPositionY = (boundingBox.minY + boundingBox.maxY) / 2.0;
         double blockPositionZ = (boundingBox.minZ + boundingBox.maxZ) / 2.0;
         Block block = VolatileBlockAccess.blockAccess(player.getWorld(), blockPositionX, blockPositionY, blockPositionZ);
-        boolean currentlyInOverride = blockStateAccess.currentlyInOverride(ClientMathHelper.floor(blockPositionX), ClientMathHelper.floor(blockPositionY), ClientMathHelper.floor(blockPositionZ));
+        boolean currentlyInOverride = blockStateAccess.currentlyInOverride(floor(blockPositionX), floor(blockPositionY), floor(blockPositionZ));
         boolean altered = BlockTypeAccess.hasTranslation(user, BlockTypeAccess.typeAccess(block));
 
         String colliderName;
@@ -546,7 +546,7 @@ public final class Physics extends Check {
       }
       debug += "(" + key + ")";
       debug += " " + violationLevelInfo;
-
+      debug += " " + movementData.inWeb + " " + user.blockStates().typeAt(floor(positionX), floor(positionY), floor(positionZ));
 //      debug += "cia " + movementData.pastNearbyCollisionInaccuracy;
 //      debug += " ai ?" + movementData.aiMoveSpeed();
 //      debug += " sprint " + shortenBoolean(movementData.sprinting) + "/" + shortenBoolean(movementData.hasSprintSpeed);

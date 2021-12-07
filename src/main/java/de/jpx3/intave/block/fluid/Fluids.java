@@ -10,22 +10,22 @@ import de.jpx3.intave.user.User;
 import org.bukkit.Location;
 
 public final class Fluids {
-  private static FluidEngine engine;
+  private static FluidResolver engine;
 
   public static void setup() {
     String className;
     if (MinecraftVersions.VER1_16_0.atOrAbove()) {
-      className = "de.jpx3.intave.block.fluid.resolver.v16FluidResolver";
+      className = "de.jpx3.intave.block.fluid.v16FluidResolver";
     } else if (MinecraftVersions.VER1_14_0.atOrAbove()) {
-      className = "de.jpx3.intave.block.fluid.resolver.v14FluidResolver";
+      className = "de.jpx3.intave.block.fluid.v14FluidResolver";
     } else if (MinecraftVersions.VER1_13_0.atOrAbove()) {
-      className = "de.jpx3.intave.block.fluid.resolver.v13FluidResolver";
+      className = "de.jpx3.intave.block.fluid.v13FluidResolver";
     } else {
-      className = "de.jpx3.intave.block.fluid.resolver.v12FluidResolver";
+      className = "de.jpx3.intave.block.fluid.v12FluidResolver";
     }
     PatchyLoadingInjector.loadUnloadedClassPatched(IntavePlugin.class.getClassLoader(), className);
     try {
-      engine = (FluidEngine) Class.forName(className).newInstance();
+      engine = (FluidResolver) Class.forName(className).newInstance();
     } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
       throw new IntaveInternalException(e);
     }

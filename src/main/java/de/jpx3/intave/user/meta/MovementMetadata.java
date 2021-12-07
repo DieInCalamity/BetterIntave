@@ -14,6 +14,7 @@ import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.block.fluid.Fluid;
 import de.jpx3.intave.block.fluid.Fluids;
 import de.jpx3.intave.block.physics.BlockProperties;
+import de.jpx3.intave.block.type.BlockTypeAccess;
 import de.jpx3.intave.check.movement.physics.*;
 import de.jpx3.intave.entity.datawatcher.DataWatcherAccess;
 import de.jpx3.intave.executor.Synchronizer;
@@ -281,11 +282,34 @@ public final class MovementMetadata implements SimulationEnvironment {
       yawSine = sin(rotationYaw * (float) Math.PI / 180.0F);
       yawCosine = cos(rotationYaw * (float) Math.PI / 180.0F);
     }
+    recheckWebStateFromLastTick();
     updateEntityMovement();
     if (clientData.canUseElytra()) {
       updateElytra();
     }
     updatePose();
+  }
+
+  private void recheckWebStateFromLastTick() {
+    // boundingbox from last tick!
+    int blockPositionStartX = floor(boundingBox.minX + 0.001);
+    int blockPositionStartY = floor(boundingBox.minY + 0.001);
+    int blockPositionStartZ = floor(boundingBox.minZ + 0.001);
+    int blockPositionEndX = floor(boundingBox.maxX - 0.001);
+    int blockPositionEndY = floor(boundingBox.maxY - 0.001);
+    int blockPositionEndZ = floor(boundingBox.maxZ - 0.001);
+
+    inWeb = false;
+    for (int x = blockPositionStartX; x <= blockPositionEndX; x++) {
+      for (int y = blockPositionStartY; y <= blockPositionEndY; y++) {
+        for (int z = blockPositionStartZ; z <= blockPositionEndZ; z++) {
+          Material material = VolatileBlockAccess.typeAccess(user, x, y, z);
+          if (material == BlockTypeAccess.WEB) {
+            inWeb = true;
+          }
+        }
+      }
+    }
   }
 
   private Vector vectorForRotation(float yaw, float pitch) {

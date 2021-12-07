@@ -13,7 +13,7 @@ import static de.jpx3.intave.block.fluid.FluidTag.WATER;
 import static de.jpx3.intave.shade.ClientMathHelper.ceil;
 import static de.jpx3.intave.shade.ClientMathHelper.floor;
 
-public abstract class FluidEngine {
+public abstract class FluidResolver {
   public final Fluid fluidAt(User user, double x, double y, double z) {
     return fluidAt(user, floor(x), floor(y), floor(z));
   }

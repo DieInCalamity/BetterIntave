@@ -1,39 +1,37 @@
-package de.jpx3.intave.block.fluid.resolver;
+package de.jpx3.intave.block.fluid;
 
-import de.jpx3.intave.block.fluid.Fluid;
-import de.jpx3.intave.block.fluid.FluidEngine;
-import de.jpx3.intave.block.fluid.FluidTag;
 import de.jpx3.intave.klass.rewrite.PatchyAutoTranslation;
 import de.jpx3.intave.klass.rewrite.PatchyTranslateParameters;
 import de.jpx3.intave.shade.NativeVector;
 import de.jpx3.intave.shade.link.WrapperLinkage;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MovementMetadata;
-import net.minecraft.server.v1_13_R2.*;
+import net.minecraft.server.v1_14_R1.*;
 
 @PatchyAutoTranslation
-public final class v13FluidResolver extends FluidEngine {
+public final class v14FluidResolver extends FluidResolver {
   @Override
   @PatchyAutoTranslation
   protected Fluid fluidAt(User user, int x, int y, int z) {
     MovementMetadata movementData = user.meta().movement();
     World world = (World) movementData.nmsWorld();
-    if (!world.isChunkLoaded(x >> 4, z >> 4, false)) {
+    IBlockAccess blockAccess = world.getChunkProvider().c(x >> 4, z >> 4);
+    if (blockAccess == null) {
       return Fluid.empty();
     }
-    net.minecraft.server.v1_13_R2.Fluid fluid = world.getFluid(new BlockPosition(x, y, z));
+    net.minecraft.server.v1_14_R1.Fluid fluid = blockAccess.getFluid(new BlockPosition(x, y, z));
     FluidTag fluidTag = resolveFluidTagOf(fluid);
     if (fluidTag == FluidTag.EMPTY) {
       return Fluid.empty();
     }
-    float height = fluid.getHeight();
-    return Fluid.construct(fluidTag, fluid.d(), height);
+    float height = fluid.f();
+    return Fluid.construct(fluidTag, fluid.isSource(), height);
   }
 
   @PatchyAutoTranslation
   @PatchyTranslateParameters
-  private FluidTag resolveFluidTagOf(net.minecraft.server.v1_13_R2.Fluid fluid) {
-    if (fluid.e()) {
+  private FluidTag resolveFluidTagOf(net.minecraft.server.v1_14_R1.Fluid fluid) {
+    if (fluid.isEmpty()) {
       return FluidTag.EMPTY;
     }
     //noinspection unchecked
@@ -51,8 +49,12 @@ public final class v13FluidResolver extends FluidEngine {
   @PatchyAutoTranslation
   protected NativeVector flowVectorAt(User user, int x, int y, int z) {
     MovementMetadata movementData = user.meta().movement();
-    IWorldReader world = (World) movementData.nmsWorld();
+    World world = (World) movementData.nmsWorld();
+    IBlockAccess blockAccess = world.getChunkProvider().c(x >> 4, z >> 4);
+    if (blockAccess == null) {
+      return NativeVector.ZERO;
+    }
     BlockPosition blockPosition = new BlockPosition(x, y, z);
-    return WrapperLinkage.vectorOf(world.getFluid(blockPosition).a(world, blockPosition));
+    return WrapperLinkage.vectorOf(blockAccess.getFluid(blockPosition).c(blockAccess, blockPosition));
   }
 }

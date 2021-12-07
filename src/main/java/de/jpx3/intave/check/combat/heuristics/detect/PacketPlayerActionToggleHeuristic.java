@@ -18,6 +18,7 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.*;
 import org.bukkit.entity.Player;
 
+import static de.jpx3.intave.check.combat.heuristics.Anomaly.AnomalyOption.*;
 import static de.jpx3.intave.entity.datawatcher.DataWatcherAccess.WATCHER_SNEAK_ID;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
@@ -87,7 +88,7 @@ public final class PacketPlayerActionToggleHeuristic extends MetaCheckPart<Heuri
         if (this.enabled) {
           // could be CERTAIN on 1.8
           Confidence confidence = flyingPacketStream ? Confidence.PROBABLE : Confidence.MAYBE;
-          int options = Anomaly.AnomalyOption.DELAY_128s | Anomaly.AnomalyOption.REQUIRES_HEAVY_COMBAT;
+          int options = DELAY_128s | REQUIRES_HEAVY_COMBAT | LIMIT_4;
           Anomaly anomaly = Anomaly.anomalyOf("41", confidence, Anomaly.Type.KILLAURA, description, options);
           parentCheck().saveAnomaly(player, anomaly);
         }

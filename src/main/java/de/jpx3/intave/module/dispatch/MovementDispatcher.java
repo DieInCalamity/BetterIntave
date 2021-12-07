@@ -37,10 +37,8 @@ import de.jpx3.intave.shade.BoundingBox;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.*;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -248,8 +246,8 @@ public final class MovementDispatcher extends Module {
     PacketType packetType = event.getPacketType();
     boolean vehicleMove = packetType == PacketType.Play.Client.VEHICLE_MOVE;
 
-    boolean hasRotation = vehicleMove || packet.getBooleans().read(2);
     boolean hasMovement = vehicleMove || packet.getBooleans().read(1);
+    boolean hasRotation = vehicleMove || packet.getBooleans().read(2);
 
     if (movementData.hasRidingEntity() && !vehicleMove && hasRotation && !hasMovement) {
       movementData.applyGroundInformationToPacket(packet);
@@ -486,6 +484,11 @@ public final class MovementDispatcher extends Module {
 
     if (!event.isCancelled() && !movementData.isTeleportConfirmationPacket && !movementData.dropPostTickMotionProcessing) {
       physicsCheck.endMovement(user, hasMovement);
+    }
+
+    // if event is cancelled, we must flush certain states
+    if (event.isCancelled()) {
+      movementData.inWeb = false;
     }
 
     if (!movementData.isTeleportConfirmationPacket) {
