@@ -35,13 +35,18 @@ import de.jpx3.intave.packet.reader.BlockInteractionReader;
 import de.jpx3.intave.packet.reader.EntityReader;
 import de.jpx3.intave.packet.reader.PacketReaders;
 import de.jpx3.intave.player.ItemProperties;
-import de.jpx3.intave.shade.*;
+import de.jpx3.intave.shade.BlockPosition;
+import de.jpx3.intave.shade.BoundingBox;
+import de.jpx3.intave.shade.Direction;
+import de.jpx3.intave.shade.MovingObjectPosition;
+import de.jpx3.intave.shade.NativeVector;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.AbilityMetadata;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.InventoryMetadata;
 import de.jpx3.intave.user.meta.MovementMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.world.raytrace.Raytracing;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -240,7 +245,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     Location targetLocation = interaction.targetBlock().toLocation(world);
     boolean raytraceFailed = hitMiss ||
       raycastLocation.distance(targetLocation) > 0 ||
-      interaction.targetDirection() != firstRaytraceResult.sideHit.getIndex();
+      wrongBlockFace(interaction, firstRaytraceResult);
 
     // if first raytrace failed..
     if (raytraceFailed) {
@@ -251,7 +256,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
       Location raycastLocation2 = raycastVector2.toLocation(world);
       raytraceFailed = hitMiss2 ||
         raycastLocation2.distance(targetLocation) > 0 ||
-        interaction.targetDirection() != secondRaytraceResult.sideHit.getIndex();
+        wrongBlockFace(interaction, secondRaytraceResult);
     }
     return !raytraceFailed;
   }
@@ -298,7 +303,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     Location targetLocation = interaction.targetBlock().toLocation(world);
     boolean raytraceFailed = hitMiss ||
       raycastLocation.distance(targetLocation) > 0 ||
-      interaction.targetDirection() != firstRaytraceResult.sideHit.getIndex();
+      wrongBlockFace(interaction, firstRaytraceResult);
 
     // if first raytrace failed..
     if (raytraceFailed) {
@@ -309,7 +314,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
       Location raycastLocation2 = raycastVector2.toLocation(world);
       raytraceFailed = hitMiss2 ||
         raycastLocation2.distance(targetLocation) > 0 ||
-        interaction.targetDirection() != secondRaytraceResult.sideHit.getIndex();
+        wrongBlockFace(interaction, secondRaytraceResult);
       interactionMeta.estimateMouseDelayFix = raytraceFailed == interactionMeta.estimateMouseDelayFix;
     }
 
@@ -446,7 +451,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
         }
         append = "but looking at " + blockName + " block";
         vl = longBreakDuration ? 20 : 5;
-      } else if (interaction.targetDirection() != raycastResult.sideHit.getIndex()) {
+      } else if (wrongBlockFace(interaction, raycastResult)) {
         append = "invalid block face";
         vl = longBreakDuration ? 20 : 15;
       }
@@ -524,6 +529,18 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
         packet.getIntegers().write(1, 11);
       }
     }
+  }
+
+  private boolean wrongBlockFace(Interaction interaction, MovingObjectPosition rayTraceResult) {
+    Player player = interaction.player();
+    User user = UserRepository.userOf(player);
+    ProtocolMetadata protocol = user.meta().protocol();
+
+    int targetDirection = interaction.targetDirection();
+    boolean suppressDetection = protocol.oppositeBlockVectorBehavior()
+      && targetDirection == rayTraceResult.sideHit.getOpposite().getIndex();
+
+    return !suppressDetection && rayTraceResult.sideHit.getIndex() != targetDirection;
   }
 
   private boolean atLeastLookingAtBlock(User user, Location location, Location targetBlockLocation, MovingObjectPosition movingObjectPosition) {

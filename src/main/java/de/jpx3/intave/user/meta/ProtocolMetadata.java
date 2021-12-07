@@ -220,6 +220,10 @@ public final class ProtocolMetadata {
     return protocolVersion >= VER_1_9;
   }
 
+  public boolean oppositeBlockVectorBehavior() {
+    return protocolVersion >= VER_1_14;
+  }
+
   private Boolean behind;
 
   public boolean clientVersionOlderThanServerVersion() {
