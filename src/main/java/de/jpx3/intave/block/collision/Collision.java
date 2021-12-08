@@ -237,7 +237,7 @@ public final class Collision {
       return false;
     }
     BoundingBox playerBox = user.meta().movement().boundingBox();
-    playerBox = playerBox.shrink(0.001);
+    playerBox = playerBox.shrink(0.001); // :(
     return boundingBoxes.intersectsWith(playerBox);
   }
 

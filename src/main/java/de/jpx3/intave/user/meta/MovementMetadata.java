@@ -108,6 +108,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   public Fluid interactingFluid;
   public boolean inWater;
   public boolean inWeb;
+  public boolean checkWebStateAgainNextTick = false;
   private boolean eyesInWater;
   public int pastPushedByWaterFlow = 100;
   public int pastElytraFlying = 100, pastVelocity = 100, pastExternalVelocity = 100, pastInWeb = 100, pastWaterMovement = 100;
@@ -291,6 +292,14 @@ public final class MovementMetadata implements SimulationEnvironment {
   }
 
   private void recheckWebStateFromLastTick() {
+    if (!checkWebStateAgainNextTick) {
+      return;
+    }
+    checkWebStateAgainNextTick = false;
+    // only check if we missed ticks
+    if (!recentlyEncounteredFlyingPacket(6)) {
+      return;
+    }
     // boundingbox from last tick!
     int blockPositionStartX = floor(boundingBox.minX + 0.001);
     int blockPositionStartY = floor(boundingBox.minY + 0.001);

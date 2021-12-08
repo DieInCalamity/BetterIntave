@@ -546,7 +546,7 @@ public final class Physics extends Check {
       }
       debug += "(" + key + ")";
       debug += " " + violationLevelInfo;
-      debug += " " + movementData.inWeb + " " + user.blockStates().typeAt(floor(positionX), floor(positionY), floor(positionZ));
+//      debug += " web (a: " + shortenBoolean(movementData.inWeb) + ", r: " + shortenBoolean(collidesWeb(user, currentBoundingBox)) + ")";
 //      debug += "cia " + movementData.pastNearbyCollisionInaccuracy;
 //      debug += " ai ?" + movementData.aiMoveSpeed();
 //      debug += " sprint " + shortenBoolean(movementData.sprinting) + "/" + shortenBoolean(movementData.hasSprintSpeed);
@@ -560,7 +560,7 @@ public final class Physics extends Check {
 
       List<String> tags = new ArrayList<>();
 
-      tags.add("dist=" + (movementData.recentlyEncounteredFlyingPacket(1) ? "~" + formatDouble(distance, 10) : formatDouble(distance, 10)));
+      tags.add("dist=" + (movementData.recentlyEncounteredFlyingPacket(1) ? "~" + formatDouble(distance, 8) : formatDouble(distance, 8)));
       if (collidedWithBoat) {
         tags.add("boat");
       }
@@ -583,6 +583,28 @@ public final class Physics extends Check {
       player.sendMessage(finalDebug);
 //      Synchronizer.synchronize(() -> player.sendMessage(finalDebug));
     }
+  }
+
+  private static boolean collidesWeb(User user, BoundingBox boundingBox) {
+    // boundingbox from last tick!
+    int blockPositionStartX = floor(boundingBox.minX + 0.001);
+    int blockPositionStartY = floor(boundingBox.minY + 0.001);
+    int blockPositionStartZ = floor(boundingBox.minZ + 0.001);
+    int blockPositionEndX = floor(boundingBox.maxX - 0.001);
+    int blockPositionEndY = floor(boundingBox.maxY - 0.001);
+    int blockPositionEndZ = floor(boundingBox.maxZ - 0.001);
+
+    for (int x = blockPositionStartX; x <= blockPositionEndX; x++) {
+      for (int y = blockPositionStartY; y <= blockPositionEndY; y++) {
+        for (int z = blockPositionStartZ; z <= blockPositionEndZ; z++) {
+          Material material = VolatileBlockAccess.typeAccess(user, x, y, z);
+          if (material == BlockTypeAccess.WEB) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   private static String shortenBoolean(boolean bool) {

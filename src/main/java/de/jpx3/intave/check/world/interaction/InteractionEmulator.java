@@ -96,6 +96,7 @@ public final class InteractionEmulator implements EventProcessor {
   }
 
   private EmulationResult emulateBreak(Player player, Interaction interaction) {
+    User user = userOf(player);
     World world = interaction.world();
     BlockPosition blockPosition = interaction.targetBlock();
     Location blockBreakLocation = blockPosition.toLocation(world);
@@ -108,6 +109,16 @@ public final class InteractionEmulator implements EventProcessor {
       int blockZ = blockBreakLocation.getBlockZ();
       // add to future bounding boxes
       BlockStateAccess blockStateAccess = userOf(player).blockStates();
+
+      Material material = blockStateAccess.typeAt(blockX, blockY, blockZ);
+      if (material == BlockTypeAccess.WEB) {
+        boolean playerInsideWeb = Collision.playerInImaginaryBlock(
+          user, world, blockX, blockY, blockZ, Material.STONE, 0
+        );
+        if (playerInsideWeb) {
+          user.meta().movement().checkWebStateAgainNextTick = true;
+        }
+      }
       blockStateAccess.override(world, blockX, blockY, blockZ, Material.AIR, (byte) 0);
     }
     return access ? EmulationResult.SUCCEEDED : EmulationResult.FAILED;
@@ -141,6 +152,17 @@ public final class InteractionEmulator implements EventProcessor {
       variant
     );
     if (access) {
+      /*
+        This hardcode is required
+       */
+      if (replacementType == BlockTypeAccess.WEB) {
+        boolean playerInsideWeb = Collision.playerInImaginaryBlock(
+          user, world, blockX, blockY, blockZ, Material.STONE, 0
+        );
+        if (playerInsideWeb) {
+          user.meta().movement().checkWebStateAgainNextTick = true;
+        }
+      }
       BlockStateAccess blockStateAccess = userOf(player).blockStates();
       blockStateAccess.override(world, blockX, blockY, blockZ, replacementType, variant);
       // enforce block reset later
@@ -253,7 +275,7 @@ public final class InteractionEmulator implements EventProcessor {
     }
   }
 
-  protected User userOf(Player player) {
+  private User userOf(Player player) {
     return UserRepository.userOf(player);
   }
 

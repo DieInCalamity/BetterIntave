@@ -24,11 +24,7 @@ import de.jpx3.intave.player.fake.FakePlayer;
 import de.jpx3.intave.shade.ClientMathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
-import de.jpx3.intave.user.meta.AbilityMetadata;
-import de.jpx3.intave.user.meta.AttackMetadata;
-import de.jpx3.intave.user.meta.ConnectionMetadata;
-import de.jpx3.intave.user.meta.MetadataBundle;
-import de.jpx3.intave.user.meta.MovementMetadata;
+import de.jpx3.intave.user.meta.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -372,12 +368,12 @@ public final class EntityTracker extends Module {
 
       FeedbackTracker feedbackTracker = entity.feedbackTracker();
 
-      if (entity.doubleVerification) {
-        FeedbackCallback<PacketEvent> verificationTask = (x, theEvent) -> entity.verifiedPosition = true;
-        Modules.feedback().tracedDoubleSynchronize(player, event, event, task, verificationTask, feedbackTracker, feedbackTracker);
-      } else {
+//      if (entity.doubleVerification) {
+//        FeedbackCallback<PacketEvent> verificationTask = (x, theEvent) -> entity.verifiedPosition = true;
+//        Modules.feedback().tracedDoubleSynchronize(player, event, event, task, verificationTask, feedbackTracker, feedbackTracker);
+//      } else {
         Modules.feedback().tracedSingleSynchronize(player, event, task, feedbackTracker);
-      }
+//      }
     } else {
       entity.handleEntityTeleport(packet);
       entity.clientSynchronized = false;
@@ -429,12 +425,12 @@ public final class EntityTracker extends Module {
         entity.handleEntityMovement(packet);
       };
       FeedbackTracker tracker = entity.feedbackTracker();
-      if (entity.doubleVerification) {
-        FeedbackCallback<PacketEvent> verificationTask = (x, theEvent) -> entity.verifiedPosition = true;
-        Modules.feedback().tracedDoubleSynchronize(player, event, event, task, verificationTask, tracker, tracker);
-      } else {
+//      if (entity.doubleVerification) {
+//        FeedbackCallback<PacketEvent> verificationTask = (x, theEvent) -> entity.verifiedPosition = true;
+//        Modules.feedback().tracedDoubleSynchronize(player, event, event, task, verificationTask, tracker, tracker);
+//      } else {
         Modules.feedback().tracedSingleSynchronize(player, event, task, tracker);
-      }
+//      }
     } else {
       entity.handleEntityMovement(packet);
       entity.clientSynchronized = false;
