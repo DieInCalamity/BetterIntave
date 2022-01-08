@@ -650,21 +650,23 @@ public final class EntityTracker extends Module {
     Player player,
     List<WrappedWatchableObject> watchableObjects
   ) {
-    if (!MinecraftVersions.VER1_12_0.atOrAbove()) {
+    if (!MinecraftVersions.VER1_11_0.atOrAbove()) {
       return;
     }
     for (WrappedWatchableObject watchableObject : watchableObjects) {
       if (watchableObject != null) {
         int index = watchableObject.getIndex();
         Object value = watchableObject.getValue();
-        if (!MinecraftVersions.VER1_13_0.atOrAbove()) {
+        if (MinecraftVersions.VER1_14_0.atOrAbove()) {
+          if (processFireworkModern(player, index, value)){
+            // ?
+            return;
+          }
+        } else {
           if (processFireworkLegacy(player, index, value)) {
             // ?
             return;
           }
-        } else if (processFireworkModern(player, index, value)){
-          // ?
-          return;
         }
       }
     }
@@ -672,38 +674,34 @@ public final class EntityTracker extends Module {
 
   private boolean processFireworkLegacy(Player player, int index, Object value) {
     User user = UserRepository.userOf(player);
-
     if (index == 7) {
       if (!(value instanceof Integer)) {
         return false;
       }
       int entityId = (int) value;
       MovementMetadata movement = user.meta().movement();
-
       if (movement.pose() == Pose.FALL_FLYING && entityId == player.getEntityId()) {
         movement.fireworkRocketsTicks = 0;
       }
-
       return true;
     }
     return false;
   }
 
+  private final static int MODERN_ENTITY_ID_ACCESS_INDEX = MinecraftVersions.VER1_17_0.atOrAbove() ? 9 : 8;
+
   private boolean processFireworkModern(Player player, int index, Object value) {
     User user = UserRepository.userOf(player);
-
-    if (index == 8 && value instanceof OptionalInt) {
+    if (index == MODERN_ENTITY_ID_ACCESS_INDEX && value instanceof OptionalInt) {
       OptionalInt optionalId = (OptionalInt) value;
       if (!optionalId.isPresent()) {
         return false;
       }
       int entityId = optionalId.getAsInt();
       MovementMetadata movement = user.meta().movement();
-
       if (movement.pose() == Pose.FALL_FLYING && entityId == player.getEntityId()) {
         movement.fireworkRocketsTicks = 0;
       }
-
       return true;
     }
     return false;

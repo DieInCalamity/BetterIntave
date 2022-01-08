@@ -547,6 +547,7 @@ public final class Physics extends Check {
       }
       debug += "(" + key + ")";
       debug += " " + violationLevelInfo;
+//      debug += " frt" + movementData.fireworkRocketsTicks;
 //      debug += " web (a: " + shortenBoolean(movementData.inWeb) + ", r: " + shortenBoolean(collidesWeb(user, currentBoundingBox)) + ")";
 //      debug += "cia " + movementData.pastNearbyCollisionInaccuracy;
 //      debug += " ai ?" + movementData.aiMoveSpeed();

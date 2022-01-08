@@ -366,7 +366,7 @@ public final class IntavePlugin extends JavaPlugin {
             receivedLSB = receivedResponse.getLeastSignificantBits();
             validResponse = receivedMSB == longOne && receivedLSB == longTwo;
           }
-          if (!validResponse || foundInterceptor) {
+          if (!validResponse /*|| foundInterceptor*/) {
             logger.error("Unable to boot: Authentication response not trustworthy");
             contextStatusResource.write(new ByteArrayInputStream(("failure-"+response).getBytes(StandardCharsets.UTF_8)));
             bootFailure("Internal failure");

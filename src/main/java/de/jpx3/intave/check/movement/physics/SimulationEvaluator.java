@@ -67,9 +67,9 @@ public final class SimulationEvaluator {
 
     // Firework
     if (movementData.fireworkRocketsTicks < 10) {
-      legitimateDeviation = Math.max(legitimateDeviation, 0.8);
+      legitimateDeviation = Math.max(legitimateDeviation, 1);
     } else if (movementData.fireworkRocketsTicks < 30) {
-      legitimateDeviation = Math.max(legitimateDeviation, 0.4);
+      legitimateDeviation = Math.max(legitimateDeviation, 0.5);
     }
 
     // doesn't quite work
