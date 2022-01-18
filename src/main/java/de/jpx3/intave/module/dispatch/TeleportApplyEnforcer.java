@@ -86,9 +86,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
         (player1, target) -> movementData.transactionTeleportAllow = false
       );
     } else {
-      Modules.feedback().synchronize(player,
-        (player1, target) -> movementData.transactionTeleportAllow = true
-      );
+      movementData.transactionTeleportAllow = true;
     }
 
     movementData.awaitTeleport = true;

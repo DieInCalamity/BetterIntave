@@ -114,6 +114,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   public int pastElytraFlying = 100, pastVelocity = 100, pastExternalVelocity = 100, pastInWeb = 100, pastWaterMovement = 100;
   public int pastLongTeleport = 100;
   public int pastInventoryOpen = 100;
+  public int pastBlockPlacement = 100;
   public boolean onLadderLast;
   public boolean aquaticUpdateInLava;
   public boolean sprintResetNextTick;

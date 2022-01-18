@@ -168,7 +168,8 @@ public final class InteractionEmulator implements EventProcessor {
           user.meta().movement().checkWebStateAgainNextTick = true;
         }
       }
-      BlockStateAccess blockStateAccess = userOf(player).blockStates();
+      user.meta().movement().pastBlockPlacement = 0;
+      BlockStateAccess blockStateAccess = user.blockStates();
       blockStateAccess.override(world, blockX, blockY, blockZ, replacementType, variant);
       // enforce block reset later
       Synchronizer.synchronize(() -> {
@@ -213,8 +214,11 @@ public final class InteractionEmulator implements EventProcessor {
       }
       case WATER_BUCKET:
       case LAVA_BUCKET: {
+        Material placementType = VolatileBlockAccess.typeAccess(UserRepository.userOf(player), placementLocation);
+
+
         // emulate
-        if (WorldPermission.bukkitActionPermission(player, BucketAction.EMPTY_BUCKET, clickedBlock, BlockFace.SELF, itemTypeInHand, null)) {
+        if (placementType == Material.AIR && WorldPermission.bukkitActionPermission(player, BucketAction.EMPTY_BUCKET, clickedBlock, BlockFace.SELF, itemTypeInHand, null)) {
           blockStateAccess.override(world, placementLocation.getBlockX(), placementLocation.getBlockY(), placementLocation.getBlockZ(), itemTypeInHand == Material.WATER_BUCKET ? Material.WATER : Material.LAVA, 15);
         }
         break;

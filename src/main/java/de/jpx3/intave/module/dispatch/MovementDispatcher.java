@@ -86,22 +86,19 @@ public final class MovementDispatcher extends Module {
     if (cause == PlayerTeleportEvent.TeleportCause.NETHER_PORTAL || cause == PlayerTeleportEvent.TeleportCause.UNKNOWN) {
       return;
     }
-
     Location fromLocation = event.getFrom();
     Location toLocation = event.getTo();
     World world = toLocation.getWorld();
-
     if (toLocation.getWorld() != player.getWorld() || toLocation.distance(fromLocation) > 8) {
       BoundingBox bb = BoundingBox.fromPosition(user, toLocation);
-      int shiftAllowed = 6;
-      while (toLocation.getY() < WorldHeight.UPPER_WORLD_LIMIT && shiftAllowed-- > 0 && Collision.unsafePresent(world, player, bb)) {
-        toLocation.add(0, 0.5, 0);
+      int shiftAllowed = 5;
+      while (toLocation.getY() < WorldHeight.UPPER_WORLD_LIMIT && shiftAllowed-- > 0 && Collision.unsafePresent(world, player, bb) && Collision.unsafeNonePresent(world, player, bb.offset(0, 0.5, 0))) {
+        toLocation.add(0, 0.1, 0);
         bb = BoundingBox.fromPosition(user, toLocation);
       }
       event.setTo(toLocation);
     }
 //    respawn.setRespawnLocation(toLocation);
-
     MovementMetadata movementData = user.meta().movement();
     movementData.artificialFallDistance = 0;
   }
@@ -133,15 +130,12 @@ public final class MovementDispatcher extends Module {
   public void postShift(PlayerRespawnEvent respawn) {
     Player player = respawn.getPlayer();
     User user = UserRepository.userOf(player);
-
     Location respawnLocation = respawn.getRespawnLocation().clone();
     World world = respawnLocation.getWorld();
-
-    int shiftAllowed = 6;
-
+    int shiftAllowed = 5;
     BoundingBox bb = BoundingBox.fromPosition(user, respawnLocation);
-    while (respawnLocation.getY() < WorldHeight.UPPER_WORLD_LIMIT && shiftAllowed-- > 0 && Collision.unsafePresent(world, player, bb)) {
-      respawnLocation.add(0, 0.5, 0);
+    while (respawnLocation.getY() < WorldHeight.UPPER_WORLD_LIMIT && shiftAllowed-- > 0 && Collision.unsafePresent(world, player, bb) && Collision.unsafeNonePresent(world, player, bb.offset(0, 0.5, 0))) {
+      respawnLocation.add(0, 0.1, 0);
       bb = BoundingBox.fromPosition(user, respawnLocation);
     }
     respawn.setRespawnLocation(respawnLocation);
@@ -537,6 +531,7 @@ public final class MovementDispatcher extends Module {
     if (movementData.physicsJumped) {
       movementData.lastJump = System.currentTimeMillis();
     }
+    movementData.pastBlockPlacement++;
     inventoryData.pastHotBarSlotChange++;
     inventoryData.pastItemUsageTransition++;
     movementData.pastWaterMovement++;

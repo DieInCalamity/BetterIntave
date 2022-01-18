@@ -183,9 +183,6 @@ public final class SimulationEvaluator {
         abuseVertically = 0;
       }
     }
-
-    player.sendMessage("deviation:" + legitimateDeviation + " " + abuseVertically + " " + multiplier);
-
     return abuseVertically * multiplier;
   }
 
@@ -265,7 +262,7 @@ public final class SimulationEvaluator {
 
     // Riptide
     if (movementData.pastRiptideSpin < 2) {
-      legitimateDeviation = resolveRiptideDeviation(movementData);
+      legitimateDeviation = Math.max(legitimateDeviation, resolveRiptideDeviation(movementData));
     }
 
     boolean recentlySentFlying = movementData.recentlyEncounteredFlyingPacket(2);
@@ -274,8 +271,10 @@ public final class SimulationEvaluator {
 
     if (recentlySentFlying) {
       boolean lessThanExpected = distanceMoved <= predictedDistanceMoved;
-      double baseSpeedMultiplier = inLiquid ? 0.3 : 0.7;
-      if (lessThanExpected || distanceMoved < baseMoveSpeed * baseSpeedMultiplier) {
+      double baseSpeedMultiplier = inLiquid ? 0.3 : (!movementData.sprinting ? 0.5 : 0.7);
+      MovementMetadata movement = user.meta().movement();
+      boolean valid = movement.pastBlockPlacement > 9 || !movement.onGround();
+      if (valid && (lessThanExpected || distanceMoved < baseMoveSpeed * baseSpeedMultiplier)) {
         legitimateDeviation = Math.max(legitimateDeviation, baseMoveSpeed * 0.7);
       }
     }
@@ -330,7 +329,7 @@ public final class SimulationEvaluator {
 
     if (movedTooQuickly && movedTooQuicklyCheckable && !movementData.physicsUnpredictableVelocityExpected) {
       //noinspection UnnecessaryLocalVariable
-      double vl = abuseHorizontally > 0.2 ? 1000 : Math.max(0.1, abuseHorizontally) * 300;
+      double vl = abuseHorizontally > 0.2 ? 1000 : Math.max(30, abuseHorizontally * 300);
 //      Bukkit.broadcastMessage(user.player().getName() + " moved too quickly: vl+" + vl + " abuse:" + abuseHorizontally + " | un:" + movementData.physicsUnpredictableVelocityExpected);
       return vl;
     }

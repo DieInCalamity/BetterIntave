@@ -87,7 +87,7 @@ public final class RotationAccuracyYawHeuristic extends MetaCheckPart<Heuristics
         }
         // Check perfect yaw
         if (distanceToPerfectYaw == 0) {
-          String description = "rotated yaw too precisely (0.0)";
+          String description = "rotated yaw too precise (0.0)";
           int options = LIMIT_2 | DELAY_128s | SUGGEST_MINING;
           Anomaly anomaly = Anomaly.anomalyOf("82", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, options);
           parentCheck().saveAnomaly(player, anomaly);

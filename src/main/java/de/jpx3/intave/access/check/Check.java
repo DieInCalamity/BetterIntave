@@ -1,7 +1,7 @@
 package de.jpx3.intave.access.check;
 
 /**
- * An alphabetically-sorted enumerator of the names of all checks in Intave
+ * An alphabetically-sorted enumerator of all check-names in Intave
  */
 public enum Check {
   ATTACK_RAYTRACE("AttackRaytrace"),

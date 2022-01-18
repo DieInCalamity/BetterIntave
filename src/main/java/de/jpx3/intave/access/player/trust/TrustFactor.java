@@ -4,10 +4,10 @@ import de.jpx3.intave.math.MathHelper;
 import org.bukkit.ChatColor;
 
 public enum TrustFactor implements Comparable<TrustFactor> {
-  BYPASS(1000, ChatColor.WHITE, "intave.bypass"), // pocketmc
-  GREEN(2, ChatColor.GREEN, "intave.trust.green"), // badlion
-  YELLOW(1, ChatColor.YELLOW, "intave.trust.yellow"), // labymod / playtime
-  ORANGE(0, ChatColor.GOLD, "intave.trust.orange"),// default
+  BYPASS(1000, ChatColor.WHITE, "intave.bypass"),
+  GREEN(2, ChatColor.GREEN, "intave.trust.green"),
+  YELLOW(1, ChatColor.YELLOW, "intave.trust.yellow"),
+  ORANGE(0, ChatColor.GOLD, "intave.trust.orange"),
   RED(-1, ChatColor.RED, "intave.trust.red"),
   DARK_RED(-2, ChatColor.DARK_RED, "intave.trust.darkred")
 

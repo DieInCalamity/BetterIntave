@@ -1,7 +1,7 @@
 package de.jpx3.intave.access;
 
 /**
- * An exception describing a medium issue within Intave.
+ * An exception describing an issue within Intave probably caused by Intave.
  */
 public class IntaveInternalException extends RuntimeException {
   public IntaveInternalException() {
