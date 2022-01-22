@@ -418,7 +418,7 @@ public final class Physics extends Check {
 
     if (violationLevelIncrease > 0) {
       boolean uncommonArea = movementData.pastWaterMovement < 20
-//        || movementData.collidedHorizontally
+        || movementData.collidedHorizontally
         || movementData.collidedWithBoat()
         || movementData.inWeb
         || movementData.pastElytraFlying < 20;
