@@ -98,6 +98,11 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
         }
       }
       if (checkAgain) {
+        // Ja, das muss hier hin
+        if (event.isReadOnly()) {
+          event.setReadOnly(false);
+        }
+
         event.setCancelled(true);
       }
       Attack attack = new Attack(packetClone, entityId, checkAgain);
