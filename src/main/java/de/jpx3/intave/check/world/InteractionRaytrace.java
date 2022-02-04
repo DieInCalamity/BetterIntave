@@ -151,6 +151,9 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     com.comphenix.protocol.wrappers.BlockPosition blockPosition = packet.getBlockPositionModifier().readSafely(0);
 
     if (blockPosition == null || event.isCancelled()) {
+      if (attack.inBreakProcess) {
+        attack.lastBreak = System.currentTimeMillis();
+      }
       interactionMeta.isBreakingBlock = attack.inBreakProcess = false;
       return;
     }
@@ -191,7 +194,8 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     }
 
     if (breakBlock || playerDigType == ABORT_DESTROY_BLOCK) {
-      interactionMeta.isBreakingBlock = attack.inBreakProcess= false;
+      interactionMeta.isBreakingBlock = attack.inBreakProcess = false;
+      attack.lastBreak = System.currentTimeMillis();
     } else if (playerDigType == START_DESTROY_BLOCK) {
       interactionMeta.isBreakingBlock = attack.inBreakProcess = true;
     }

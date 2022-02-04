@@ -51,7 +51,7 @@ public final class InteractionEmulator implements EventProcessor {
       Block block = place.getBlock();
       BlockStateAccess blockStateAccess = userOf(place.getPlayer()).blockStates();
       blockStateAccess.invalidateCacheAt(block.getX(), block.getY(), block.getZ());
-      blockStateAccess.invalidateOverride(block.getX(), block.getY(), block.getZ());
+//      blockStateAccess.invalidateOverride(block.getX(), block.getY(), block.getZ());
     }
   }
 
@@ -79,7 +79,7 @@ public final class InteractionEmulator implements EventProcessor {
       Block block = breeak.getBlock();
       BlockStateAccess blockStateAccess = userOf(breeak.getPlayer()).blockStates();
       blockStateAccess.invalidateCacheAt(block.getX(), block.getY(), block.getZ());
-      blockStateAccess.invalidateOverride(block.getX(), block.getY(), block.getZ());
+//      blockStateAccess.invalidateOverride(block.getX(), block.getY(), block.getZ());
     }
   }
 
@@ -191,9 +191,9 @@ public final class InteractionEmulator implements EventProcessor {
       blockStates.override(world, blockX, blockY, blockZ, replacementType, variant);
       blockStates.invalidateCacheAt(blockX, blockY, blockZ);
       // enforce block reset later
-      Synchronizer.synchronize(() -> {
-        Synchronizer.synchronize(() -> blockStates.invalidateOverride(blockX, blockY, blockZ));
-      });
+//      Synchronizer.synchronize(() -> {
+//        Synchronizer.synchronize(() -> blockStates.invalidateOverride(blockX, blockY, blockZ));
+//      });
     } else {
       return EmulationResult.FAILED;
     }
@@ -281,6 +281,7 @@ public final class InteractionEmulator implements EventProcessor {
 
         Block finalBlock = block;
         Synchronizer.synchronize(() -> {
+          blockStateAccess.invalidateOverride(finalBlock.getX(), finalBlock.getY() - 1, finalBlock.getZ());
           blockStateAccess.invalidateOverride(finalBlock.getX(), finalBlock.getY(), finalBlock.getZ());
           blockStateAccess.invalidateOverride(finalBlock.getX(), finalBlock.getY() + 1, finalBlock.getZ());
         });

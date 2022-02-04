@@ -1,13 +1,10 @@
 package de.jpx3.intave.check.other.inventoryclickanalysis;
 
 import com.comphenix.protocol.events.PacketEvent;
-import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.other.InventoryClickAnalysis;
-import de.jpx3.intave.executor.Synchronizer;
+import de.jpx3.intave.connect.sibyl.SibylBroadcast;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
-import de.jpx3.intave.user.MessageChannelSubscriptions;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import org.bukkit.ChatColor;
@@ -33,19 +30,20 @@ public final class InventoryClickPacketDelayAnalyzer extends MetaCheckPart<Inven
     if (difference < 15 && Math.abs(averageMovementPacketTimestamp - 50) < 10) {
       String message = ChatColor.RED + "[InvAnalysis] " + player.getName() + " is clicking suspiciously on items: "
         + difference + " pd, " + averageMovementPacketTimestamp + " md";
-      Synchronizer.synchronize(() -> processSibylDebug(message));
+//      Synchronizer.synchronize(() -> processSibylDebug(message));
+      SibylBroadcast.broadcast(message);
     }
   }
 
-  @Native
-  private void processSibylDebug(String message) {
-    IntavePlugin plugin = IntavePlugin.singletonInstance();
-    for (Player onlinePlayer : MessageChannelSubscriptions.sibylReceiver()/*Bukkit.getOnlinePlayers()*/) {
-      if (plugin.sibylIntegrationService().isAuthenticated(onlinePlayer)) {
-        onlinePlayer.sendMessage(message);
-      }
-    }
-  }
+//  @Native
+//  private void processSibylDebug(String message) {
+//    IntavePlugin plugin = IntavePlugin.singletonInstance();
+//    for (Player onlinePlayer : MessageChannelSubscriptions.sibylReceiver()/*Bukkit.getOnlinePlayers()*/) {
+//      if (plugin.sibylIntegrationService().isAuthenticated(onlinePlayer)) {
+//        onlinePlayer.sendMessage(message);
+//      }
+//    }
+//  }
 
   @PacketSubscription(
     packetsIn = {FLYING, POSITION, LOOK, POSITION_LOOK}

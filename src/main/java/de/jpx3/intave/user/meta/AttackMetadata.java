@@ -39,6 +39,7 @@ public final class AttackMetadata {
   public double fakePlayerLastReportedZ;
 
   public boolean inBreakProcess;
+  public long lastBreak;
 
   public AttackMetadata(Player player) {
     this.player = player;

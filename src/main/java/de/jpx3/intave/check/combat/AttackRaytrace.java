@@ -8,12 +8,11 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.trust.TrustFactor;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.check.CheckStatistics;
 import de.jpx3.intave.check.CheckViolationLevelDecrementer;
 import de.jpx3.intave.check.MetaCheck;
+import de.jpx3.intave.connect.sibyl.SibylBroadcast;
 import de.jpx3.intave.diagnostic.LatencyStudy;
-import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.math.Hypot;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.Modules;
@@ -25,19 +24,10 @@ import de.jpx3.intave.module.violation.Violation;
 import de.jpx3.intave.module.violation.ViolationContext;
 import de.jpx3.intave.security.LicenseAccess;
 import de.jpx3.intave.shade.Position;
-import de.jpx3.intave.user.MessageChannelSubscriptions;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.meta.AbilityMetadata;
-import de.jpx3.intave.user.meta.AttackMetadata;
-import de.jpx3.intave.user.meta.CheckCustomMetadata;
-import de.jpx3.intave.user.meta.MetadataBundle;
-import de.jpx3.intave.user.meta.MovementMetadata;
-import de.jpx3.intave.user.meta.ProtocolMetadata;
-import de.jpx3.intave.user.meta.PunishmentMetadata;
-import de.jpx3.intave.user.meta.ViolationMetadata;
+import de.jpx3.intave.user.meta.*;
 import de.jpx3.intave.world.raytrace.Raytrace;
 import de.jpx3.intave.world.raytrace.Raytracing;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -223,19 +213,21 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
         if (IntaveControl.DISABLE_LICENSE_CHECK) {
           IntaveLogger.logger().error(player.getName() + " attacked a null entity");
         }
-        Synchronizer.synchronize(new Runnable() {
-          @Native
-          @Override
-          public void run() {
-            for (Player authenticatedPlayer : Bukkit.getOnlinePlayers()) {
-              if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
-                String message;
-                message = ChatColor.RED + "[R] " + player.getName() + " attacked a null entity";
-                authenticatedPlayer.sendMessage(message);
-              }
-            }
-          }
-        });
+
+        SibylBroadcast.broadcast(ChatColor.RED + "[R] " + player.getName() + " attacked a null entity");
+//        Synchronizer.synchronize(new Runnable() {
+//          @Native
+//          @Override
+//          public void run() {
+//            for (Player authenticatedPlayer : MessageChannelSubscriptions.sibylReceiver()) {
+//              if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
+//                String message;
+//                message = ChatColor.RED + "[R] " + player.getName() + " attacked a null entity";
+//                authenticatedPlayer.sendMessage(message);
+//              }
+//            }
+//          }
+//        });
       }
       if (cancelHit == null || !cancelHit || user.trustFactor().atLeast(TrustFactor.BYPASS)) {
         if (!violationLevelData.isInActiveTeleportBundle && remainingAttack.shouldResend) {
@@ -366,17 +358,14 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
       }
     }
 
-    Synchronizer.synchronize(new Runnable() {
-      @Native
-      @Override
-      public void run() {
-        for (Player authenticatedPlayer : MessageChannelSubscriptions.sibylReceiver()) {
-          if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
-            authenticatedPlayer.sendMessage(special);
-          }
-        }
-      }
-    });
+//    Synchronizer.synchronize(new Runnable() {
+//      @Native
+//      @Override
+//      public void run() {
+//
+//      }
+//    });
+    SibylBroadcast.broadcast(special);
 
 //    player.sendMessage(attackRaytraceResult + " " + raytrace.reach);
 

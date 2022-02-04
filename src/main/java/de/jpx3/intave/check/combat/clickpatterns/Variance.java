@@ -6,8 +6,11 @@ import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.combat.ClickPatterns;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.AttackMetadata;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayDeque;
 import java.util.Collection;
@@ -36,7 +39,7 @@ public final class Variance extends MetaCheckPart<ClickPatterns, Variance.Varian
     long swingDifference = System.currentTimeMillis() - lastSwing;
     meta.lastSwing = System.currentTimeMillis();
     Queue<Long> attacks = meta.attacks;
-    if (swingDifference > BUFFER_TIMEOUT || user.meta().attack().inBreakProcess) {
+    if (checkDeactivated(user, swingDifference)) {
       attacks.clear();
       return;
     }
@@ -64,6 +67,18 @@ public final class Variance extends MetaCheckPart<ClickPatterns, Variance.Varian
       }
       attacks.clear();
     }
+  }
+
+  private boolean checkDeactivated(
+    User user,
+    long swingDifference
+  ) {
+    AttackMetadata attack = user.meta().attack();
+    ItemStack heldItem = user.meta().inventory().heldItem();
+    return swingDifference > BUFFER_TIMEOUT ||
+      attack.inBreakProcess ||
+      System.currentTimeMillis() - attack.lastBreak < 3000 ||
+      (heldItem != null && heldItem.getType() == Material.FISHING_ROD);
   }
 
   private double standardDeviation(Collection<? extends Number> sd) {
