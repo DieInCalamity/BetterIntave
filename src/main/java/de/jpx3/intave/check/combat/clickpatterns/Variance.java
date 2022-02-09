@@ -58,7 +58,7 @@ public final class Variance extends MetaCheckPart<ClickPatterns, Variance.Varian
             player,
             "low variance",
             "sd:" + formatDouble(standardDeviation, 3) + " t:" + formatDouble(length / 1000d, 2),
-            meta.vl > 8 ? 5 : 0
+            meta.vl > 8 ? 7.5 : 0
           );
         }
       } else if (meta.vl > 0) {

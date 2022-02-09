@@ -1,19 +1,29 @@
 package de.jpx3.intave.check.combat;
 
+import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.check.Check;
+import de.jpx3.intave.check.CheckViolationLevelDecrementer;
 import de.jpx3.intave.check.combat.clickpatterns.Kurtosis;
 import de.jpx3.intave.check.combat.clickpatterns.Skewness;
 import de.jpx3.intave.check.combat.clickpatterns.Spikes;
 import de.jpx3.intave.check.combat.clickpatterns.Variance;
 import de.jpx3.intave.module.Modules;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.violation.Violation;
+import de.jpx3.intave.user.User;
 import org.bukkit.entity.Player;
 
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.ARM_ANIMATION;
+
 public final class ClickPatterns extends Check {
+  private final static double MAX_VL_DEDUCTION_PER_MINUTE = 10;
+  private final CheckViolationLevelDecrementer decrementer;
+
   public ClickPatterns() {
     super("ClickPatterns", "clickpatterns");
     setupCheckParts();
+    decrementer = new CheckViolationLevelDecrementer(this, MAX_VL_DEDUCTION_PER_MINUTE /* vl */ / /* per */ 60d /* minute*/);
   }
 
   private void setupCheckParts() {
@@ -23,6 +33,15 @@ public final class ClickPatterns extends Check {
       new Spikes(this),
       new Kurtosis(this)
     );
+  }
+
+  @PacketSubscription(
+    packetsIn = ARM_ANIMATION
+  )
+  public void receiveSwing(PacketEvent event) {
+    Player player = event.getPlayer();
+    User user = userOf(player);
+    decrementer.decrement(user, (MAX_VL_DEDUCTION_PER_MINUTE / 4) / 60d);
   }
 
   public void makeDetection(Player player, String details, String specifics, double vl) {

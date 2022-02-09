@@ -3,7 +3,7 @@ package de.jpx3.intave.check.combat.heuristics;
 import java.util.Arrays;
 
 public enum Confidence implements Comparable<Confidence> {
-  CERTAIN("certain", "!!", 100000),
+  CERTAIN("certain", "!!", 960),
   ALMOST_CERTAIN("almost certain", "!", 320),
   VERY_LIKELY("very likely", "?!", 160),
   LIKELY("likely", "?", 80),

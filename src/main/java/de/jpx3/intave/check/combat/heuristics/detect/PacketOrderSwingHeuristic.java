@@ -16,6 +16,7 @@ import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.entity.Player;
 
+import static de.jpx3.intave.check.combat.heuristics.Anomaly.AnomalyOption.*;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
 public final class PacketOrderSwingHeuristic extends MetaCheckPart<Heuristics, PacketOrderSwingHeuristic.PacketOrderSwingHeuristicMeta> {
@@ -57,7 +58,7 @@ public final class PacketOrderSwingHeuristic extends MetaCheckPart<Heuristics, P
     }
     if (clientData.flyingPacketStream() && action == EnumWrappers.EntityUseAction.ATTACK && !heuristicMeta.swingTick) {
       String description = "swing not correlated with attack ("+user.meta().protocol().versionString()+")";
-      Anomaly anomaly = Anomaly.anomalyOf("31", Confidence.CERTAIN, Anomaly.Type.KILLAURA, description, Anomaly.AnomalyOption.DELAY_128s);
+      Anomaly anomaly = Anomaly.anomalyOf("31", Confidence.LIKELY, Anomaly.Type.KILLAURA, description, DELAY_128s | LIMIT_1 | LIMIT_2);
       parentCheck().saveAnomaly(player, anomaly);
       //dmc11
       user.applyAttackNerfer(AttackNerfStrategy.HT_LIGHT, "11");

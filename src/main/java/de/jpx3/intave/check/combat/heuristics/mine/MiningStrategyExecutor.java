@@ -11,6 +11,9 @@ import de.jpx3.intave.user.meta.AttackMetadata;
 import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
+import static de.jpx3.intave.check.combat.heuristics.Anomaly.AnomalyOption.FORCE_APPLY;
+import static de.jpx3.intave.check.combat.heuristics.Anomaly.AnomalyOption.LIMIT_2;
+
 public abstract class MiningStrategyExecutor {
   private final User user;
   private final Heuristics heuristicsCheck;
@@ -73,7 +76,7 @@ public abstract class MiningStrategyExecutor {
   private Anomaly createAnomaly(int id) {
     String key = "31" + id;
     String description = "attacked a bot";
-    return Anomaly.anomalyOf(key, Confidence.CERTAIN, Anomaly.Type.KILLAURA, description, Anomaly.AnomalyOption.FORCE_APPLY);
+    return Anomaly.anomalyOf(key, Confidence.VERY_LIKELY, Anomaly.Type.KILLAURA, description, FORCE_APPLY | LIMIT_2);
   }
 
   public void unregisterStrategy() {

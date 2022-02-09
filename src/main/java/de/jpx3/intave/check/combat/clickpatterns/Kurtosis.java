@@ -48,7 +48,7 @@ public final class Kurtosis extends MetaCheckPart<ClickPatterns, Kurtosis.Kurtos
       double kurtosis = kurtosisOf(attacks) / 1000d;
       if (kurtosis < 13) {
         if (++meta.vl > 20) {
-          parentCheck().makeDetection(player, "low relative variance", "h:" + ((int) kurtosis), meta.vl > 21 ? 10 : 5);
+          parentCheck().makeDetection(player, "low relative variance", "h:" + ((int) kurtosis), meta.vl > 24 ? 5 : 2.5);
           attacks.clear();
         }
       } else if (meta.vl > 0) {
