@@ -24,7 +24,7 @@ public final class PunishmentMetadata {
   public final static long DAMAGE_CANCEL_LIGHT_DURATION = 40_000;
   private final static long DAMAGE_CANCEL_MEDIUM_DURATION = 40_000;
   private final static long DAMAGE_CANCEL_HEAVY_DURATION = 5_000;
-  private final static long BLOCKING_DAMAGE_CANCEL_DURATION = 10_000;
+  private final static long BLOCKING_DAMAGE_CANCEL_DURATION = 15_000;
 
   private final static long DAMAGE_CANCEL_FIRST_HIT_DURATION = 60_000;
   private final static long ENTITY_HURT_TIME_CHANGE_DURATION = 5_000;

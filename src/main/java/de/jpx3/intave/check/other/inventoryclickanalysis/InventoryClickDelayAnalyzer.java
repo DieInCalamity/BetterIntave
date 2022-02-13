@@ -14,6 +14,7 @@ import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.violation.Violation;
+import de.jpx3.intave.module.violation.ViolationContext;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.ProtocolMetadata;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.WINDOW_CLICK;
+import static de.jpx3.intave.module.mitigate.AttackNerfStrategy.*;
 
 public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryClickAnalysis, InventoryClickDelayAnalyzer.ClickDelayMeta> {
   private final static boolean MODERN_WINDOW_CLICK = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
@@ -114,8 +116,12 @@ public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryCl
         .withMessage("is switching too quickly between item slots")
         .withDetails("moved from slot " + meta.lastClickedSlot + " to slot " + slot + " in " + MathHelper.formatDouble(time, 3) + " seconds")
         .withVL(5).build();
-
-      Modules.violationProcessor().processViolation(violation);
+      ViolationContext violationContext = Modules.violationProcessor().processViolation(violation);
+      if (violationContext.violationLevelAfter() >= 200) {
+        userOf(player).applyAttackNerfer(CANCEL_FIRST_HIT, "29");
+        userOf(player).applyAttackNerfer(DMG_MEDIUM, "29");
+        userOf(player).applyAttackNerfer(BLOCKING, "29");
+      }
     }
 
     if (flag) {

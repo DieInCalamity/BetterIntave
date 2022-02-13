@@ -9,12 +9,12 @@ import de.jpx3.intave.metric.ServerHealth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
 
 public final class ServerStatisticAccessor {
   private final IntavePlugin plugin;
   private ServerHealthStatisticAccess statisticAccess;
-  private final Map<ServerHealthStatisticAccess.TimeSpan, List<Consumer<Double>>> subscriptions = Maps.newConcurrentMap();
+  private final Map<ServerHealthStatisticAccess.TimeSpan, List<DoubleConsumer>> subscriptions = Maps.newConcurrentMap();
   private int schedulerId;
 
   public ServerStatisticAccessor(IntavePlugin plugin) {
@@ -33,7 +33,7 @@ public final class ServerStatisticAccessor {
     schedulerId = plugin.getServer().getScheduler().scheduleAsyncRepeatingTask(plugin, () -> {
       subscriptions.forEach((timeSpan, doubleConsumers) -> {
         double tickAverage = tickAverageOf(timeSpan);
-        for (Consumer<Double> doubleConsumer : doubleConsumers) {
+        for (DoubleConsumer doubleConsumer : doubleConsumers) {
           doubleConsumer.accept(tickAverage);
         }
       });
@@ -63,7 +63,7 @@ public final class ServerStatisticAccessor {
       }
 
       @Override
-      public void subscribeToTick(TimeSpan timeSpan, Consumer<Double> averagePush) {
+      public void subscribeToTick(TimeSpan timeSpan, DoubleConsumer averagePush) {
         subscriptions.computeIfAbsent(timeSpan, x -> new ArrayList<>()).add(averagePush);
       }
     };

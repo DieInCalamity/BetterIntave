@@ -19,8 +19,10 @@ public final class ChunkAccessPatcher extends Module {
   private final static boolean ENABLED = !MinecraftVersions.VER1_14_0.atOrAbove();
 
   static {
-    ClassLoader classLoader = ChunkAccessPatcher.class.getClassLoader();
-    PatchyLoadingInjector.loadUnloadedClassPatched(classLoader, "de.jpx3.intave.module.patcher.SynchronizedLongHashSet");
+    if (ENABLED) {
+      ClassLoader classLoader = ChunkAccessPatcher.class.getClassLoader();
+      PatchyLoadingInjector.loadUnloadedClassPatched(classLoader, "de.jpx3.intave.module.patcher.SynchronizedLongHashSet");
+    }
   }
 
   @Override

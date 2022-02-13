@@ -124,7 +124,7 @@ public final class RootStage extends CommandStage {
           formatDouble(timing.totalDurationMillis(), 4),
           (suspicious ? (dumping ? ChatColor.RED : ChatColor.YELLOW) : ChatColor.GREEN) + "" +
             formatDouble(timing.averageCallDurationInMillis(), 8)
-          + ChatColor.WHITE
+            + ChatColor.WHITE
         );
         if (!fullSpecifier.isEmpty() && !timing.name().toLowerCase(Locale.ROOT).contains(fullSpecifier)) {
           message = IntavePlugin.defaultColor() + ChatColor.stripColor(message);
@@ -221,10 +221,10 @@ public final class RootStage extends CommandStage {
     long successfulBias = biasPredCalls - (biasLKCalls + iterativeCall);
     long successfulLK = biasLKCalls - iterativeCall;
 
-    player.sendMessage(successfulBias + "/"+biasPredCalls+" pred biased, "+successfulLK+"/"+biasLKCalls+" lk biased with " + iterativeCall + " iterative");
+    player.sendMessage(successfulBias + "/" + biasPredCalls + " pred biased, " + successfulLK + "/" + biasLKCalls + " lk biased with " + iterativeCall + " iterative");
     player.sendMessage(formatDouble(percentage, 2) + "% movements bias simulated");
     double estimatedTimeIfAllBiasCallsWereIterative = biasTotalCalls * Timings.CHECK_PHYSICS_PROC_ITR.averageCallDurationInNanos();
-    double savedTime = (estimatedTimeIfAllBiasCallsWereIterative - (Timings.CHECK_PHYSICS_PROC_PRED_BIA.totalDurationNanos() + Timings.CHECK_PHYSICS_PROC_LK_BIA.totalDurationNanos()) ) / 1000000d;
+    double savedTime = (estimatedTimeIfAllBiasCallsWereIterative - (Timings.CHECK_PHYSICS_PROC_PRED_BIA.totalDurationNanos() + Timings.CHECK_PHYSICS_PROC_LK_BIA.totalDurationNanos())) / 1000000d;
 
     player.sendMessage("Saved " + (savedTime > 0 ? ChatColor.GREEN : ChatColor.RED) + formatDouble(savedTime, 2) + ChatColor.WHITE + "ms");
   }
@@ -312,7 +312,7 @@ public final class RootStage extends CommandStage {
     player.sendMessage(ChatColor.RED + "Loading bounding box access flow study..");
 
     String colorScheme = ChatColor.GREEN + "" + green + " " + ChatColor.YELLOW + yellow + " " + ChatColor.RED + red + "" + ChatColor.GRAY;
-    player.sendMessage(ChatColor.GRAY + "" + requests + " requests required " + lookups + " lookups ("+colorScheme+"), " + ChatColor.AQUA + ((lookups) - dynamic) + ChatColor.GRAY + " by server");
+    player.sendMessage(ChatColor.GRAY + "" + requests + " requests required " + lookups + " lookups (" + colorScheme + "), " + ChatColor.AQUA + ((lookups) - dynamic) + ChatColor.GRAY + " by server");
   }
 
   @SubCommand(
@@ -391,7 +391,7 @@ public final class RootStage extends CommandStage {
       target = user.player();
     }
     UserRepository.userOf(target).setTrustFactor(trustFactor);
-    user.player().sendMessage(ChatColor.GRAY + "Applied "+trustFactor.chatColor() + trustFactor.name() + ChatColor.GRAY + " trustfactor to " +ChatColor.RED + target.getName());
+    user.player().sendMessage(ChatColor.GRAY + "Applied " + trustFactor.chatColor() + trustFactor.name() + ChatColor.GRAY + " trustfactor to " + ChatColor.RED + target.getName());
   }
 
   @SubCommand(
@@ -406,7 +406,33 @@ public final class RootStage extends CommandStage {
       target = user.player();
     }
     TrustFactor trustFactor = UserRepository.userOf(target).trustFactor();
-    user.player().sendMessage(ChatColor.RED + target.getName() + ChatColor.GRAY + " has a " + trustFactor.chatColor() + trustFactor.name() + ChatColor.GRAY+" trustfactor");
+    user.player().sendMessage(ChatColor.RED + target.getName() + ChatColor.GRAY + " has a " + trustFactor.chatColor() + trustFactor.name() + ChatColor.GRAY + " trustfactor");
+  }
+
+  @SubCommand(
+    selectors = "trustmap",
+    usage = "",
+    permission = "sibyl"
+  )
+  @Native
+  public void trustfactorMap(User user) {
+    Map<TrustFactor, AtomicLong> trustfactorDistribution = new HashMap<>();
+
+    for (Player player : Bukkit.getOnlinePlayers()) {
+      if (UserRepository.hasUser(player)) {
+        TrustFactor trustFactor = UserRepository.userOf(player).trustFactor();
+        trustfactorDistribution
+          .computeIfAbsent(trustFactor, x -> new AtomicLong())
+          .incrementAndGet();
+      }
+    }
+    Map.Entry<TrustFactor, AtomicLong> max = trustfactorDistribution.entrySet()
+      .stream()
+      .max(Comparator.comparingLong(trustFactorAtomicLongEntry -> trustFactorAtomicLongEntry.getValue().longValue()))
+      .orElse(null);
+
+
+
   }
 
   @SubCommand(
@@ -486,7 +512,7 @@ public final class RootStage extends CommandStage {
     trace = sortHashMapByValues(trace);
     trace.forEach((s, aLong) -> {
       if (aLong > 200) {
-        player.sendMessage( humanReadableByteCount(aLong) + " by " + (s.contains("intave") ? ChatColor.GRAY : ChatColor.DARK_GRAY) + s);
+        player.sendMessage(humanReadableByteCount(aLong) + " by " + (s.contains("intave") ? ChatColor.GRAY : ChatColor.DARK_GRAY) + s);
       }
     });
     player.sendMessage(ChatColor.RED + "Computing memory usage..");
@@ -494,7 +520,7 @@ public final class RootStage extends CommandStage {
     MemoryWatchdog.memoryUsage(stringLongMapx -> {
       Map<String, Long> stringLongMap = sortHashMapByValues(stringLongMapx);
       for (Map.Entry<String, Long> stringLongEntry : stringLongMap.entrySet()) {
-        player.sendMessage(stringLongEntry.getKey() + " requires " +  humanReadableByteCount(stringLongEntry.getValue()));
+        player.sendMessage(stringLongEntry.getKey() + " requires " + humanReadableByteCount(stringLongEntry.getValue()));
       }
     });
   }

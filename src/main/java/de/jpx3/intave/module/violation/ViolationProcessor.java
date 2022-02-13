@@ -28,6 +28,7 @@ import org.bukkit.entity.Player;
 import java.util.*;
 import java.util.function.Predicate;
 
+import static de.jpx3.intave.access.check.MitigationStrategy.SILENT;
 import static de.jpx3.intave.math.MathHelper.formatDouble;
 import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DONT_PROCESS_VIOSTAT;
 
@@ -48,7 +49,11 @@ public final class ViolationProcessor extends Module {
       return violationContext.ignoreThreatBecause("Check is disabled").complete();
     }
     if (user.justJoined() || !user.hasPlayer()) {
-      return violationContext.counterThreatBecause("Player just joined or is not reachable").complete();
+      if (violation.check().mitigationStrategy() == SILENT) {
+        return violationContext.ignoreThreatBecause("Player just joined or is not reachable (silent mode)");
+      } else {
+        return violationContext.counterThreatBecause("Player just joined or is not reachable").complete();
+      }
     }
     fillInVLContext(violationContext);
     processViolationEvent(violationContext);

@@ -1,10 +1,10 @@
 package de.jpx3.intave.access.server;
 
-import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
 
 public interface ServerHealthStatisticAccess {
   double tickAverageOver(TimeSpan timeSpan);
-  void subscribeToTick(TimeSpan timeSpan, Consumer<Double> average);
+  void subscribeToTick(TimeSpan timeSpan, DoubleConsumer average);
 
   enum TimeSpan {
     LAST_MINUTE,
