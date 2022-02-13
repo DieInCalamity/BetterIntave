@@ -52,8 +52,8 @@ final class FastBlockStateExpiryCache {
 
   public void chunkReset(int chunkXMinPos, int chunkXMaxPos, int chunkZMinPos, int chunkZMaxPos) {
     for (Position location : located.keySet()) {
-      if (location.xCoordinate() >= chunkXMinPos && location.xCoordinate() < chunkXMaxPos &&
-        location.zCoordinate() >= chunkZMinPos && location.zCoordinate() < chunkZMaxPos) {
+      if (location.getX() >= chunkXMinPos && location.getX() < chunkXMaxPos &&
+        location.getZ() >= chunkZMinPos && location.getZ() < chunkZMaxPos) {
         long key = bigKey(location);
         located.remove(location);
         locations.remove(location);
@@ -81,7 +81,7 @@ final class FastBlockStateExpiryCache {
   }
 
   private long bigKey(Position position) {
-    return bigKey(position.blockX(), position.blockY(), position.blockZ());
+    return bigKey(position.getBlockX(), position.getBlockY(), position.getBlockZ());
   }
 
   private long bigKey(Location location) {

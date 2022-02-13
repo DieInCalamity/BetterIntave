@@ -337,7 +337,7 @@ public final class Physics extends Check {
     }
 
     double violationLevelIncrease = horizontalViolationIncrease + verticalViolationIncrease;
-    if ((movementData.simulator() == Simulators.HORSE || movementData.simulator() == Simulators.BOAT) && !IntaveControl.GOMME_MODE) {
+    if (movementData.simulator() == Simulators.HORSE && !IntaveControl.GOMME_MODE) {
       violationLevelIncrease = 0;
     }
     if (distance > 1e-3) {
@@ -481,7 +481,7 @@ public final class Physics extends Check {
           manualOverrideDistance = 0.75;
           break;
         case CAREFUL:
-          setback = deepPitchViolationOverflow || (highPitchViolationOverflow && (violationLevelAfter > 20 || highPitchAggressiveViolationOverflow || !user.trustFactor().atLeast(TrustFactor.YELLOW) || user.justJoined()) );
+          setback = deepPitchViolationOverflow || (highPitchViolationOverflow && (violationLevelAfter > 20 || highPitchAggressiveViolationOverflow || !user.trustFactor().atLeast(TrustFactor.YELLOW) || user.justJoined()));
           if (receivedMotionY > Math.max(0.42f, movementData.jumpMotion()) + 0.01) {
             setback = true;
           }
@@ -508,6 +508,8 @@ public final class Physics extends Check {
       }
 
       if (setback) {
+        Synchronizer.synchronize(player::leaveVehicle);
+
         Vector emulationMotion = new Vector(predictedX, predictedY, predictedZ);
         int setbackTicks = (movementData.pastExternalVelocity <= 8) ? 8 : ((violationLevelData.physicsVL > 50) ? 3 : 2);
         Modules.mitigate().movement().emulationSetBack(player, emulationMotion, setbackTicks, true);

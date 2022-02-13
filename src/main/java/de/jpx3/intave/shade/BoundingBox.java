@@ -514,7 +514,7 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
   }
 
   public static BoundingBox fromPosition(User user, Position position) {
-    return fromPosition(user, position.xCoordinate(), position.yCoordinate(), position.zCoordinate());
+    return fromPosition(user, position.getX(), position.getY(), position.getZ());
   }
 
   public static BoundingBox fromPosition(User user, BlockPosition position) {

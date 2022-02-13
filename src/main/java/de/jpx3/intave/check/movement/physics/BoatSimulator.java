@@ -1,6 +1,7 @@
 package de.jpx3.intave.check.movement.physics;
 
 import de.jpx3.intave.block.access.VolatileBlockAccess;
+import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.block.fluid.Fluid;
 import de.jpx3.intave.block.fluid.Fluids;
 import de.jpx3.intave.block.physics.BlockProperties;
@@ -8,12 +9,16 @@ import de.jpx3.intave.math.SinusCache;
 import de.jpx3.intave.player.collider.Collider;
 import de.jpx3.intave.player.collider.complex.ComplexColliderSimulationResult;
 import de.jpx3.intave.shade.BoundingBox;
+import de.jpx3.intave.shade.ClientMathHelper;
 import de.jpx3.intave.shade.Motion;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MetadataBundle;
 import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.user.meta.ViolationMetadata;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 
@@ -188,38 +193,37 @@ public final class BoatSimulator extends BaseSimulator {
   }
 
   private float boatGlide(User user) {
-    BoundingBox boundingBox = user.meta().movement().boundingBox();
-    BoundingBox boundingBox1 = new BoundingBox(boundingBox.minX, boundingBox.minY - 0.001D, boundingBox.minZ, boundingBox.maxX, boundingBox.minY, boundingBox.maxZ);
-    int minX = floor(boundingBox1.minX) - 1;
-    int maxX = ceil(boundingBox1.maxX) + 1;
-    int minY = floor(boundingBox1.minY) - 1;
-    int maxY = ceil(boundingBox1.maxY) + 1;
-    int minZ = floor(boundingBox1.minZ) - 1;
-    int maxZ = ceil(boundingBox1.maxZ) + 1;
+    Player player = user.player();
+    BoundingBox axisalignedbb = BoundingBox.fromPosition(user, user.meta().movement().position());
+    BoundingBox axisalignedbb1 = new BoundingBox(axisalignedbb.minX, axisalignedbb.minY - 0.001D, axisalignedbb.minZ, axisalignedbb.maxX, axisalignedbb.minY, axisalignedbb.maxZ);
+    int minX = ClientMathHelper.floor(axisalignedbb1.minX) - 1;
+    int maxX = ClientMathHelper.ceil(axisalignedbb1.maxX) + 1;
+    int minY = ClientMathHelper.floor(axisalignedbb1.minY) - 1;
+    int maxY = ClientMathHelper.ceil(axisalignedbb1.maxY) + 1;
+    int minZ = ClientMathHelper.floor(axisalignedbb1.minZ) - 1;
+    int maxZ = ClientMathHelper.ceil(axisalignedbb1.maxZ) + 1;
     float f = 0.0F;
     int k1 = 0;
 
     for (int x = minX; x < maxX; ++x) {
       for (int z = minZ; z < maxZ; ++z) {
-        int coordinatesNotOnLimit = (x != minX && x != maxX - 1 ? 0 : 1) + (z != minZ && z != maxZ - 1 ? 0 : 1);
-        if (coordinatesNotOnLimit != 2) {
+        int j2 = (x != minX && x != maxX - 1 ? 0 : 1) + (z != minZ && z != maxZ - 1 ? 0 : 1);
+
+        if (j2 != 2) {
           for (int y = minY; y < maxY; ++y) {
-            if (coordinatesNotOnLimit <= 0 || y != minY && y != maxY - 1) {
-
-              Material material = VolatileBlockAccess.typeAccess(user, x, y, z);
-              float slipperiness = BlockProperties.of(material).slipperiness();
-
-//              ?
-//              BlockState blockstate = this.world.getBlockState(blockpos$mutable);
-//              if (!(blockstate.getBlock() instanceof LilyPadBlock) && VoxelShapes.compare(blockstate.getCollisionShape(this.world, blockpos$mutable).withOffset(x, y, z), voxelshape, IBooleanFunction.AND)) {
-              f += slipperiness;
-              ++k1;
-//              }
+            if (j2 <= 0 || y != minY && y != maxY - 1) {
+              BoundingBox boundingBox = new BoundingBox(x, y, z, x + 1, y + 1, z + 1);
+              if (!Collision.collisionShape(player, boundingBox).isEmpty()) {
+                Material material = VolatileBlockAccess.typeAccess(user, x, y, z);
+                f += BlockProperties.of(material).slipperiness();
+                ++k1;
+              }
             }
           }
         }
       }
     }
+
 
     return f / (float) k1;
   }
@@ -236,6 +240,7 @@ public final class BoatSimulator extends BaseSimulator {
   public void prepareNextTick(User user, double positionX, double positionY, double positionZ, double motionX, double motionY, double motionZ) {
     MovementMetadata movement = user.meta().movement();
     Motion motionVector = movement.motion();
+    motionVector.reset(motionX, motionY, motionZ);
     ViolationMetadata violationMetadata = user.meta().violationLevel();
 
     BoundingBox boundingBox = BoundingBox.fromPosition(user, positionX, positionY, positionZ);

@@ -95,7 +95,7 @@ public final class SimulationEvaluator {
       legitimateDeviation = Math.max(legitimateDeviation, velocityY * 1.2 - differenceY);
     }
 
-    if (collidedWithBoat && movementData.motionY() < 0.605) {
+    if (collidedWithBoat && !movementData.hasRidingEntity() && movementData.motionY() < 0.605) {
       if (movementData.enforceBoatStep) {
         if (movementData.motionY() < 0.1) {
           legitimateDeviation = Math.max(legitimateDeviation, 10);
@@ -127,6 +127,8 @@ public final class SimulationEvaluator {
     if (movementData.recentlyEncounteredFlyingPacket(1) && movementData.pastExternalVelocity <= 4) {
       legitimateDeviation = Math.max(legitimateDeviation, 0.03);
     }
+
+    legitimateDeviation = Math.max(legitimateDeviation, movementData.estimatedAttachMovement());
 
     // Jump out of water
     if (movementData.pastWaterMovement <= 3) {
@@ -264,6 +266,8 @@ public final class SimulationEvaluator {
     if (movementData.pastRiptideSpin < 2) {
       legitimateDeviation = Math.max(legitimateDeviation, resolveRiptideDeviation(movementData));
     }
+
+    legitimateDeviation = Math.max(legitimateDeviation, movementData.estimatedAttachMovement());
 
     boolean recentlySentFlying = movementData.recentlyEncounteredFlyingPacket(2);
     double baseMoveSpeed = movementData.baseMoveSpeed();

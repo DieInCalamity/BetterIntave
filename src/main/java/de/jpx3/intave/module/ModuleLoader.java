@@ -2,6 +2,7 @@ package de.jpx3.intave.module;
 
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
+import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.Native;
 
 import java.lang.reflect.InvocationTargetException;

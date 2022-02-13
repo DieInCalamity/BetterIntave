@@ -11,6 +11,7 @@ import de.jpx3.intave.module.feedback.FeedbackTracker;
 import de.jpx3.intave.module.feedback.PendingCountingFeedbackTracker;
 import de.jpx3.intave.shade.BoundingBox;
 import de.jpx3.intave.shade.ClientMathHelper;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,7 +91,7 @@ public class EntityShade {
     public final long created = System.currentTimeMillis();
 
     @Override
-    public EntityPositionContext clone()  {
+    public EntityPositionContext clone() {
       try {
         return (EntityPositionContext) super.clone();
       } catch (CloneNotSupportedException exception) {
@@ -115,7 +116,8 @@ public class EntityShade {
    * This method is required because the client is using a player's rotationYaw and rotationPitch
    * which will be sent in the next tick and therefore is not accessible at this moment.
    */
-  public void entityPlayerMoveUpdate() {}
+  public void entityPlayerMoveUpdate() {
+  }
 
   /**
    * Interpolates the position of the entity between the position and the new position to make the entity move smoothly.
@@ -176,8 +178,8 @@ public class EntityShade {
 
     if (
       Math.abs(position.posX - newPosX) < 0.03125d &&
-      Math.abs(position.posY - newPosY) < 0.015625d &&
-      Math.abs(position.posZ - newPosZ) < 0.03125d
+        Math.abs(position.posY - newPosY) < 0.015625d &&
+        Math.abs(position.posZ - newPosZ) < 0.03125d
     ) {
       setPositionAndRotationEntityLiving(position.posX, position.posY, position.posZ, 3);
     } else {
@@ -284,6 +286,17 @@ public class EntityShade {
     alternativePosition.posY = alternativeNewPosY;
   }
 
+  public double distance(double x, double y, double z) {
+    double deltaX = Math.abs(x - position.posX);
+    double deltaY = Math.abs(y - position.posY);
+    double deltaZ = Math.abs(z - position.posZ);
+    return Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+  }
+
+  public double distance(Vector position) {
+    return distance(position.getX(), position.getY(), position.getZ());
+  }
+
   /**
    * Sets the position of the entity and the newPosRotationIncrements which is used to interpolate the entity position
    * in new ticks (Client side it also updates the rotation of the entity)
@@ -371,7 +384,7 @@ public class EntityShade {
     return boundingBox;
   }
 
-  public EntityShade temporaryCopy()  {
+  public EntityShade temporaryCopy() {
     EntityShade clone = new EntityShade(entityId, typeData, player);
     clone.temporaryCopy = true;
     clone.position = position.clone();
@@ -412,10 +425,11 @@ public class EntityShade {
 
   public static final class Destroyed extends EntityShade {
     public Destroyed() {
-      super(0, new EntityTypeData("destroyed", HitboxSize.zero(),-1, false, 8), false);
+      super(0, new EntityTypeData("destroyed", HitboxSize.zero(), -1, false, 8), false);
     }
 
     @Override
-    void onLivingUpdate() {}
+    void onLivingUpdate() {
+    }
   }
 }

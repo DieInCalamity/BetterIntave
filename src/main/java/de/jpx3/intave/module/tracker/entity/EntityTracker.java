@@ -92,12 +92,8 @@ public final class EntityTracker extends Module {
     List<EntityShade> validEntities = new ArrayList<>();
     for (EntityShade entity : synchronizeData.entities()) {
       boolean firstSurvive = false;
-      if (entity.typeData != null && entity.typeData.isLivingEntity()) {
-        EntityShade.EntityPositionContext positions = entity.position;
-        location.setX(positions.posX);
-        location.setY(positions.posY);
-        location.setZ(positions.posZ);
-        double distance = location.distance(playerLocation);
+      if (entity.typeData != null) {
+        double distance = entity.distance(playerLocation);
         if (distance <= REQUIRED_DISTANCE) {
           validEntities.add(entity);
           entity.distanceToPlayerCache = distance;
@@ -180,19 +176,20 @@ public final class EntityTracker extends Module {
       // The Player
       // ID -1 => undo attachment
       tryCreateVehicleEntity(user, vehicleEntityID);
-      EntityShade ridingEntity = connection.entityBy(vehicleEntityID);
-      if (movementData.hasRidingEntity()) {
-        movementData.dismountRidingEntity();
-      }
-      if (ridingEntity != null && !(ridingEntity instanceof EntityShade.Destroyed)) {
-        movementData.setRidingEntity(ridingEntity);
-      }
+      Modules.feedback().synchronize(player, connection.entityBy(vehicleEntityID), (a, ridingEntity) -> {
+        if (movementData.hasRidingEntity()) {
+          movementData.dismountRidingEntity();
+        }
+        if (ridingEntity != null && !(ridingEntity instanceof EntityShade.Destroyed)) {
+          movementData.setRidingEntity(ridingEntity);
+        }
+      });
     }
   }
 
   private void tryCreateVehicleEntity(User user, int entityID) {
     Entity entity = serverEntityByIdentifier(user.player(), entityID);
-    if (entity != null) {
+    if (entity != null && user.meta().connection().entityBy(entityID) == null) {
       spawnMobByBukkitEntity(user, entity);
     }
   }

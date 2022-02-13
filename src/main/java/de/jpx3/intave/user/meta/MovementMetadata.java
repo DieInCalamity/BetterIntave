@@ -149,6 +149,9 @@ public final class MovementMetadata implements SimulationEnvironment {
   public volatile Location nearestBoatLocation = null;
   // Vehicle
   private EntityShade ridingEntity;
+  private double attachMoveDistance;
+  public int attachVehicleTicks = 100;
+
   public float boatGlide, momentum;
   public double waterLevel;
   public BoatSimulator.Status boatStatus = BoatSimulator.Status.ON_LAND,
@@ -916,7 +919,16 @@ public final class MovementMetadata implements SimulationEnvironment {
     this.pastFlyingPacketAccurate = pastFlyingPacketAccurate;
   }
 
+  public double estimatedAttachMovement() {
+    if (this.attachVehicleTicks > 1) {
+      return 0;
+    }
+    return attachMoveDistance * 2;
+  }
+
   public void setRidingEntity(EntityShade ridingEntity) {
+    this.attachVehicleTicks = 0;
+    this.attachMoveDistance = ridingEntity.distance(lastPosition());
     this.ridingEntity = ridingEntity;
   }
 }

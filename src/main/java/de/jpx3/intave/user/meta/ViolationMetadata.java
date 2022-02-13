@@ -9,6 +9,7 @@ import java.util.Map;
 public final class ViolationMetadata {
   public double physicsVL;
   public double physicsVelocityVL;
+  public double physicsVehicleVL;
   public double physicsInvalidMovementsInRow;
   public volatile boolean isInActiveTeleportBundle;
 
