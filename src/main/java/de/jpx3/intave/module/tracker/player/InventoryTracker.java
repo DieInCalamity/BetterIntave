@@ -1,6 +1,5 @@
 package de.jpx3.intave.module.tracker.player;
 
-import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
@@ -18,6 +17,7 @@ import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketId;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
+import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.player.ItemProperties;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
@@ -35,7 +35,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.UUID;
 
@@ -75,6 +74,7 @@ public final class InventoryTracker extends Module {
     User user = UserRepository.userOf(player);
     InventoryMetadata inventoryData = user.meta().inventory();
     // https://i.imgur.com/O5UBqoJ.png
+    // doesn't make much sense?
     if (inventoryData.pastSlotSwitch < 10) {
       event.setCancelled(true);
     }
@@ -160,16 +160,14 @@ public final class InventoryTracker extends Module {
 
     PacketContainer packet = event.getPacket();
     ItemStack itemStack = packet.getItemModifier().readSafely(0);
-    System.out.println(itemStack);
     UUID probableId = idFromSkull(itemStack);
 
     if (probableId != null) {
-      System.out.println("Skull-Id: " + probableId);
       if (!inventoryData.idWhitelisted(probableId)) {
         user.synchronizedDisconnect("Forbidden skin request");
+        event.setCancelled(true);
       }
     }
-
     if (inventoryData.windowClickCounter++ > 500) {
       user.synchronizedDisconnect("Too many inventory interactions");
       event.setCancelled(true);
@@ -427,12 +425,8 @@ public final class InventoryTracker extends Module {
     if (digType == EnumWrappers.PlayerDigType.DROP_ITEM && usedFoodItem) {
       PacketContainer unblockPacket = packet.deepClone();
       unblockPacket.getPlayerDigTypes().write(0, EnumWrappers.PlayerDigType.RELEASE_USE_ITEM);
-      try {
-        user.ignoreNextInboundPacket();
-        ProtocolLibrary.getProtocolManager().recieveClientPacket(player, unblockPacket);
-      } catch (IllegalAccessException | InvocationTargetException e) {
-        e.printStackTrace();
-      }
+      user.ignoreNextInboundPacket();
+      PacketSender.receiveClientPacket(player, packet);
     }
   }
 }

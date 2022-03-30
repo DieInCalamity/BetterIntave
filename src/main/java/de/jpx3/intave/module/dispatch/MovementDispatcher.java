@@ -29,6 +29,7 @@ import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.linker.packet.PrioritySlot;
 import de.jpx3.intave.module.tracker.entity.EntityShade;
 import de.jpx3.intave.module.violation.Violation;
+import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.packet.converter.PlayerAction;
 import de.jpx3.intave.packet.converter.PlayerActionResolver;
 import de.jpx3.intave.player.ItemProperties;
@@ -50,7 +51,6 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import static de.jpx3.intave.module.feedback.FeedbackOptions.SELF_SYNCHRONIZATION;
@@ -435,21 +435,18 @@ public final class MovementDispatcher extends Module {
 
   private void releaseItem(User user) {
     Player player = user.player();
-    try {
-      ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-      InventoryMetadata inventory = user.meta().inventory();
-      inventory.blockNextArrow = inventory.pastHotBarSlotChange < 4 && ItemProperties.isBow(inventory.releaseItemType) || ItemProperties.isBow(inventory.activeItem());
-      PacketContainer packet = protocolManager.createPacket(PacketType.Play.Client.BLOCK_DIG);
-      packet.getBlockPositionModifier().write(0, new BlockPosition(0,0,0));
-      packet.getDirections().write(0, EnumWrappers.Direction.DOWN);
-      packet.getPlayerDigTypes().write(0, EnumWrappers.PlayerDigType.RELEASE_USE_ITEM);
-      user.ignoreNextInboundPacket();
-      protocolManager.recieveClientPacket(player, packet);
-      updatePlayerHandItem(player);
+    ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
+    InventoryMetadata inventory = user.meta().inventory();
+    inventory.blockNextArrow = inventory.pastHotBarSlotChange < 4 && ItemProperties.isBow(inventory.releaseItemType) || ItemProperties.isBow(inventory.activeItem());
+    PacketContainer packet = protocolManager.createPacket(PacketType.Play.Client.BLOCK_DIG);
+    packet.getBlockPositionModifier().write(0, new BlockPosition(0,0,0));
+    packet.getDirections().write(0, EnumWrappers.Direction.DOWN);
+    packet.getPlayerDigTypes().write(0, EnumWrappers.PlayerDigType.RELEASE_USE_ITEM);
+    user.ignoreNextInboundPacket();
 
-    } catch (InvocationTargetException | IllegalAccessException exception) {
-      exception.printStackTrace();
-    }
+    PacketSender.receiveClientPacket(player, packet);
+    updatePlayerHandItem(player);
+
     Synchronizer.synchronize(player::updateInventory);
   }
 

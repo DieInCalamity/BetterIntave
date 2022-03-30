@@ -1,7 +1,6 @@
 package de.jpx3.intave.check.combat.heuristics.detect;
 
 import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
@@ -15,6 +14,7 @@ import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
+import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.MovementMetadata;
@@ -23,7 +23,6 @@ import de.jpx3.intave.user.meta.PunishmentMetadata;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,12 +64,8 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
   }
 
   private void receiveExcludedPacket(Player player, PacketContainer packet) {
-    try {
-      userOf(player).ignoreNextInboundPacket();
-      ProtocolLibrary.getProtocolManager().recieveClientPacket(player, packet);
-    } catch (InvocationTargetException | IllegalAccessException exception) {
-      exception.printStackTrace();
-    }
+    userOf(player).ignoreNextInboundPacket();
+    PacketSender.receiveClientPacket(player, packet);
   }
 
   @PacketSubscription(

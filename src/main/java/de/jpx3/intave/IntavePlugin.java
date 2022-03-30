@@ -598,7 +598,6 @@ public final class IntavePlugin extends JavaPlugin {
       // stage 11
       Modules.proceedBoot(BootSegment.STAGE_11);
 
-
       // perform a complete native self-check
       BackgroundExecutor.execute(NativeCheck::run);
     });

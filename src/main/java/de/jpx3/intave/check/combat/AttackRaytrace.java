@@ -1,6 +1,5 @@
 package de.jpx3.intave.check.combat;
 
-import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
@@ -22,6 +21,7 @@ import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.module.tracker.entity.EntityShade;
 import de.jpx3.intave.module.violation.Violation;
 import de.jpx3.intave.module.violation.ViolationContext;
+import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.security.LicenseAccess;
 import de.jpx3.intave.shade.Position;
 import de.jpx3.intave.user.User;
@@ -31,7 +31,6 @@ import de.jpx3.intave.world.raytrace.Raytracing;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -258,12 +257,8 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
   }
 
   private void receiveExcludedPacket(Player player, PacketContainer packet) {
-    try {
-      userOf(player).ignoreNextInboundPacket();
-      ProtocolLibrary.getProtocolManager().recieveClientPacket(player, packet);
-    } catch (InvocationTargetException | IllegalAccessException exception) {
-      exception.printStackTrace();
-    }
+    userOf(player).ignoreNextInboundPacket();
+    PacketSender.receiveClientPacket(player, packet);
   }
 
   private boolean invalidReachStanding(User user, EntityShade entity) {
@@ -468,7 +463,6 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
       if (movementData.isInVehicle()) {
         message += " (vehicle)";
       }
-
       Violation violation = Violation.builderFor(AttackRaytrace.class)
         .forPlayer(player).withMessage(message).withDetails(details)
         .withCustomThreshold(thresholdKey).withVL(0)

@@ -14,15 +14,36 @@ public final class IntaveVersion {
     this.version = version;
     this.release = release;
     this.typeClassifier = typeClassifier;
-    this.versionInteger = parseVersion(version);
+    int val = 0;
+    try {
+      val = parseVersion(version);
+    } catch (Exception exception) {
+      exception.printStackTrace();
+    }
+    this.versionInteger = val;
   }
 
   private int parseVersion(String version) {
+    int build = 0;
+    if (version.contains("-b")) {
+      String[] split = version.split("-b");
+      version = split[0];
+      build = Integer.parseInt(split[1]);
+    } else if (version.contains("-u")) {
+      String[] split = version.split("-u");
+      version = split[0];
+      build = Integer.parseInt(split[1]);
+    } else if (version.contains("-pre")) {
+      String[] split = version.split("-pre");
+      version = split[0];
+      build = Integer.parseInt(split[1]);
+    }
     String[] parts = version.split("\\.");
     int result = 0;
     for (String part : parts) {
       result = result * 10 + Integer.parseInt(part);
     }
+    result = result * 10 + build;
     return result;
   }
 

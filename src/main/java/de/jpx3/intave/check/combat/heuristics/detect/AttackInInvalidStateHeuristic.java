@@ -17,12 +17,11 @@ import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.*;
 import org.bukkit.entity.Player;
-
-import java.lang.reflect.InvocationTargetException;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.USE_ENTITY;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_8;
@@ -78,19 +77,16 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
     if (ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0)) {
       return;
     } else {
-      try {
-        PacketContainer packet = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Client.BLOCK_DIG);
-        packet.getBlockPositionModifier().write(0, new BlockPosition(0,0,0));
-        packet.getDirections().write(0, EnumWrappers.Direction.DOWN);
-        packet.getPlayerDigTypes().write(0, EnumWrappers.PlayerDigType.RELEASE_USE_ITEM);
+      PacketContainer packet = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Client.BLOCK_DIG);
+      packet.getBlockPositionModifier().write(0, new BlockPosition(0,0,0));
+      packet.getDirections().write(0, EnumWrappers.Direction.DOWN);
+      packet.getPlayerDigTypes().write(0, EnumWrappers.PlayerDigType.RELEASE_USE_ITEM);
 
-        userOf(player).ignoreNextInboundPacket();
-        ProtocolLibrary.getProtocolManager().recieveClientPacket(player, packet);
+      userOf(player).ignoreNextInboundPacket();
+      PacketSender.receiveClientPacket(player, packet);
+//        ProtocolLibrary.getProtocolManager().recieveClientPacket(player, packet, true);
 
-        updatePlayerHandItem(player);
-      } catch (InvocationTargetException | IllegalAccessException exception) {
-        exception.printStackTrace();
-      }
+      updatePlayerHandItem(player);
     }
     Synchronizer.synchronize(player::updateInventory);
   }

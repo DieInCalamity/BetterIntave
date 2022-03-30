@@ -49,7 +49,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -613,12 +612,8 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
   }
 
   private void receiveExcludedPacket(Player player, PacketContainer packet) {
-    try {
-      userOf(player).ignoreNextInboundPacket();
-      ProtocolLibrary.getProtocolManager().recieveClientPacket(player, packet);
-    } catch (InvocationTargetException | IllegalAccessException exception) {
-      exception.printStackTrace();
-    }
+    userOf(player).ignoreNextInboundPacket();
+    PacketSender.receiveClientPacket(player, packet);
   }
 
   @Override

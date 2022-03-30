@@ -7,6 +7,7 @@ import com.google.common.collect.Maps;
 import de.jpx3.intave.annotate.KeepEnumInternalNames;
 
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
@@ -285,7 +286,7 @@ public enum Direction {
   }
 
   public String toString() {
-    return this.name;
+    return this.name.toUpperCase(Locale.ROOT);
   }
 
   public String getName() {

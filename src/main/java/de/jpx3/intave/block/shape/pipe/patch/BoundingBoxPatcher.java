@@ -28,6 +28,7 @@ public final class BoundingBoxPatcher {
     add(ThinBlockPatch.class);
     add(EnderPortalFramePatch.class);
     add(CauldronBlockPatch.class);
+    add(PointedDripstoneBlockPatch.class);
 //    add(BlockDoorPatch.class);
   }
 

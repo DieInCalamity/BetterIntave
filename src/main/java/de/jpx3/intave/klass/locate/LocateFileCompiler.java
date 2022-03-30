@@ -51,6 +51,7 @@ public final class LocateFileCompiler implements CompilerStreamFunctionProvider<
         fieldLocations.addAll(fieldCompile(className, fieldLines));
         methodLocations.addAll(methodCompile(className, methodLines));
       } catch (Exception exception) {
+        // we don't want to exit the compilation process if it fails
         IntaveLogger.logger().error("Unable to compile line " + i + ": " + line);
         exception.printStackTrace();
       }
