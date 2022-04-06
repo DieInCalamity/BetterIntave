@@ -96,7 +96,7 @@ public final class BlockRotationAnalyzer extends MetaCheckPart<PlacementAnalysis
 //      event.setCancelled(true);
 //      Synchronizer.synchronizeDelayed(() -> refreshBlocksAround(player, blockPosition.toLocation(player.getWorld())), 20);
     } else if (meta.vl > 0) {
-      meta.vl /= 0.98;
+      meta.vl *= 0.98;
       meta.vl -= 0.002;
     }
     reader.close();
