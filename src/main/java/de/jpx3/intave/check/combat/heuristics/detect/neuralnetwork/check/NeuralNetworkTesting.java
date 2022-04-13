@@ -5,7 +5,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.combat.Heuristics;
-import de.jpx3.intave.check.combat.heuristics.detect.neuralnetwork.NeuralNetwork;
 import de.jpx3.intave.executor.IntaveThreadFactory;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
@@ -21,27 +20,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
-import static de.jpx3.intave.check.combat.heuristics.detect.neuralnetwork.activationfunctions.ActivationFunction.*;
 
 public class NeuralNetworkTesting extends MetaCheckPart<Heuristics, NeuralNetworkTesting.NeuralNetworkTestingMeta> {
+  // for testing without needing to run intave on a server
+  
   private final String testUsername = "DarkAndBlue";
   
   public NeuralNetworkTesting(Heuristics parentCheck) {
     super(parentCheck, NeuralNetworkTesting.NeuralNetworkTestingMeta.class);
-    NEURAL_NETWORK.localLearningRate = 0.03;
   }
   
   public static class NeuralNetworkTestingMeta extends CheckCustomMetadata {
     public int lastAttack;
   }
   
-  private static final NeuralNetwork NEURAL_NETWORK = new NeuralNetwork(
-    2,
-    sigmoid,
-    20,
-    sigmoid,
-    1
-  );
   private static CopyOnWriteArrayList<Point> redPoints = new CopyOnWriteArrayList<>();
   private static CopyOnWriteArrayList<Point> greenPoints = new CopyOnWriteArrayList<>();
   
@@ -151,14 +143,14 @@ public class NeuralNetworkTesting extends MetaCheckPart<Heuristics, NeuralNetwor
     }
   }
   
-  void openWindow() {
+  static void openWindow() {
     redPoints = new CopyOnWriteArrayList<>();
     greenPoints = new CopyOnWriteArrayList<>();
     
     // opening a new thread to let old JFrames open
     ExecutorService executorService = Executors.newSingleThreadExecutor(IntaveThreadFactory.ofLowestPriority());
     executorService.execute(() -> {
-      new Window(NEURAL_NETWORK, redPoints, greenPoints);
+      new Window(redPoints, greenPoints);
     });
   }
 }
