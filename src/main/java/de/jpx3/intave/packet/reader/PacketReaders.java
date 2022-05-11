@@ -30,7 +30,7 @@ public final class PacketReaders {
     setup(ENTITY_VELOCITY, EntityReader::new);
     setup(SPAWN_ENTITY_LIVING, EntityReader::new);
     setup(SPAWN_ENTITY, EntityReader::new);
-    setup(ENTITY_EFFECT, EntityReader::new);
+    setup(ENTITY_EFFECT, EntityEffectReader::new);
     setup(REMOVE_ENTITY_EFFECT, EntityReader::new);
     setup(NAMED_ENTITY_SPAWN, EntityReader::new);
     setup(UPDATE_ATTRIBUTES, EntityReader::new);

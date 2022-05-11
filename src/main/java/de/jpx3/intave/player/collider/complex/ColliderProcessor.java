@@ -6,7 +6,7 @@ import de.jpx3.intave.user.User;
 public interface ColliderProcessor {
   ColliderSimulationResult collide(
     User user, Motion context,
-    boolean inWeb,
-    double positionX, double positionY, double positionZ
-  );
+    double positionX, double positionY, double positionZ,
+    boolean inWeb
+    );
 }

@@ -1,6 +1,5 @@
 package de.jpx3.intave.check.movement.physics;
 
-import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
 import de.jpx3.intave.annotate.refactoring.WhyMustIExist;
 import de.jpx3.intave.block.access.BlockWrapper;
@@ -183,19 +182,13 @@ public final class MovementHelper {
   public static boolean isOnLadder(User user, double positionX, double positionY, double positionZ) {
     Player player = user.player();
     ProtocolMetadata clientData = user.meta().protocol();
-    Block block = VolatileBlockAccess.blockAccess(
-      player.getWorld(),
-      floor(positionX),
-      floor(positionY),
-      floor(positionZ)
-    );
     Material type = VolatileBlockAccess.typeAccess(
       user, player.getWorld(),
       floor(positionX),
       floor(positionY),
       floor(positionZ)
     );
-    if (clientData.combatUpdate() && ItemProperties.isTrapdoor(type) && canGoThroughTrapDoorOnLadder(user, block, positionX, positionY, positionZ)) {
+    if (clientData.combatUpdate() && ItemProperties.isTrapdoor(type) && canGoThroughTrapDoorOnLadder(user, positionX, positionY, positionZ)) {
       return true;
     }
     return BlockProperties.of(type).climbable();
@@ -204,18 +197,7 @@ public final class MovementHelper {
   @Deprecated
   @IdoNotBelongHere
   @WhyMustIExist
-  private static boolean canGoThroughTrapDoorOnLadder(User user, Block block, double positionX, double positionY, double positionZ) {
-    if (MinecraftVersions.VER1_14_0.atOrAbove()) {
-      return modernCanGoThroughTrapDoorOnLadder(user, positionX, positionY, positionZ);
-    } else {
-      return legacyCanGoThroughTrapDoorOnLadder(user, block);
-    }
-  }
-
-  @Deprecated
-  @IdoNotBelongHere
-  @WhyMustIExist
-  private static boolean modernCanGoThroughTrapDoorOnLadder(User user, double positionX, double positionY, double positionZ) {
+  private static boolean canGoThroughTrapDoorOnLadder(User user, double positionX, double positionY, double positionZ) {
     BlockVariant variant = VolatileBlockAccess.variantAccess(user, user.player().getWorld(), positionX, positionY, positionZ);
     boolean isOpen = variant.propertyOf("open");
     if (isOpen) {
@@ -226,31 +208,6 @@ public final class MovementHelper {
       BlockVariant variantBelow = VolatileBlockAccess.variantAccess(user, user.player().getWorld(), positionX, positionY - 1, positionZ);
       Direction directionBelow = variantBelow.enumProperty(Direction.class, "facing");
       return direction != null && direction == directionBelow;
-    }
-    return false;
-  }
-
-  @Deprecated
-  @IdoNotBelongHere
-  @WhyMustIExist
-  private static boolean legacyCanGoThroughTrapDoorOnLadder(User user, Block block) {
-    block = BlockWrapper.emit(user, block);
-    Location location = block.getLocation();
-    BlockState blockState = block.getState(); // unbelievable heavy
-    MaterialData trapDoorData = blockState.getData(); // corrupted
-    if (trapDoorData instanceof Openable && (((Openable) trapDoorData).isOpen())) {
-      Attachable directional = (Attachable) blockState.getData();
-      Location downLocation = location.clone().add(0, -1, 0);
-      if (!(trapDoorData instanceof Directional)) {
-        return false;
-      }
-      Block downBlock = VolatileBlockAccess.blockAccess(downLocation);
-      MaterialData downBlockData = downBlock.getState().getData();
-      if (!(downBlockData instanceof Directional)) {
-        return false;
-      }
-      Directional downBlockDirectional = (Directional) downBlockData;
-      return VolatileBlockAccess.typeAccess(user, downLocation) == Material.LADDER && directional.getFacing() == downBlockDirectional.getFacing();
     }
     return false;
   }

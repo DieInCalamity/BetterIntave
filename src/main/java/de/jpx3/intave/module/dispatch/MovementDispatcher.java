@@ -263,11 +263,10 @@ public final class MovementDispatcher extends Module {
     boolean hasMovement = vehicleMove || packet.getBooleans().read(1);
     boolean hasRotation = vehicleMove || packet.getBooleans().read(2);
 
-    boolean awaitTeleport = movementData.awaitTeleport || movementData.awaitOutgoingTeleport;
-
     if (violationLevelData.disableActiveTeleportBundleNextTick /*&& !awaitTeleport*/) {
       violationLevelData.disableActiveTeleportBundleNextTick = false;
       violationLevelData.isInActiveTeleportBundle = false;
+      movementData.dropPostTickMotionProcessing = true;
 //      violationLevelData.ignorePostTickMotionReset = true;
     }
 
@@ -328,8 +327,9 @@ public final class MovementDispatcher extends Module {
       superposition.computeVariations();
     }
 
-    if (awaitTeleport) {
+    if (movementData.awaitTeleport || movementData.awaitOutgoingTeleport) {
       event.setCancelled(true);
+      movementData.dropPostTickMotionProcessing = true;
       return;
     }
 
@@ -887,10 +887,14 @@ public final class MovementDispatcher extends Module {
         } else {
           movementData.sneaking = true;
         }
+//        player.sendMessage("Sneaking: " + movementData.isSneaking());
+//        movementData.setPose(movementData.isSneaking() ? Pose.CROUCHING : Pose.STANDING);
         break;
       case RELEASE_SHIFT_KEY:
       case STOP_SNEAKING:
         movementData.sneaking = false;
+//        player.sendMessage("Sneaking: " + movementData.isSneaking());
+//        movementData.setPose(Pose.STANDING);
         break;
       case START_FALL_FLYING:
         if (movementData.hasElytraEquipped() && clientData.canUseElytra()) {

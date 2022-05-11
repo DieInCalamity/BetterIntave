@@ -72,12 +72,27 @@ public final class SimulationEvaluator {
       legitimateDeviation = Math.max(legitimateDeviation, 0.5);
     }
 
-    // doesn't quite work
+    // spamming sneak under blocks
+    // not a good solution, but it works
     if (clientData.applyModernCollider()) {
       double crouchingHeightGap = 1 - user.sizeOf(Pose.CROUCHING).height() % 1;
       double standingHeightGap = 1 - user.sizeOf(Pose.STANDING).height() % 1;
-      boolean collisionProbable = Math.abs(receivedMotionY - crouchingHeightGap) < 0.01 || Math.abs(receivedMotionY - standingHeightGap) < 0.01;
-      if (collisionProbable && Collision.present(player, BoundingBox.fromPosition(user, movementData.positionX, movementData.positionY, movementData.positionZ).expand(movementData.motionX(), receivedMotionY + 0.1, movementData.motionZ()))) {
+      boolean scuffed = false;
+      // case 1: very likely to collide with block above
+      if (Math.abs(receivedMotionY - crouchingHeightGap) < 0.01 || Math.abs(receivedMotionY - standingHeightGap) < 0.01) {
+        scuffed = true;
+
+      // case 2: jumping when Intave thinks it's not possible
+      } else if (Math.abs(receivedMotionY - movementData.jumpMotion()) < 0.01 && Math.abs(receivedMotionY - crouchingHeightGap) < 0.1) {
+        scuffed = true;
+
+      // case 3: I don't actually know what this is, it seems to work
+      } else if (Math.abs(Math.abs(receivedMotionY - crouchingHeightGap) - movementData.jumpMotion()) < 0.01) {
+        scuffed = true;
+      }
+      boolean collides = Collision.present(player, BoundingBox.fromPosition(user, movementData.positionX, movementData.positionY, movementData.positionZ).expand(movementData.motionX(), receivedMotionY + 0.1, movementData.motionZ()));
+//      player.sendMessage(scuffed + " " + movementData.isSneaking() + " " + Math.abs(receivedMotionY - crouchingHeightGap) + " " + Math.abs(receivedMotionY - standingHeightGap));
+      if (scuffed && collides) {
         differenceY = 0;
       }
     }

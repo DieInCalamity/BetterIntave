@@ -1,6 +1,8 @@
 package de.jpx3.intave.block.physics;
 
 import com.comphenix.protocol.utility.MinecraftVersion;
+import de.jpx3.intave.IntaveControl;
+import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.annotate.Nullable;
 import de.jpx3.intave.shade.Motion;
 import de.jpx3.intave.user.User;
@@ -8,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class BlockPhysics {
@@ -48,7 +51,10 @@ public final class BlockPhysics {
     double motionX, double motionY, double motionZ
   ) {
     BlockPhysic collision = physicLookup(material);
-    return collision != null ? collision.entityCollidedWithBlock(user, location, from, motionX, motionY, motionZ) : null;
+    if (collision != null) {
+      return collision.entityCollidedWithBlock(user, location, from, motionX, motionY, motionZ);
+    }
+    return null;
   }
 
   @Nullable

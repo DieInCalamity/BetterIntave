@@ -598,7 +598,7 @@ public final class Physics extends Check {
 //      debug += inventoryData.heldItem().getType().name();
 //      debug += " flying:" + movementData.pastFlyingPacketAccurate;
 //      debug += " gliding:" + shortenBoolean(movementData.elytraFlying);
-//      debug += " y:" + formatDouble(movementData.motionY(),4);
+      debug += " y:" + formatDouble(movementData.motionY(),4);
 
       List<String> tags = new ArrayList<>();
 

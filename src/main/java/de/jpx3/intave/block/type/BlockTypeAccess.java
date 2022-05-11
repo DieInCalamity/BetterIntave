@@ -22,7 +22,7 @@ import static de.jpx3.intave.diagnostic.timings.Timings.SERVICE_TYPE_LOOKUP;
 
 @Relocate
 public final class BlockTypeAccess {
-  public static final Material WEB = resolveFrom("WEB", "COBWEB");
+  public static final Material WEB = resolveFrom("COBWEB", "WEB");
   public static final Material SNOW_LAYER = resolveFrom("SNOW", "SNOW_LAYER");
   public static final Material TRAP_DOOR = resolveFrom("TRAP_DOOR", "LEGACY_TRAP_DOOR");
   public static final Material NETHER_PORTAL = resolveFrom("PORTAL", "NETHER_PORTAL");

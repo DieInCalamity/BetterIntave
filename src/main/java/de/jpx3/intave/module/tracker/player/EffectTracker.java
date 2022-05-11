@@ -7,6 +7,8 @@ import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
+import de.jpx3.intave.packet.reader.EntityEffectReader;
+import de.jpx3.intave.packet.reader.PacketReaders;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.EffectMetadata;
@@ -57,30 +59,18 @@ public final class EffectTracker extends Module {
   public void sentEffect(PacketEvent event) {
     Player player = event.getPlayer();
     PacketContainer packet = event.getPacket();
-    int entityId = packet.getIntegers().read(0);
+    EntityEffectReader reader = PacketReaders.readerOf(packet);
+    int entityId = reader.entityId();
     if (entityId != player.getEntityId()) {
+      reader.release();
       return;
     }
-
-    Byte potionEffectTypeIdentifier = packet.getBytes().readSafely(0);
-    Byte potionEffectAmplifier = packet.getBytes().readSafely(1);
-    Integer potionEffectDuration = packet.getIntegers().readSafely(1);
-
-    if (potionEffectTypeIdentifier == null) {
-      potionEffectTypeIdentifier = 0;
-    }
-    if (potionEffectAmplifier == null) {
-      potionEffectAmplifier = 0;
-    }
-    if (potionEffectDuration == null) {
-      potionEffectDuration = 0;
-    }
-
     PotionEffectOutput effectOutput = new PotionEffectOutput(
-      potionEffectTypeIdentifier,
-      potionEffectAmplifier,
-      potionEffectDuration
+      reader.effectType(),
+      reader.effectAmplifier(),
+      reader.effectDuration()
     );
+    reader.release();
     Modules.feedback().synchronize(player, effectOutput, this::receiveEffect);
   }
 

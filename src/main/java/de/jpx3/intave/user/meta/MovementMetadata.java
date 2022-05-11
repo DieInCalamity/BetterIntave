@@ -509,6 +509,10 @@ public final class MovementMetadata implements SimulationEnvironment {
     updatePose();
   }
 
+  public void overridePose(Pose pose) {
+    this.pose = pose;
+  }
+
   private void updateSize() {
     width = pose.width(user);
     height = pose.height(user);
