@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class BlockShapes {
-  private final static BlockShape EMPTY = new EmptyBlockShape();
+  private static final BlockShape EMPTY = new EmptyBlockShape();
 
   public static BlockShape emptyShape() {
     return EMPTY;

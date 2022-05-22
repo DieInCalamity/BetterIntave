@@ -17,7 +17,7 @@ import org.bukkit.util.Vector;
 @SplitMeUp
 @Relocate
 public final class SimulationEvaluator {
-  private final static double LADDER_UPWARDS_MOTION = (0.2 - 0.08) * 0.98005f;
+  private static final double LADDER_UPWARDS_MOTION = (0.2 - 0.08) * 0.98005f;
 
   @SplitMeUp
   public double calculateVerticalViolationLevelIncrease(
@@ -84,11 +84,11 @@ public final class SimulationEvaluator {
       if (Math.abs(receivedMotionY - crouchingHeightGap) < 0.01 || Math.abs(receivedMotionY - standingHeightGap) < 0.01) {
         scuffed = true;
 
-      // case 2: jumping when Intave thinks it's not possible
+        // case 2: jumping when Intave thinks it's not possible
       } else if (Math.abs(receivedMotionY - movementData.jumpMotion()) < 0.01 && Math.abs(receivedMotionY - crouchingHeightGap) < 0.1) {
         scuffed = true;
 
-      // case 3: I don't actually know what this is, it seems to work
+        // case 3: I don't actually know what this is, it seems to work
       } else if (Math.abs(Math.abs(receivedMotionY - crouchingHeightGap) - movementData.jumpMotion()) < 0.01) {
         scuffed = true;
       }
@@ -346,7 +346,7 @@ public final class SimulationEvaluator {
     }
 
     boolean movedTooQuicklyCheckable = (distanceMoved > 0.3 || violationLevelData.physicsInvalidMovementsInRow >= 8)
-        && !flewWithElytra;
+      && !flewWithElytra;
 
     if (movedTooQuickly && movedTooQuicklyCheckable && !movementData.physicsUnpredictableVelocityExpected) {
       //noinspection UnnecessaryLocalVariable
@@ -359,9 +359,9 @@ public final class SimulationEvaluator {
     return abuseHorizontally * multiplier;
   }
 
-  private final static double RIPTIDE_TOLERANCE = 3.005;
-  private final static double RIPTIDE_TOLERANCE_2 = 0.05;
-  private final static double RIPTIDE_GROUND_TOLERANCE_2 = 2.5;
+  private static final double RIPTIDE_TOLERANCE = 3.005;
+  private static final double RIPTIDE_TOLERANCE_2 = 0.05;
+  private static final double RIPTIDE_GROUND_TOLERANCE_2 = 2.5;
 
   private double resolveRiptideDeviation(MovementMetadata movementData) {
     double riptideTolerance;

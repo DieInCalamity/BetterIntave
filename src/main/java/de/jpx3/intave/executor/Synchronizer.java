@@ -13,7 +13,7 @@ import java.util.Queue;
 import java.util.concurrent.Executor;
 
 public final class Synchronizer {
-  private final static BukkitScheduler scheduler = Bukkit.getScheduler();
+  private static final BukkitScheduler scheduler = Bukkit.getScheduler();
   private static Executor synchronizationExecutor;
 
   public static void setup() {

@@ -138,7 +138,7 @@ public class Textifier extends Printer {
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
    *            Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
-  protected Textifier(final int api) {
+  protected Textifier(int api) {
     super(api);
   }
 
@@ -164,7 +164,7 @@ public class Textifier extends Printer {
    * @param logger where to log errors.
    * @throws IOException if the class cannot be found, or if an IOException occurs.
    */
-  static void main(final String[] args, final PrintWriter output, final PrintWriter logger)
+  static void main(String[] args, PrintWriter output, PrintWriter logger)
     throws IOException {
     main(args, USAGE, new Textifier(), output, logger);
   }
@@ -175,12 +175,12 @@ public class Textifier extends Printer {
 
   @Override
   public void visit(
-    final int version,
-    final int access,
-    final String name,
-    final String signature,
-    final String superName,
-    final String[] interfaces) {
+    int version,
+    int access,
+    String name,
+    String signature,
+    String superName,
+    String[] interfaces) {
     if ((access & Opcodes.ACC_MODULE) != 0) {
       // Modules are printed in visitModule.
       return;
@@ -236,7 +236,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitSource(final String file, final String debug) {
+  public void visitSource(String file, String debug) {
     stringBuilder.setLength(0);
     if (file != null) {
       stringBuilder.append(tab).append("// compiled from: ").append(file).append('\n');
@@ -250,7 +250,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public Printer visitModule(final String name, final int access, final String version) {
+  public Printer visitModule(String name, int access, String version) {
     stringBuilder.setLength(0);
     if ((access & Opcodes.ACC_OPEN) != 0) {
       stringBuilder.append("open ");
@@ -266,7 +266,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitNestHost(final String nestHost) {
+  public void visitNestHost(String nestHost) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append("NESTHOST ");
     appendDescriptor(INTERNAL_NAME, nestHost);
@@ -275,7 +275,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitOuterClass(final String owner, final String name, final String descriptor) {
+  public void visitOuterClass(String owner, String name, String descriptor) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append("OUTERCLASS ");
     appendDescriptor(INTERNAL_NAME, owner);
@@ -289,26 +289,26 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public Textifier visitClassAnnotation(final String descriptor, final boolean visible) {
+  public Textifier visitClassAnnotation(String descriptor, boolean visible) {
     text.add("\n");
     return visitAnnotation(descriptor, visible);
   }
 
   @Override
   public Printer visitClassTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     text.add("\n");
     return visitTypeAnnotation(typeRef, typePath, descriptor, visible);
   }
 
   @Override
-  public void visitClassAttribute(final Attribute attribute) {
+  public void visitClassAttribute(Attribute attribute) {
     text.add("\n");
     visitAttribute(attribute);
   }
 
   @Override
-  public void visitNestMember(final String nestMember) {
+  public void visitNestMember(String nestMember) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append("NESTMEMBER ");
     appendDescriptor(INTERNAL_NAME, nestMember);
@@ -317,7 +317,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitPermittedSubtypeExperimental(final String permittedSubtype) {
+  public void visitPermittedSubtypeExperimental(String permittedSubtype) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append("PERMITTEDSUBTYPE ");
     appendDescriptor(INTERNAL_NAME, permittedSubtype);
@@ -327,7 +327,7 @@ public class Textifier extends Printer {
 
   @Override
   public void visitInnerClass(
-    final String name, final String outerName, final String innerName, final int access) {
+    String name, String outerName, String innerName, int access) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab);
     appendRawAccess(access & ~Opcodes.ACC_SUPER);
@@ -345,7 +345,7 @@ public class Textifier extends Printer {
 
   @Override
   public Printer visitRecordComponentExperimental(
-    final int access, final String name, final String descriptor, final String signature) {
+    int access, String name, String descriptor, String signature) {
     stringBuilder.setLength(0);
     stringBuilder.append('\n');
     if ((access & Opcodes.ACC_DEPRECATED) != 0) {
@@ -373,11 +373,11 @@ public class Textifier extends Printer {
 
   @Override
   public Textifier visitField(
-    final int access,
-    final String name,
-    final String descriptor,
-    final String signature,
-    final Object value) {
+    int access,
+    String name,
+    String descriptor,
+    String signature,
+    Object value) {
     stringBuilder.setLength(0);
     stringBuilder.append('\n');
     if ((access & Opcodes.ACC_DEPRECATED) != 0) {
@@ -413,11 +413,11 @@ public class Textifier extends Printer {
 
   @Override
   public Textifier visitMethod(
-    final int access,
-    final String name,
-    final String descriptor,
-    final String signature,
-    final String[] exceptions) {
+    int access,
+    String name,
+    String descriptor,
+    String signature,
+    String[] exceptions) {
     stringBuilder.setLength(0);
     stringBuilder.append('\n');
     if ((access & Opcodes.ACC_DEPRECATED) != 0) {
@@ -474,21 +474,21 @@ public class Textifier extends Printer {
   // -----------------------------------------------------------------------------------------------
 
   @Override
-  public void visitMainClass(final String mainClass) {
+  public void visitMainClass(String mainClass) {
     stringBuilder.setLength(0);
     stringBuilder.append("  // main class ").append(mainClass).append('\n');
     text.add(stringBuilder.toString());
   }
 
   @Override
-  public void visitPackage(final String packaze) {
+  public void visitPackage(String packaze) {
     stringBuilder.setLength(0);
     stringBuilder.append("  // package ").append(packaze).append('\n');
     text.add(stringBuilder.toString());
   }
 
   @Override
-  public void visitRequire(final String require, final int access, final String version) {
+  public void visitRequire(String require, int access, String version) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append("requires ");
     if ((access & Opcodes.ACC_TRANSITIVE) != 0) {
@@ -506,17 +506,17 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitExport(final String packaze, final int access, final String... modules) {
+  public void visitExport(String packaze, int access, String... modules) {
     visitExportOrOpen("exports ", packaze, access, modules);
   }
 
   @Override
-  public void visitOpen(final String packaze, final int access, final String... modules) {
+  public void visitOpen(String packaze, int access, String... modules) {
     visitExportOrOpen("opens ", packaze, access, modules);
   }
 
   private void visitExportOrOpen(
-    final String method, final String packaze, final int access, final String... modules) {
+    String method, String packaze, int access, String... modules) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append(method);
     stringBuilder.append(packaze);
@@ -536,7 +536,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitUse(final String use) {
+  public void visitUse(String use) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append("uses ");
     appendDescriptor(INTERNAL_NAME, use);
@@ -545,7 +545,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitProvide(final String provide, final String... providers) {
+  public void visitProvide(String provide, String... providers) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append("provides ");
     appendDescriptor(INTERNAL_NAME, provide);
@@ -569,7 +569,7 @@ public class Textifier extends Printer {
 
   // DontCheck(OverloadMethodsDeclarationOrder): overloads are semantically different.
   @Override
-  public void visit(final String name, final Object value) {
+  public void visit(String name, Object value) {
     visitAnnotationValue(name);
     if (value instanceof String) {
       visitString((String) value);
@@ -647,48 +647,48 @@ public class Textifier extends Printer {
     text.add(stringBuilder.toString());
   }
 
-  private void visitInt(final int value) {
+  private void visitInt(int value) {
     stringBuilder.append(value);
   }
 
-  private void visitLong(final long value) {
+  private void visitLong(long value) {
     stringBuilder.append(value).append('L');
   }
 
-  private void visitFloat(final float value) {
+  private void visitFloat(float value) {
     stringBuilder.append(value).append('F');
   }
 
-  private void visitDouble(final double value) {
+  private void visitDouble(double value) {
     stringBuilder.append(value).append('D');
   }
 
-  private void visitChar(final char value) {
+  private void visitChar(char value) {
     stringBuilder.append("(char)").append((int) value);
   }
 
-  private void visitShort(final short value) {
+  private void visitShort(short value) {
     stringBuilder.append("(short)").append(value);
   }
 
-  private void visitByte(final byte value) {
+  private void visitByte(byte value) {
     stringBuilder.append("(byte)").append(value);
   }
 
-  private void visitBoolean(final boolean value) {
+  private void visitBoolean(boolean value) {
     stringBuilder.append(value);
   }
 
-  private void visitString(final String value) {
+  private void visitString(String value) {
     appendString(stringBuilder, value);
   }
 
-  private void visitType(final Type value) {
+  private void visitType(Type value) {
     stringBuilder.append(value.getClassName()).append(CLASS_SUFFIX);
   }
 
   @Override
-  public void visitEnum(final String name, final String descriptor, final String value) {
+  public void visitEnum(String name, String descriptor, String value) {
     visitAnnotationValue(name);
     appendDescriptor(FIELD_DESCRIPTOR, descriptor);
     stringBuilder.append('.').append(value);
@@ -696,7 +696,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public Textifier visitAnnotation(final String name, final String descriptor) {
+  public Textifier visitAnnotation(String name, String descriptor) {
     visitAnnotationValue(name);
     stringBuilder.append('@');
     appendDescriptor(FIELD_DESCRIPTOR, descriptor);
@@ -706,7 +706,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public Textifier visitArray(final String name) {
+  public Textifier visitArray(String name) {
     visitAnnotationValue(name);
     stringBuilder.append('{');
     text.add(stringBuilder.toString());
@@ -718,7 +718,7 @@ public class Textifier extends Printer {
     // Nothing to do.
   }
 
-  private void visitAnnotationValue(final String name) {
+  private void visitAnnotationValue(String name) {
     stringBuilder.setLength(0);
     maybeAppendComma(numAnnotationValues++);
     if (name != null) {
@@ -732,18 +732,18 @@ public class Textifier extends Printer {
 
   @Override
   public Textifier visitRecordComponentAnnotationExperimental(
-    final String descriptor, final boolean visible) {
+    String descriptor, boolean visible) {
     return visitAnnotation(descriptor, visible);
   }
 
   @Override
   public Printer visitRecordComponentTypeAnnotationExperimental(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     return visitTypeAnnotation(typeRef, typePath, descriptor, visible);
   }
 
   @Override
-  public void visitRecordComponentAttributeExperimental(final Attribute attribute) {
+  public void visitRecordComponentAttributeExperimental(Attribute attribute) {
     visitAttribute(attribute);
   }
 
@@ -757,18 +757,18 @@ public class Textifier extends Printer {
   // -----------------------------------------------------------------------------------------------
 
   @Override
-  public Textifier visitFieldAnnotation(final String descriptor, final boolean visible) {
+  public Textifier visitFieldAnnotation(String descriptor, boolean visible) {
     return visitAnnotation(descriptor, visible);
   }
 
   @Override
   public Printer visitFieldTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     return visitTypeAnnotation(typeRef, typePath, descriptor, visible);
   }
 
   @Override
-  public void visitFieldAttribute(final Attribute attribute) {
+  public void visitFieldAttribute(Attribute attribute) {
     visitAttribute(attribute);
   }
 
@@ -782,7 +782,7 @@ public class Textifier extends Printer {
   // -----------------------------------------------------------------------------------------------
 
   @Override
-  public void visitParameter(final String name, final int access) {
+  public void visitParameter(String name, int access) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("// parameter ");
     appendAccess(access);
@@ -797,18 +797,18 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public Textifier visitMethodAnnotation(final String descriptor, final boolean visible) {
+  public Textifier visitMethodAnnotation(String descriptor, boolean visible) {
     return visitAnnotation(descriptor, visible);
   }
 
   @Override
   public Printer visitMethodTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     return visitTypeAnnotation(typeRef, typePath, descriptor, visible);
   }
 
   @Override
-  public Textifier visitAnnotableParameterCount(final int parameterCount, final boolean visible) {
+  public Textifier visitAnnotableParameterCount(int parameterCount, boolean visible) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("// annotable parameter count: ");
     stringBuilder.append(parameterCount);
@@ -819,7 +819,7 @@ public class Textifier extends Printer {
 
   @Override
   public Textifier visitParameterAnnotation(
-    final int parameter, final String descriptor, final boolean visible) {
+    int parameter, String descriptor, boolean visible) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append('@');
     appendDescriptor(FIELD_DESCRIPTOR, descriptor);
@@ -835,7 +835,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitMethodAttribute(final Attribute attribute) {
+  public void visitMethodAttribute(Attribute attribute) {
     visitAttribute(attribute);
   }
 
@@ -846,11 +846,11 @@ public class Textifier extends Printer {
 
   @Override
   public void visitFrame(
-    final int type,
-    final int numLocal,
-    final Object[] local,
-    final int numStack,
-    final Object[] stack) {
+    int type,
+    int numLocal,
+    Object[] local,
+    int numStack,
+    Object[] stack) {
     stringBuilder.setLength(0);
     stringBuilder.append(ltab);
     stringBuilder.append("FRAME ");
@@ -886,14 +886,14 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitInsn(final int opcode) {
+  public void visitInsn(int opcode) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append(OPCODES[opcode]).append('\n');
     text.add(stringBuilder.toString());
   }
 
   @Override
-  public void visitIntInsn(final int opcode, final int operand) {
+  public void visitIntInsn(int opcode, int operand) {
     stringBuilder.setLength(0);
     stringBuilder
       .append(tab2)
@@ -905,14 +905,14 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitVarInsn(final int opcode, final int var) {
+  public void visitVarInsn(int opcode, int var) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append(OPCODES[opcode]).append(' ').append(var).append('\n');
     text.add(stringBuilder.toString());
   }
 
   @Override
-  public void visitTypeInsn(final int opcode, final String type) {
+  public void visitTypeInsn(int opcode, String type) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append(OPCODES[opcode]).append(' ');
     appendDescriptor(INTERNAL_NAME, type);
@@ -922,7 +922,7 @@ public class Textifier extends Printer {
 
   @Override
   public void visitFieldInsn(
-    final int opcode, final String owner, final String name, final String descriptor) {
+    int opcode, String owner, String name, String descriptor) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append(OPCODES[opcode]).append(' ');
     appendDescriptor(INTERNAL_NAME, owner);
@@ -934,11 +934,11 @@ public class Textifier extends Printer {
 
   @Override
   public void visitMethodInsn(
-    final int opcode,
-    final String owner,
-    final String name,
-    final String descriptor,
-    final boolean isInterface) {
+    int opcode,
+    String owner,
+    String name,
+    String descriptor,
+    boolean isInterface) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append(OPCODES[opcode]).append(' ');
     appendDescriptor(INTERNAL_NAME, owner);
@@ -953,10 +953,10 @@ public class Textifier extends Printer {
 
   @Override
   public void visitInvokeDynamicInsn(
-    final String name,
-    final String descriptor,
-    final Handle bootstrapMethodHandle,
-    final Object... bootstrapMethodArguments) {
+    String name,
+    String descriptor,
+    Handle bootstrapMethodHandle,
+    Object... bootstrapMethodArguments) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("INVOKEDYNAMIC").append(' ');
     stringBuilder.append(name);
@@ -997,7 +997,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitJumpInsn(final int opcode, final Label label) {
+  public void visitJumpInsn(int opcode, Label label) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append(OPCODES[opcode]).append(' ');
     appendLabel(label);
@@ -1006,7 +1006,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitLabel(final Label label) {
+  public void visitLabel(Label label) {
     stringBuilder.setLength(0);
     stringBuilder.append(ltab);
     appendLabel(label);
@@ -1015,7 +1015,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitLdcInsn(final Object value) {
+  public void visitLdcInsn(Object value) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("LDC ");
     if (value instanceof String) {
@@ -1030,7 +1030,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitIincInsn(final int var, final int increment) {
+  public void visitIincInsn(int var, int increment) {
     stringBuilder.setLength(0);
     stringBuilder
       .append(tab2)
@@ -1044,7 +1044,7 @@ public class Textifier extends Printer {
 
   @Override
   public void visitTableSwitchInsn(
-    final int min, final int max, final Label dflt, final Label... labels) {
+    int min, int max, Label dflt, Label... labels) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("TABLESWITCH\n");
     for (int i = 0; i < labels.length; ++i) {
@@ -1059,7 +1059,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
+  public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("LOOKUPSWITCH\n");
     for (int i = 0; i < labels.length; ++i) {
@@ -1074,7 +1074,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
+  public void visitMultiANewArrayInsn(String descriptor, int numDimensions) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("MULTIANEWARRAY ");
     appendDescriptor(FIELD_DESCRIPTOR, descriptor);
@@ -1084,13 +1084,13 @@ public class Textifier extends Printer {
 
   @Override
   public Printer visitInsnAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     return visitTypeAnnotation(typeRef, typePath, descriptor, visible);
   }
 
   @Override
   public void visitTryCatchBlock(
-    final Label start, final Label end, final Label handler, final String type) {
+    Label start, Label end, Label handler, String type) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("TRYCATCHBLOCK ");
     appendLabel(start);
@@ -1106,7 +1106,7 @@ public class Textifier extends Printer {
 
   @Override
   public Printer visitTryCatchAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("TRYCATCHBLOCK @");
     appendDescriptor(FIELD_DESCRIPTOR, descriptor);
@@ -1123,12 +1123,12 @@ public class Textifier extends Printer {
 
   @Override
   public void visitLocalVariable(
-    final String name,
-    final String descriptor,
-    final String signature,
-    final Label start,
-    final Label end,
-    final int index) {
+    String name,
+    String descriptor,
+    String signature,
+    Label start,
+    Label end,
+    int index) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("LOCALVARIABLE ").append(name).append(' ');
     appendDescriptor(FIELD_DESCRIPTOR, descriptor);
@@ -1149,13 +1149,13 @@ public class Textifier extends Printer {
 
   @Override
   public Printer visitLocalVariableAnnotation(
-    final int typeRef,
-    final TypePath typePath,
-    final Label[] start,
-    final Label[] end,
-    final int[] index,
-    final String descriptor,
-    final boolean visible) {
+    int typeRef,
+    TypePath typePath,
+    Label[] start,
+    Label[] end,
+    int[] index,
+    String descriptor,
+    boolean visible) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("LOCALVARIABLE @");
     appendDescriptor(FIELD_DESCRIPTOR, descriptor);
@@ -1178,7 +1178,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitLineNumber(final int line, final Label start) {
+  public void visitLineNumber(int line, Label start) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("LINENUMBER ").append(line).append(' ');
     appendLabel(start);
@@ -1187,7 +1187,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitMaxs(final int maxStack, final int maxLocals) {
+  public void visitMaxs(int maxStack, int maxLocals) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab2).append("MAXSTACK = ").append(maxStack).append('\n');
     text.add(stringBuilder.toString());
@@ -1214,7 +1214,7 @@ public class Textifier extends Printer {
    * @return a visitor to visit the annotation values.
    */
   // DontCheck(OverloadMethodsDeclarationOrder): overloads are semantically different.
-  public Textifier visitAnnotation(final String descriptor, final boolean visible) {
+  public Textifier visitAnnotation(String descriptor, boolean visible) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append('@');
     appendDescriptor(FIELD_DESCRIPTOR, descriptor);
@@ -1235,7 +1235,7 @@ public class Textifier extends Printer {
    * @return a visitor to visit the annotation values.
    */
   public Textifier visitTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append('@');
     appendDescriptor(FIELD_DESCRIPTOR, descriptor);
@@ -1255,7 +1255,7 @@ public class Textifier extends Printer {
    *
    * @param attribute an attribute.
    */
-  public void visitAttribute(final Attribute attribute) {
+  public void visitAttribute(Attribute attribute) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append("ATTRIBUTE ");
     appendDescriptor(-1, attribute.type);
@@ -1281,7 +1281,7 @@ public class Textifier extends Printer {
    *
    * @param accessFlags some access flags.
    */
-  private void appendAccess(final int accessFlags) {
+  private void appendAccess(int accessFlags) {
     if ((accessFlags & Opcodes.ACC_PUBLIC) != 0) {
       stringBuilder.append("public ");
     }
@@ -1328,7 +1328,7 @@ public class Textifier extends Printer {
    *
    * @param accessFlags some access flags.
    */
-  private void appendRawAccess(final int accessFlags) {
+  private void appendRawAccess(int accessFlags) {
     stringBuilder
       .append("// access flags 0x")
       .append(Integer.toHexString(accessFlags).toUpperCase())
@@ -1343,7 +1343,7 @@ public class Textifier extends Printer {
    *              #METHOD_SIGNATURE}, {@link #CLASS_SIGNATURE} or {@link #HANDLE_DESCRIPTOR}.
    * @param value an internal name, type descriptor or a type signature. May be {@literal null}.
    */
-  protected void appendDescriptor(final int type, final String value) {
+  protected void appendDescriptor(int type, String value) {
     if (type == CLASS_SIGNATURE || type == FIELD_SIGNATURE || type == METHOD_SIGNATURE) {
       if (value != null) {
         stringBuilder.append("// signature ").append(value).append('\n');
@@ -1359,7 +1359,7 @@ public class Textifier extends Printer {
    * @param name      a class, field or method name.
    * @param signature a class, field or method signature.
    */
-  private void appendJavaDeclaration(final String name, final String signature) {
+  private void appendJavaDeclaration(String name, String signature) {
     TraceSignatureVisitor traceSignatureVisitor = new TraceSignatureVisitor(access);
     new SignatureReader(signature).accept(traceSignatureVisitor);
     stringBuilder.append("// declaration: ");
@@ -1381,7 +1381,7 @@ public class Textifier extends Printer {
    *
    * @param label a label.
    */
-  protected void appendLabel(final Label label) {
+  protected void appendLabel(Label label) {
     if (labelNames == null) {
       labelNames = new HashMap<>();
     }
@@ -1398,7 +1398,7 @@ public class Textifier extends Printer {
    *
    * @param handle a handle.
    */
-  protected void appendHandle(final Handle handle) {
+  protected void appendHandle(Handle handle) {
     int tag = handle.getTag();
     stringBuilder.append("// handle kind 0x").append(Integer.toHexString(tag)).append(" : ");
     boolean isMethodHandle = false;
@@ -1461,7 +1461,7 @@ public class Textifier extends Printer {
    * @param numValues a number of 'values visited so far', for instance the number of annotation
    *                  values visited so far in an annotation visitor.
    */
-  private void maybeAppendComma(final int numValues) {
+  private void maybeAppendComma(int numValues) {
     if (numValues > 0) {
       stringBuilder.append(", ");
     }
@@ -1472,7 +1472,7 @@ public class Textifier extends Printer {
    *
    * @param typeRef a type reference. See {@link TypeReference}.
    */
-  private void appendTypeReference(final int typeRef) {
+  private void appendTypeReference(int typeRef) {
     TypeReference typeReference = new TypeReference(typeRef);
     switch (typeReference.getSort()) {
       case TypeReference.CLASS_TYPE_PARAMETER:
@@ -1573,7 +1573,7 @@ public class Textifier extends Printer {
    * @param frameTypes an array of stack map frame types, in the format described in {@link
    *                   MethodVisitor#visitFrame}.
    */
-  private void appendFrameTypes(final int numTypes, final Object[] frameTypes) {
+  private void appendFrameTypes(int numTypes, Object[] frameTypes) {
     for (int i = 0; i < numTypes; ++i) {
       if (i > 0) {
         stringBuilder.append(' ');
@@ -1599,7 +1599,7 @@ public class Textifier extends Printer {
    * @param endText the text to add to {@link #text} after the textifier. May be {@literal null}.
    * @return the newly created {@link Textifier}.
    */
-  private Textifier addNewTextifier(final String endText) {
+  private Textifier addNewTextifier(String endText) {
     Textifier textifier = createTextifier();
     text.add(textifier.getText());
     if (endText != null) {

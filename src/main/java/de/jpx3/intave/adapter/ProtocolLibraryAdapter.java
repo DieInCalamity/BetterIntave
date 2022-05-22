@@ -63,7 +63,7 @@ public final class ProtocolLibraryAdapter {
     try {
       Class<?> rootClass = Class.forName(className);
       do {
-        if(methodExists(rootClass.getName(), methodName)) {
+        if (methodExists(rootClass.getName(), methodName)) {
           return true;
         }
       } while ((rootClass = rootClass.getSuperclass()) != Object.class);

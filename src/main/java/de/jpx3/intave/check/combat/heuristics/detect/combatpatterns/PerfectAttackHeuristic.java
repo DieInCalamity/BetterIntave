@@ -133,7 +133,7 @@ public final class PerfectAttackHeuristic extends MetaCheckPart<Heuristics, Perf
     return sum / data.size();
   }
 
-  public final static class PerfectAttackMeta extends CheckCustomMetadata {
+  public static final class PerfectAttackMeta extends CheckCustomMetadata {
     public double vl;
     public double attacks;
     public double swings;

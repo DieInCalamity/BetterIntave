@@ -9,7 +9,7 @@ import de.jpx3.intave.check.other.inventoryclickanalysis.InventoryClickOnMoveChe
 import de.jpx3.intave.check.other.inventoryclickanalysis.InventoryClickPacketDelayAnalyzer;
 
 public final class InventoryClickAnalysis extends Check {
-  public final static double MAX_VL_DECREMENT_PER_SECOND = 1;
+  public static final double MAX_VL_DECREMENT_PER_SECOND = 1;
   private final CheckViolationLevelDecrementer decrementer;
   private final boolean highToleranceMode;
 

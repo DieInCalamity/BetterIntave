@@ -187,7 +187,7 @@ public final class PreAttackHeuristic extends MetaCheckPart<Heuristics, PreAttac
     return (creative ? 5.0F : 3.0F) - 0.005f;
   }
 
-  public final static class PreAttackMeta extends CheckCustomMetadata {
+  public static final class PreAttackMeta extends CheckCustomMetadata {
     public boolean didAttack, didSwing;
     public int ticksSinceFishingRodItemSwitch;
 

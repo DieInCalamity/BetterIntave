@@ -18,7 +18,7 @@ public final class CurrentRecordEventSink extends EventSink {
   private final long maxAge;
 
   private final ByteArrayOutputStream currentBuffer = new ByteArrayOutputStream();
-  private final DataOutputStream dataOutput = new DataOutputStream(currentBuffer);;
+  private final DataOutputStream dataOutput = new DataOutputStream(currentBuffer);
   private final Environment env;
 
   public CurrentRecordEventSink(long maxPendingBytes, long maxAge, Environment environment) {

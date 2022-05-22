@@ -33,9 +33,9 @@ package de.jpx3.intave.lib.asm;
  * can be chained together, with their {@link #nextHandler} field, to describe a full JVMS
  * exception_table array.
  *
- * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.3">JVMS
- *     4.7.3</a>
  * @author Eric Bruneton
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.3">JVMS
+ * 4.7.3</a>
  */
 final class Handler {
 
@@ -69,25 +69,27 @@ final class Handler {
    */
   final String catchTypeDescriptor;
 
-  /** The next exception handler. */
+  /**
+   * The next exception handler.
+   */
   Handler nextHandler;
 
   /**
    * Constructs a new Handler.
    *
-   * @param startPc the start_pc field of this JVMS exception_table entry.
-   * @param endPc the end_pc field of this JVMS exception_table entry.
-   * @param handlerPc the handler_pc field of this JVMS exception_table entry.
-   * @param catchType The catch_type field of this JVMS exception_table entry.
+   * @param startPc             the start_pc field of this JVMS exception_table entry.
+   * @param endPc               the end_pc field of this JVMS exception_table entry.
+   * @param handlerPc           the handler_pc field of this JVMS exception_table entry.
+   * @param catchType           The catch_type field of this JVMS exception_table entry.
    * @param catchTypeDescriptor The internal name of the type of exceptions handled by this handler,
-   *     or {@literal null} to catch any exceptions.
+   *                            or {@literal null} to catch any exceptions.
    */
   Handler(
-      final Label startPc,
-      final Label endPc,
-      final Label handlerPc,
-      final int catchType,
-      final String catchTypeDescriptor) {
+    Label startPc,
+    Label endPc,
+    Label handlerPc,
+    int catchType,
+    String catchTypeDescriptor) {
     this.startPc = startPc;
     this.endPc = endPc;
     this.handlerPc = handlerPc;
@@ -100,9 +102,9 @@ final class Handler {
    *
    * @param handler an existing Handler.
    * @param startPc the start_pc field of this JVMS exception_table entry.
-   * @param endPc the end_pc field of this JVMS exception_table entry.
+   * @param endPc   the end_pc field of this JVMS exception_table entry.
    */
-  Handler(final Handler handler, final Label startPc, final Label endPc) {
+  Handler(Handler handler, Label startPc, Label endPc) {
     this(startPc, endPc, handler.handlerPc, handler.catchType, handler.catchTypeDescriptor);
     this.nextHandler = handler.nextHandler;
   }
@@ -112,11 +114,11 @@ final class Handler {
    * element.
    *
    * @param firstHandler the beginning of a Handler list. May be {@literal null}.
-   * @param start the start of the range to be removed.
-   * @param end the end of the range to be removed. Maybe {@literal null}.
+   * @param start        the start of the range to be removed.
+   * @param end          the end of the range to be removed. Maybe {@literal null}.
    * @return the exception handler list with the start-end range removed.
    */
-  static Handler removeRange(final Handler firstHandler, final Label start, final Label end) {
+  static Handler removeRange(Handler firstHandler, Label start, Label end) {
     if (firstHandler == null) {
       return null;
     } else {
@@ -155,7 +157,7 @@ final class Handler {
    * @param firstHandler the beginning of a Handler list. May be {@literal null}.
    * @return the number of elements of the Handler list that begins with 'handler'.
    */
-  static int getExceptionTableLength(final Handler firstHandler) {
+  static int getExceptionTableLength(Handler firstHandler) {
     int length = 0;
     Handler handler = firstHandler;
     while (handler != null) {
@@ -172,7 +174,7 @@ final class Handler {
    * @param firstHandler the beginning of a Handler list. May be {@literal null}.
    * @return the size in bytes of the exception_table_length and exception_table structures.
    */
-  static int getExceptionTableSize(final Handler firstHandler) {
+  static int getExceptionTableSize(Handler firstHandler) {
     return 2 + 8 * getExceptionTableLength(firstHandler);
   }
 
@@ -181,17 +183,17 @@ final class Handler {
    * element. <i>This includes the exception_table_length field.</i>
    *
    * @param firstHandler the beginning of a Handler list. May be {@literal null}.
-   * @param output where the exception_table_length and exception_table structures must be put.
+   * @param output       where the exception_table_length and exception_table structures must be put.
    */
-  static void putExceptionTable(final Handler firstHandler, final ByteVector output) {
+  static void putExceptionTable(Handler firstHandler, ByteVector output) {
     output.putShort(getExceptionTableLength(firstHandler));
     Handler handler = firstHandler;
     while (handler != null) {
       output
-          .putShort(handler.startPc.bytecodeOffset)
-          .putShort(handler.endPc.bytecodeOffset)
-          .putShort(handler.handlerPc.bytecodeOffset)
-          .putShort(handler.catchType);
+        .putShort(handler.startPc.bytecodeOffset)
+        .putShort(handler.endPc.bytecodeOffset)
+        .putShort(handler.handlerPc.bytecodeOffset)
+        .putShort(handler.catchType);
       handler = handler.nextHandler;
     }
   }

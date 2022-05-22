@@ -53,8 +53,8 @@ import static de.jpx3.intave.shade.ClientMathHelper.floor;
 
 @Relocate
 public final class Physics extends Check {
-  private final static double VL_DECREMENT_PER_VALID_MOVE = 0.05;
-  private final static double VELOCITY_VL_THRESHOLD = 6;
+  private static final double VL_DECREMENT_PER_VALID_MOVE = 0.05;
+  private static final double VELOCITY_VL_THRESHOLD = 6;
 
   private final IntavePlugin plugin;
   private final CheckViolationLevelDecrementer decrementer;
@@ -138,7 +138,7 @@ public final class Physics extends Check {
     }
   }
 
-  private final static int BOAT_ID = 41;
+  private static final int BOAT_ID = 41;
 
   private Simulator selectSimulator(User user) {
     MovementMetadata movementData = user.meta().movement();
@@ -364,8 +364,7 @@ public final class Physics extends Check {
        * This will patch the hit-player-sneaking-on-a-block-edge bug (https://youtu.be/ONGnOwhQyac)
        */
       Vector lastVelocity = movementData.sneakPatchVelocity;
-      if (
-        movementData.isSneaking() &&
+      if (movementData.isSneaking() &&
         !movementData.onGround() &&
         lastVelocity != null
       ) {
@@ -598,7 +597,7 @@ public final class Physics extends Check {
 //      debug += inventoryData.heldItem().getType().name();
 //      debug += " flying:" + movementData.pastFlyingPacketAccurate;
 //      debug += " gliding:" + shortenBoolean(movementData.elytraFlying);
-      debug += " y:" + formatDouble(movementData.motionY(),4);
+      debug += " y:" + formatDouble(movementData.motionY(), 4);
 
       List<String> tags = new ArrayList<>();
 

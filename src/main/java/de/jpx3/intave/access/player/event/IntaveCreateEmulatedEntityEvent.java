@@ -33,7 +33,7 @@ public class IntaveCreateEmulatedEntityEvent extends IntaveEvent {
   }
 
   public static IntaveCreateEmulatedEntityEvent empty() {
-    return construct(null,0);
+    return construct(null, 0);
   }
 
   public static IntaveCreateEmulatedEntityEvent construct(Player observer, int reservedEntityId) {

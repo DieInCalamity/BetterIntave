@@ -36,8 +36,8 @@ import java.util.regex.Pattern;
  * Defines additional JVM opcodes, access flags and constants which are not part of the ASM public
  * API.
  *
- * @see <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-6.html">JVMS 6</a>
  * @author Eric Bruneton
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-6.html">JVMS 6</a>
  */
 final class Constants implements Opcodes {
 
@@ -62,7 +62,7 @@ final class Constants implements Opcodes {
   static final String RUNTIME_INVISIBLE_ANNOTATIONS = "RuntimeInvisibleAnnotations";
   static final String RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS = "RuntimeVisibleParameterAnnotations";
   static final String RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS =
-      "RuntimeInvisibleParameterAnnotations";
+    "RuntimeInvisibleParameterAnnotations";
   static final String RUNTIME_VISIBLE_TYPE_ANNOTATIONS = "RuntimeVisibleTypeAnnotations";
   static final String RUNTIME_INVISIBLE_TYPE_ANNOTATIONS = "RuntimeInvisibleTypeAnnotations";
   static final String ANNOTATION_DEFAULT = "AnnotationDefault";
@@ -180,9 +180,10 @@ final class Constants implements Opcodes {
   static final int ASM_IFNONNULL = IFNONNULL + ASM_IFNULL_OPCODE_DELTA;
   static final int ASM_GOTO_W = 220;
 
-  private Constants() {}
+  private Constants() {
+  }
 
-  static void checkAsm8Experimental(final Object caller) {
+  static void checkAsm8Experimental(Object caller) {
     Class<?> callerClass = caller.getClass();
     String internalName = callerClass.getName().replace('.', '/');
     if (!isWhitelisted(internalName)) {
@@ -190,19 +191,19 @@ final class Constants implements Opcodes {
     }
   }
 
-  static boolean isWhitelisted(final String internalName) {
+  static boolean isWhitelisted(String internalName) {
     if (!internalName.startsWith("de/jpx3/jnicprepare/asm/")) {
       return false;
     }
     String member = "(Annotation|Class|Field|Method|Module|RecordComponent|Signature)";
     return internalName.contains("Test$")
-        || Pattern.matches(
-            "org/objectweb/asm/util/Trace" + member + "Visitor(\\$.*)?", internalName)
-        || Pattern.matches(
-            "org/objectweb/asm/util/Check" + member + "Adapter(\\$.*)?", internalName);
+      || Pattern.matches(
+      "org/objectweb/asm/util/Trace" + member + "Visitor(\\$.*)?", internalName)
+      || Pattern.matches(
+      "org/objectweb/asm/util/Check" + member + "Adapter(\\$.*)?", internalName);
   }
 
-  static void checkIsPreview(final InputStream classInputStream) {
+  static void checkIsPreview(InputStream classInputStream) {
     if (classInputStream == null) {
       throw new IllegalStateException("Bytecode not available, can't check class version");
     }
@@ -215,7 +216,7 @@ final class Constants implements Opcodes {
     }
     if (minorVersion != 0xFFFF) {
       throw new IllegalStateException(
-          "ASM8_EXPERIMENTAL can only be used by classes compiled with --enable-preview");
+        "ASM8_EXPERIMENTAL can only be used by classes compiled with --enable-preview");
     }
   }
 }

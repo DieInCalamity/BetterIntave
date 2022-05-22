@@ -4,7 +4,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 
 public final class PlaytimeStorage implements Storage {
-  private final static int STORAGE_SIZE = 10 * Long.BYTES;
+  private static final int STORAGE_SIZE = 10 * Long.BYTES;
 
   private long totalJoins;
   private long minutesPlayed;
@@ -51,7 +51,7 @@ public final class PlaytimeStorage implements Storage {
     int overflow = STORAGE_SIZE - bytes;
     if (overflow > 0) {
       input.skipBytes(overflow);
-    } else if (overflow < 0){
+    } else if (overflow < 0) {
       throw new IllegalStateException("Byte order underflow");
     }
   }

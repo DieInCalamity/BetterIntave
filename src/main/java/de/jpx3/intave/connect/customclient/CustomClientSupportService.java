@@ -27,7 +27,7 @@ import org.bukkit.entity.Player;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.CUSTOM_PAYLOAD_IN;
 
 public final class CustomClientSupportService implements EventProcessor {
-  private final static JsonParser jsonParser = new JsonParser();
+  private static final JsonParser jsonParser = new JsonParser();
   private final IntavePlugin plugin;
 
   public CustomClientSupportService(IntavePlugin plugin) {

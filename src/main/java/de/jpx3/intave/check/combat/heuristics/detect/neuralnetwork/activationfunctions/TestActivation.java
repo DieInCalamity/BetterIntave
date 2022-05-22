@@ -3,15 +3,15 @@ package de.jpx3.intave.check.combat.heuristics.detect.neuralnetwork.activationfu
 public class TestActivation extends ActivationFunction {
   @Override
   public double function(double input) {
-    if(input > 0)
+    if (input > 0)
       return input;
     else
       return input % 1;
   }
-  
+
   @Override
   public double derivative(double input) {
-    if(input > 0)
+    if (input > 0)
       return input;
     else
       return input % 1;

@@ -4,8 +4,8 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserLocal;
 
 public final class SimulationStack {
-  private final static UserLocal<SimulationStack> stackUserLocal = UserLocal.withInitial(SimulationStack::new);
-  private final static int DEFAULT_DISTANCE = Integer.MAX_VALUE;
+  private static final UserLocal<SimulationStack> stackUserLocal = UserLocal.withInitial(SimulationStack::new);
+  private static final int DEFAULT_DISTANCE = Integer.MAX_VALUE;
 
   private Simulation simulation;
   private double smallestDistance;

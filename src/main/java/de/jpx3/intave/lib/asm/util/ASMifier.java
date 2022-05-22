@@ -147,7 +147,7 @@ public class ASMifier extends Printer {
    * @param annotationVisitorId identifier of the annotation visitor variable in the produced code.
    */
   protected ASMifier(
-    final int api, final String visitorVariableName, final int annotationVisitorId) {
+    int api, String visitorVariableName, int annotationVisitorId) {
     super(api);
     this.name = visitorVariableName;
     this.id = annotationVisitorId;
@@ -175,7 +175,7 @@ public class ASMifier extends Printer {
    * @param logger where to log errors.
    * @throws IOException if the class cannot be found, or if an IOException occurs.
    */
-  static void main(final String[] args, final PrintWriter output, final PrintWriter logger)
+  static void main(String[] args, PrintWriter output, PrintWriter logger)
     throws IOException {
     main(args, USAGE, new ASMifier(), output, logger);
   }
@@ -186,12 +186,12 @@ public class ASMifier extends Printer {
 
   @Override
   public void visit(
-    final int version,
-    final int access,
-    final String name,
-    final String signature,
-    final String superName,
-    final String[] interfaces) {
+    int version,
+    int access,
+    String name,
+    String signature,
+    String superName,
+    String[] interfaces) {
     String simpleName;
     if (name == null) {
       simpleName = "module-info";
@@ -257,7 +257,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitSource(final String file, final String debug) {
+  public void visitSource(String file, String debug) {
     stringBuilder.setLength(0);
     stringBuilder.append("classWriter.visitSource(");
     appendConstant(file);
@@ -268,7 +268,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public Printer visitModule(final String name, final int flags, final String version) {
+  public Printer visitModule(String name, int flags, String version) {
     stringBuilder.setLength(0);
     stringBuilder.append("ModuleVisitor moduleVisitor = classWriter.visitModule(");
     appendConstant(name);
@@ -285,7 +285,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitNestHost(final String nestHost) {
+  public void visitNestHost(String nestHost) {
     stringBuilder.setLength(0);
     stringBuilder.append("classWriter.visitNestHost(");
     appendConstant(nestHost);
@@ -294,7 +294,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitOuterClass(final String owner, final String name, final String descriptor) {
+  public void visitOuterClass(String owner, String name, String descriptor) {
     stringBuilder.setLength(0);
     stringBuilder.append("classWriter.visitOuterClass(");
     appendConstant(owner);
@@ -307,23 +307,23 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public ASMifier visitClassAnnotation(final String descriptor, final boolean visible) {
+  public ASMifier visitClassAnnotation(String descriptor, boolean visible) {
     return visitAnnotation(descriptor, visible);
   }
 
   @Override
   public ASMifier visitClassTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     return visitTypeAnnotation(typeRef, typePath, descriptor, visible);
   }
 
   @Override
-  public void visitClassAttribute(final Attribute attribute) {
+  public void visitClassAttribute(Attribute attribute) {
     visitAttribute(attribute);
   }
 
   @Override
-  public void visitNestMember(final String nestMember) {
+  public void visitNestMember(String nestMember) {
     stringBuilder.setLength(0);
     stringBuilder.append("classWriter.visitNestMember(");
     appendConstant(nestMember);
@@ -332,7 +332,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitPermittedSubtypeExperimental(final String visitPermittedSubtype) {
+  public void visitPermittedSubtypeExperimental(String visitPermittedSubtype) {
     stringBuilder.setLength(0);
     stringBuilder.append("classWriter.visitPermittedSubtypeExperimental(");
     appendConstant(visitPermittedSubtype);
@@ -342,7 +342,7 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitInnerClass(
-    final String name, final String outerName, final String innerName, final int access) {
+    String name, String outerName, String innerName, int access) {
     stringBuilder.setLength(0);
     stringBuilder.append("classWriter.visitInnerClass(");
     appendConstant(name);
@@ -358,7 +358,7 @@ public class ASMifier extends Printer {
 
   @Override
   public ASMifier visitRecordComponentExperimental(
-    final int access, final String name, final String descriptor, final String signature) {
+    int access, String name, String descriptor, String signature) {
     stringBuilder.setLength(0);
     stringBuilder.append("{\n");
     stringBuilder.append("recordComponentVisitor = classWriter.visitRecordComponentExperimental(");
@@ -379,11 +379,11 @@ public class ASMifier extends Printer {
 
   @Override
   public ASMifier visitField(
-    final int access,
-    final String name,
-    final String descriptor,
-    final String signature,
-    final Object value) {
+    int access,
+    String name,
+    String descriptor,
+    String signature,
+    Object value) {
     stringBuilder.setLength(0);
     stringBuilder.append("{\n");
     stringBuilder.append("fieldVisitor = classWriter.visitField(");
@@ -406,11 +406,11 @@ public class ASMifier extends Printer {
 
   @Override
   public ASMifier visitMethod(
-    final int access,
-    final String name,
-    final String descriptor,
-    final String signature,
-    final String[] exceptions) {
+    int access,
+    String name,
+    String descriptor,
+    String signature,
+    String[] exceptions) {
     stringBuilder.setLength(0);
     stringBuilder.append("{\n");
     stringBuilder.append("methodVisitor = classWriter.visitMethod(");
@@ -453,7 +453,7 @@ public class ASMifier extends Printer {
   // -----------------------------------------------------------------------------------------------
 
   @Override
-  public void visitMainClass(final String mainClass) {
+  public void visitMainClass(String mainClass) {
     stringBuilder.setLength(0);
     stringBuilder.append("moduleVisitor.visitMainClass(");
     appendConstant(mainClass);
@@ -462,7 +462,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitPackage(final String packaze) {
+  public void visitPackage(String packaze) {
     stringBuilder.setLength(0);
     stringBuilder.append("moduleVisitor.visitPackage(");
     appendConstant(packaze);
@@ -471,7 +471,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitRequire(final String module, final int access, final String version) {
+  public void visitRequire(String module, int access, String version) {
     stringBuilder.setLength(0);
     stringBuilder.append("moduleVisitor.visitRequire(");
     appendConstant(module);
@@ -484,17 +484,17 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitExport(final String packaze, final int access, final String... modules) {
+  public void visitExport(String packaze, int access, String... modules) {
     visitExportOrOpen("moduleVisitor.visitExport(", packaze, access, modules);
   }
 
   @Override
-  public void visitOpen(final String packaze, final int access, final String... modules) {
+  public void visitOpen(String packaze, int access, String... modules) {
     visitExportOrOpen("moduleVisitor.visitOpen(", packaze, access, modules);
   }
 
   private void visitExportOrOpen(
-    final String visitMethod, final String packaze, final int access, final String... modules) {
+    String visitMethod, String packaze, int access, String... modules) {
     stringBuilder.setLength(0);
     stringBuilder.append(visitMethod);
     appendConstant(packaze);
@@ -513,7 +513,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitUse(final String service) {
+  public void visitUse(String service) {
     stringBuilder.setLength(0);
     stringBuilder.append("moduleVisitor.visitUse(");
     appendConstant(service);
@@ -522,7 +522,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitProvide(final String service, final String... providers) {
+  public void visitProvide(String service, String... providers) {
     stringBuilder.setLength(0);
     stringBuilder.append("moduleVisitor.visitProvide(");
     appendConstant(service);
@@ -546,7 +546,7 @@ public class ASMifier extends Printer {
 
   // DontCheck(OverloadMethodsDeclarationOrder): overloads are semantically different.
   @Override
-  public void visit(final String name, final Object value) {
+  public void visit(String name, Object value) {
     stringBuilder.setLength(0);
     stringBuilder.append(ANNOTATION_VISITOR).append(id).append(".visit(");
     appendConstant(name);
@@ -557,7 +557,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitEnum(final String name, final String descriptor, final String value) {
+  public void visitEnum(String name, String descriptor, String value) {
     stringBuilder.setLength(0);
     stringBuilder.append(ANNOTATION_VISITOR).append(id).append(".visitEnum(");
     appendConstant(name);
@@ -570,7 +570,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public ASMifier visitAnnotation(final String name, final String descriptor) {
+  public ASMifier visitAnnotation(String name, String descriptor) {
     stringBuilder.setLength(0);
     stringBuilder
       .append("{\n")
@@ -590,7 +590,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public ASMifier visitArray(final String name) {
+  public ASMifier visitArray(String name) {
     stringBuilder.setLength(0);
     stringBuilder.append("{\n");
     stringBuilder
@@ -620,7 +620,7 @@ public class ASMifier extends Printer {
 
   @Override
   public ASMifier visitRecordComponentAnnotationExperimental(
-    final String descriptor, final boolean visible) {
+    String descriptor, boolean visible) {
     // TODO Use this call when not experimental anymore
     // return visitAnnotation(descriptor, visible);
     stringBuilder.setLength(0);
@@ -640,7 +640,7 @@ public class ASMifier extends Printer {
 
   @Override
   public ASMifier visitRecordComponentTypeAnnotationExperimental(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     // TODO Use this call when not experimental anymore
     // return visitTypeAnnotation(typeRef, typePath, descriptor, visible);
     return visitTypeAnnotation(
@@ -648,7 +648,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitRecordComponentAttributeExperimental(final Attribute attribute) {
+  public void visitRecordComponentAttributeExperimental(Attribute attribute) {
     // TODO Use this call when not experimental anymore
     // visitAttribute(attribute);
     stringBuilder.setLength(0);
@@ -679,18 +679,18 @@ public class ASMifier extends Printer {
   // -----------------------------------------------------------------------------------------------
 
   @Override
-  public ASMifier visitFieldAnnotation(final String descriptor, final boolean visible) {
+  public ASMifier visitFieldAnnotation(String descriptor, boolean visible) {
     return visitAnnotation(descriptor, visible);
   }
 
   @Override
   public ASMifier visitFieldTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     return visitTypeAnnotation(typeRef, typePath, descriptor, visible);
   }
 
   @Override
-  public void visitFieldAttribute(final Attribute attribute) {
+  public void visitFieldAttribute(Attribute attribute) {
     visitAttribute(attribute);
   }
 
@@ -706,7 +706,7 @@ public class ASMifier extends Printer {
   // -----------------------------------------------------------------------------------------------
 
   @Override
-  public void visitParameter(final String parameterName, final int access) {
+  public void visitParameter(String parameterName, int access) {
     stringBuilder.setLength(0);
     stringBuilder.append(name).append(".visitParameter(");
     appendString(stringBuilder, parameterName);
@@ -731,18 +731,18 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public ASMifier visitMethodAnnotation(final String descriptor, final boolean visible) {
+  public ASMifier visitMethodAnnotation(String descriptor, boolean visible) {
     return visitAnnotation(descriptor, visible);
   }
 
   @Override
   public ASMifier visitMethodTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     return visitTypeAnnotation(typeRef, typePath, descriptor, visible);
   }
 
   @Override
-  public ASMifier visitAnnotableParameterCount(final int parameterCount, final boolean visible) {
+  public ASMifier visitAnnotableParameterCount(int parameterCount, boolean visible) {
     stringBuilder.setLength(0);
     stringBuilder
       .append(name)
@@ -757,7 +757,7 @@ public class ASMifier extends Printer {
 
   @Override
   public ASMifier visitParameterAnnotation(
-    final int parameter, final String descriptor, final boolean visible) {
+    int parameter, String descriptor, boolean visible) {
     stringBuilder.setLength(0);
     stringBuilder
       .append("{\n")
@@ -776,7 +776,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitMethodAttribute(final Attribute attribute) {
+  public void visitMethodAttribute(Attribute attribute) {
     visitAttribute(attribute);
   }
 
@@ -787,11 +787,11 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitFrame(
-    final int type,
-    final int numLocal,
-    final Object[] local,
-    final int numStack,
-    final Object[] stack) {
+    int type,
+    int numLocal,
+    Object[] local,
+    int numStack,
+    Object[] stack) {
     stringBuilder.setLength(0);
     switch (type) {
       case Opcodes.F_NEW:
@@ -845,14 +845,14 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitInsn(final int opcode) {
+  public void visitInsn(int opcode) {
     stringBuilder.setLength(0);
     stringBuilder.append(name).append(".visitInsn(").append(OPCODES[opcode]).append(");\n");
     text.add(stringBuilder.toString());
   }
 
   @Override
-  public void visitIntInsn(final int opcode, final int operand) {
+  public void visitIntInsn(int opcode, int operand) {
     stringBuilder.setLength(0);
     stringBuilder
       .append(name)
@@ -865,7 +865,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitVarInsn(final int opcode, final int var) {
+  public void visitVarInsn(int opcode, int var) {
     stringBuilder.setLength(0);
     stringBuilder
       .append(name)
@@ -878,7 +878,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitTypeInsn(final int opcode, final String type) {
+  public void visitTypeInsn(int opcode, String type) {
     stringBuilder.setLength(0);
     stringBuilder.append(name).append(".visitTypeInsn(").append(OPCODES[opcode]).append(", ");
     appendConstant(type);
@@ -888,7 +888,7 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitFieldInsn(
-    final int opcode, final String owner, final String name, final String descriptor) {
+    int opcode, String owner, String name, String descriptor) {
     stringBuilder.setLength(0);
     stringBuilder.append(this.name).append(".visitFieldInsn(").append(OPCODES[opcode]).append(", ");
     appendConstant(owner);
@@ -902,11 +902,11 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitMethodInsn(
-    final int opcode,
-    final String owner,
-    final String name,
-    final String descriptor,
-    final boolean isInterface) {
+    int opcode,
+    String owner,
+    String name,
+    String descriptor,
+    boolean isInterface) {
     stringBuilder.setLength(0);
     stringBuilder
       .append(this.name)
@@ -926,10 +926,10 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitInvokeDynamicInsn(
-    final String name,
-    final String descriptor,
-    final Handle bootstrapMethodHandle,
-    final Object... bootstrapMethodArguments) {
+    String name,
+    String descriptor,
+    Handle bootstrapMethodHandle,
+    Object... bootstrapMethodArguments) {
     stringBuilder.setLength(0);
     stringBuilder.append(this.name).append(".visitInvokeDynamicInsn(");
     appendConstant(name);
@@ -949,7 +949,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitJumpInsn(final int opcode, final Label label) {
+  public void visitJumpInsn(int opcode, Label label) {
     stringBuilder.setLength(0);
     declareLabel(label);
     stringBuilder.append(name).append(".visitJumpInsn(").append(OPCODES[opcode]).append(", ");
@@ -959,7 +959,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitLabel(final Label label) {
+  public void visitLabel(Label label) {
     stringBuilder.setLength(0);
     declareLabel(label);
     stringBuilder.append(name).append(".visitLabel(");
@@ -969,7 +969,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitLdcInsn(final Object value) {
+  public void visitLdcInsn(Object value) {
     stringBuilder.setLength(0);
     stringBuilder.append(name).append(".visitLdcInsn(");
     appendConstant(value);
@@ -978,7 +978,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitIincInsn(final int var, final int increment) {
+  public void visitIincInsn(int var, int increment) {
     stringBuilder.setLength(0);
     stringBuilder
       .append(name)
@@ -992,7 +992,7 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitTableSwitchInsn(
-    final int min, final int max, final Label dflt, final Label... labels) {
+    int min, int max, Label dflt, Label... labels) {
     stringBuilder.setLength(0);
     for (Label label : labels) {
       declareLabel(label);
@@ -1017,7 +1017,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
+  public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
     stringBuilder.setLength(0);
     for (Label label : labels) {
       declareLabel(label);
@@ -1040,7 +1040,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
+  public void visitMultiANewArrayInsn(String descriptor, int numDimensions) {
     stringBuilder.setLength(0);
     stringBuilder.append(name).append(".visitMultiANewArrayInsn(");
     appendConstant(descriptor);
@@ -1050,13 +1050,13 @@ public class ASMifier extends Printer {
 
   @Override
   public ASMifier visitInsnAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     return visitTypeAnnotation("visitInsnAnnotation", typeRef, typePath, descriptor, visible);
   }
 
   @Override
   public void visitTryCatchBlock(
-    final Label start, final Label end, final Label handler, final String type) {
+    Label start, Label end, Label handler, String type) {
     stringBuilder.setLength(0);
     declareLabel(start);
     declareLabel(end);
@@ -1075,18 +1075,18 @@ public class ASMifier extends Printer {
 
   @Override
   public ASMifier visitTryCatchAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     return visitTypeAnnotation("visitTryCatchAnnotation", typeRef, typePath, descriptor, visible);
   }
 
   @Override
   public void visitLocalVariable(
-    final String name,
-    final String descriptor,
-    final String signature,
-    final Label start,
-    final Label end,
-    final int index) {
+    String name,
+    String descriptor,
+    String signature,
+    Label start,
+    Label end,
+    int index) {
     stringBuilder.setLength(0);
     stringBuilder.append(this.name).append(".visitLocalVariable(");
     appendConstant(name);
@@ -1104,13 +1104,13 @@ public class ASMifier extends Printer {
 
   @Override
   public Printer visitLocalVariableAnnotation(
-    final int typeRef,
-    final TypePath typePath,
-    final Label[] start,
-    final Label[] end,
-    final int[] index,
-    final String descriptor,
-    final boolean visible) {
+    int typeRef,
+    TypePath typePath,
+    Label[] start,
+    Label[] end,
+    int[] index,
+    String descriptor,
+    boolean visible) {
     stringBuilder.setLength(0);
     stringBuilder
       .append("{\n")
@@ -1148,7 +1148,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitLineNumber(final int line, final Label start) {
+  public void visitLineNumber(int line, Label start) {
     stringBuilder.setLength(0);
     stringBuilder.append(name).append(".visitLineNumber(").append(line).append(", ");
     appendLabel(start);
@@ -1157,7 +1157,7 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitMaxs(final int maxStack, final int maxLocals) {
+  public void visitMaxs(int maxStack, int maxLocals) {
     stringBuilder.setLength(0);
     stringBuilder
       .append(name)
@@ -1188,7 +1188,7 @@ public class ASMifier extends Printer {
    * @return a new {@link ASMifier} to visit the annotation values.
    */
   // DontCheck(OverloadMethodsDeclarationOrder): overloads are semantically different.
-  public ASMifier visitAnnotation(final String descriptor, final boolean visible) {
+  public ASMifier visitAnnotation(String descriptor, boolean visible) {
     stringBuilder.setLength(0);
     stringBuilder
       .append("{\n")
@@ -1217,7 +1217,7 @@ public class ASMifier extends Printer {
    * @return a new {@link ASMifier} to visit the annotation values.
    */
   public ASMifier visitTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     return visitTypeAnnotation("visitTypeAnnotation", typeRef, typePath, descriptor, visible);
   }
 
@@ -1235,11 +1235,11 @@ public class ASMifier extends Printer {
    * @return a new {@link ASMifier} to visit the annotation values.
    */
   public ASMifier visitTypeAnnotation(
-    final String method,
-    final int typeRef,
-    final TypePath typePath,
-    final String descriptor,
-    final boolean visible) {
+    String method,
+    int typeRef,
+    TypePath typePath,
+    String descriptor,
+    boolean visible) {
     stringBuilder.setLength(0);
     stringBuilder
       .append("{\n")
@@ -1268,7 +1268,7 @@ public class ASMifier extends Printer {
    *
    * @param attribute an attribute.
    */
-  public void visitAttribute(final Attribute attribute) {
+  public void visitAttribute(Attribute attribute) {
     stringBuilder.setLength(0);
     stringBuilder.append("// ATTRIBUTE ").append(attribute.type).append('\n');
     if (attribute instanceof ASMifierSupport) {
@@ -1296,7 +1296,7 @@ public class ASMifier extends Printer {
    */
   // DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
   protected ASMifier createASMifier(
-    final String visitorVariableName, final int annotationVisitorId) {
+    String visitorVariableName, int annotationVisitorId) {
     return new ASMifier(api, visitorVariableName, annotationVisitorId);
   }
 
@@ -1305,7 +1305,7 @@ public class ASMifier extends Printer {
    *
    * @param accessFlags some access flags.
    */
-  private void appendAccessFlags(final int accessFlags) {
+  private void appendAccessFlags(int accessFlags) {
     boolean isEmpty = true;
     if ((accessFlags & Opcodes.ACC_PUBLIC) != 0) {
       stringBuilder.append("ACC_PUBLIC");
@@ -1466,7 +1466,7 @@ public class ASMifier extends Printer {
    *              {@link Character}, {@link Integer}, {@link Float}, {@link Long} or {@link Double} object,
    *              or an array of primitive values. May be {@literal null}.
    */
-  protected void appendConstant(final Object value) {
+  protected void appendConstant(Object value) {
     if (value == null) {
       stringBuilder.append("null");
     } else if (value instanceof String) {
@@ -1583,7 +1583,7 @@ public class ASMifier extends Printer {
    * @param frameTypes an array of stack map frame types, in the format described in {@link
    *                   MethodVisitor#visitFrame}.
    */
-  private void declareFrameTypes(final int numTypes, final Object[] frameTypes) {
+  private void declareFrameTypes(int numTypes, Object[] frameTypes) {
     for (int i = 0; i < numTypes; ++i) {
       if (frameTypes[i] instanceof Label) {
         declareLabel((Label) frameTypes[i]);
@@ -1598,7 +1598,7 @@ public class ASMifier extends Printer {
    * @param frameTypes an array of stack map frame types, in the format described in {@link
    *                   MethodVisitor#visitFrame}.
    */
-  private void appendFrameTypes(final int numTypes, final Object[] frameTypes) {
+  private void appendFrameTypes(int numTypes, Object[] frameTypes) {
     for (int i = 0; i < numTypes; ++i) {
       if (i > 0) {
         stringBuilder.append(", ");
@@ -1620,7 +1620,7 @@ public class ASMifier extends Printer {
    *
    * @param label a label.
    */
-  protected void declareLabel(final Label label) {
+  protected void declareLabel(Label label) {
     if (labelNames == null) {
       labelNames = new HashMap<>();
     }
@@ -1639,7 +1639,7 @@ public class ASMifier extends Printer {
    *
    * @param label a label.
    */
-  protected void appendLabel(final Label label) {
+  protected void appendLabel(Label label) {
     stringBuilder.append(labelNames.get(label));
   }
 }

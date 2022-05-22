@@ -16,7 +16,7 @@ import java.util.List;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.ENTITY_VELOCITY;
 
 public final class EntityVelocityCache implements PacketEventSubscriber {
-  private final static double VELOCITY_CONVERT_FACTOR = 8000.0D;
+  private static final double VELOCITY_CONVERT_FACTOR = 8000.0D;
   private final List<Double> horizontalVelocities = Lists.newArrayList();
   private final List<Double> verticalVelocities = Lists.newArrayList();
 

@@ -26,7 +26,7 @@ public final class IntaveLogger extends PluginLogger {
   public static final boolean VIOLATION_CONSOLE_OUTPUT = IntaveControl.GOMME_MODE;
   public static boolean DISABLE_COLOR_OUTPUT = IntaveControl.GOMME_MODE || JavaVersion.current() > 8;
 
-  private final static String LOG_PATH = "plugins" + File.separator + "Intave" + File.separator + "logs";
+  private static final String LOG_PATH = "plugins" + File.separator + "Intave" + File.separator + "logs";
   private final IntavePlugin plugin;
   private final FileArchiver archiver;
   private final List<PrintStream> outputStreams = new CopyOnWriteArrayList<>();
@@ -63,7 +63,7 @@ public final class IntaveLogger extends PluginLogger {
     }
     if (levelInt >= Level.SEVERE.intValue()) {
       error(message);
-    } else if(levelInt >= Level.WARNING.intValue()) {
+    } else if (levelInt >= Level.WARNING.intValue()) {
       warn(message);
     } else {
       info(message);
@@ -124,7 +124,7 @@ public final class IntaveLogger extends PluginLogger {
 
   @Deprecated
   public void exception(Throwable throwable) {
-    printLine("[Intave] Caught an "+throwable.getClass().getSimpleName()+" exception");
+    printLine("[Intave] Caught an " + throwable.getClass().getSimpleName() + " exception");
     for (PrintStream outputStream : outputStreams) {
       throwable.printStackTrace(outputStream);
     }
@@ -149,7 +149,7 @@ public final class IntaveLogger extends PluginLogger {
     outputStreams.remove(outputStream);
   }
 
-  private final static DateTimeFormatter MESSAGE_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH.mm.ss.SSS");
+  private static final DateTimeFormatter MESSAGE_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH.mm.ss.SSS");
 
   private synchronized void logToFile(String message) {
     if (!FILE_OUTPUT || !plugin.dataFolder().exists()) {
@@ -229,10 +229,10 @@ public final class IntaveLogger extends PluginLogger {
       File originalFile = file.getKey();
       File archiveFile = file.getValue();
 //      BackgroundExecutor.execute(() -> {
-        if (originalFile.exists() && !archiveFile.exists()) {
-          archiver.archiveAndDeleteFile(originalFile, archiveFile);
-          info("Compressed \"" + originalFile + "\"");
-        }
+      if (originalFile.exists() && !archiveFile.exists()) {
+        archiver.archiveAndDeleteFile(originalFile, archiveFile);
+        info("Compressed \"" + originalFile + "\"");
+      }
 //      });
     }
   }
@@ -263,7 +263,7 @@ public final class IntaveLogger extends PluginLogger {
     return new File(LOG_PATH, activeFileName);
   }
 
-  private final static ThreadLocal<Format> dateFormat = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy_MM_dd"));
+  private static final ThreadLocal<Format> dateFormat = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy_MM_dd"));
 
   private String activeFileName() {
     String timestamp = dateFormat.get().format(System.currentTimeMillis());

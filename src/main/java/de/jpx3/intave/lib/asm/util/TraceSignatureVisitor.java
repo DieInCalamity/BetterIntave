@@ -63,28 +63,44 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
     BASE_TYPES = Collections.unmodifiableMap(baseTypes);
   }
 
-  /** Whether the visited signature is a class signature of a Java interface. */
+  /**
+   * Whether the visited signature is a class signature of a Java interface.
+   */
   private final boolean isInterface;
 
-  /** The Java generic type declaration corresponding to the visited signature. */
+  /**
+   * The Java generic type declaration corresponding to the visited signature.
+   */
   private final StringBuilder declaration;
 
-  /** The Java generic method return type declaration corresponding to the visited signature. */
+  /**
+   * The Java generic method return type declaration corresponding to the visited signature.
+   */
   private StringBuilder returnType;
 
-  /** The Java generic exception types declaration corresponding to the visited signature. */
+  /**
+   * The Java generic exception types declaration corresponding to the visited signature.
+   */
   private StringBuilder exceptions;
 
-  /** Whether {@link #visitFormalTypeParameter} has been called. */
+  /**
+   * Whether {@link #visitFormalTypeParameter} has been called.
+   */
   private boolean formalTypeParameterVisited;
 
-  /** Whether {@link #visitInterfaceBound} has been called. */
+  /**
+   * Whether {@link #visitInterfaceBound} has been called.
+   */
   private boolean interfaceBoundVisited;
 
-  /** Whether {@link #visitParameterType} has been called. */
+  /**
+   * Whether {@link #visitParameterType} has been called.
+   */
   private boolean parameterTypeVisited;
 
-  /** Whether {@link #visitInterface} has been called. */
+  /**
+   * Whether {@link #visitInterface} has been called.
+   */
   private boolean interfaceVisited;
 
   /**
@@ -101,7 +117,9 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
    */
   private int arrayStack;
 
-  /** The separator to append before the next visited class or inner class type. */
+  /**
+   * The separator to append before the next visited class or inner class type.
+   */
   private String separator = "";
 
   /**
@@ -109,20 +127,20 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
    *
    * @param accessFlags for class type signatures, the access flags of the class.
    */
-  public TraceSignatureVisitor(final int accessFlags) {
+  public TraceSignatureVisitor(int accessFlags) {
     super(/* latest api = */ Opcodes.ASM7);
     this.isInterface = (accessFlags & Opcodes.ACC_INTERFACE) != 0;
     this.declaration = new StringBuilder();
   }
 
-  private TraceSignatureVisitor(final StringBuilder stringBuilder) {
+  private TraceSignatureVisitor(StringBuilder stringBuilder) {
     super(/* latest api = */ Opcodes.ASM7);
     this.isInterface = false;
     this.declaration = stringBuilder;
   }
 
   @Override
-  public void visitFormalTypeParameter(final String name) {
+  public void visitFormalTypeParameter(String name) {
     declaration.append(formalTypeParameterVisited ? COMMA_SEPARATOR : "<").append(name);
     formalTypeParameterVisited = true;
     interfaceBoundVisited = false;
@@ -200,7 +218,7 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
   }
 
   @Override
-  public void visitBaseType(final char descriptor) {
+  public void visitBaseType(char descriptor) {
     String baseType = BASE_TYPES.get(descriptor);
     if (baseType == null) {
       throw new IllegalArgumentException();
@@ -210,7 +228,7 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
   }
 
   @Override
-  public void visitTypeVariable(final String name) {
+  public void visitTypeVariable(String name) {
     declaration.append(separator).append(name);
     separator = "";
     endType();
@@ -224,7 +242,7 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
   }
 
   @Override
-  public void visitClassType(final String name) {
+  public void visitClassType(String name) {
     if ("java/lang/Object".equals(name)) {
       // 'Map<java.lang.Object,java.util.List>' or 'abstract public V get(Object key);' should have
       // Object 'but java.lang.String extends java.lang.Object' is unnecessary.
@@ -240,7 +258,7 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
   }
 
   @Override
-  public void visitInnerClassType(final String name) {
+  public void visitInnerClassType(String name) {
     if (argumentStack % 2 != 0) {
       declaration.append('>');
     }
@@ -263,7 +281,7 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
   }
 
   @Override
-  public SignatureVisitor visitTypeArgument(final char tag) {
+  public SignatureVisitor visitTypeArgument(char tag) {
     if (argumentStack % 2 == 0) {
       ++argumentStack;
       declaration.append('<');

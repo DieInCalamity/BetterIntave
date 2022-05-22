@@ -16,8 +16,8 @@ import de.jpx3.intave.module.player.StorageLoader;
 import de.jpx3.intave.module.violation.ViolationProcessor;
 
 public final class Modules {
-  private final static ModulePool pool = new ModulePool();
-  private final static ModuleLoader loader = new ModuleLoader();
+  private static final ModulePool pool = new ModulePool();
+  private static final ModuleLoader loader = new ModuleLoader();
 
   @Native
   public static void prepareModules() {
@@ -49,18 +49,23 @@ public final class Modules {
   public static Nayoro nayoro() {
     return find(Nayoro.class);
   }
+
   public static StorageLoader storage() {
     return find(StorageLoader.class);
   }
+
   public static ViolationProcessor violationProcessor() {
     return find(ViolationProcessor.class);
   }
+
   public static CustomEvents eventInvoker() {
     return find(CustomEvents.class);
   }
+
   public static FeedbackSender feedback() {
     return find(FeedbackSender.class);
   }
+
   @Deprecated
   public static FeedbackReceiver feedbackReceiver() {
     return find(FeedbackReceiver.class);
@@ -68,20 +73,23 @@ public final class Modules {
 
   // categories
 
-  private final static LinkerCategory LINKER_CATEGORY = new LinkerCategory();
-  private final static DispatchCategory DISPATCH_CATEGORY = new DispatchCategory();
-  private final static TrackerCategory TRACKER_CATEGORY = new TrackerCategory();
-  private final static MitigateCategory MITIGATE_CATEGORY = new MitigateCategory();
+  private static final LinkerCategory LINKER_CATEGORY = new LinkerCategory();
+  private static final DispatchCategory DISPATCH_CATEGORY = new DispatchCategory();
+  private static final TrackerCategory TRACKER_CATEGORY = new TrackerCategory();
+  private static final MitigateCategory MITIGATE_CATEGORY = new MitigateCategory();
 
   public static LinkerCategory linker() {
     return LINKER_CATEGORY;
   }
+
   public static DispatchCategory dispatch() {
     return DISPATCH_CATEGORY;
   }
+
   public static TrackerCategory tracker() {
     return TRACKER_CATEGORY;
   }
+
   public static MitigateCategory mitigate() {
     return MITIGATE_CATEGORY;
   }

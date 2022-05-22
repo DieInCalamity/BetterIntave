@@ -18,7 +18,7 @@ public final class CheckStatisticsAccessor {
     this.plugin = plugin;
   }
 
-  private final static Map<String, CheckStatisticsAccess> statisticAccessCache = Maps.newConcurrentMap();
+  private static final Map<String, CheckStatisticsAccess> statisticAccessCache = Maps.newConcurrentMap();
 
   public synchronized CheckStatisticsAccess statisticsOf(String name) {
     Preconditions.checkNotNull(name);

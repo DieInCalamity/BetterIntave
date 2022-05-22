@@ -35,7 +35,9 @@ package de.jpx3.intave.lib.asm;
  */
 final class Context {
 
-  /** The prototypes of the attributes that must be parsed in this class. */
+  /**
+   * The prototypes of the attributes that must be parsed in this class.
+   */
   Attribute[] attributePrototypes;
 
   /**
@@ -45,19 +47,27 @@ final class Context {
    */
   int parsingOptions;
 
-  /** The buffer used to read strings in the constant pool. */
+  /**
+   * The buffer used to read strings in the constant pool.
+   */
   char[] charBuffer;
 
   // Information about the current method, i.e. the one read in the current (or latest) call
   // to {@link ClassReader#readMethod()}.
 
-  /** The access flags of the current method. */
+  /**
+   * The access flags of the current method.
+   */
   int currentMethodAccessFlags;
 
-  /** The name of the current method. */
+  /**
+   * The name of the current method.
+   */
   String currentMethodName;
 
-  /** The descriptor of the current method. */
+  /**
+   * The descriptor of the current method.
+   */
   String currentMethodDescriptor;
 
   /**
@@ -75,13 +85,19 @@ final class Context {
    */
   int currentTypeAnnotationTarget;
 
-  /** The target_path of the current type annotation target. */
+  /**
+   * The target_path of the current type annotation target.
+   */
   TypePath currentTypeAnnotationTargetPath;
 
-  /** The start of each local variable range in the current local variable annotation. */
+  /**
+   * The start of each local variable range in the current local variable annotation.
+   */
   Label[] currentLocalVariableAnnotationRangeStarts;
 
-  /** The end of each local variable range in the current local variable annotation. */
+  /**
+   * The end of each local variable range in the current local variable annotation.
+   */
   Label[] currentLocalVariableAnnotationRangeEnds;
 
   /**
@@ -92,7 +108,9 @@ final class Context {
   // Information about the current stack map frame, i.e. the one read in the current (or latest)
   // call to {@link ClassReader#readFrame()}.
 
-  /** The bytecode offset of the current stack map frame. */
+  /**
+   * The bytecode offset of the current stack map frame.
+   */
   int currentFrameOffset;
 
   /**

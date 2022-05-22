@@ -23,8 +23,8 @@ public enum MiningStrategy {
 
   ;
 
-  public final static Map<MiningStrategy, Integer> RATING;
-  public final static List<MiningStrategy> AVAILABLE_STRATEGIES;
+  public static final Map<MiningStrategy, Integer> RATING;
+  public static final List<MiningStrategy> AVAILABLE_STRATEGIES;
 
   private final Consumer<User> apply;
   private final int effectiveness;

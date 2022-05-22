@@ -7,7 +7,7 @@ import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_9_R2.CraftWorld;
 
 public final class ChunkProviderServerAccess {
-  private final static boolean MODERN_ACCESS = MinecraftVersions.VER1_9_0.atOrAbove();
+  private static final boolean MODERN_ACCESS = MinecraftVersions.VER1_9_0.atOrAbove();
 
   public static void setup() {
     String name;

@@ -93,7 +93,7 @@ public final class CommandExecutor {
     this.allTypes = allTypes.toArray(new Class<?>[0]);
   }
 
-  private final static String NO_PERMISSION_MESSAGE = ChatColor.RED + "I'm sorry, but you do not have permission to perform this command. Please contact the server administrators if you believe that this is in error.";
+  private static final String NO_PERMISSION_MESSAGE = ChatColor.RED + "I'm sorry, but you do not have permission to perform this command. Please contact the server administrators if you believe that this is in error.";
 
   @Native
   public CommandStage execute(CommandSender sender, String executedCommand) {

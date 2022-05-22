@@ -91,7 +91,7 @@ public final class RotationUnlikelyAccuracyHeuristic extends MetaCheckPart<Heuri
     return sum / data.size();
   }
 
-  public final static class ULMeta extends CheckCustomMetadata {
+  public static final class ULMeta extends CheckCustomMetadata {
     private final List<Double> yawSpeeds = Lists.newArrayList();
     private final List<Double> distancesToPerfectYaw = Lists.newArrayList();
   }

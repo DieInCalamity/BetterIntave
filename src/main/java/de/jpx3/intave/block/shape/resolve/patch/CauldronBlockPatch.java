@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Locale;
 
 final class CauldronBlockPatch extends BoundingBoxPatch {
-  private final static BlockShape shape8;
-  private final static BlockShape shape13;
+  private static final BlockShape shape8;
+  private static final BlockShape shape13;
 
   static {
     float wallWidth = 2f /*/ 16f*/;

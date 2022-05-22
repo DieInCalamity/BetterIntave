@@ -11,7 +11,7 @@ public final class PositionRotationLookup {
     return location;
   }
 
-  public static Vector rotationAsVector(final float yaw, final float pitch) {
+  public static Vector rotationAsVector(float yaw, float pitch) {
     Vector vector = new Vector();
     vector.setY(-Math.sin(Math.toRadians(pitch)));
     double xz = Math.cos(Math.toRadians(pitch));

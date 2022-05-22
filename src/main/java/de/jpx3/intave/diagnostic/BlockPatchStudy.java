@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class BlockPatchStudy {
-  private final static Map<Material, Long> patches = new HashMap<>(256);
+  private static final Map<Material, Long> patches = new HashMap<>(256);
 
   public static synchronized void patched(Material material) {
     Long count = patches.get(material);

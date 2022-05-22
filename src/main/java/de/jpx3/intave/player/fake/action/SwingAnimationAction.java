@@ -6,7 +6,7 @@ import de.jpx3.intave.player.fake.FakePlayer;
 import org.bukkit.entity.Player;
 
 public final class SwingAnimationAction extends Action {
-  private final static byte SWING_ANIMATION = 0;
+  private static final byte SWING_ANIMATION = 0;
 
   public SwingAnimationAction(Player player, FakePlayer fakePlayer) {
     super(Probability.HIGH, player, fakePlayer);

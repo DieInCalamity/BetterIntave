@@ -36,7 +36,7 @@ package de.jpx3.intave.lib.asm;
  */
 final class CurrentFrame extends Frame {
 
-  CurrentFrame(final Label owner) {
+  CurrentFrame(Label owner) {
     super(owner);
   }
 
@@ -47,7 +47,7 @@ final class CurrentFrame extends Frame {
    */
   @Override
   void execute(
-      final int opcode, final int arg, final Symbol symbolArg, final SymbolTable symbolTable) {
+    int opcode, int arg, Symbol symbolArg, SymbolTable symbolTable) {
     super.execute(opcode, arg, symbolArg, symbolTable);
     Frame successor = new Frame(null);
     merge(symbolTable, successor, 0);

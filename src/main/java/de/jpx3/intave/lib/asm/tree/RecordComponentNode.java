@@ -119,7 +119,7 @@ public class RecordComponentNode extends RecordComponentVisitor {
    */
   @Deprecated
   public RecordComponentNode(
-    final int access, final String name, final String descriptor, final String signature) {
+    int access, String name, String descriptor, String signature) {
     this(/* latest api = */ Opcodes.ASM7, access, name, descriptor, signature);
     if (getClass() != RecordComponentNode.class) {
       throw new IllegalStateException();
@@ -140,11 +140,11 @@ public class RecordComponentNode extends RecordComponentVisitor {
    */
   @Deprecated
   public RecordComponentNode(
-    final int api,
-    final int access,
-    final String name,
-    final String descriptor,
-    final String signature) {
+    int api,
+    int access,
+    String name,
+    String descriptor,
+    String signature) {
     super(api);
     this.accessExperimental = access;
     this.nameExperimental = name;
@@ -158,7 +158,7 @@ public class RecordComponentNode extends RecordComponentVisitor {
 
   @Override
   public AnnotationVisitor visitAnnotationExperimental(
-    final String descriptor, final boolean visible) {
+    String descriptor, boolean visible) {
     AnnotationNode annotation = new AnnotationNode(descriptor);
     if (visible) {
       visibleAnnotationsExperimental = Util.add(visibleAnnotationsExperimental, annotation);
@@ -170,7 +170,7 @@ public class RecordComponentNode extends RecordComponentVisitor {
 
   @Override
   public AnnotationVisitor visitTypeAnnotationExperimental(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     TypeAnnotationNode typeAnnotation = new TypeAnnotationNode(typeRef, typePath, descriptor);
     if (visible) {
       visibleTypeAnnotationsExperimental =
@@ -183,7 +183,7 @@ public class RecordComponentNode extends RecordComponentVisitor {
   }
 
   @Override
-  public void visitAttributeExperimental(final Attribute attribute) {
+  public void visitAttributeExperimental(Attribute attribute) {
     attrsExperimental = Util.add(attrsExperimental, attribute);
   }
 
@@ -204,7 +204,7 @@ public class RecordComponentNode extends RecordComponentVisitor {
    * @param api an ASM API version. Must be {@link Opcodes#ASM8_EXPERIMENTAL}.
    * @deprecated this API is experimental.
    */
-  public void checkExperimental(final int api) {
+  public void checkExperimental(int api) {
     if (api != Opcodes.ASM8_EXPERIMENTAL) {
       throw new UnsupportedClassVersionException();
     }
@@ -216,7 +216,7 @@ public class RecordComponentNode extends RecordComponentVisitor {
    * @param classVisitor a class visitor.
    * @deprecated this API is experimental.
    */
-  public void acceptExperimental(final ClassVisitor classVisitor) {
+  public void acceptExperimental(ClassVisitor classVisitor) {
     RecordComponentVisitor recordComponentVisitor =
       classVisitor.visitRecordComponentExperimental(
         accessExperimental, nameExperimental, descriptorExperimental, signatureExperimental);

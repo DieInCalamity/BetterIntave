@@ -20,7 +20,7 @@ public class Timing implements Cloneable, Comparable<Timing> {
   private TimingType timingType = TimingType.BASE;
   private final TimingData totalTimingData = new TimingData();
 
-//  private Lock lock = new ReentrantLock();
+  //  private Lock lock = new ReentrantLock();
   private final ThreadLocal<Long> lastStart = ThreadLocal.withInitial(() -> 0L);
 
   private Timing(String timingName, String parentName) {

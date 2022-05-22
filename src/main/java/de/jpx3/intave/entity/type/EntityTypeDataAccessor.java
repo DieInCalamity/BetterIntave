@@ -5,7 +5,7 @@ import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.klass.rewrite.PatchyLoadingInjector;
 
 public final class EntityTypeDataAccessor {
-  private final static boolean DIRECT_RESOLVE = MinecraftVersions.VER1_14_0.atOrAbove();
+  private static final boolean DIRECT_RESOLVE = MinecraftVersions.VER1_14_0.atOrAbove();
   private static EntityTypeDataResolver resolver;
 
   public static void setup() {

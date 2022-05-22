@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class MultiBlockChangeReader extends CompiledPacketReader implements BlockChanges {
-  private final static boolean USE_SELECTION_POSITION = MinecraftVersions.VER1_16_2.atOrAbove();
+  private static final boolean USE_SELECTION_POSITION = MinecraftVersions.VER1_16_2.atOrAbove();
   private List<BlockPosition> blockPositions;
   private List<WrappedBlockData> blockDataList;
 

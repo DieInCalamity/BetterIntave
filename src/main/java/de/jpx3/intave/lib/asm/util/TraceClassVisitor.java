@@ -77,10 +77,14 @@ import java.io.PrintWriter;
  */
 public final class TraceClassVisitor extends ClassVisitor {
 
-  /** The print writer to be used to print the class. May be {@literal null}. */
+  /**
+   * The print writer to be used to print the class. May be {@literal null}.
+   */
   private final PrintWriter printWriter;
 
-  /** The printer to convert the visited class into text. */
+  /**
+   * The printer to convert the visited class into text.
+   */
   // DontCheck(MemberName): can't be renamed (for backward binary compatibility).
   public final Printer p;
 
@@ -89,7 +93,7 @@ public final class TraceClassVisitor extends ClassVisitor {
    *
    * @param printWriter the print writer to be used to print the class. May be {@literal null}.
    */
-  public TraceClassVisitor(final PrintWriter printWriter) {
+  public TraceClassVisitor(PrintWriter printWriter) {
     this(null, printWriter);
   }
 
@@ -97,9 +101,9 @@ public final class TraceClassVisitor extends ClassVisitor {
    * Constructs a new {@link TraceClassVisitor}.
    *
    * @param classVisitor the class visitor to which to delegate calls. May be {@literal null}.
-   * @param printWriter the print writer to be used to print the class. May be {@literal null}.
+   * @param printWriter  the print writer to be used to print the class. May be {@literal null}.
    */
-  public TraceClassVisitor(final ClassVisitor classVisitor, final PrintWriter printWriter) {
+  public TraceClassVisitor(ClassVisitor classVisitor, PrintWriter printWriter) {
     this(classVisitor, new Textifier(), printWriter);
   }
 
@@ -107,11 +111,11 @@ public final class TraceClassVisitor extends ClassVisitor {
    * Constructs a new {@link TraceClassVisitor}.
    *
    * @param classVisitor the class visitor to which to delegate calls. May be {@literal null}.
-   * @param printer the printer to convert the visited class into text.
-   * @param printWriter the print writer to be used to print the class. May be {@literal null}.
+   * @param printer      the printer to convert the visited class into text.
+   * @param printWriter  the print writer to be used to print the class. May be {@literal null}.
    */
   public TraceClassVisitor(
-      final ClassVisitor classVisitor, final Printer printer, final PrintWriter printWriter) {
+    ClassVisitor classVisitor, Printer printer, PrintWriter printWriter) {
     super(/* latest api = */ Opcodes.ASM8_EXPERIMENTAL, classVisitor);
     this.printWriter = printWriter;
     this.p = printer;
@@ -119,112 +123,112 @@ public final class TraceClassVisitor extends ClassVisitor {
 
   @Override
   public void visit(
-      final int version,
-      final int access,
-      final String name,
-      final String signature,
-      final String superName,
-      final String[] interfaces) {
+    int version,
+    int access,
+    String name,
+    String signature,
+    String superName,
+    String[] interfaces) {
     p.visit(version, access, name, signature, superName, interfaces);
     super.visit(version, access, name, signature, superName, interfaces);
   }
 
   @Override
-  public void visitSource(final String file, final String debug) {
+  public void visitSource(String file, String debug) {
     p.visitSource(file, debug);
     super.visitSource(file, debug);
   }
 
   @Override
-  public ModuleVisitor visitModule(final String name, final int flags, final String version) {
+  public ModuleVisitor visitModule(String name, int flags, String version) {
     Printer modulePrinter = p.visitModule(name, flags, version);
     return new TraceModuleVisitor(super.visitModule(name, flags, version), modulePrinter);
   }
 
   @Override
-  public void visitNestHost(final String nestHost) {
+  public void visitNestHost(String nestHost) {
     p.visitNestHost(nestHost);
     super.visitNestHost(nestHost);
   }
 
   @Override
-  public void visitOuterClass(final String owner, final String name, final String descriptor) {
+  public void visitOuterClass(String owner, String name, String descriptor) {
     p.visitOuterClass(owner, name, descriptor);
     super.visitOuterClass(owner, name, descriptor);
   }
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+  public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
     Printer annotationPrinter = p.visitClassAnnotation(descriptor, visible);
     return new TraceAnnotationVisitor(
-        super.visitAnnotation(descriptor, visible), annotationPrinter);
+      super.visitAnnotation(descriptor, visible), annotationPrinter);
   }
 
   @Override
   public AnnotationVisitor visitTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     Printer annotationPrinter = p.visitClassTypeAnnotation(typeRef, typePath, descriptor, visible);
     return new TraceAnnotationVisitor(
-        super.visitTypeAnnotation(typeRef, typePath, descriptor, visible), annotationPrinter);
+      super.visitTypeAnnotation(typeRef, typePath, descriptor, visible), annotationPrinter);
   }
 
   @Override
-  public void visitAttribute(final Attribute attribute) {
+  public void visitAttribute(Attribute attribute) {
     p.visitClassAttribute(attribute);
     super.visitAttribute(attribute);
   }
 
   @Override
-  public void visitNestMember(final String nestMember) {
+  public void visitNestMember(String nestMember) {
     p.visitNestMember(nestMember);
     super.visitNestMember(nestMember);
   }
 
   @Override
-  public void visitPermittedSubtypeExperimental(final String permittedSubtype) {
+  public void visitPermittedSubtypeExperimental(String permittedSubtype) {
     p.visitPermittedSubtypeExperimental(permittedSubtype);
     super.visitPermittedSubtypeExperimental(permittedSubtype);
   }
 
   @Override
   public void visitInnerClass(
-      final String name, final String outerName, final String innerName, final int access) {
+    String name, String outerName, String innerName, int access) {
     p.visitInnerClass(name, outerName, innerName, access);
     super.visitInnerClass(name, outerName, innerName, access);
   }
 
   @Override
   public RecordComponentVisitor visitRecordComponentExperimental(
-      final int access, final String name, final String descriptor, final String signature) {
+    int access, String name, String descriptor, String signature) {
     Printer recordComponentPrinter =
-        p.visitRecordComponentExperimental(access, name, descriptor, signature);
+      p.visitRecordComponentExperimental(access, name, descriptor, signature);
     return new TraceRecordComponentVisitor(
-        super.visitRecordComponentExperimental(access, name, descriptor, signature),
-        recordComponentPrinter);
+      super.visitRecordComponentExperimental(access, name, descriptor, signature),
+      recordComponentPrinter);
   }
 
   @Override
   public FieldVisitor visitField(
-      final int access,
-      final String name,
-      final String descriptor,
-      final String signature,
-      final Object value) {
+    int access,
+    String name,
+    String descriptor,
+    String signature,
+    Object value) {
     Printer fieldPrinter = p.visitField(access, name, descriptor, signature, value);
     return new TraceFieldVisitor(
-        super.visitField(access, name, descriptor, signature, value), fieldPrinter);
+      super.visitField(access, name, descriptor, signature, value), fieldPrinter);
   }
 
   @Override
   public MethodVisitor visitMethod(
-      final int access,
-      final String name,
-      final String descriptor,
-      final String signature,
-      final String[] exceptions) {
+    int access,
+    String name,
+    String descriptor,
+    String signature,
+    String[] exceptions) {
     Printer methodPrinter = p.visitMethod(access, name, descriptor, signature, exceptions);
     return new TraceMethodVisitor(
-        super.visitMethod(access, name, descriptor, signature, exceptions), methodPrinter);
+      super.visitMethod(access, name, descriptor, signature, exceptions), methodPrinter);
   }
 
   @Override

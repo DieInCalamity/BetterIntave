@@ -15,8 +15,8 @@ import java.util.Collections;
 import java.util.Set;
 
 public final class InternalTeleportApplier {
-  private final static boolean WEIRD_BOOLEAN_IN_INVOKE = MinecraftVersions.VER1_17_0.atOrAbove();
-//  private final Set<Object> teleportFlags = new HashSet<>();
+  private static final boolean WEIRD_BOOLEAN_IN_INVOKE = MinecraftVersions.VER1_17_0.atOrAbove();
+  //  private final Set<Object> teleportFlags = new HashSet<>();
   private final Method internalTeleportMethod;
 
   {

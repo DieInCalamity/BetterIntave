@@ -167,8 +167,8 @@ public final class Balance extends MetaCheckPart<Timer, Balance.BalanceMeta> {
     }
   }
 
-  private final static long DEFAULT_DELAY = 5;
-  private final static long DEFAULT_THRESHOLD = 2000;
+  private static final long DEFAULT_DELAY = 5;
+  private static final long DEFAULT_THRESHOLD = 2000;
 
   private void cancelOnPacketOverflow(Player player, Cancellable cancellable) {
     cancelOnPacketOverflow(player, cancellable, DEFAULT_THRESHOLD, DEFAULT_DELAY);

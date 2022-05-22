@@ -40,46 +40,48 @@ import de.jpx3.intave.lib.asm.TypePath;
  */
 public class FieldRemapper extends FieldVisitor {
 
-  /** The remapper used to remap the types in the visited field. */
+  /**
+   * The remapper used to remap the types in the visited field.
+   */
   protected final Remapper remapper;
 
   /**
    * Constructs a new {@link FieldRemapper}. <i>Subclasses must not use this constructor</i>.
-   * Instead, they must use the {@link #FieldRemapper(int,FieldVisitor,Remapper)} version.
+   * Instead, they must use the {@link #FieldRemapper(int, FieldVisitor, Remapper)} version.
    *
    * @param fieldVisitor the field visitor this remapper must deleted to.
-   * @param remapper the remapper to use to remap the types in the visited field.
+   * @param remapper     the remapper to use to remap the types in the visited field.
    */
-  public FieldRemapper(final FieldVisitor fieldVisitor, final Remapper remapper) {
+  public FieldRemapper(FieldVisitor fieldVisitor, Remapper remapper) {
     this(/* latest api = */ Opcodes.ASM7, fieldVisitor, remapper);
   }
 
   /**
    * Constructs a new {@link FieldRemapper}.
    *
-   * @param api the ASM API version supported by this remapper. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link
-   *     Opcodes#ASM6}.
+   * @param api          the ASM API version supported by this remapper. Must be one of {@link
+   *                     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link
+   *                     Opcodes#ASM6}.
    * @param fieldVisitor the field visitor this remapper must deleted to.
-   * @param remapper the remapper to use to remap the types in the visited field.
+   * @param remapper     the remapper to use to remap the types in the visited field.
    */
-  protected FieldRemapper(final int api, final FieldVisitor fieldVisitor, final Remapper remapper) {
+  protected FieldRemapper(int api, FieldVisitor fieldVisitor, Remapper remapper) {
     super(api, fieldVisitor);
     this.remapper = remapper;
   }
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+  public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
     AnnotationVisitor annotationVisitor =
-        super.visitAnnotation(remapper.mapDesc(descriptor), visible);
+      super.visitAnnotation(remapper.mapDesc(descriptor), visible);
     return annotationVisitor == null ? null : createAnnotationRemapper(annotationVisitor);
   }
 
   @Override
   public AnnotationVisitor visitTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     AnnotationVisitor annotationVisitor =
-        super.visitTypeAnnotation(typeRef, typePath, remapper.mapDesc(descriptor), visible);
+      super.visitTypeAnnotation(typeRef, typePath, remapper.mapDesc(descriptor), visible);
     return annotationVisitor == null ? null : createAnnotationRemapper(annotationVisitor);
   }
 
@@ -90,7 +92,7 @@ public class FieldRemapper extends FieldVisitor {
    * @param annotationVisitor the AnnotationVisitor the remapper must delegate to.
    * @return the newly created remapper.
    */
-  protected AnnotationVisitor createAnnotationRemapper(final AnnotationVisitor annotationVisitor) {
+  protected AnnotationVisitor createAnnotationRemapper(AnnotationVisitor annotationVisitor) {
     return new AnnotationRemapper(api, annotationVisitor, remapper);
   }
 }

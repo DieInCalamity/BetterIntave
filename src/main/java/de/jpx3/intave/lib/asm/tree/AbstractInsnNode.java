@@ -157,7 +157,7 @@ public abstract class AbstractInsnNode {
    *
    * @param opcode the opcode of the instruction to be constructed.
    */
-  protected AbstractInsnNode(final int opcode) {
+  protected AbstractInsnNode(int opcode) {
     this.opcode = opcode;
     this.index = -1;
   }
@@ -169,7 +169,7 @@ public abstract class AbstractInsnNode {
    * @param clonedLabels a map from LabelNodes to cloned LabelNodes.
    * @return the clone of the given label.
    */
-  static LabelNode clone(final LabelNode label, final Map<LabelNode, LabelNode> clonedLabels) {
+  static LabelNode clone(LabelNode label, Map<LabelNode, LabelNode> clonedLabels) {
     return clonedLabels.get(label);
   }
 
@@ -181,7 +181,7 @@ public abstract class AbstractInsnNode {
    * @return the clones of the given labels.
    */
   static LabelNode[] clone(
-    final List<LabelNode> labels, final Map<LabelNode, LabelNode> clonedLabels) {
+    List<LabelNode> labels, Map<LabelNode, LabelNode> clonedLabels) {
     LabelNode[] clones = new LabelNode[labels.size()];
     for (int i = 0, n = clones.length; i < n; ++i) {
       clones[i] = clonedLabels.get(labels.get(i));
@@ -237,7 +237,7 @@ public abstract class AbstractInsnNode {
    *
    * @param methodVisitor a method visitor.
    */
-  protected final void acceptAnnotations(final MethodVisitor methodVisitor) {
+  protected final void acceptAnnotations(MethodVisitor methodVisitor) {
     if (visibleTypeAnnotations != null) {
       for (TypeAnnotationNode typeAnnotation : visibleTypeAnnotations) {
         typeAnnotation.accept(
@@ -269,7 +269,7 @@ public abstract class AbstractInsnNode {
    * @param insnNode the source instruction.
    * @return this instruction.
    */
-  protected final AbstractInsnNode cloneAnnotations(final AbstractInsnNode insnNode) {
+  protected final AbstractInsnNode cloneAnnotations(AbstractInsnNode insnNode) {
     if (insnNode.visibleTypeAnnotations != null) {
       this.visibleTypeAnnotations = new ArrayList<>();
       for (int i = 0, n = insnNode.visibleTypeAnnotations.size(); i < n; ++i) {

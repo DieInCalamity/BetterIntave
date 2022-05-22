@@ -16,7 +16,8 @@ public enum MitigationStrategy {
 
   NOT_SUPPORTED("");
 
-  private final static Map<String, MitigationStrategy> BY_NAME = new HashMap<>();
+  private static final Map<String, MitigationStrategy> BY_NAME = new HashMap<>();
+
   static {
     Arrays.stream(values()).forEach(value -> BY_NAME.put(value.name, value));
   }

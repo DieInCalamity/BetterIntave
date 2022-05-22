@@ -34,7 +34,7 @@ final class BlockVariantConverter {
     return indexToVariant;
   }
 
-  final static BlockVariant EMPTY = new EmptyBlockVariant();
+  static final BlockVariant EMPTY = new EmptyBlockVariant();
 
   private static BlockVariant translate(Material type, Object blockData) {
     Map<Setting<?>, Comparable<?>> settings = Bridge.settingsOf(blockData);
@@ -47,9 +47,9 @@ final class BlockVariantConverter {
   @PatchyAutoTranslation
   public static class Bridge {
     private static final Map<Object, Setting<?>> settingCache = new ConcurrentHashMap<>();
-    private final static boolean AQUATIC_RESOLVE = MinecraftVersions.VER1_13_0.atOrAbove();
-    private final static boolean VILLAGE_RESOLVE = MinecraftVersions.VER1_14_0.atOrAbove();
-    private final static boolean MODERN_RESOLVE = MinecraftVersions.VER1_16_0.atOrAbove();
+    private static final boolean AQUATIC_RESOLVE = MinecraftVersions.VER1_13_0.atOrAbove();
+    private static final boolean VILLAGE_RESOLVE = MinecraftVersions.VER1_14_0.atOrAbove();
+    private static final boolean MODERN_RESOLVE = MinecraftVersions.VER1_16_0.atOrAbove();
 
     private static Map<Setting<?>, Comparable<?>> settingsOf(Object blockData) {
       if (MODERN_RESOLVE) {
@@ -93,7 +93,7 @@ final class BlockVariantConverter {
       } else if (state instanceof net.minecraft.server.v1_16_R1.BlockStateEnum) {
         return new EnumSetting(name, state.getType(), state.getValues());
       }
-      throw new IllegalStateException("Unknown block state " + state + " (" + name +")");
+      throw new IllegalStateException("Unknown block state " + state + " (" + name + ")");
     }
 
     @PatchyAutoTranslation
@@ -125,7 +125,7 @@ final class BlockVariantConverter {
       } else if (state instanceof BlockStateEnum) {
         return new EnumSetting(name, state.b(), state.getValues());
       }
-      throw new IllegalStateException("Unknown block state " + state + " (" + name +")");
+      throw new IllegalStateException("Unknown block state " + state + " (" + name + ")");
     }
 
     @PatchyAutoTranslation
@@ -157,7 +157,7 @@ final class BlockVariantConverter {
       } else if (state instanceof BlockStateEnum) {
         return new EnumSetting(name, state.b(), state.c());
       }
-      throw new IllegalStateException("Unknown block state " + state + " (" + name +")");
+      throw new IllegalStateException("Unknown block state " + state + " (" + name + ")");
     }
 
     private static Method getStateListMethod;
@@ -200,7 +200,7 @@ final class BlockVariantConverter {
       } else if (state instanceof BlockStateEnum) {
         return new EnumSetting(name, state.b(), state.c());
       }
-      throw new IllegalStateException("Unknown block state " + state + " (" + name +")");
+      throw new IllegalStateException("Unknown block state " + state + " (" + name + ")");
     }
 
     @PatchyAutoTranslation

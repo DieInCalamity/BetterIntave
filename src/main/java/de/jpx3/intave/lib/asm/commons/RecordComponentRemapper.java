@@ -40,50 +40,52 @@ import de.jpx3.intave.lib.asm.TypePath;
  */
 public class RecordComponentRemapper extends RecordComponentVisitor {
 
-  /** The remapper used to remap the types in the visited field. */
+  /**
+   * The remapper used to remap the types in the visited field.
+   */
   protected final Remapper remapper;
 
   /**
    * Constructs a new {@link RecordComponentRemapper}. <i>Subclasses must not use this
    * constructor</i>. Instead, they must use the {@link
-   * #RecordComponentRemapper(int,RecordComponentVisitor,Remapper)} version.
+   * #RecordComponentRemapper(int, RecordComponentVisitor, Remapper)} version.
    *
    * @param recordComponentVisitor the record component visitor this remapper must delegate to.
-   * @param remapper the remapper to use to remap the types in the visited record component.
+   * @param remapper               the remapper to use to remap the types in the visited record component.
    */
   public RecordComponentRemapper(
-      final RecordComponentVisitor recordComponentVisitor, final Remapper remapper) {
+    RecordComponentVisitor recordComponentVisitor, Remapper remapper) {
     this(/* latest api = */ Opcodes.ASM7, recordComponentVisitor, remapper);
   }
 
   /**
    * Constructs a new {@link RecordComponentRemapper}.
    *
-   * @param api the ASM API version supported by this remapper. Must be {@link
-   *     Opcodes#ASM8_EXPERIMENTAL}.
+   * @param api                    the ASM API version supported by this remapper. Must be {@link
+   *                               Opcodes#ASM8_EXPERIMENTAL}.
    * @param recordComponentVisitor the record component visitor this remapper must delegate to.
-   * @param remapper the remapper to use to remap the types in the visited record component.
+   * @param remapper               the remapper to use to remap the types in the visited record component.
    */
   protected RecordComponentRemapper(
-      final int api, final RecordComponentVisitor recordComponentVisitor, final Remapper remapper) {
+    int api, RecordComponentVisitor recordComponentVisitor, Remapper remapper) {
     super(api, recordComponentVisitor);
     this.remapper = remapper;
   }
 
   @Override
   public AnnotationVisitor visitAnnotationExperimental(
-      final String descriptor, final boolean visible) {
+    String descriptor, boolean visible) {
     AnnotationVisitor annotationVisitor =
-        super.visitAnnotationExperimental(remapper.mapDesc(descriptor), visible);
+      super.visitAnnotationExperimental(remapper.mapDesc(descriptor), visible);
     return annotationVisitor == null ? null : createAnnotationRemapper(annotationVisitor);
   }
 
   @Override
   public AnnotationVisitor visitTypeAnnotationExperimental(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     AnnotationVisitor annotationVisitor =
-        super.visitTypeAnnotationExperimental(
-            typeRef, typePath, remapper.mapDesc(descriptor), visible);
+      super.visitTypeAnnotationExperimental(
+        typeRef, typePath, remapper.mapDesc(descriptor), visible);
     return annotationVisitor == null ? null : createAnnotationRemapper(annotationVisitor);
   }
 
@@ -94,7 +96,7 @@ public class RecordComponentRemapper extends RecordComponentVisitor {
    * @param annotationVisitor the AnnotationVisitor the remapper must delegate to.
    * @return the newly created remapper.
    */
-  protected AnnotationVisitor createAnnotationRemapper(final AnnotationVisitor annotationVisitor) {
+  protected AnnotationVisitor createAnnotationRemapper(AnnotationVisitor annotationVisitor) {
     return new AnnotationRemapper(api, annotationVisitor, remapper);
   }
 }

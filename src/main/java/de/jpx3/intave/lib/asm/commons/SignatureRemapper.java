@@ -45,62 +45,62 @@ public class SignatureRemapper extends SignatureVisitor {
 
   private final Remapper remapper;
 
-  private final List<String> classNames = new ArrayList<>();;
+  private final List<String> classNames = new ArrayList<>();
 
   /**
    * Constructs a new {@link SignatureRemapper}. <i>Subclasses must not use this constructor</i>.
-   * Instead, they must use the {@link #SignatureRemapper(int,SignatureVisitor,Remapper)} version.
+   * Instead, they must use the {@link #SignatureRemapper(int, SignatureVisitor, Remapper)} version.
    *
    * @param signatureVisitor the signature visitor this remapper must deleted to.
-   * @param remapper the remapper to use to remap the types in the visited signature.
+   * @param remapper         the remapper to use to remap the types in the visited signature.
    */
-  public SignatureRemapper(final SignatureVisitor signatureVisitor, final Remapper remapper) {
+  public SignatureRemapper(SignatureVisitor signatureVisitor, Remapper remapper) {
     this(/* latest api = */ Opcodes.ASM7, signatureVisitor, remapper);
   }
 
   /**
    * Constructs a new {@link SignatureRemapper}.
    *
-   * @param api the ASM API version supported by this remapper. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link
-   *     Opcodes#ASM6}.
+   * @param api              the ASM API version supported by this remapper. Must be one of {@link
+   *                         Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link
+   *                         Opcodes#ASM6}.
    * @param signatureVisitor the signature visitor this remapper must deleted to.
-   * @param remapper the remapper to use to remap the types in the visited signature.
+   * @param remapper         the remapper to use to remap the types in the visited signature.
    */
   protected SignatureRemapper(
-      final int api, final SignatureVisitor signatureVisitor, final Remapper remapper) {
+    int api, SignatureVisitor signatureVisitor, Remapper remapper) {
     super(api);
     this.signatureVisitor = signatureVisitor;
     this.remapper = remapper;
   }
 
   @Override
-  public void visitClassType(final String name) {
+  public void visitClassType(String name) {
     classNames.add(name);
     signatureVisitor.visitClassType(remapper.mapType(name));
   }
 
   @Override
-  public void visitInnerClassType(final String name) {
+  public void visitInnerClassType(String name) {
     String outerClassName = classNames.remove(classNames.size() - 1);
     String className = outerClassName + '$' + name;
     classNames.add(className);
     String remappedOuter = remapper.mapType(outerClassName) + '$';
     String remappedName = remapper.mapType(className);
     int index =
-        remappedName.startsWith(remappedOuter)
-            ? remappedOuter.length()
-            : remappedName.lastIndexOf('$') + 1;
+      remappedName.startsWith(remappedOuter)
+        ? remappedOuter.length()
+        : remappedName.lastIndexOf('$') + 1;
     signatureVisitor.visitInnerClassType(remappedName.substring(index));
   }
 
   @Override
-  public void visitFormalTypeParameter(final String name) {
+  public void visitFormalTypeParameter(String name) {
     signatureVisitor.visitFormalTypeParameter(name);
   }
 
   @Override
-  public void visitTypeVariable(final String name) {
+  public void visitTypeVariable(String name) {
     signatureVisitor.visitTypeVariable(name);
   }
 
@@ -111,7 +111,7 @@ public class SignatureRemapper extends SignatureVisitor {
   }
 
   @Override
-  public void visitBaseType(final char descriptor) {
+  public void visitBaseType(char descriptor) {
     signatureVisitor.visitBaseType(descriptor);
   }
 
@@ -163,7 +163,7 @@ public class SignatureRemapper extends SignatureVisitor {
   }
 
   @Override
-  public SignatureVisitor visitTypeArgument(final char wildcard) {
+  public SignatureVisitor visitTypeArgument(char wildcard) {
     signatureVisitor.visitTypeArgument(wildcard);
     return this;
   }

@@ -62,12 +62,12 @@ public class BasicVerifier extends BasicInterpreter {
    *            Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link
    *            Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
-  protected BasicVerifier(final int api) {
+  protected BasicVerifier(int api) {
     super(api);
   }
 
   @Override
-  public BasicValue copyOperation(final AbstractInsnNode insn, final BasicValue value)
+  public BasicValue copyOperation(AbstractInsnNode insn, BasicValue value)
     throws AnalyzerException {
     Value expected;
     switch (insn.getOpcode()) {
@@ -107,7 +107,7 @@ public class BasicVerifier extends BasicInterpreter {
   }
 
   @Override
-  public BasicValue unaryOperation(final AbstractInsnNode insn, final BasicValue value)
+  public BasicValue unaryOperation(AbstractInsnNode insn, BasicValue value)
     throws AnalyzerException {
     BasicValue expected;
     switch (insn.getOpcode()) {
@@ -187,7 +187,7 @@ public class BasicVerifier extends BasicInterpreter {
 
   @Override
   public BasicValue binaryOperation(
-    final AbstractInsnNode insn, final BasicValue value1, final BasicValue value2)
+    AbstractInsnNode insn, BasicValue value1, BasicValue value2)
     throws AnalyzerException {
     BasicValue expected1;
     BasicValue expected2;
@@ -313,10 +313,10 @@ public class BasicVerifier extends BasicInterpreter {
 
   @Override
   public BasicValue ternaryOperation(
-    final AbstractInsnNode insn,
-    final BasicValue value1,
-    final BasicValue value2,
-    final BasicValue value3)
+    AbstractInsnNode insn,
+    BasicValue value1,
+    BasicValue value2,
+    BasicValue value3)
     throws AnalyzerException {
     BasicValue expected1;
     BasicValue expected3;
@@ -373,7 +373,7 @@ public class BasicVerifier extends BasicInterpreter {
 
   @Override
   public BasicValue naryOperation(
-    final AbstractInsnNode insn, final List<? extends BasicValue> values)
+    AbstractInsnNode insn, List<? extends BasicValue> values)
     throws AnalyzerException {
     int opcode = insn.getOpcode();
     if (opcode == Opcodes.MULTIANEWARRAY) {
@@ -409,7 +409,7 @@ public class BasicVerifier extends BasicInterpreter {
 
   @Override
   public void returnOperation(
-    final AbstractInsnNode insn, final BasicValue value, final BasicValue expected)
+    AbstractInsnNode insn, BasicValue value, BasicValue expected)
     throws AnalyzerException {
     if (!isSubTypeOf(value, expected)) {
       throw new AnalyzerException(insn, "Incompatible return type", expected, value);
@@ -422,7 +422,7 @@ public class BasicVerifier extends BasicInterpreter {
    * @param value a value.
    * @return whether 'value' corresponds to an array reference.
    */
-  protected boolean isArrayValue(final BasicValue value) {
+  protected boolean isArrayValue(BasicValue value) {
     return value.isReference();
   }
 
@@ -433,7 +433,7 @@ public class BasicVerifier extends BasicInterpreter {
    * @return the value corresponding to the type of the elements of 'objectArrayValue'.
    * @throws AnalyzerException if objectArrayValue does not correspond to an array type.
    */
-  protected BasicValue getElementValue(final BasicValue objectArrayValue) throws AnalyzerException {
+  protected BasicValue getElementValue(BasicValue objectArrayValue) throws AnalyzerException {
     return BasicValue.REFERENCE_VALUE;
   }
 
@@ -446,7 +446,7 @@ public class BasicVerifier extends BasicInterpreter {
    * @return whether the type corresponding to 'value' is a subtype of the type corresponding to
    * 'expected'.
    */
-  protected boolean isSubTypeOf(final BasicValue value, final BasicValue expected) {
+  protected boolean isSubTypeOf(BasicValue value, BasicValue expected) {
     return value.equals(expected);
   }
 }

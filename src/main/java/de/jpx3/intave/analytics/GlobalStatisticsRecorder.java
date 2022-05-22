@@ -42,7 +42,7 @@ public final class GlobalStatisticsRecorder extends Recorder {
     json.addProperty("blocksPlaced", blocksPlaced);
     json.addProperty("blocksDestroyed", blocksDestroyed);
     json.addProperty("movements", movements);
-    json.addProperty("blocksMoved", (long)blocksMoved);
+    json.addProperty("blocksMoved", (long) blocksMoved);
     JsonObject detectionsJson = new JsonObject();
     for (Map.Entry<String, Long> entry : detections.entrySet()) {
       detectionsJson.addProperty(entry.getKey(), entry.getValue());

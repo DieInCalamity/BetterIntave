@@ -18,7 +18,7 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Server;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
 
 public final class PacketReaders {
-  private final static Map<PacketType, ThreadLocal<? extends PacketReader>> readerLocals = new ConcurrentHashMap<>();
+  private static final Map<PacketType, ThreadLocal<? extends PacketReader>> readerLocals = new ConcurrentHashMap<>();
 
   public static void setup() {
     setup(BLOCK_CHANGE, SingleBlockChangeReader::new);

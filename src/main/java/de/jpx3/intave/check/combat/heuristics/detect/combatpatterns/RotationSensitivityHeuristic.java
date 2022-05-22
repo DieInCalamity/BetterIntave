@@ -95,7 +95,7 @@ public final class RotationSensitivityHeuristic extends MetaCheckPart<Heuristics
           );
           parentCheck().saveAnomaly(player, anomaly);
         }
-      } else if (heuristicMeta.decimalSpeedVL > 0){
+      } else if (heuristicMeta.decimalSpeedVL > 0) {
         heuristicMeta.decimalSpeedVL--;
       }
     }

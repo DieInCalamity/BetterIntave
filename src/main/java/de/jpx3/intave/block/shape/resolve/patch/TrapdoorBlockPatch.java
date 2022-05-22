@@ -27,7 +27,7 @@ final class TrapdoorBlockPatch extends BoundingBoxPatch {
 
     BlockVariant variant = BlockVariantRegister.variantOf(type, blockState);
     boolean isTop = variant.enumProperty(EnumTrapdoorHalf.class, "half") == TOP;
-    boolean isOpen = (Boolean) variant.propertyOf("open");
+    boolean isOpen = variant.propertyOf("open");
 
     if (isOpen) {
       switch (blockState & 3) {

@@ -20,9 +20,9 @@ import static java.lang.Math.abs;
 
 @Relocate
 public final class Skewness extends MetaCheckPart<ClickPatterns, Skewness.SkewnessMeta> {
-  private final static int BUFFER_TIMEOUT = 4000;
-  private final static int BUFFER_LENGTH = 50;
-  private final static double LOWER_SKEWNESS_LIMIT = -0.01;
+  private static final int BUFFER_TIMEOUT = 4000;
+  private static final int BUFFER_LENGTH = 50;
+  private static final double LOWER_SKEWNESS_LIMIT = -0.01;
 
   public Skewness(ClickPatterns parentCheck) {
     super(parentCheck, SkewnessMeta.class);

@@ -188,11 +188,12 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
       try {
         evaluate(onlinePlayer, false);
-      } catch (UnsupportedFallbackOperationException ignored) {}
+      } catch (UnsupportedFallbackOperationException ignored) {
+      }
     }
   }
 
-  private final static long MAXIMUM_STORAGE_SAVE = 1000 * 60 * 30; // 30 minutes
+  private static final long MAXIMUM_STORAGE_SAVE = 1000 * 60 * 30; // 30 minutes
 
   @Native
   public void evaluate(Player player, boolean enforceDecision) {

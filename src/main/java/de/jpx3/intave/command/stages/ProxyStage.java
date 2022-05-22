@@ -37,7 +37,7 @@ public final class ProxyStage extends CommandStage {
     String command = Arrays.stream(commandParts).map(commandPart -> commandPart + " ").collect(Collectors.joining()).trim();
     IntavePacket packet = new IntavePacketOutExecuteCommand(uplink.getUniqueId(), command);
     plugin.proxy().sendPacket(uplink, packet);
-    sender.sendMessage(IntavePlugin.prefix() + "Remote command execution of \"/"+command+"\" issued");
+    sender.sendMessage(IntavePlugin.prefix() + "Remote command execution of \"/" + command + "\" issued");
   }
 
   @SubCommand(

@@ -7,12 +7,14 @@ import org.bukkit.util.Vector;
 public interface SimulationEnvironment {
   /**
    * pose
+   *
    * @return
    */
   Pose pose();
 
   /**
    * look vector
+   *
    * @return
    */
   Vector lookVector();
@@ -26,6 +28,7 @@ public interface SimulationEnvironment {
 
   /**
    * verified position
+   *
    * @return
    */
   default Position verifiedPosition() {
@@ -37,6 +40,7 @@ public interface SimulationEnvironment {
 
   /**
    * last position
+   *
    * @return
    */
   default Position lastPosition() {

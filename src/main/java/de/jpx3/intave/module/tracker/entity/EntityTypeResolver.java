@@ -71,7 +71,7 @@ public final class EntityTypeResolver {
     }
   }
 
-  private final static int ENTITY_DEAD_TYPE_FIELD = MinecraftVersions.VER1_9_0.atOrAbove() ? 6 : 9;
+  private static final int ENTITY_DEAD_TYPE_FIELD = MinecraftVersions.VER1_9_0.atOrAbove() ? 6 : 9;
 
   public EntityTypeData entityTypeDataOfDeadEntity(PacketEvent event) {
     PacketContainer packet = event.getPacket();
@@ -153,7 +153,7 @@ public final class EntityTypeResolver {
   }
 
   private Boolean isChildByWatchableObjects(List<WrappedWatchableObject> watchableObjects, int entityTypeId) {
-    final int correctIndex;
+    int correctIndex;
     if (AT_OR_ABOVE_1_9) {
       if (AT_OR_ABOVE_1_10) {
         if (AT_OR_ABOVE_1_14) {

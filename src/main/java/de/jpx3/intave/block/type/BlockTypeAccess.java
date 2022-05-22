@@ -29,7 +29,8 @@ public final class BlockTypeAccess {
   public static final Material END_PORTAL_FRAME = resolveFrom("END_PORTAL_FRAME", "ENDER_PORTAL_FRAME");
   public static final Material SKULL = resolveFrom("SKULL", "LEGACY_SKULL");
 
-  public static void setup() {}
+  public static void setup() {
+  }
 
   private static Material resolveFrom(String... names) {
     for (String name : names) {

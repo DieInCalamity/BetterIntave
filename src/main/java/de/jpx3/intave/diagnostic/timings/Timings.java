@@ -22,7 +22,7 @@ public class Timings {
   private static final List<Timing> timingPool = new CopyOnWriteArrayList<>();
   private static final Map<String, Timing> eventTimings = Maps.newConcurrentMap();
   private static final Map<String, Timing> packetTimings = Maps.newConcurrentMap();
-  private final static Map<Class<?>, String> classNameCache = Maps.newConcurrentMap();
+  private static final Map<Class<?>, String> classNameCache = Maps.newConcurrentMap();
 
   public static final Timing CHECK_PHYSICS_PROC_TOT = Timing.of("Check/Physics/Proc", "Exe/Netty");
   public static final Timing CHECK_PHYSICS_PROC_BIA = Timing.of("Check/Physics/Proc/Bia", "Check/Physics/Proc");

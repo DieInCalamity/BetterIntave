@@ -5,9 +5,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public final class Enchantments {
-  private final static Enchantment ENCHANTMENT_SOUL_SPEED = Enchantment.getByName("SOUL_SPEED");
-  private final static Enchantment ENCHANTMENT_DEPTH_STRIDER = Enchantment.getByName("DEPTH_STRIDER");
-  public final static Enchantment ENCHANTMENT_RIPTIDE = Enchantment.getByName("RIPTIDE");
+  private static final Enchantment ENCHANTMENT_SOUL_SPEED = Enchantment.getByName("SOUL_SPEED");
+  private static final Enchantment ENCHANTMENT_DEPTH_STRIDER = Enchantment.getByName("DEPTH_STRIDER");
+  public static final Enchantment ENCHANTMENT_RIPTIDE = Enchantment.getByName("RIPTIDE");
 
   public static boolean tridentRiptideEnchanted(ItemStack itemStack) {
     return itemStack.getEnchantments().containsKey(ENCHANTMENT_RIPTIDE);

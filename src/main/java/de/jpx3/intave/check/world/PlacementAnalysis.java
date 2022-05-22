@@ -10,7 +10,7 @@ import de.jpx3.intave.user.meta.ProtocolMetadata;
 
 public final class PlacementAnalysis extends Check {
   private final IntavePlugin plugin;
-  public final static String COMMON_FLAG_MESSAGE = "suspicious block-placement";
+  public static final String COMMON_FLAG_MESSAGE = "suspicious block-placement";
 
   public PlacementAnalysis(IntavePlugin plugin) {
     super("PlacementAnalysis", "placementanalysis");

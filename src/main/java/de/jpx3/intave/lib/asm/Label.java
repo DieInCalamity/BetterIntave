@@ -50,10 +50,14 @@ public class Label {
    */
   static final int FLAG_JUMP_TARGET = 2;
 
-  /** A flag indicating that the bytecode offset of a label is known. */
+  /**
+   * A flag indicating that the bytecode offset of a label is known.
+   */
   static final int FLAG_RESOLVED = 4;
 
-  /** A flag indicating that a label corresponds to a reachable basic block. */
+  /**
+   * A flag indicating that a label corresponds to a reachable basic block.
+   */
   static final int FLAG_REACHABLE = 8;
 
   /**
@@ -78,7 +82,9 @@ public class Label {
    */
   static final int FLAG_SUBROUTINE_START = 32;
 
-  /** A flag indicating that the basic block corresponding to a label is the end of a subroutine. */
+  /**
+   * A flag indicating that the basic block corresponding to a label is the end of a subroutine.
+   */
   static final int FLAG_SUBROUTINE_END = 64;
 
   /**
@@ -285,7 +291,9 @@ public class Label {
   // Constructor and accessors
   // -----------------------------------------------------------------------------------------------
 
-  /** Constructs a new label. */
+  /**
+   * Constructs a new label.
+   */
   public Label() {
     // Nothing to do.
   }
@@ -315,8 +323,8 @@ public class Label {
    * is used.</i>
    *
    * @return the label itself if {@link #frame} is null, otherwise the Label's frame owner. This
-   *     corresponds to the "canonical" label instance described above thanks to the way the label
-   *     frame is set in {@link MethodWriter#visitLabel}.
+   * corresponds to the "canonical" label instance described above thanks to the way the label
+   * frame is set in {@link MethodWriter#visitLabel}.
    */
   final Label getCanonicalInstance() {
     return frame == null ? this : frame.owner;
@@ -331,7 +339,7 @@ public class Label {
    *
    * @param lineNumber a source line number (which should be strictly positive).
    */
-  final void addLineNumber(final int lineNumber) {
+  final void addLineNumber(int lineNumber) {
     if (this.lineNumber == 0) {
       this.lineNumber = (short) lineNumber;
     } else {
@@ -351,10 +359,10 @@ public class Label {
   /**
    * Makes the given visitor visit this label and its source line numbers, if applicable.
    *
-   * @param methodVisitor a method visitor.
+   * @param methodVisitor    a method visitor.
    * @param visitLineNumbers whether to visit of the label's source line numbers, if any.
    */
-  final void accept(final MethodVisitor methodVisitor, final boolean visitLineNumbers) {
+  final void accept(MethodVisitor methodVisitor, boolean visitLineNumbers) {
     methodVisitor.visitLabel(this);
     if (visitLineNumbers && lineNumber != 0) {
       methodVisitor.visitLineNumber(lineNumber & 0xFFFF, this);
@@ -376,13 +384,13 @@ public class Label {
    * computed and written directly. Otherwise, a null relative offset is written and a new forward
    * reference is declared for this label.
    *
-   * @param code the bytecode of the method. This is where the reference is appended.
+   * @param code                     the bytecode of the method. This is where the reference is appended.
    * @param sourceInsnBytecodeOffset the bytecode offset of the instruction that contains the
-   *     reference to be appended.
-   * @param wideReference whether the reference must be stored in 4 bytes (instead of 2 bytes).
+   *                                 reference to be appended.
+   * @param wideReference            whether the reference must be stored in 4 bytes (instead of 2 bytes).
    */
   final void put(
-      final ByteVector code, final int sourceInsnBytecodeOffset, final boolean wideReference) {
+    ByteVector code, int sourceInsnBytecodeOffset, boolean wideReference) {
     if ((flags & FLAG_RESOLVED) == 0) {
       if (wideReference) {
         addForwardReference(sourceInsnBytecodeOffset, FORWARD_REFERENCE_TYPE_WIDE, code.length);
@@ -406,14 +414,14 @@ public class Label {
    * bytecode offset of the reference can be, and must be, computed and stored directly.
    *
    * @param sourceInsnBytecodeOffset the bytecode offset of the instruction that contains the
-   *     reference stored at referenceHandle.
-   * @param referenceType either {@link #FORWARD_REFERENCE_TYPE_SHORT} or {@link
-   *     #FORWARD_REFERENCE_TYPE_WIDE}.
-   * @param referenceHandle the offset in the bytecode where the forward reference value must be
-   *     stored.
+   *                                 reference stored at referenceHandle.
+   * @param referenceType            either {@link #FORWARD_REFERENCE_TYPE_SHORT} or {@link
+   *                                 #FORWARD_REFERENCE_TYPE_WIDE}.
+   * @param referenceHandle          the offset in the bytecode where the forward reference value must be
+   *                                 stored.
    */
   private void addForwardReference(
-      final int sourceInsnBytecodeOffset, final int referenceType, final int referenceHandle) {
+    int sourceInsnBytecodeOffset, int referenceType, int referenceHandle) {
     if (forwardReferences == null) {
       forwardReferences = new int[FORWARD_REFERENCES_CAPACITY_INCREMENT];
     }
@@ -434,15 +442,15 @@ public class Label {
    * the method, i.e. when its bytecode offset becomes known. This method fills in the blanks that
    * where left in the bytecode by each forward reference previously added to this label.
    *
-   * @param code the bytecode of the method.
+   * @param code           the bytecode of the method.
    * @param bytecodeOffset the bytecode offset of this label.
    * @return {@literal true} if a blank that was left for this label was too small to store the
-   *     offset. In such a case the corresponding jump instruction is replaced with an equivalent
-   *     ASM specific instruction using an unsigned two bytes offset. These ASM specific
-   *     instructions are later replaced with standard bytecode instructions with wider offsets (4
-   *     bytes instead of 2), in ClassReader.
+   * offset. In such a case the corresponding jump instruction is replaced with an equivalent
+   * ASM specific instruction using an unsigned two bytes offset. These ASM specific
+   * instructions are later replaced with standard bytecode instructions with wider offsets (4
+   * bytes instead of 2), in ClassReader.
    */
-  final boolean resolve(final byte[] code, final int bytecodeOffset) {
+  final boolean resolve(byte[] code, int bytecodeOffset) {
     this.flags |= FLAG_RESOLVED;
     this.bytecodeOffset = bytecodeOffset;
     if (forwardReferences == null) {
@@ -450,9 +458,9 @@ public class Label {
     }
     boolean hasAsmInstructions = false;
     for (int i = forwardReferences[0]; i > 0; i -= 2) {
-      final int sourceInsnBytecodeOffset = forwardReferences[i - 1];
-      final int reference = forwardReferences[i];
-      final int relativeOffset = bytecodeOffset - sourceInsnBytecodeOffset;
+      int sourceInsnBytecodeOffset = forwardReferences[i - 1];
+      int reference = forwardReferences[i];
+      int relativeOffset = bytecodeOffset - sourceInsnBytecodeOffset;
       int handle = reference & FORWARD_REFERENCE_HANDLE_MASK;
       if ((reference & FORWARD_REFERENCE_TYPE_MASK) == FORWARD_REFERENCE_TYPE_SHORT) {
         if (relativeOffset < Short.MIN_VALUE || relativeOffset > Short.MAX_VALUE) {
@@ -496,9 +504,9 @@ public class Label {
    * {@link #nextListElement}.
    *
    * @param subroutineId the id of the subroutine starting with the basic block corresponding to
-   *     this label.
+   *                     this label.
    */
-  final void markSubroutine(final short subroutineId) {
+  final void markSubroutine(short subroutineId) {
     // Data flow algorithm: put this basic block in a list of blocks to process (which are blocks
     // belonging to subroutine subroutineId) and, while there are blocks to process, remove one from
     // the list, mark it as belonging to the subroutine, and add its successor basic blocks in the
@@ -531,9 +539,9 @@ public class Label {
    * {@link #nextListElement}.
    *
    * @param subroutineCaller a basic block that ends with a jsr to the basic block corresponding to
-   *     this label. This label is supposed to correspond to the start of a subroutine.
+   *                         this label. This label is supposed to correspond to the start of a subroutine.
    */
-  final void addSubroutineRetSuccessors(final Label subroutineCaller) {
+  final void addSubroutineRetSuccessors(Label subroutineCaller) {
     // Data flow algorithm: put this basic block in a list blocks to process (which are blocks
     // belonging to a subroutine starting with this label) and, while there are blocks to process,
     // remove one from the list, put it in a list of blocks that have been processed, add a return
@@ -553,15 +561,15 @@ public class Label {
       // the end of a subroutine and if this block and subroutineCaller do not belong to the same
       // subroutine.
       if ((basicBlock.flags & FLAG_SUBROUTINE_END) != 0
-          && basicBlock.subroutineId != subroutineCaller.subroutineId) {
+        && basicBlock.subroutineId != subroutineCaller.subroutineId) {
         basicBlock.outgoingEdges =
-            new Edge(
-                basicBlock.outputStackSize,
-                // By construction, the first outgoing edge of a basic block that ends with a jsr
-                // instruction leads to the jsr continuation block, i.e. where execution continues
-                // when ret is called (see {@link #FLAG_SUBROUTINE_CALLER}).
-                subroutineCaller.outgoingEdges.successor,
-                basicBlock.outgoingEdges);
+          new Edge(
+            basicBlock.outputStackSize,
+            // By construction, the first outgoing edge of a basic block that ends with a jsr
+            // instruction leads to the jsr continuation block, i.e. where execution continues
+            // when ret is called (see {@link #FLAG_SUBROUTINE_CALLER}).
+            subroutineCaller.outgoingEdges.successor,
+            basicBlock.outgoingEdges);
       }
       // Add its successors to the list of blocks to process. Note that {@link #pushSuccessors} does
       // not push basic blocks which are already in a list. Here this means either in the list of
@@ -584,17 +592,17 @@ public class Label {
    * blocks to process, and returns the new list.
    *
    * @param listOfLabelsToProcess a list of basic blocks to process, linked together with their
-   *     {@link #nextListElement} field.
+   *                              {@link #nextListElement} field.
    * @return the new list of blocks to process.
    */
-  private Label pushSuccessors(final Label listOfLabelsToProcess) {
+  private Label pushSuccessors(Label listOfLabelsToProcess) {
     Label newListOfLabelsToProcess = listOfLabelsToProcess;
     Edge outgoingEdge = outgoingEdges;
     while (outgoingEdge != null) {
       // By construction, the second outgoing edge of a basic block that ends with a jsr instruction
       // leads to the jsr target (see {@link #FLAG_SUBROUTINE_CALLER}).
       boolean isJsrTarget =
-          (flags & Label.FLAG_SUBROUTINE_CALLER) != 0 && outgoingEdge == outgoingEdges.nextEdge;
+        (flags & Label.FLAG_SUBROUTINE_CALLER) != 0 && outgoingEdge == outgoingEdges.nextEdge;
       if (!isJsrTarget && outgoingEdge.successor.nextListElement == null) {
         // Add this successor to the list of blocks to process, if it does not already belong to a
         // list of labels.

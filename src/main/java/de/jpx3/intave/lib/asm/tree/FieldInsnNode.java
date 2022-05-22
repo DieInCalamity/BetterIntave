@@ -68,7 +68,7 @@ public class FieldInsnNode extends AbstractInsnNode {
    * @param descriptor the field's descriptor (see {@link Type}).
    */
   public FieldInsnNode(
-    final int opcode, final String owner, final String name, final String descriptor) {
+    int opcode, String owner, String name, String descriptor) {
     super(opcode);
     this.owner = owner;
     this.name = name;
@@ -81,7 +81,7 @@ public class FieldInsnNode extends AbstractInsnNode {
    * @param opcode the new instruction opcode. This opcode must be GETSTATIC, PUTSTATIC, GETFIELD or
    *               PUTFIELD.
    */
-  public void setOpcode(final int opcode) {
+  public void setOpcode(int opcode) {
     this.opcode = opcode;
   }
 
@@ -91,7 +91,7 @@ public class FieldInsnNode extends AbstractInsnNode {
   }
 
   @Override
-  public void accept(final MethodVisitor methodVisitor) {
+  public void accept(MethodVisitor methodVisitor) {
     try {
       methodVisitor.visitFieldInsn(opcode, owner, name, desc);
     } catch (Exception exception) {
@@ -102,7 +102,7 @@ public class FieldInsnNode extends AbstractInsnNode {
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
+  public AbstractInsnNode clone(Map<LabelNode, LabelNode> clonedLabels) {
     return new FieldInsnNode(opcode, owner, name, desc).cloneAnnotations(this);
   }
 }

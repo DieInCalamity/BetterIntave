@@ -31,13 +31,15 @@ package de.jpx3.intave.lib.asm;
  * A {@link FieldVisitor} that generates a corresponding 'field_info' structure, as defined in the
  * Java Virtual Machine Specification (JVMS).
  *
- * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.5">JVMS
- *     4.5</a>
  * @author Eric Bruneton
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.5">JVMS
+ * 4.5</a>
  */
 final class FieldWriter extends FieldVisitor {
 
-  /** Where the constants used in this FieldWriter must be stored. */
+  /**
+   * Where the constants used in this FieldWriter must be stored.
+   */
   private final SymbolTable symbolTable;
 
   // Note: fields are ordered as in the field_info structure, and those related to attributes are
@@ -50,10 +52,14 @@ final class FieldWriter extends FieldVisitor {
    */
   private final int accessFlags;
 
-  /** The name_index field of the field_info JVMS structure. */
+  /**
+   * The name_index field of the field_info JVMS structure.
+   */
   private final int nameIndex;
 
-  /** The descriptor_index field of the field_info JVMS structure. */
+  /**
+   * The descriptor_index field of the field_info JVMS structure.
+   */
   private final int descriptorIndex;
 
   /**
@@ -110,20 +116,20 @@ final class FieldWriter extends FieldVisitor {
   /**
    * Constructs a new {@link FieldWriter}.
    *
-   * @param symbolTable where the constants used in this FieldWriter must be stored.
-   * @param access the field's access flags (see {@link Opcodes}).
-   * @param name the field's name.
-   * @param descriptor the field's descriptor (see {@link Type}).
-   * @param signature the field's signature. May be {@literal null}.
+   * @param symbolTable   where the constants used in this FieldWriter must be stored.
+   * @param access        the field's access flags (see {@link Opcodes}).
+   * @param name          the field's name.
+   * @param descriptor    the field's descriptor (see {@link Type}).
+   * @param signature     the field's signature. May be {@literal null}.
    * @param constantValue the field's constant value. May be {@literal null}.
    */
   FieldWriter(
-      final SymbolTable symbolTable,
-      final int access,
-      final String name,
-      final String descriptor,
-      final String signature,
-      final Object constantValue) {
+    SymbolTable symbolTable,
+    int access,
+    String name,
+    String descriptor,
+    String signature,
+    Object constantValue) {
     super(/* latest api = */ Opcodes.ASM7);
     this.symbolTable = symbolTable;
     this.accessFlags = access;
@@ -142,32 +148,32 @@ final class FieldWriter extends FieldVisitor {
   // -----------------------------------------------------------------------------------------------
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+  public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
     if (visible) {
       return lastRuntimeVisibleAnnotation =
-          AnnotationWriter.create(symbolTable, descriptor, lastRuntimeVisibleAnnotation);
+        AnnotationWriter.create(symbolTable, descriptor, lastRuntimeVisibleAnnotation);
     } else {
       return lastRuntimeInvisibleAnnotation =
-          AnnotationWriter.create(symbolTable, descriptor, lastRuntimeInvisibleAnnotation);
+        AnnotationWriter.create(symbolTable, descriptor, lastRuntimeInvisibleAnnotation);
     }
   }
 
   @Override
   public AnnotationVisitor visitTypeAnnotation(
-      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     if (visible) {
       return lastRuntimeVisibleTypeAnnotation =
-          AnnotationWriter.create(
-              symbolTable, typeRef, typePath, descriptor, lastRuntimeVisibleTypeAnnotation);
+        AnnotationWriter.create(
+          symbolTable, typeRef, typePath, descriptor, lastRuntimeVisibleTypeAnnotation);
     } else {
       return lastRuntimeInvisibleTypeAnnotation =
-          AnnotationWriter.create(
-              symbolTable, typeRef, typePath, descriptor, lastRuntimeInvisibleTypeAnnotation);
+        AnnotationWriter.create(
+          symbolTable, typeRef, typePath, descriptor, lastRuntimeInvisibleTypeAnnotation);
     }
   }
 
   @Override
-  public void visitAttribute(final Attribute attribute) {
+  public void visitAttribute(Attribute attribute) {
     // Store the attributes in the <i>reverse</i> order of their visit by this method.
     attribute.nextAttribute = firstAttribute;
     firstAttribute = attribute;
@@ -199,11 +205,11 @@ final class FieldWriter extends FieldVisitor {
     }
     size += Attribute.computeAttributesSize(symbolTable, accessFlags, signatureIndex);
     size +=
-        AnnotationWriter.computeAnnotationsSize(
-            lastRuntimeVisibleAnnotation,
-            lastRuntimeInvisibleAnnotation,
-            lastRuntimeVisibleTypeAnnotation,
-            lastRuntimeInvisibleTypeAnnotation);
+      AnnotationWriter.computeAnnotationsSize(
+        lastRuntimeVisibleAnnotation,
+        lastRuntimeInvisibleAnnotation,
+        lastRuntimeVisibleTypeAnnotation,
+        lastRuntimeInvisibleTypeAnnotation);
     if (firstAttribute != null) {
       size += firstAttribute.computeAttributesSize(symbolTable);
     }
@@ -216,7 +222,7 @@ final class FieldWriter extends FieldVisitor {
    *
    * @param output where the field_info structure must be put.
    */
-  void putFieldInfo(final ByteVector output) {
+  void putFieldInfo(ByteVector output) {
     boolean useSyntheticAttribute = symbolTable.getMajorVersion() < Opcodes.V1_5;
     // Put the access_flags, name_index and descriptor_index fields.
     int mask = useSyntheticAttribute ? Opcodes.ACC_SYNTHETIC : 0;
@@ -256,18 +262,18 @@ final class FieldWriter extends FieldVisitor {
     // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
     if (constantValueIndex != 0) {
       output
-          .putShort(symbolTable.addConstantUtf8(Constants.CONSTANT_VALUE))
-          .putInt(2)
-          .putShort(constantValueIndex);
+        .putShort(symbolTable.addConstantUtf8(Constants.CONSTANT_VALUE))
+        .putInt(2)
+        .putShort(constantValueIndex);
     }
     Attribute.putAttributes(symbolTable, accessFlags, signatureIndex, output);
     AnnotationWriter.putAnnotations(
-        symbolTable,
-        lastRuntimeVisibleAnnotation,
-        lastRuntimeInvisibleAnnotation,
-        lastRuntimeVisibleTypeAnnotation,
-        lastRuntimeInvisibleTypeAnnotation,
-        output);
+      symbolTable,
+      lastRuntimeVisibleAnnotation,
+      lastRuntimeInvisibleAnnotation,
+      lastRuntimeVisibleTypeAnnotation,
+      lastRuntimeInvisibleTypeAnnotation,
+      output);
     if (firstAttribute != null) {
       firstAttribute.putAttributes(symbolTable, output);
     }
@@ -278,7 +284,7 @@ final class FieldWriter extends FieldVisitor {
    *
    * @param attributePrototypes a set of attribute prototypes.
    */
-  final void collectAttributePrototypes(final Attribute.Set attributePrototypes) {
+  final void collectAttributePrototypes(Attribute.Set attributePrototypes) {
     attributePrototypes.addAttributes(firstAttribute);
   }
 }

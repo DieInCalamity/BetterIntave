@@ -384,7 +384,7 @@ public class TinyProtocol {
    *
    * @param channel - the injected channel.
    */
-  public void uninjectChannel(final Channel channel) {
+  public void uninjectChannel(Channel channel) {
     // No need to guard against this if we're closing
     if (!closed) {
       uninjectedChannels.add(channel);
@@ -442,7 +442,7 @@ public class TinyProtocol {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
       // Intercept channel
-      final Channel channel = ctx.channel();
+      Channel channel = ctx.channel();
       handleLoginStart(channel, msg);
       try {
         msg = onPacketInAsync(player, channel, msg);

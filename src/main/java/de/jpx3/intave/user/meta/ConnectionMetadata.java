@@ -157,7 +157,7 @@ public final class ConnectionMetadata {
 
   public void destroyEntity(int entityId) {
     entitiesById.put(entityId, EntityShade.destroyedEntity());
-    entityIds.remove((Integer) entityId);
+    entityIds.remove(entityId);
 
     // we will not override the entity collection, as it would require a lot of performance and seems quite redundant in the first place
 //    for (int i = 0, entitiesSize = entities.size(); i < entitiesSize; i++) {

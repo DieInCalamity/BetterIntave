@@ -19,7 +19,7 @@ final class FenceGateBlockPatch extends BoundingBoxPatch {
     return bbs;
   }
 
-  private final static String NAME_PATTERN = "FENCE_GATE";
+  private static final String NAME_PATTERN = "FENCE_GATE";
 
   @Override
   public boolean appliesTo(Material material) {

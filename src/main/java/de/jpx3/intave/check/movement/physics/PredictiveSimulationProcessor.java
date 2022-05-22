@@ -22,9 +22,9 @@ import java.util.List;
 public final class PredictiveSimulationProcessor implements SimulationProcessor {
 
   /*
-  * this class is rather messy
-  * please refactor
-  * */
+   * this class is rather messy
+   * please refactor
+   * */
   private final boolean itemUsageReset;
 
   public PredictiveSimulationProcessor(boolean itemUsageReset) {
@@ -82,8 +82,8 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     return simulate;
   }
 
-  private final static double REQUIRED_ACCURACY_FOR_QUICK_PROC_EXIT = 0.002;
-  private final static double REQUIRED_ACCURACY_FOR_FLYING_PROC_EXIT = 0.02;
+  private static final double REQUIRED_ACCURACY_FOR_QUICK_PROC_EXIT = 0.002;
+  private static final double REQUIRED_ACCURACY_FOR_FLYING_PROC_EXIT = 0.02;
 
   private Simulation performKeySearchSimulation(User user, Simulator simulator) {
     MovementMetadata movementData = user.meta().movement();
@@ -155,7 +155,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     movementData.physicsJumped = simulationStack.jumped();
   }
 
-  private final static double REQUIRED_PREDICTION_ACCURACY_FOR_PRED_BIAS_PROCEED = 0.1;
+  private static final double REQUIRED_PREDICTION_ACCURACY_FOR_PRED_BIAS_PROCEED = 0.1;
 
   private Simulation simulateMovementKeyPredictionBiased(User user, Simulator simulator) {
     Timings.CHECK_PHYSICS_PROC_BIA.start();
@@ -260,8 +260,8 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     return 0;
   }
 
-  private final static int[] forwardKeys = {1, 1, 0, -1, -1, -1, 0, 1, 1};
-  private final static int[] strafeKeys = {0, -1, -1, -1, 0, 1, 1, 1, 0};
+  private static final int[] forwardKeys = {1, 1, 0, -1, -1, -1, 0, 1, 1};
+  private static final int[] strafeKeys = {0, -1, -1, -1, 0, 1, 1, 1, 0};
 
   private static int forwardKeyFrom(int direction) {
     return direction == -1 ? 0 : forwardKeys[direction];
@@ -333,12 +333,12 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     return simulationResult;
   }
 
-  private final static boolean[] ALWAYS = new boolean[]{true};
-  private final static boolean[] OPTIMISTIC = new boolean[]{true, false};
-  private final static boolean[] PESSIMISTIC = new boolean[]{false, true};
-  private final static boolean[] NEVER = new boolean[]{false};
+  private static final boolean[] ALWAYS = new boolean[]{true};
+  private static final boolean[] OPTIMISTIC = new boolean[]{true, false};
+  private static final boolean[] PESSIMISTIC = new boolean[]{false, true};
+  private static final boolean[] NEVER = new boolean[]{false};
 
-  private final static int[][] KEYS_USAGE_ORDERED = {{1, 0}, {0, 0}, {1, -1}, {1, 1}, {0, -1}, {0, 1}, {-1, -1}, {-1, 0}, {-1, 1}};
+  private static final int[][] KEYS_USAGE_ORDERED = {{1, 0}, {0, 0}, {1, -1}, {1, 1}, {0, -1}, {0, 1}, {-1, -1}, {-1, 0}, {-1, 1}};
 
   private SimulationStack simulateMovementIterative(User user, Simulator simulator) {
     Timings.CHECK_PHYSICS_PROC_ITR.start();

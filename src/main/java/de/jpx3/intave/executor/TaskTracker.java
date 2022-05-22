@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 public final class TaskTracker {
-  private final static Set<Integer> runningTasks = new ConcurrentSet<>();
+  private static final Set<Integer> runningTasks = new ConcurrentSet<>();
 
   public static void setup() {
     ShutdownTasks.add(TaskTracker::stopAll);

@@ -54,7 +54,7 @@ public class TypeInsnNode extends AbstractInsnNode {
    * @param descriptor the operand of the instruction to be constructed. This operand is an internal
    *                   name (see {@link Type}).
    */
-  public TypeInsnNode(final int opcode, final String descriptor) {
+  public TypeInsnNode(int opcode, String descriptor) {
     super(opcode);
     this.desc = descriptor;
   }
@@ -65,7 +65,7 @@ public class TypeInsnNode extends AbstractInsnNode {
    * @param opcode the new instruction opcode. This opcode must be NEW, ANEWARRAY, CHECKCAST or
    *               INSTANCEOF.
    */
-  public void setOpcode(final int opcode) {
+  public void setOpcode(int opcode) {
     this.opcode = opcode;
   }
 
@@ -75,13 +75,13 @@ public class TypeInsnNode extends AbstractInsnNode {
   }
 
   @Override
-  public void accept(final MethodVisitor methodVisitor) {
+  public void accept(MethodVisitor methodVisitor) {
     methodVisitor.visitTypeInsn(opcode, desc);
     acceptAnnotations(methodVisitor);
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
+  public AbstractInsnNode clone(Map<LabelNode, LabelNode> clonedLabels) {
     return new TypeInsnNode(opcode, desc).cloneAnnotations(this);
   }
 }

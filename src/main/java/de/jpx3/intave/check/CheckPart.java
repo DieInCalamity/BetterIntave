@@ -34,6 +34,7 @@ public abstract class CheckPart<P extends Check> implements EventProcessor {
 
   /**
    * Performs a {@link User} lookup of a corresponding {@link Player}.
+   *
    * @param player the player search
    * @return a blank or corresponding user
    */
@@ -43,6 +44,7 @@ public abstract class CheckPart<P extends Check> implements EventProcessor {
 
   /**
    * Retrieves the parent check
+   *
    * @return the parent check
    */
   public final P parentCheck() {
@@ -51,7 +53,8 @@ public abstract class CheckPart<P extends Check> implements EventProcessor {
 
   /**
    * Apply a change to the base statistics and all other statistics of abstract categories.
-   * @param user the affected user
+   *
+   * @param user    the affected user
    * @param applier the player statistic applier
    */
   public void statisticApply(User user, Consumer<CheckStatistics> applier) {
@@ -60,7 +63,8 @@ public abstract class CheckPart<P extends Check> implements EventProcessor {
 
   /**
    * Retrieves a {@link TrustFactor} setting for a given key using the trustfactor of the given {@link Player}.
-   * @param key the trustfactor setting key
+   *
+   * @param key    the trustfactor setting key
    * @param player the affected player
    * @return trustfactor setting
    */
@@ -70,6 +74,7 @@ public abstract class CheckPart<P extends Check> implements EventProcessor {
 
   /**
    * Retrieve the checks name.
+   *
    * @return the checks name
    */
   public String name() {
@@ -79,6 +84,7 @@ public abstract class CheckPart<P extends Check> implements EventProcessor {
   /**
    * States whether the {@link CheckPart} is enabled and therefore subject to linkage.
    * By default, the method just follows the the parent check.
+   *
    * @return whether the check part is enabled and therefore subject to linkage
    */
   public boolean enabled() {

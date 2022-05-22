@@ -82,8 +82,8 @@ public final class MaterialMagic {
     }
   }
 
-  private final static Material STATIONARY_WATER = Material.getMaterial("STATIONARY_WATER");
-  private final static Material STATIONARY_LAVA = Material.getMaterial("STATIONARY_LAVA");
+  private static final Material STATIONARY_WATER = Material.getMaterial("STATIONARY_WATER");
+  private static final Material STATIONARY_LAVA = Material.getMaterial("STATIONARY_LAVA");
 
   public static boolean isLiquid(Material material) {
     return isLava(material) || isWater(material);

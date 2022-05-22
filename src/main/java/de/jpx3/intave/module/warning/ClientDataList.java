@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public final class ClientDataList {
-  private final static Resource CACHED_RESOURCE = Resources.cacheResourceChain("https://service.intave.de/clientdata", "clientdata", TimeUnit.DAYS.toMillis(14));
+  private static final Resource CACHED_RESOURCE = Resources.cacheResourceChain("https://service.intave.de/clientdata", "clientdata", TimeUnit.DAYS.toMillis(14));
   private final List<ClientData> content;
 
   public ClientDataList(List<ClientData> content) {

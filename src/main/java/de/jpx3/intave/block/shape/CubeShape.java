@@ -72,7 +72,7 @@ final class CubeShape extends MemoryTraced implements BlockShape {
     return direction == null ? BlockRaytrace.none() : new BlockRaytrace(direction, distanceStorage[0]);
   }
 
-  private final static double TOLERANCE = 0.0000001;
+  private static final double TOLERANCE = 0.0000001;
 
   @SuppressWarnings({"SuspiciousNameCombination", "ConstantConditions"})
   @Nullable
@@ -122,7 +122,7 @@ final class CubeShape extends MemoryTraced implements BlockShape {
       double normalizedStepRight = targetRight + normalizedStepMain * differenceRight;
       if (
         minUp - TOLERANCE < normalizedStepUp && normalizedStepUp < maxUp + TOLERANCE &&
-        minRight - TOLERANCE < normalizedStepRight && normalizedStepRight < maxRight + TOLERANCE
+          minRight - TOLERANCE < normalizedStepRight && normalizedStepRight < maxRight + TOLERANCE
       ) {
         distanceStorage[0] = normalizedStepMain;
         return selectedDirection;
@@ -131,7 +131,7 @@ final class CubeShape extends MemoryTraced implements BlockShape {
     return inheritDirection;
   }
 
-  private final static Reference<List<BoundingBox>> EMPTY_REFERENCE = new WeakReference<>(null);
+  private static final Reference<List<BoundingBox>> EMPTY_REFERENCE = new WeakReference<>(null);
   private Reference<List<BoundingBox>> boundingBoxCache = EMPTY_REFERENCE;
 
   @Override

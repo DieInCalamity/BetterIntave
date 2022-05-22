@@ -99,7 +99,7 @@ public final class IntavePlugin extends JavaPlugin {
   private static IntavePlugin singletonInstance;
   private static String version = "UNKNOWN";
   private static String prefix = ChatColor.translateAlternateColorCodes('&', "&8[&c&lIntave&8]&7 ");
-  private static String defaultColor = ChatColor.getLastColors(prefix);;
+  private static String defaultColor = ChatColor.getLastColors(prefix);
   private static boolean offlineMode = false, successfullyBooted = false;
 
   static {
@@ -156,7 +156,7 @@ public final class IntavePlugin extends JavaPlugin {
     logger.info("Please stand by..");
     // stage 4
     Modules.proceedBoot(BootSegment.STAGE_4);
-    
+
     if (AgentAccessor.agentAvailable()) {
       logger.info("Using agent :{~-~}:");
     }
@@ -273,7 +273,7 @@ public final class IntavePlugin extends JavaPlugin {
         // add 64 random characters to the process string with a given seed
         for (int i = 0; i < 64; i++) {
           //noinspection StringConcatenationInLoop
-          processString += String.valueOf((char)random.nextInt(0xFF));
+          processString += String.valueOf((char) random.nextInt(0xFF));
         }
         // replace 16 characters at random index with random characters with a given seed
         for (int i = 0; i < 16; i++) {
@@ -328,7 +328,7 @@ public final class IntavePlugin extends JavaPlugin {
           connection.addRequestProperty("C", HWIDVerification.publicHardwareIdentifier());
           connection.addRequestProperty("D", configurationKey);
           connection.addRequestProperty("E", LicenseAccess.rawLicense());
-          connection.addRequestProperty("F", "X9-"+requestedId+"-"+nanoBuilder.toString().toUpperCase(Locale.ROOT));
+          connection.addRequestProperty("F", "X9-" + requestedId + "-" + nanoBuilder.toString().toUpperCase(Locale.ROOT));
           connection.setConnectTimeout(2000);
           connection.setReadTimeout(2000);
           connection.connect();
@@ -337,7 +337,7 @@ public final class IntavePlugin extends JavaPlugin {
           while (scanner2.hasNext())
             raw2.append(scanner2.next());
           response = raw2.toString();
-          if (response.equalsIgnoreCase("timeout")) {
+          if ("timeout".equalsIgnoreCase(response)) {
             response += "_";
           }
         } catch (IOException exception) {
@@ -389,12 +389,12 @@ public final class IntavePlugin extends JavaPlugin {
           }
         }
         if (bad) {
-          contextStatusResource.write(new ByteArrayInputStream(("failure-"+response).getBytes(UTF_8)));
+          contextStatusResource.write(new ByteArrayInputStream(("failure-" + response).getBytes(UTF_8)));
           bootFailure(message);
           performShutdown();
           return;
         }
-        if (response.equals("timeout")) {
+        if ("timeout".equals(response)) {
           LICENSE_NAME = "~timeout";
 //          System.setProperty("java.net.serviceprovider.key", "~timeout");
           offlineMode = true;
@@ -416,7 +416,7 @@ public final class IntavePlugin extends JavaPlugin {
           }
           if (properties.isEmpty()) {
             logger.error("Invalid server response " + response);
-            contextStatusResource.write(new ByteArrayInputStream(("failure-"+response).getBytes(UTF_8)));
+            contextStatusResource.write(new ByteArrayInputStream(("failure-" + response).getBytes(UTF_8)));
             bootFailure("Internal failure");
             performShutdown();
             return;
@@ -440,11 +440,24 @@ public final class IntavePlugin extends JavaPlugin {
             for (int i = 0; i < responseBytes.length; i++) {
               responseBytes[i] = (byte) Integer.parseInt(keyResponse.substring(i * 2, i * 2 + 2), 16);
             }
-            validResponse = Arrays.equals(responseBytes, digest);
+            if (responseBytes == digest) {
+              validResponse = true;
+            } else {
+              int length = responseBytes.length;
+              if (digest.length == length) {
+                validResponse = length > 1;
+                for (int i = 0; i < length; i++) {
+                  if (responseBytes[i] != digest[i]) {
+                    validResponse = false;
+                    break;
+                  }
+                }
+              }
+            }
           }
           if (!validResponse) {
             logger.error("Unable to boot: Authentication response not trustworthy");
-            contextStatusResource.write(new ByteArrayInputStream(("failure-"+response).getBytes(UTF_8)));
+            contextStatusResource.write(new ByteArrayInputStream(("failure-" + response).getBytes(UTF_8)));
             bootFailure("Internal failure");
             performShutdown();
             return;
@@ -475,7 +488,8 @@ public final class IntavePlugin extends JavaPlugin {
             Long lastSuccessfulStart = null;
             try {
               lastSuccessfulStart = Long.valueOf(textString.split("/")[1]);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
             if (lastSuccessfulStart != null) {
               try {
                 String url_path = "https://raw.githubusercontent.com/intave/status/main/availability";
@@ -493,7 +507,8 @@ public final class IntavePlugin extends JavaPlugin {
                   try {
                     connection.connect();
                     allowLeniency = true;
-                  } catch (Exception ignored) {}
+                  } catch (Exception ignored) {
+                  }
                 } else {
                   // perform github check
                   Scanner scanner2 = new Scanner(connection.getInputStream(), "UTF-8");
@@ -503,10 +518,9 @@ public final class IntavePlugin extends JavaPlugin {
                     String[] split = line.split("=");
                     availabilities.put(split[0], split[1]);
                   }
-                  allowLeniency = availabilities.get("intave.de").equalsIgnoreCase("false");
+                  allowLeniency = "false".equalsIgnoreCase(availabilities.get("intave.de"));
                 }
-              } catch (Exception exception) {
-                allowLeniency = false;
+              } catch (Exception ignored) {
               }
             }
           }
@@ -543,7 +557,8 @@ public final class IntavePlugin extends JavaPlugin {
               }
             }
           }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
         if (writeSuccessLog) {
           contextStatusResource.write(new ByteArrayInputStream(("success/" + System.currentTimeMillis()).getBytes(UTF_8)));
         }
@@ -746,7 +761,7 @@ public final class IntavePlugin extends JavaPlugin {
     }
   }
 
-  public final static long INTEGRITY_ERASE_BUFFER = TimeUnit.MINUTES.toMillis(1);
+  public static final long INTEGRITY_ERASE_BUFFER = TimeUnit.MINUTES.toMillis(1);
 
   @Native
   public void clearIntegrityGarbage() {
@@ -756,7 +771,7 @@ public final class IntavePlugin extends JavaPlugin {
         .map(Path::toFile)
         .filter(File::canRead)
         .filter(File::canWrite)
-        .filter(file -> file.getName().equalsIgnoreCase("deleteme") && file.getParentFile().getName().toLowerCase(Locale.ROOT).contains("intave"))
+        .filter(file -> "deleteme".equalsIgnoreCase(file.getName()) && file.getParentFile().getName().toLowerCase(Locale.ROOT).contains("intave"))
         .filter(file -> (System.currentTimeMillis() - file.lastModified()) > INTEGRITY_ERASE_BUFFER)
         .map(File::getParentFile)
         .filter(File::canRead)
@@ -764,9 +779,11 @@ public final class IntavePlugin extends JavaPlugin {
         .forEach(file -> {
           try {
             clearDirectory(file);
-          } catch (IOException ignored) {}
+          } catch (IOException ignored) {
+          }
         });
-    } catch (Exception ignored) {}
+    } catch (Exception ignored) {
+    }
   }
 
   private void clearDirectory(File directory) throws IOException {
@@ -780,7 +797,8 @@ public final class IntavePlugin extends JavaPlugin {
       for (File file : files) {
         try {
           forceDelete(file);
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
       }
     }
     directory.delete();
@@ -800,7 +818,7 @@ public final class IntavePlugin extends JavaPlugin {
     }
   }
 
-  private final static long FILE_EXPIRE = TimeUnit.DAYS.toMillis(90);
+  private static final long FILE_EXPIRE = TimeUnit.DAYS.toMillis(90);
 
   @Native
   public void clearSaveFolderGarbage() {
@@ -882,6 +900,7 @@ public final class IntavePlugin extends JavaPlugin {
   }
 
   private List<String> randomExitMessages = new ArrayList<>();
+
   private String randomExitMessage() {
     return randomExitMessages.get(ThreadLocalRandom.current().nextInt(randomExitMessages.size()));
   }
@@ -891,7 +910,8 @@ public final class IntavePlugin extends JavaPlugin {
       // mark caches as deletable
       Class<?> relocator = Class.forName("de.jpx3.relocator.Relocator");
       relocator.getMethod("i").invoke(null);
-    } catch (Exception ignored) {}
+    } catch (Exception ignored) {
+    }
   }
 
   public IntaveAccess access() {

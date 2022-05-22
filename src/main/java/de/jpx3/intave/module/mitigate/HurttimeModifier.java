@@ -55,7 +55,7 @@ public final class HurttimeModifier {
   private static int resolveNoDamageTicksOf(Player player) {
     try {
       Object handle = ReflectiveHandleAccess.handleOf(player);
-      Field maxDamageTicks = Lookup.serverField("EntityLiving", "maxNoDamageTicks");;
+      Field maxDamageTicks = Lookup.serverField("EntityLiving", "maxNoDamageTicks");
       return (int) maxDamageTicks.get(handle);
     } catch (IllegalAccessException exception) {
       exception.printStackTrace();

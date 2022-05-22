@@ -56,7 +56,7 @@ public final class PacketOrderSwingHeuristic extends MetaCheckPart<Heuristics, P
       return;
     }
     if (clientData.flyingPacketStream() && action == EnumWrappers.EntityUseAction.ATTACK && !heuristicMeta.swingTick) {
-      String description = "swing not correlated with attack ("+user.meta().protocol().versionString()+")";
+      String description = "swing not correlated with attack (" + user.meta().protocol().versionString() + ")";
       Anomaly anomaly = Anomaly.anomalyOf("31", Confidence.LIKELY, Anomaly.Type.KILLAURA, description);
       parentCheck().saveAnomaly(player, anomaly);
       //dmc11
@@ -64,7 +64,7 @@ public final class PacketOrderSwingHeuristic extends MetaCheckPart<Heuristics, P
     }
   }
 
-  public final static class PacketOrderSwingHeuristicMeta extends CheckCustomMetadata {
+  public static final class PacketOrderSwingHeuristicMeta extends CheckCustomMetadata {
     private boolean swingTick;
   }
 }

@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 @NameIntrinsicallyImportant
 public final class ClassLoader {
-  public final static boolean USE_NATIVE_ACCESS = currentJavaVersion() >= 15;
+  public static final boolean USE_NATIVE_ACCESS = currentJavaVersion() >= 15;
 
   private static boolean loaded;
 

@@ -12,14 +12,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public final class Locate {
-  private final static Resource LOCATE_RESOURCE = Resources.cacheResourceChain("https://service.intave.de/locate/" + IntavePlugin.version(), "locate", TimeUnit.DAYS.toMillis(14));
-  private final static Locations CLASS_AND_FIELD_LOCATIONS = LocateFileCompiler.create().fromResource(LOCATE_RESOURCE).reduced();
-  private final static ClassLocations classLocations = CLASS_AND_FIELD_LOCATIONS.classLocations();
-  private final static FieldLocations fieldLocations = CLASS_AND_FIELD_LOCATIONS.fieldLocations();
-  private final static MethodLocations methodLocations = CLASS_AND_FIELD_LOCATIONS.methodLocations();
-  private final static Map<String, ClassLocation> classLocationCache = new ConcurrentHashMap<>();
-  private final static Map<String, FieldLocation> fieldLocationCache = new ConcurrentHashMap<>();
-  private final static Map<String, MethodLocation> methodLocationCache = new ConcurrentHashMap<>();
+  private static final Resource LOCATE_RESOURCE = Resources.cacheResourceChain("https://service.intave.de/locate/" + IntavePlugin.version(), "locate", TimeUnit.DAYS.toMillis(14));
+  private static final Locations CLASS_AND_FIELD_LOCATIONS = LocateFileCompiler.create().fromResource(LOCATE_RESOURCE).reduced();
+  private static final ClassLocations classLocations = CLASS_AND_FIELD_LOCATIONS.classLocations();
+  private static final FieldLocations fieldLocations = CLASS_AND_FIELD_LOCATIONS.fieldLocations();
+  private static final MethodLocations methodLocations = CLASS_AND_FIELD_LOCATIONS.methodLocations();
+  private static final Map<String, ClassLocation> classLocationCache = new ConcurrentHashMap<>();
+  private static final Map<String, FieldLocation> fieldLocationCache = new ConcurrentHashMap<>();
+  private static final Map<String, MethodLocation> methodLocationCache = new ConcurrentHashMap<>();
 
 //  static {
 //    classLocations.forEach(System.out::println);
@@ -71,7 +71,7 @@ public final class Locate {
     String outputName;
     if (classInput.startsWith("net.minecraft.server.v")) {
       outputName = methodNameByKey(classInput.split("\\.")[4], methodName + methodDescription);
-    } else if(classInput.startsWith("net.minecraft")) {
+    } else if (classInput.startsWith("net.minecraft")) {
       String[] packages = classInput.split("\\.");
       String classKey = packages[packages.length - 1];
       outputName = methodNameByKey(classKey, methodName + methodDescription);

@@ -107,7 +107,7 @@ final class PatchyTranslator {
         InvokeDynamicInsnNode invokeDynamicInsnNode = (InvokeDynamicInsnNode) instruction;
         invokeDynamicInsnNode.desc = translate(invokeDynamicInsnNode.desc);
         for (Object bsmArg : invokeDynamicInsnNode.bsmArgs) {
-          if(bsmArg instanceof Handle) {
+          if (bsmArg instanceof Handle) {
             Handle arg = (Handle) bsmArg;
             int tag = arg.getTag();
             InstructionTarget instructionTarget;

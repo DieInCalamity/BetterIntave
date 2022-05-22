@@ -8,12 +8,12 @@ public class LeakyReLuActivation extends ActivationFunction {
     else
       return input * 0.01d;
   }
-  
+
   @Override
   public double derivative(double input) {
     if (input > 0)
       return 1;
-    // return input;
+      // return input;
     else
       return input / 0.01d;
   }

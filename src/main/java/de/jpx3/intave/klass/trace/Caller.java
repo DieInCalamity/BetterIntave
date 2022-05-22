@@ -32,13 +32,13 @@ public final class Caller {
     return null;
   }
 
-  private final static Map<String, String> classToPluginNameMap = Maps.newHashMap();
+  private static final Map<String, String> classToPluginNameMap = Maps.newHashMap();
 
   private static String pluginFromClass(String className) {
     return classToPluginNameMap.computeIfAbsent(className, Caller::loadPluginFrom);
   }
 
-  private final static String NO_PLUGIN_FOUND = "null";
+  private static final String NO_PLUGIN_FOUND = "null";
 
   private static String loadPluginFrom(String className) {
     try {

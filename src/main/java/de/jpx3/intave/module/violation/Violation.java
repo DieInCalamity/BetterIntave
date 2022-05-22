@@ -86,7 +86,7 @@ public final class Violation {
     return addedViolationPoints;
   }
 
-  private final static PlaceholderContext NO_CONTEXT = Collections::emptyMap;
+  private static final PlaceholderContext NO_CONTEXT = Collections::emptyMap;
 
   public PlaceholderContext placeholder() {
     return placeholders == null ? NO_CONTEXT : () -> placeholders;

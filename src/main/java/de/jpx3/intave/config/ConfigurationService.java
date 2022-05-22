@@ -70,13 +70,14 @@ public final class ConfigurationService {
             OutputStream out = new FileOutputStream(outFile);
             byte[] buf = new byte[1024];
             int len;
-            while((len = in.read(buf)) != -1) {
+            while ((len = in.read(buf)) != -1) {
               out.write(buf, 0, len);
             }
             out.close();
             in.close();
           }
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
       }
     } else {
       throw new IllegalArgumentException("ResourcePath cannot be null or empty");
@@ -102,7 +103,7 @@ public final class ConfigurationService {
     }
   }
 
-//  @Native
+  //  @Native
   public void setupConfiguration(String requiredState) {
 //    boolean enterprise = (ProtocolMetadata.VERSION_DETAILS & 0x200) != 0;
 //    boolean partner = (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;

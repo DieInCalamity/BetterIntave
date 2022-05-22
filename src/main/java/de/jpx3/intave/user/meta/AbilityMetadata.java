@@ -23,7 +23,7 @@ import static de.jpx3.intave.module.tracker.player.AbilityTracker.GameMode.NOT_S
 @Relocate
 public final class AbilityMetadata {
   private static final UUID SPEED_MODIFIER_SPRINTING_UUID = UUID.fromString("662A6B8D-DA3E-4C1C-8813-96EA6097278D");
-  public final static Predicate<WrappedAttributeModifier> EXCLUDE_SPRINT_MODIFIER = modifier -> !modifier.getUUID().equals(SPEED_MODIFIER_SPRINTING_UUID);
+  public static final Predicate<WrappedAttributeModifier> EXCLUDE_SPRINT_MODIFIER = modifier -> !modifier.getUUID().equals(SPEED_MODIFIER_SPRINTING_UUID);
 
   private final Player player;
   private boolean flying;
@@ -125,7 +125,7 @@ public final class AbilityMetadata {
     return WrappedAttribute.newBuilder(input).baseValue(baseValue).build();
   }
 
-  private final static double REDUCE_APPLIER = 1000d;
+  private static final double REDUCE_APPLIER = 1000d;
 
   private double reducePrecision(double input) {
     return Math.round(input * REDUCE_APPLIER) / REDUCE_APPLIER;
@@ -136,8 +136,8 @@ public final class AbilityMetadata {
     return attributes.get(key);
   }
 
-  private final static boolean KEY_WRAPPED;
-  private final static Map<String, String> REMAP;
+  private static final boolean KEY_WRAPPED;
+  private static final Map<String, String> REMAP;
 
   static {
     KEY_WRAPPED = MinecraftVersions.VER1_16_0.atOrAbove();

@@ -46,6 +46,8 @@ public interface TableSwitchGenerator {
    */
   void generateCase(int key, Label end);
 
-  /** Generates the code for the default switch case. */
+  /**
+   * Generates the code for the default switch case.
+   */
   void generateDefault();
 }

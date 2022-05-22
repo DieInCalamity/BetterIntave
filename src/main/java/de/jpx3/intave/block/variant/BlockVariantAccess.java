@@ -10,9 +10,10 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 
 public final class BlockVariantAccess {
-  private final static boolean MODERN_MATERIAL_PROCESSING = MinecraftVersions.VER1_13_0.atOrAbove();
+  private static final boolean MODERN_MATERIAL_PROCESSING = MinecraftVersions.VER1_13_0.atOrAbove();
 
-  public static void setup() {}
+  public static void setup() {
+  }
 
   /**
    * This method performs a direct type lookup, which will be quite heavy if the underlying chunk has not been loaded yet.
@@ -25,7 +26,7 @@ public final class BlockVariantAccess {
   }
 
   public static int variantAccess(WrappedBlockData blockData) {
-    if(!MODERN_MATERIAL_PROCESSING) {
+    if (!MODERN_MATERIAL_PROCESSING) {
       return blockData.getData();
     }
     Material type = blockData.getType();

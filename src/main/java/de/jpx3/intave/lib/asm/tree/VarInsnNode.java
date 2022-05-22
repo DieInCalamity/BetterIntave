@@ -52,7 +52,7 @@ public class VarInsnNode extends AbstractInsnNode {
    * @param var    the operand of the instruction to be constructed. This operand is the index of a
    *               local variable.
    */
-  public VarInsnNode(final int opcode, final int var) {
+  public VarInsnNode(int opcode, int var) {
     super(opcode);
     this.var = var;
   }
@@ -63,7 +63,7 @@ public class VarInsnNode extends AbstractInsnNode {
    * @param opcode the new instruction opcode. This opcode must be ILOAD, LLOAD, FLOAD, DLOAD,
    *               ALOAD, ISTORE, LSTORE, FSTORE, DSTORE, ASTORE or RET.
    */
-  public void setOpcode(final int opcode) {
+  public void setOpcode(int opcode) {
     this.opcode = opcode;
   }
 
@@ -73,13 +73,13 @@ public class VarInsnNode extends AbstractInsnNode {
   }
 
   @Override
-  public void accept(final MethodVisitor methodVisitor) {
+  public void accept(MethodVisitor methodVisitor) {
     methodVisitor.visitVarInsn(opcode, var);
     acceptAnnotations(methodVisitor);
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
+  public AbstractInsnNode clone(Map<LabelNode, LabelNode> clonedLabels) {
     return new VarInsnNode(opcode, var).cloneAnnotations(this);
   }
 }

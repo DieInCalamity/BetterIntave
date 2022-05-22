@@ -5,6 +5,7 @@ import de.jpx3.intave.adapter.MinecraftVersions;
 
 public final class BlockInteractionReader extends BlockPositionReader {
   private final boolean MODERN_RESOLVE = MinecraftVersions.VER1_14_0.atOrAbove();
+
   public int enumDirection() {
     if (MODERN_RESOLVE) {
       MovingObjectPositionBlock movingObjectPositionBlock = packet().getMovingBlockPositions().readSafely(0);

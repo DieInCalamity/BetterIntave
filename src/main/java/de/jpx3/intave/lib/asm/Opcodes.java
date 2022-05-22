@@ -34,9 +34,9 @@ package de.jpx3.intave.lib.asm;
  * xSTORE_n opcodes are therefore not defined in this interface. Likewise for LDC, automatically
  * replaced by LDC_W or LDC2_W when necessary, WIDE, GOTO_W and JSR_W.
  *
- * @see <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-6.html">JVMS 6</a>
  * @author Eric Bruneton
  * @author Eugene Kuleshov
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-6.html">JVMS 6</a>
  */
 // DontCheck(InterfaceIsType): can't be fixed (for backward binary compatibility).
 public interface Opcodes {
@@ -54,7 +54,8 @@ public interface Opcodes {
    *
    * @deprecated This API is experimental.
    */
-  @Deprecated int ASM8_EXPERIMENTAL = 1 << 24 | 8 << 16 | 0 << 8;
+  @Deprecated
+  int ASM8_EXPERIMENTAL = 1 << 24 | 8 << 16 | 0 << 8;
 
   /*
    * Internal flags used to redirect calls to deprecated methods. For instance, if a visitOldStuff
@@ -351,10 +352,14 @@ public interface Opcodes {
 
   // ASM specific stack map frame types, used in {@link ClassVisitor#visitFrame}.
 
-  /** An expanded frame. See {@link ClassReader#EXPAND_FRAMES}. */
+  /**
+   * An expanded frame. See {@link ClassReader#EXPAND_FRAMES}.
+   */
   int F_NEW = -1;
 
-  /** A compressed frame with complete frame data. */
+  /**
+   * A compressed frame with complete frame data.
+   */
   int F_FULL = 0;
 
   /**

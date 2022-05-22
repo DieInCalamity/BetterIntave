@@ -90,11 +90,11 @@ public class FrameNode extends AbstractInsnNode {
    *                 uninitialized types respectively - see {@link MethodVisitor}).
    */
   public FrameNode(
-    final int type,
-    final int numLocal,
-    final Object[] local,
-    final int numStack,
-    final Object[] stack) {
+    int type,
+    int numLocal,
+    Object[] local,
+    int numStack,
+    Object[] stack) {
     super(-1);
     this.type = type;
     switch (type) {
@@ -119,7 +119,7 @@ public class FrameNode extends AbstractInsnNode {
     }
   }
 
-  private static Object[] asArray(final List<Object> list) {
+  private static Object[] asArray(List<Object> list) {
     Object[] array = new Object[list.size()];
     for (int i = 0, n = array.length; i < n; ++i) {
       Object o = list.get(i);
@@ -137,7 +137,7 @@ public class FrameNode extends AbstractInsnNode {
   }
 
   @Override
-  public void accept(final MethodVisitor methodVisitor) {
+  public void accept(MethodVisitor methodVisitor) {
     switch (type) {
       case Opcodes.F_NEW:
       case Opcodes.F_FULL:
@@ -161,7 +161,7 @@ public class FrameNode extends AbstractInsnNode {
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
+  public AbstractInsnNode clone(Map<LabelNode, LabelNode> clonedLabels) {
     FrameNode clone = new FrameNode();
     clone.type = type;
     if (local != null) {

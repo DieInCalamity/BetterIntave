@@ -10,9 +10,9 @@ import static de.jpx3.intave.math.MathHelper.distanceOf;
 
 @Relocate
 public final class Simulation {
-  private final static Simulation INVALID_SIMULATION = new Simulation(MovementConfiguration.empty(), ColliderSimulationResult.invalid());
+  private static final Simulation INVALID_SIMULATION = new Simulation(MovementConfiguration.empty(), ColliderSimulationResult.invalid());
 
-  private final static UserLocal<Simulation> simulationUserLocal = UserLocal.withInitial(Simulation::new);
+  private static final UserLocal<Simulation> simulationUserLocal = UserLocal.withInitial(Simulation::new);
   private MovementConfiguration configuration;
   private ColliderSimulationResult colliderResult;
   private String details = "";

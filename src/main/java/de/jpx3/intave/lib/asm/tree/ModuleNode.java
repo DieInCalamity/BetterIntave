@@ -102,7 +102,7 @@ public class ModuleNode extends ModuleVisitor {
    * @param version the module version, or {@literal null}.
    * @throws IllegalStateException If a subclass calls this constructor.
    */
-  public ModuleNode(final String name, final int access, final String version) {
+  public ModuleNode(String name, int access, String version) {
     super(/* latest api = */ Opcodes.ASM7);
     if (getClass() != ModuleNode.class) {
       throw new IllegalStateException();
@@ -130,15 +130,15 @@ public class ModuleNode extends ModuleVisitor {
    * @param provides The services provided by this module. May be {@literal null}.
    */
   public ModuleNode(
-    final int api,
-    final String name,
-    final int access,
-    final String version,
-    final List<ModuleRequireNode> requires,
-    final List<ModuleExportNode> exports,
-    final List<ModuleOpenNode> opens,
-    final List<String> uses,
-    final List<ModuleProvideNode> provides) {
+    int api,
+    String name,
+    int access,
+    String version,
+    List<ModuleRequireNode> requires,
+    List<ModuleExportNode> exports,
+    List<ModuleOpenNode> opens,
+    List<String> uses,
+    List<ModuleProvideNode> provides) {
     super(api);
     this.name = name;
     this.access = access;
@@ -151,12 +151,12 @@ public class ModuleNode extends ModuleVisitor {
   }
 
   @Override
-  public void visitMainClass(final String mainClass) {
+  public void visitMainClass(String mainClass) {
     this.mainClass = mainClass;
   }
 
   @Override
-  public void visitPackage(final String packaze) {
+  public void visitPackage(String packaze) {
     if (packages == null) {
       packages = new ArrayList<>(5);
     }
@@ -164,7 +164,7 @@ public class ModuleNode extends ModuleVisitor {
   }
 
   @Override
-  public void visitRequire(final String module, final int access, final String version) {
+  public void visitRequire(String module, int access, String version) {
     if (requires == null) {
       requires = new ArrayList<>(5);
     }
@@ -172,7 +172,7 @@ public class ModuleNode extends ModuleVisitor {
   }
 
   @Override
-  public void visitExport(final String packaze, final int access, final String... modules) {
+  public void visitExport(String packaze, int access, String... modules) {
     if (exports == null) {
       exports = new ArrayList<>(5);
     }
@@ -180,7 +180,7 @@ public class ModuleNode extends ModuleVisitor {
   }
 
   @Override
-  public void visitOpen(final String packaze, final int access, final String... modules) {
+  public void visitOpen(String packaze, int access, String... modules) {
     if (opens == null) {
       opens = new ArrayList<>(5);
     }
@@ -188,7 +188,7 @@ public class ModuleNode extends ModuleVisitor {
   }
 
   @Override
-  public void visitUse(final String service) {
+  public void visitUse(String service) {
     if (uses == null) {
       uses = new ArrayList<>(5);
     }
@@ -196,7 +196,7 @@ public class ModuleNode extends ModuleVisitor {
   }
 
   @Override
-  public void visitProvide(final String service, final String... providers) {
+  public void visitProvide(String service, String... providers) {
     if (provides == null) {
       provides = new ArrayList<>(5);
     }
@@ -213,7 +213,7 @@ public class ModuleNode extends ModuleVisitor {
    *
    * @param classVisitor a class visitor.
    */
-  public void accept(final ClassVisitor classVisitor) {
+  public void accept(ClassVisitor classVisitor) {
     ModuleVisitor moduleVisitor = classVisitor.visitModule(name, access, version);
     if (moduleVisitor == null) {
       return;

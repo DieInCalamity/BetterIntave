@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 public final class ChunkAccessPatcher extends Module {
-  private final static boolean ENABLED = !MinecraftVersions.VER1_14_0.atOrAbove();
+  private static final boolean ENABLED = !MinecraftVersions.VER1_14_0.atOrAbove();
 
   {
     if (ENABLED) {
@@ -83,9 +83,8 @@ public final class ChunkAccessPatcher extends Module {
         unloadQueueField.set(chunkProviderServer, newQueue);
         iterator.forEachRemaining(newQueue::add);
       }
-      IntaveLogger.logger().info("Patched chunk unload queue of \"" + world.getName() + "\" with " + patchName);
     } catch (Exception | Error exception) {
-      IntaveLogger.logger().info("Failed to patch chunk unload queue of \"" + world.getName() + " with \""+patchName+"\": " + exception.getMessage());
+      IntaveLogger.logger().info("Failed to patch chunk unload queue of \"" + world.getName() + " with \"" + patchName + "\": " + exception.getMessage());
       exception.printStackTrace();
     }
   }

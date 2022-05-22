@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 final class ThinBlockPatch extends BoundingBoxPatch {
-  private static final BoundingBox[] STATES_8 = new BoundingBox[] {
+  private static final BoundingBox[] STATES_8 = new BoundingBox[]{
     new BoundingBox(0.0F, 0.0F, 0.4375F, 1.0F, 1.0F, 0.5625F), // full ew connection
     new BoundingBox(0.4375F, 0.0F, 0.0F, 0.5625F, 1.0F, 1.0F), // full ns connection
     new BoundingBox(0.4375F, 0.0F, 0.0F, 0.5625F, 1.0F, 0.5F), // north
@@ -25,7 +25,7 @@ final class ThinBlockPatch extends BoundingBoxPatch {
     new BoundingBox(0.0F, 0.0F, 0.4375F, 0.5F, 1.0F, 0.5625F), // west
   };
 
-  private static final BoundingBox[] STATES_9 = new BoundingBox[] {
+  private static final BoundingBox[] STATES_9 = new BoundingBox[]{
     BoundingBox.originFromX16(7, 0, 7, 9, 16, 9), // base
     BoundingBox.originFromX16(7, 0, 0, 9, 16, 9), // north
     BoundingBox.originFromX16(7, 0, 7, 16, 16, 9), // east
@@ -62,9 +62,9 @@ final class ThinBlockPatch extends BoundingBoxPatch {
 
         for (int index : indices) {
           north |= index == 1;
-          east  |= index == 2;
+          east |= index == 2;
           south |= index == 3;
-          west  |= index == 4;
+          west |= index == 4;
         }
 
         List<BoundingBox> bbList = new ArrayList<>(count + 2);
@@ -99,7 +99,7 @@ final class ThinBlockPatch extends BoundingBoxPatch {
         for (BoundingBox bb : bbs) {
           indices[count++] = indexOf8(bb);
         }
-        
+
         boolean north = false;
         boolean east = false;
         boolean south = false;
@@ -107,9 +107,9 @@ final class ThinBlockPatch extends BoundingBoxPatch {
 
         for (int index : indices) {
           north |= index == 2 || index == 1;
-          east  |= index == 3 || index == 0;
+          east |= index == 3 || index == 0;
           south |= index == 4 || index == 1;
-          west  |= index == 5 || index == 0;
+          west |= index == 5 || index == 0;
         }
 
         // via version emulates 1.8 behaviour of panes, we can account for it
@@ -120,9 +120,9 @@ final class ThinBlockPatch extends BoundingBoxPatch {
         List<BoundingBox> bbList = new ArrayList<>(count);
         bbList.add(STATES_9[0]);
         if (north) bbList.add(STATES_9[1]);
-        if (east)  bbList.add(STATES_9[2]);
+        if (east) bbList.add(STATES_9[2]);
         if (south) bbList.add(STATES_9[3]);
-        if (west)  bbList.add(STATES_9[4]);
+        if (west) bbList.add(STATES_9[4]);
         return bbList;
       }
     }

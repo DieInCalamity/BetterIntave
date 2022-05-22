@@ -55,7 +55,7 @@ public class ParameterNode {
    *               ACC_SYNTHETIC} or/and {@code ACC_MANDATED} (see {@link Opcodes}).
    * @param name   the parameter's name.
    */
-  public ParameterNode(final String name, final int access) {
+  public ParameterNode(String name, int access) {
     this.name = name;
     this.access = access;
   }
@@ -65,7 +65,7 @@ public class ParameterNode {
    *
    * @param methodVisitor a method visitor.
    */
-  public void accept(final MethodVisitor methodVisitor) {
+  public void accept(MethodVisitor methodVisitor) {
     methodVisitor.visitParameter(name, access);
   }
 }

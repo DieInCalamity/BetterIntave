@@ -186,7 +186,7 @@ public final class MovementHelper {
     }
     return BlockProperties.of(type).climbable();
   }
-  
+
   @Deprecated
   @IdoNotBelongHere
   @WhyMustIExist

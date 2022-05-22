@@ -174,7 +174,7 @@ public final class Collision {
     return boundingBox.maxX > minX && boundingBox.minX < maxX && (boundingBox.maxY > minY && boundingBox.minY < maxY && boundingBox.maxZ > minZ && boundingBox.minZ < maxZ);
   }
 
-  private final static ShapeResolverPipeline shapeResolver = ShapeResolver.pipelineHead();
+  private static final ShapeResolverPipeline shapeResolver = ShapeResolver.pipelineHead();
 
   @Deprecated
   // I suck, please remove
@@ -271,7 +271,7 @@ public final class Collision {
     double positionX = movementData.verifiedPositionX;
     double positionZ = movementData.verifiedPositionZ;
     Location center = WorldBorders.centerOfWorldBorderIn(world);
-    double radius = WorldBorders.sizeOfWorldBorderIn(world)/ 2.0;
+    double radius = WorldBorders.sizeOfWorldBorderIn(world) / 2.0;
     double minX = center.getX() - radius;
     double minZ = center.getZ() - radius;
     double maxX = center.getX() + radius;

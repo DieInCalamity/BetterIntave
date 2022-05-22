@@ -48,7 +48,7 @@ public final class DamageModify {
     }
   }
 
-  private final static Field DAMAGE_MODIFIER_FUNCTION_FIELD;
+  private static final Field DAMAGE_MODIFIER_FUNCTION_FIELD;
 
   static {
     try {

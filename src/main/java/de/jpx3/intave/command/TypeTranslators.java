@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public final class TypeTranslators {
-  private final static Map<Class<?>, TypeTranslator<?>> typeTranslatorMap = new HashMap<>();
+  private static final Map<Class<?>, TypeTranslator<?>> typeTranslatorMap = new HashMap<>();
 
   static {
     add(IntegerTranslator.class);
@@ -49,7 +49,7 @@ public final class TypeTranslators {
 
   private static String describeListSelection(List<String> elements) {
     int size = elements.size();
-    if(size == 0) {
+    if (size == 0) {
       return "nothing";
     } else if (size == 1) {
       return "only " + elements.get(0);

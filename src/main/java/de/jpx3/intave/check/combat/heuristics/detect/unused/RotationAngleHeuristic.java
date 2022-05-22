@@ -46,7 +46,7 @@ public final class RotationAngleHeuristic extends MetaCheckPart<Heuristics, Rota
       color = ChatColor.GREEN;
     } else if (angle < 10) {
       color = ChatColor.YELLOW;
-    } else if (angle < 100){
+    } else if (angle < 100) {
       color = ChatColor.GOLD;
     } else {
       color = ChatColor.RED;

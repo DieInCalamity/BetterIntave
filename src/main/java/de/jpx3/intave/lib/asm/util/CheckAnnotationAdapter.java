@@ -44,40 +44,42 @@ public class CheckAnnotationAdapter extends AnnotationVisitor {
    */
   private final boolean useNamedValue;
 
-  /** Whether the {@link #visitEnd} method has been called. */
+  /**
+   * Whether the {@link #visitEnd} method has been called.
+   */
   private boolean visitEndCalled;
 
-  public CheckAnnotationAdapter(final AnnotationVisitor annotationVisitor) {
+  public CheckAnnotationAdapter(AnnotationVisitor annotationVisitor) {
     this(annotationVisitor, true);
   }
 
-  CheckAnnotationAdapter(final AnnotationVisitor annotationVisitor, final boolean useNamedValues) {
+  CheckAnnotationAdapter(AnnotationVisitor annotationVisitor, boolean useNamedValues) {
     super(/* latest api = */ Opcodes.ASM7, annotationVisitor);
     this.useNamedValue = useNamedValues;
   }
 
   @Override
-  public void visit(final String name, final Object value) {
+  public void visit(String name, Object value) {
     checkVisitEndNotCalled();
     checkName(name);
     if (!(value instanceof Byte
-        || value instanceof Boolean
-        || value instanceof Character
-        || value instanceof Short
-        || value instanceof Integer
-        || value instanceof Long
-        || value instanceof Float
-        || value instanceof Double
-        || value instanceof String
-        || value instanceof Type
-        || value instanceof byte[]
-        || value instanceof boolean[]
-        || value instanceof char[]
-        || value instanceof short[]
-        || value instanceof int[]
-        || value instanceof long[]
-        || value instanceof float[]
-        || value instanceof double[])) {
+      || value instanceof Boolean
+      || value instanceof Character
+      || value instanceof Short
+      || value instanceof Integer
+      || value instanceof Long
+      || value instanceof Float
+      || value instanceof Double
+      || value instanceof String
+      || value instanceof Type
+      || value instanceof byte[]
+      || value instanceof boolean[]
+      || value instanceof char[]
+      || value instanceof short[]
+      || value instanceof int[]
+      || value instanceof long[]
+      || value instanceof float[]
+      || value instanceof double[])) {
       throw new IllegalArgumentException("Invalid annotation value");
     }
     if (value instanceof Type && ((Type) value).getSort() == Type.METHOD) {
@@ -87,7 +89,7 @@ public class CheckAnnotationAdapter extends AnnotationVisitor {
   }
 
   @Override
-  public void visitEnum(final String name, final String descriptor, final String value) {
+  public void visitEnum(String name, String descriptor, String value) {
     checkVisitEndNotCalled();
     checkName(name);
     // Annotations can only appear in V1_5 or more classes.
@@ -99,7 +101,7 @@ public class CheckAnnotationAdapter extends AnnotationVisitor {
   }
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String name, final String descriptor) {
+  public AnnotationVisitor visitAnnotation(String name, String descriptor) {
     checkVisitEndNotCalled();
     checkName(name);
     // Annotations can only appear in V1_5 or more classes.
@@ -108,7 +110,7 @@ public class CheckAnnotationAdapter extends AnnotationVisitor {
   }
 
   @Override
-  public AnnotationVisitor visitArray(final String name) {
+  public AnnotationVisitor visitArray(String name) {
     checkVisitEndNotCalled();
     checkName(name);
     return new CheckAnnotationAdapter(super.visitArray(name), false);
@@ -121,7 +123,7 @@ public class CheckAnnotationAdapter extends AnnotationVisitor {
     super.visitEnd();
   }
 
-  private void checkName(final String name) {
+  private void checkName(String name) {
     if (useNamedValue && name == null) {
       throw new IllegalArgumentException("Annotation value name must not be null");
     }

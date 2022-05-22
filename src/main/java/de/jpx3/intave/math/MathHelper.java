@@ -22,7 +22,7 @@ public final class MathHelper {
   public static double map(double currentValue, double min, double max, double min2, double max2) {
     return (currentValue - min) / (max - min) * (max2 - min2) + min2;
   }
-  
+
   public static double minmax(double min, double val, double max) {
     return Math.max(min, Math.min(val, max));
   }
@@ -36,7 +36,7 @@ public final class MathHelper {
   }
 
   public static double diff(double a, double b) {
-    return Math.abs( a- b);
+    return Math.abs(a - b);
   }
 
   public static double maximumIn(List<? extends Number> numbers) {
@@ -61,11 +61,11 @@ public final class MathHelper {
   }
 
   public static String formatPosition(Location location) {
-    return formatPosition(location.getX(), location.getY(),location.getZ());
+    return formatPosition(location.getX(), location.getY(), location.getZ());
   }
 
   public static String formatMotion(Vector vector) {
-    return formatPosition(vector.getX(), vector.getY(),vector.getZ());
+    return formatPosition(vector.getX(), vector.getY(), vector.getZ());
   }
 
   public static String formatPosition(double x, double y, double z) {

@@ -347,7 +347,7 @@ public final class OldAirClickLimitHeuristic extends MetaCheckPart<Heuristics, O
 
     BlockPosition currentDiggedBlock;
     private int tickIndex;
-    private int[] tickArray = new int[20];
+    private final int[] tickArray = new int[20];
     private int swingsThisTick = 0;
 
     private boolean isBreakingClientSide;

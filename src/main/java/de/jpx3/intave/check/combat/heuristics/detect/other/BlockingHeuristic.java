@@ -195,7 +195,7 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
     ProtocolMetadata clientData = user.meta().protocol();
     BlockingMeta meta = metaOf(player);
     // 1.8
-    if(clientData.protocolVersion() >= VER_1_9) {
+    if (clientData.protocolVersion() >= VER_1_9) {
       meta.blocksPlacedThisTick++;
     }
   }
@@ -211,7 +211,7 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
     BlockingMeta meta = metaOf(player);
     ProtocolMetadata clientData = user.meta().protocol();
     // 1.9+
-    if(clientData.protocolVersion() < VER_1_9) {
+    if (clientData.protocolVersion() < VER_1_9) {
       meta.blocksPlacedThisTick++;
     }
   }
@@ -242,8 +242,8 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
     meta.heldItemOperations++;
   }
 
-  public final static class BlockingMeta extends CheckCustomMetadata {
-    private List<PacketContainer> unsendPackets = new ArrayList<>();
+  public static final class BlockingMeta extends CheckCustomMetadata {
+    private final List<PacketContainer> unsendPackets = new ArrayList<>();
     private int blocksPlacedThisTick;
     public boolean releasedItemAfterClientTick;
     public int ticksBetweenBlockAndUnblock, clientTicksBetweenBlockingToggle;

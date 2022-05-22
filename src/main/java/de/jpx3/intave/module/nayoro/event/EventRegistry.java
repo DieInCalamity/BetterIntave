@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class EventRegistry {
-  private final static Map<Class<? extends Event>, Integer> eventsToIds = new HashMap<>();
-  private final static Map<Integer, Class<? extends Event>> idsToEvents = new HashMap<>();
+  private static final Map<Class<? extends Event>, Integer> eventsToIds = new HashMap<>();
+  private static final Map<Integer, Class<? extends Event>> idsToEvents = new HashMap<>();
 
   static {
     register(AttackEvent.class, 0);

@@ -36,7 +36,9 @@ import de.jpx3.intave.lib.asm.*;
  */
 public final class TraceFieldVisitor extends FieldVisitor {
 
-  /** The printer to convert the visited field into text. */
+  /**
+   * The printer to convert the visited field into text.
+   */
   // DontCheck(MemberName): can't be renamed (for backward binary compatibility).
   public final Printer p;
 
@@ -45,7 +47,7 @@ public final class TraceFieldVisitor extends FieldVisitor {
    *
    * @param printer the printer to convert the visited field into text.
    */
-  public TraceFieldVisitor(final Printer printer) {
+  public TraceFieldVisitor(Printer printer) {
     this(null, printer);
   }
 
@@ -53,30 +55,30 @@ public final class TraceFieldVisitor extends FieldVisitor {
    * Constructs a new {@link TraceFieldVisitor}.
    *
    * @param fieldVisitor the field visitor to which to delegate calls. May be {@literal null}.
-   * @param printer the printer to convert the visited field into text.
+   * @param printer      the printer to convert the visited field into text.
    */
-  public TraceFieldVisitor(final FieldVisitor fieldVisitor, final Printer printer) {
+  public TraceFieldVisitor(FieldVisitor fieldVisitor, Printer printer) {
     super(/* latest api = */ Opcodes.ASM7, fieldVisitor);
     this.p = printer;
   }
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+  public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
     Printer annotationPrinter = p.visitFieldAnnotation(descriptor, visible);
     return new TraceAnnotationVisitor(
-        super.visitAnnotation(descriptor, visible), annotationPrinter);
+      super.visitAnnotation(descriptor, visible), annotationPrinter);
   }
 
   @Override
   public AnnotationVisitor visitTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     Printer annotationPrinter = p.visitFieldTypeAnnotation(typeRef, typePath, descriptor, visible);
     return new TraceAnnotationVisitor(
-        super.visitTypeAnnotation(typeRef, typePath, descriptor, visible), annotationPrinter);
+      super.visitTypeAnnotation(typeRef, typePath, descriptor, visible), annotationPrinter);
   }
 
   @Override
-  public void visitAttribute(final Attribute attribute) {
+  public void visitAttribute(Attribute attribute) {
     p.visitFieldAttribute(attribute);
     super.visitAttribute(attribute);
   }

@@ -4,7 +4,7 @@ import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.shade.Motion;
 
 public final class ColliderSimulationResult {
-  private final static ColliderSimulationResult INVALID_SIMULATION = new ColliderSimulationResult(
+  private static final ColliderSimulationResult INVALID_SIMULATION = new ColliderSimulationResult(
     new Motion(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), false, false, false, false, false, false
   );
 

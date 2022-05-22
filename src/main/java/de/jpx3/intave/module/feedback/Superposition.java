@@ -73,7 +73,7 @@ public final class Superposition<T> {
           variationTimeout.put(value, variationTimeout.getOrDefault(value, 0) + 1);
 //          System.out.println("Timeout for " + value + " is now " + variationTimeout.get(value));
 //          if (variationTimeout.get(value) <= timeout && !collapsed.contains(value)) {
-            optionalVariation = value;
+          optionalVariation = value;
 //          }
           break;
         case RECEIVE_CONFIRMED:

@@ -19,7 +19,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 @HighOrderService
 public final class TrustFactorService implements BukkitEventSubscriber {
-  private final static TrustFactorResolver DEFAULT_RESOLVER = new DefaultForwardingPermissionTrustFactorResolver(new EmptyTrustFactorResolver());
+  private static final TrustFactorResolver DEFAULT_RESOLVER = new DefaultForwardingPermissionTrustFactorResolver(new EmptyTrustFactorResolver());
   private final IntavePlugin plugin;
   private TrustFactorResolver trustFactorResolver;
   private TrustFactorConfiguration trustFactorConfiguration;

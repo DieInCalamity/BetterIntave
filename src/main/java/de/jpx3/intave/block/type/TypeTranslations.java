@@ -36,7 +36,7 @@ public final class TypeTranslations {
     return translations.stream();
   }
 
-  private final static Collector<TypeTranslation, ?, Map<Material, Material>> MAP_COLLECTOR =
+  private static final Collector<TypeTranslation, ?, Map<Material, Material>> MAP_COLLECTOR =
     Collectors.toMap(TypeTranslation::typeFrom, TypeTranslation::typeTo, (a, b) -> b);
 
   public Map<Material, Material> asTypeMap() {

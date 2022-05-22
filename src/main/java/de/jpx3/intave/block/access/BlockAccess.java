@@ -7,6 +7,7 @@ import de.jpx3.intave.klass.rewrite.PatchyLoadingInjector;
 
 public final class BlockAccess {
   private static BlockAccessor blockAccessor;
+
   public static void setup() {
     String resolverName = "de.jpx3.intave.block.access.v8BlockAccessor";
     if (MinecraftVersions.VER1_9_0.atOrAbove()) {

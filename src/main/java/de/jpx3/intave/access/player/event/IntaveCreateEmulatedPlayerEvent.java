@@ -39,7 +39,7 @@ public final class IntaveCreateEmulatedPlayerEvent extends IntaveCreateEmulatedE
   }
 
   public static IntaveCreateEmulatedPlayerEvent empty() {
-    return construct(null,0, "error", null);
+    return construct(null, 0, "error", null);
   }
 
   public static IntaveCreateEmulatedPlayerEvent construct(Player observer, int reservedEntityId, String name, UUID id) {

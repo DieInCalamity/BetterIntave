@@ -19,7 +19,7 @@ import java.util.List;
  */
 
 public class ViaVersionAdapter {
-  private final static List<ViaVersionAccess> available = Lists.newArrayList();
+  private static final List<ViaVersionAccess> available = Lists.newArrayList();
 
   static {
     available.add(new ViaVersion2Access());

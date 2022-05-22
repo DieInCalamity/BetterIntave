@@ -319,7 +319,7 @@ public abstract class Printer {
    * @param api the ASM API version implemented by this printer. Must be one of {@link
    *            Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
-  protected Printer(final int api) {
+  protected Printer(int api) {
     this.api = api;
     this.stringBuilder = new StringBuilder();
     this.text = new ArrayList<>();
@@ -336,7 +336,7 @@ public abstract class Printer {
    * @param list        a string tree, i.e., a string list that can contain other string lists, and so on
    *                    recursively.
    */
-  static void printList(final PrintWriter printWriter, final List<?> list) {
+  static void printList(PrintWriter printWriter, List<?> list) {
     for (Object o : list) {
       if (o instanceof List) {
         printList(printWriter, (List<?>) o);
@@ -352,7 +352,7 @@ public abstract class Printer {
    * @param stringBuilder the buffer where the string must be added.
    * @param string        the string to be added.
    */
-  public static void appendString(final StringBuilder stringBuilder, final String string) {
+  public static void appendString(StringBuilder stringBuilder, String string) {
     stringBuilder.append('\"');
     for (int i = 0; i < string.length(); ++i) {
       char c = string.charAt(i);
@@ -394,11 +394,11 @@ public abstract class Printer {
    * @throws IOException if the class cannot be found, or if an IOException occurs.
    */
   static void main(
-    final String[] args,
-    final String usage,
-    final Printer printer,
-    final PrintWriter output,
-    final PrintWriter logger)
+    String[] args,
+    String usage,
+    Printer printer,
+    PrintWriter output,
+    PrintWriter logger)
     throws IOException {
     if (args.length < 1 || args.length > 2 || (args[0].equals("-debug") && args.length != 2)) {
       logger.println(usage);
@@ -472,7 +472,7 @@ public abstract class Printer {
    * @param version the module version, or {@literal null}.
    * @return the printer.
    */
-  public Printer visitModule(final String name, final int access, final String version) {
+  public Printer visitModule(String name, int access, String version) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -486,7 +486,7 @@ public abstract class Printer {
    *
    * @param nestHost the internal name of the host class of the nest.
    */
-  public void visitNestHost(final String nestHost) {
+  public void visitNestHost(String nestHost) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -526,7 +526,7 @@ public abstract class Printer {
    * @return the printer.
    */
   public Printer visitClassTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -546,7 +546,7 @@ public abstract class Printer {
    *
    * @param nestMember the internal name of a nest member.
    */
-  public void visitNestMember(final String nestMember) {
+  public void visitNestMember(String nestMember) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -562,7 +562,7 @@ public abstract class Printer {
    * @deprecated this API is experimental.
    */
   @Deprecated
-  public void visitPermittedSubtypeExperimental(final String permittedSubtype) {
+  public void visitPermittedSubtypeExperimental(String permittedSubtype) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -596,7 +596,7 @@ public abstract class Printer {
    */
   @Deprecated
   public Printer visitRecordComponentExperimental(
-    final int access, final String name, final String descriptor, final String signature) {
+    int access, String name, String descriptor, String signature) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -650,7 +650,7 @@ public abstract class Printer {
    *
    * @param mainClass the internal name of the main class of the current module.
    */
-  public void visitMainClass(final String mainClass) {
+  public void visitMainClass(String mainClass) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -659,7 +659,7 @@ public abstract class Printer {
    *
    * @param packaze the internal name of a package.
    */
-  public void visitPackage(final String packaze) {
+  public void visitPackage(String packaze) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -671,7 +671,7 @@ public abstract class Printer {
    *                ACC_STATIC_PHASE}, {@code ACC_SYNTHETIC} and {@code ACC_MANDATED}.
    * @param version the module version at compile time, or {@literal null}.
    */
-  public void visitRequire(final String module, final int access, final String version) {
+  public void visitRequire(String module, int access, String version) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -684,7 +684,7 @@ public abstract class Printer {
    * @param modules the fully qualified names (using dots) of the modules that can access the public
    *                classes of the exported package, or {@literal null}.
    */
-  public void visitExport(final String packaze, final int access, final String... modules) {
+  public void visitExport(String packaze, int access, String... modules) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -697,7 +697,7 @@ public abstract class Printer {
    * @param modules the fully qualified names (using dots) of the modules that can use deep
    *                reflection to the classes of the open package, or {@literal null}.
    */
-  public void visitOpen(final String packaze, final int access, final String... modules) {
+  public void visitOpen(String packaze, int access, String... modules) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -710,7 +710,7 @@ public abstract class Printer {
    *
    * @param service the internal name of the service.
    */
-  public void visitUse(final String service) {
+  public void visitUse(String service) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -721,7 +721,7 @@ public abstract class Printer {
    * @param providers the internal names of the implementations of the service (there is at least
    *                  one provider).
    */
-  public void visitProvide(final String service, final String... providers) {
+  public void visitProvide(String service, String... providers) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -793,7 +793,7 @@ public abstract class Printer {
    */
   @Deprecated
   public Printer visitRecordComponentAnnotationExperimental(
-    final String descriptor, final boolean visible) {
+    String descriptor, boolean visible) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -820,7 +820,7 @@ public abstract class Printer {
    */
   @Deprecated
   public Printer visitRecordComponentTypeAnnotationExperimental(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -832,7 +832,7 @@ public abstract class Printer {
    * @deprecated this API is experimental.
    */
   @Deprecated
-  public void visitRecordComponentAttributeExperimental(final Attribute attribute) {
+  public void visitRecordComponentAttributeExperimental(Attribute attribute) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -874,7 +874,7 @@ public abstract class Printer {
    * @return the printer.
    */
   public Printer visitFieldTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -897,7 +897,7 @@ public abstract class Printer {
    * @param access the parameter's access flags, only {@code ACC_FINAL}, {@code ACC_SYNTHETIC}
    *               or/and {@code ACC_MANDATED} are allowed (see {@link Opcodes}).
    */
-  public void visitParameter(final String name, final int access) {
+  public void visitParameter(String name, int access) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -935,7 +935,7 @@ public abstract class Printer {
    * @return the printer.
    */
   public Printer visitMethodTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -953,7 +953,7 @@ public abstract class Printer {
    *                       that can have annotations invisible at runtime.
    * @return the printer.
    */
-  public Printer visitAnnotableParameterCount(final int parameterCount, final boolean visible) {
+  public Printer visitAnnotableParameterCount(int parameterCount, boolean visible) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -1084,7 +1084,7 @@ public abstract class Printer {
    */
   @Deprecated
   public void visitMethodInsn(
-    final int opcode, final String owner, final String name, final String descriptor) {
+    int opcode, String owner, String name, String descriptor) {
     // This method was abstract before ASM5, and was therefore always overridden (without any
     // call to 'super'). Thus, at this point we necessarily have api >= ASM5, and we must then
     // redirect the method call to the ASM5 visitMethodInsn() method.
@@ -1103,11 +1103,11 @@ public abstract class Printer {
    * @param isInterface if the method's owner class is an interface.
    */
   public void visitMethodInsn(
-    final int opcode,
-    final String owner,
-    final String name,
-    final String descriptor,
-    final boolean isInterface) {
+    int opcode,
+    String owner,
+    String name,
+    String descriptor,
+    boolean isInterface) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -1217,7 +1217,7 @@ public abstract class Printer {
    * @return the printer.
    */
   public Printer visitInsnAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -1247,7 +1247,7 @@ public abstract class Printer {
    * @return the printer.
    */
   public Printer visitTryCatchAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -1288,13 +1288,13 @@ public abstract class Printer {
    * @return the printer.
    */
   public Printer visitLocalVariableAnnotation(
-    final int typeRef,
-    final TypePath typePath,
-    final Label[] start,
-    final Label[] end,
-    final int[] index,
-    final String descriptor,
-    final boolean visible) {
+    int typeRef,
+    TypePath typePath,
+    Label[] start,
+    Label[] end,
+    int[] index,
+    String descriptor,
+    boolean visible) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
@@ -1338,7 +1338,7 @@ public abstract class Printer {
    *
    * @param printWriter the print writer to be used.
    */
-  public void print(final PrintWriter printWriter) {
+  public void print(PrintWriter printWriter) {
     printList(printWriter, text);
   }
 }

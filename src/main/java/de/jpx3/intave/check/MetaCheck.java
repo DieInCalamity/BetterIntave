@@ -57,8 +57,9 @@ public abstract class MetaCheck<M extends CheckCustomMetadata> extends Check {
   /**
    * Retrieve the meta instance of the passed meta class for the given {@link Player}.<br>
    * This method is effectively equal to {@code
-   *   metaOf(UserRepository.userOf(player));
+   * metaOf(UserRepository.userOf(player));
    * }
+   *
    * @param player the player to perform a linkage lookup on
    * @return the meta instance
    */
@@ -68,6 +69,7 @@ public abstract class MetaCheck<M extends CheckCustomMetadata> extends Check {
 
   /**
    * Retrieve the meta instance of the passed meta class for the given {@link User}
+   *
    * @param user the user to retrieve the meta from
    * @return the meta instance
    */

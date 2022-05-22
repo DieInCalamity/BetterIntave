@@ -18,7 +18,7 @@ import org.bukkit.entity.Player;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_8;
 
 public final class Collider {
-  private final static ColliderProcessor v7ComplexColliderProcessor;
+  private static final ColliderProcessor v7ComplexColliderProcessor;
   private static final ColliderProcessor v8ComplexColliderProsessor;
   private static final ColliderProcessor v14ComplexColliderProcessor;
   private static final SimpleColliderProcessor universalSimpleColliderProcessor;

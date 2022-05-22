@@ -193,7 +193,7 @@ public class ClassNode extends ClassVisitor {
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
    *            Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
-  public ClassNode(final int api) {
+  public ClassNode(int api) {
     super(api);
     this.interfaces = new ArrayList<>();
     this.innerClasses = new ArrayList<>();
@@ -207,12 +207,12 @@ public class ClassNode extends ClassVisitor {
 
   @Override
   public void visit(
-    final int version,
-    final int access,
-    final String name,
-    final String signature,
-    final String superName,
-    final String[] interfaces) {
+    int version,
+    int access,
+    String name,
+    String signature,
+    String superName,
+    String[] interfaces) {
     this.version = version;
     this.access = access;
     this.name = name;
@@ -222,31 +222,31 @@ public class ClassNode extends ClassVisitor {
   }
 
   @Override
-  public void visitSource(final String file, final String debug) {
+  public void visitSource(String file, String debug) {
     sourceFile = file;
     sourceDebug = debug;
   }
 
   @Override
-  public ModuleVisitor visitModule(final String name, final int access, final String version) {
+  public ModuleVisitor visitModule(String name, int access, String version) {
     module = new ModuleNode(name, access, version);
     return module;
   }
 
   @Override
-  public void visitNestHost(final String nestHost) {
+  public void visitNestHost(String nestHost) {
     this.nestHostClass = nestHost;
   }
 
   @Override
-  public void visitOuterClass(final String owner, final String name, final String descriptor) {
+  public void visitOuterClass(String owner, String name, String descriptor) {
     outerClass = owner;
     outerMethod = name;
     outerMethodDesc = descriptor;
   }
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+  public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
     AnnotationNode annotation = new AnnotationNode(descriptor);
     if (visible) {
       visibleAnnotations = Util.add(visibleAnnotations, annotation);
@@ -258,7 +258,7 @@ public class ClassNode extends ClassVisitor {
 
   @Override
   public AnnotationVisitor visitTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     TypeAnnotationNode typeAnnotation = new TypeAnnotationNode(typeRef, typePath, descriptor);
     if (visible) {
       visibleTypeAnnotations = Util.add(visibleTypeAnnotations, typeAnnotation);
@@ -269,30 +269,30 @@ public class ClassNode extends ClassVisitor {
   }
 
   @Override
-  public void visitAttribute(final Attribute attribute) {
+  public void visitAttribute(Attribute attribute) {
     attrs = Util.add(attrs, attribute);
   }
 
   @Override
-  public void visitNestMember(final String nestMember) {
+  public void visitNestMember(String nestMember) {
     nestMembers = Util.add(nestMembers, nestMember);
   }
 
   @Override
-  public void visitPermittedSubtypeExperimental(final String permittedSubtype) {
+  public void visitPermittedSubtypeExperimental(String permittedSubtype) {
     permittedSubtypesExperimental = Util.add(permittedSubtypesExperimental, permittedSubtype);
   }
 
   @Override
   public void visitInnerClass(
-    final String name, final String outerName, final String innerName, final int access) {
+    String name, String outerName, String innerName, int access) {
     InnerClassNode innerClass = new InnerClassNode(name, outerName, innerName, access);
     innerClasses.add(innerClass);
   }
 
   @Override
   public RecordComponentVisitor visitRecordComponentExperimental(
-    final int access, final String name, final String descriptor, final String signature) {
+    int access, String name, String descriptor, String signature) {
     RecordComponentNode recordComponent =
       new RecordComponentNode(access, name, descriptor, signature);
     recordComponentsExperimental = Util.add(recordComponentsExperimental, recordComponent);
@@ -301,11 +301,11 @@ public class ClassNode extends ClassVisitor {
 
   @Override
   public FieldVisitor visitField(
-    final int access,
-    final String name,
-    final String descriptor,
-    final String signature,
-    final Object value) {
+    int access,
+    String name,
+    String descriptor,
+    String signature,
+    Object value) {
     FieldNode field = new FieldNode(access, name, descriptor, signature, value);
     fields.add(field);
     return field;
@@ -313,11 +313,11 @@ public class ClassNode extends ClassVisitor {
 
   @Override
   public MethodVisitor visitMethod(
-    final int access,
-    final String name,
-    final String descriptor,
-    final String signature,
-    final String[] exceptions) {
+    int access,
+    String name,
+    String descriptor,
+    String signature,
+    String[] exceptions) {
     MethodNode method = new MethodNode(access, name, descriptor, signature, exceptions);
     methods.add(method);
     return method;
@@ -340,7 +340,7 @@ public class ClassNode extends ClassVisitor {
    * @param api an ASM API version. Must be one of {@link Opcodes#ASM4}, {@link Opcodes#ASM5},
    *            {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
-  public void check(final int api) {
+  public void check(int api) {
     if (api != Opcodes.ASM8_EXPERIMENTAL && permittedSubtypesExperimental != null) {
       throw new UnsupportedClassVersionException();
     }
@@ -400,7 +400,7 @@ public class ClassNode extends ClassVisitor {
    *
    * @param classVisitor a class visitor.
    */
-  public void accept(final ClassVisitor classVisitor) {
+  public void accept(ClassVisitor classVisitor) {
     // Visit the header.
     String[] interfacesArray = new String[this.interfaces.size()];
     this.interfaces.toArray(interfacesArray);

@@ -12,10 +12,10 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public final class ViolationStorage implements Storage {
-  private final static long VIOLATION_UPDATE_CHECK_TIMEOUT = TimeUnit.MINUTES.toMillis(3);
-  private final static long VIOLATION_INSERT_CHECK_COOLDOWN = TimeUnit.MINUTES.toMillis(10);
-  private final static long VIOLATION_ALLOWED_LIFETIME = TimeUnit.DAYS.toMillis(7);
-  private final static long VIOLATION_OVERALL_LIMIT = 256;
+  private static final long VIOLATION_UPDATE_CHECK_TIMEOUT = TimeUnit.MINUTES.toMillis(3);
+  private static final long VIOLATION_INSERT_CHECK_COOLDOWN = TimeUnit.MINUTES.toMillis(10);
+  private static final long VIOLATION_ALLOWED_LIFETIME = TimeUnit.DAYS.toMillis(7);
+  private static final long VIOLATION_OVERALL_LIMIT = 256;
 
   private StorageViolationEvents interestingViolations = new StorageViolationEvents();
 

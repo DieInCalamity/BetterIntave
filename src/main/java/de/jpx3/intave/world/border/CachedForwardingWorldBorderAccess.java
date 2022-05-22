@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 @MyNameIsTooAbstract
 public final class CachedForwardingWorldBorderAccess implements WorldBorderAccess {
-  private final static long CACHE_EXPIRY = TimeUnit.MICROSECONDS.toMillis(200);
+  private static final long CACHE_EXPIRY = TimeUnit.MICROSECONDS.toMillis(200);
   private final WorldBorderAccess forward;
   private final Map<World, WorldBorderAccessCache<Double>> sizeCache = GarbageCollector.watch(new ConcurrentHashMap<>());
   private final Map<World, WorldBorderAccessCache<Location>> locationCache = GarbageCollector.watch(new ConcurrentHashMap<>());

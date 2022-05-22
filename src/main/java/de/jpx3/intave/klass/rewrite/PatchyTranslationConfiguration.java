@@ -27,6 +27,7 @@ final class PatchyTranslationConfiguration {
   public List<CustomMethodTranslation> customMethodTranslationList() {
     return customMethodTranslationList;
   }
+
   public List<CustomFieldTranslation> customFieldTranslations() {
     return customFieldTranslations;
   }
@@ -162,7 +163,8 @@ final class PatchyTranslationConfiguration {
       configuration.customMethodTranslationList.add(CustomMethodTranslation.buildFrom(annotation));
     } else if (className.equals(CUSTOM_FIELD_TRANSLATION_ANNOTATION_PATH)) {
       configuration.customFieldTranslations.add(CustomFieldTranslation.buildFrom(annotation));
-    } if (className.equals(TRANSLATE_PARAMETERS_ANNOTATION_PATH)) {
+    }
+    if (className.equals(TRANSLATE_PARAMETERS_ANNOTATION_PATH)) {
       configuration.translateParameters = true;
     }
   }

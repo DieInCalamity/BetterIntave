@@ -42,6 +42,7 @@ public final class CheckLinker {
    * Iterate through the {@link Collection} of {@link Check}s -
    * constraint by {@link Check#performLinkage()} - and their check parts - constraint by {@link CheckPart#enabled()}
    * to link their proposed packet subscription methods.
+   *
    * @param checks the collection of checks to perform linkage on
    */
   public void linkPacketEventSubscriptions(Collection<Check> checks) {
@@ -53,6 +54,7 @@ public final class CheckLinker {
    * Iterate through the {@link Collection} of {@link Check}s -
    * constraint by {@link Check#performLinkage()} - and their check parts - constraint by {@link CheckPart#enabled()}
    * to remove the linkage of their proposed packet subscription methods.
+   *
    * @param checks the collection of checks to remove linkage
    */
   public void removePacketEventSubscriptions(Collection<Check> checks) {
@@ -64,6 +66,7 @@ public final class CheckLinker {
    * Iterate through the {@link Collection} of {@link Check}s -
    * constraint by {@link Check#performLinkage()} - and their check parts - constraint by {@link CheckPart#enabled()}
    * to link their proposed event subscription methods.
+   *
    * @param checks the collection of checks to perform linkage on
    */
   public void linkBukkitEventSubscriptions(Collection<Check> checks) {
@@ -75,6 +78,7 @@ public final class CheckLinker {
    * Iterate through the {@link Collection} of {@link Check}s -
    * constraint by {@link Check#performLinkage()} - and their check parts - constraint by {@link CheckPart#enabled()}
    * to remove the linkage of their proposed event subscription methods.
+   *
    * @param checks the collection of checks to remove linkage
    */
   public void removeBukkitEventSubscriptions(Collection<Check> checks) {

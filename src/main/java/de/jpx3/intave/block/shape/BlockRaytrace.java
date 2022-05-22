@@ -3,7 +3,7 @@ package de.jpx3.intave.block.shape;
 import de.jpx3.intave.shade.Direction;
 
 public final class BlockRaytrace {
-  private final static BlockRaytrace NONE = new BlockRaytrace(null, Integer.MAX_VALUE);
+  private static final BlockRaytrace NONE = new BlockRaytrace(null, Integer.MAX_VALUE);
 
   private final Direction direction;
   private final double lengthOffset;

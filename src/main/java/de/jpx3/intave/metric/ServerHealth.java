@@ -27,7 +27,7 @@ public final class ServerHealth {
         exception.printStackTrace();
         exception1.printStackTrace();
       }
-      tpsAccess = new double[] {20, 20, 20};
+      tpsAccess = new double[]{20, 20, 20};
     }
   }
 

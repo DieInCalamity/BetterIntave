@@ -14,9 +14,9 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public final class ProfileLookup {
-  private final static String NAME_TO_ID_LOOKUP_URL =
+  private static final String NAME_TO_ID_LOOKUP_URL =
     "https://api.mojang.com/users/profiles/minecraft/%s";
-  private final static Map<String, UUID> requestCache =
+  private static final Map<String, UUID> requestCache =
     GarbageCollector.watch(Maps.newConcurrentMap());
 
   public static void lookupIdFromName(String name, Consumer<UUID> lazyReturn) {
@@ -51,8 +51,8 @@ public final class ProfileLookup {
   private static UUID asId(String id) {
     return UUID.fromString(
       id.substring(0, 8) + "-" + id.substring(8, 12) + "-" +
-       id.substring(12, 16) + "-" + id.substring(16, 20) + "-" +
-       id.substring(20, 32)
+        id.substring(12, 16) + "-" + id.substring(16, 20) + "-" +
+        id.substring(20, 32)
     );
   }
 }

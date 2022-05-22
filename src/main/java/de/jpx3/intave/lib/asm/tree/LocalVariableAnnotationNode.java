@@ -76,12 +76,12 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
    * @param descriptor the class descriptor of the annotation class.
    */
   public LocalVariableAnnotationNode(
-    final int typeRef,
-    final TypePath typePath,
-    final LabelNode[] start,
-    final LabelNode[] end,
-    final int[] index,
-    final String descriptor) {
+    int typeRef,
+    TypePath typePath,
+    LabelNode[] start,
+    LabelNode[] end,
+    int[] index,
+    String descriptor) {
     this(/* latest api = */ Opcodes.ASM7, typeRef, typePath, start, end, index, descriptor);
   }
 
@@ -103,13 +103,13 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
    * @param descriptor the class descriptor of the annotation class.
    */
   public LocalVariableAnnotationNode(
-    final int api,
-    final int typeRef,
-    final TypePath typePath,
-    final LabelNode[] start,
-    final LabelNode[] end,
-    final int[] index,
-    final String descriptor) {
+    int api,
+    int typeRef,
+    TypePath typePath,
+    LabelNode[] start,
+    LabelNode[] end,
+    int[] index,
+    String descriptor) {
     super(api, typeRef, typePath, descriptor);
     this.start = Util.asArrayList(start);
     this.end = Util.asArrayList(end);
@@ -122,7 +122,7 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
    * @param methodVisitor the visitor that must visit this annotation.
    * @param visible       {@literal true} if the annotation is visible at runtime.
    */
-  public void accept(final MethodVisitor methodVisitor, final boolean visible) {
+  public void accept(MethodVisitor methodVisitor, boolean visible) {
     Label[] startLabels = new Label[this.start.size()];
     Label[] endLabels = new Label[this.end.size()];
     int[] indices = new int[this.index.size()];

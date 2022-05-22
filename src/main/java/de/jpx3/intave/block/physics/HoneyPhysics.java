@@ -37,7 +37,7 @@ final class HoneyPhysics implements BlockPhysic {
     } else {
       double d0 = Math.abs(blockPos.getX() + 0.5D - movementData.positionX);
       double d1 = Math.abs(blockPos.getZ() + 0.5D - movementData.positionZ);
-      double d2 = 0.4375D + (double)(movementData.width / 2.0F);
+      double d2 = 0.4375D + (double) (movementData.width / 2.0F);
       return d0 + 1.0E-7D > d2 || d1 + 1.0E-7D > d2;
     }
   }
@@ -45,7 +45,7 @@ final class HoneyPhysics implements BlockPhysic {
   private Motion updateMovement(User user, double motionX, double motionY, double motionZ) {
     MovementMetadata movementData = user.meta().movement();
     movementData.artificialFallDistance = 0.0F;
-    if (motionY< -0.13D) {
+    if (motionY < -0.13D) {
       double d0 = -0.05D / motionY;
       return new Motion(motionX * d0, -0.05D, motionZ * d0);
     } else {

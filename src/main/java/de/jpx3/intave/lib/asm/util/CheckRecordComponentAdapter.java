@@ -37,7 +37,9 @@ import de.jpx3.intave.lib.asm.*;
  */
 public class CheckRecordComponentAdapter extends RecordComponentVisitor {
 
-  /** Whether the {@link #visitEndExperimental()} method has been called. */
+  /**
+   * Whether the {@link #visitEndExperimental()} method has been called.
+   */
   private boolean visitEndCalled;
 
   /**
@@ -46,10 +48,10 @@ public class CheckRecordComponentAdapter extends RecordComponentVisitor {
    * RecordComponentVisitor)} version.
    *
    * @param recordComponentVisitor the record component visitor to which this adapter must delegate
-   *     calls.
+   *                               calls.
    * @throws IllegalStateException If a subclass calls this constructor.
    */
-  public CheckRecordComponentAdapter(final RecordComponentVisitor recordComponentVisitor) {
+  public CheckRecordComponentAdapter(RecordComponentVisitor recordComponentVisitor) {
     // TODO: add 'latest api =' comment when no longer experimental.
     this(Opcodes.ASM8_EXPERIMENTAL, recordComponentVisitor);
     if (getClass() != CheckRecordComponentAdapter.class) {
@@ -60,19 +62,19 @@ public class CheckRecordComponentAdapter extends RecordComponentVisitor {
   /**
    * Constructs a new {@link CheckRecordComponentAdapter}.
    *
-   * @param api the ASM API version implemented by this visitor. Must be {@link
-   *     Opcodes#ASM8_EXPERIMENTAL}.
+   * @param api                    the ASM API version implemented by this visitor. Must be {@link
+   *                               Opcodes#ASM8_EXPERIMENTAL}.
    * @param recordComponentVisitor the record component visitor to which this adapter must delegate
-   *     calls.
+   *                               calls.
    */
   protected CheckRecordComponentAdapter(
-      final int api, final RecordComponentVisitor recordComponentVisitor) {
+    int api, RecordComponentVisitor recordComponentVisitor) {
     super(api, recordComponentVisitor);
   }
 
   @Override
   public AnnotationVisitor visitAnnotationExperimental(
-      final String descriptor, final boolean visible) {
+    String descriptor, boolean visible) {
     checkVisitEndNotCalled();
     // Annotations can only appear in V1_5 or more classes.
     CheckMethodAdapter.checkDescriptor(Opcodes.V1_5, descriptor, false);
@@ -81,21 +83,21 @@ public class CheckRecordComponentAdapter extends RecordComponentVisitor {
 
   @Override
   public AnnotationVisitor visitTypeAnnotationExperimental(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     checkVisitEndNotCalled();
     int sort = new TypeReference(typeRef).getSort();
     if (sort != TypeReference.FIELD) {
       throw new IllegalArgumentException(
-          "Invalid type reference sort 0x" + Integer.toHexString(sort));
+        "Invalid type reference sort 0x" + Integer.toHexString(sort));
     }
     CheckClassAdapter.checkTypeRef(typeRef);
     CheckMethodAdapter.checkDescriptor(Opcodes.V1_5, descriptor, false);
     return new CheckAnnotationAdapter(
-        super.visitTypeAnnotationExperimental(typeRef, typePath, descriptor, visible));
+      super.visitTypeAnnotationExperimental(typeRef, typePath, descriptor, visible));
   }
 
   @Override
-  public void visitAttributeExperimental(final Attribute attribute) {
+  public void visitAttributeExperimental(Attribute attribute) {
     checkVisitEndNotCalled();
     if (attribute == null) {
       throw new IllegalArgumentException("Invalid attribute (must not be null)");

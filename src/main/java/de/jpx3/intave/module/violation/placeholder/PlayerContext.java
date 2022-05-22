@@ -30,7 +30,7 @@ public final class PlayerContext implements PlaceholderContext {
   }
 
   public static PlayerContext empty() {
-    return new PlayerContext("", new UUID(0,0), InetAddress.getLoopbackAddress());
+    return new PlayerContext("", new UUID(0, 0), InetAddress.getLoopbackAddress());
   }
 
   public static PlayerContext of(Player player) {

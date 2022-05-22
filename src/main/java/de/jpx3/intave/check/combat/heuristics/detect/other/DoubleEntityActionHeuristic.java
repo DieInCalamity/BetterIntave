@@ -38,32 +38,32 @@ public final class DoubleEntityActionHeuristic extends MetaCheckPart<Heuristics,
     DoubleEntityActionHeuristicMeta meta = metaOf(user);
 
     String message = null;
-    if(action == PlayerAction.START_SNEAKING) {
-      if(meta.isSneaking != null && meta.isSneaking) {
+    if (action == PlayerAction.START_SNEAKING) {
+      if (meta.isSneaking != null && meta.isSneaking) {
         message = "sent start_sneak packet twice";
       }
       meta.isSneaking = true;
     }
-    if(action == PlayerAction.STOP_SNEAKING) {
-      if(meta.isSneaking != null && !meta.isSneaking) {
+    if (action == PlayerAction.STOP_SNEAKING) {
+      if (meta.isSneaking != null && !meta.isSneaking) {
         message = "sent stop_sneak packet twice";
       }
       meta.isSneaking = false;
     }
-    if(action == PlayerAction.START_SPRINTING) {
-      if(meta.isSprinting != null && meta.isSprinting) {
+    if (action == PlayerAction.START_SPRINTING) {
+      if (meta.isSprinting != null && meta.isSprinting) {
         message = "sent start_sprint packet twice";
       }
       meta.isSprinting = true;
     }
-    if(action == PlayerAction.STOP_SPRINTING) {
-      if(meta.isSprinting != null && !meta.isSprinting) {
+    if (action == PlayerAction.STOP_SPRINTING) {
+      if (meta.isSprinting != null && !meta.isSprinting) {
         message = "sent stop_sprint packet twice";
       }
       meta.isSprinting = false;
     }
 
-    if(message != null && meta.ticksSinceJoin > 10) {
+    if (message != null && meta.ticksSinceJoin > 10) {
       message += " " + protocolMetadata.protocolVersion();
       // Be careful before setting a confidence because it false flags when reloading the server
       Anomaly anomaly = Anomaly.anomalyOf("190",

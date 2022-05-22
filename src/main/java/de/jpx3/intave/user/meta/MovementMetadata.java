@@ -458,7 +458,7 @@ public final class MovementMetadata implements SimulationEnvironment {
     updateSize();
   }
 
-  private final static boolean ELYTRA_ENABLED = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
+  private static final boolean ELYTRA_ENABLED = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
 
   private boolean flyingWithElytra(Player player) {
     return ELYTRA_ENABLED && canUseElytra(player) && player.isGliding();
@@ -690,7 +690,7 @@ public final class MovementMetadata implements SimulationEnvironment {
     }
   }
 
-  public final static WrappedAttributeModifier SPRINTING_MODIFIER = WrappedAttributeModifier.newBuilder(UUID.fromString("662A6B8D-DA3E-4C1C-8813-96EA6097278D")).amount(0.3F).operation(ADD_PERCENTAGE).name("Sprint Boost").build();
+  public static final WrappedAttributeModifier SPRINTING_MODIFIER = WrappedAttributeModifier.newBuilder(UUID.fromString("662A6B8D-DA3E-4C1C-8813-96EA6097278D")).amount(0.3F).operation(ADD_PERCENTAGE).name("Sprint Boost").build();
 
   public void setSprinting(boolean sprinting) {
     this.sprinting = sprinting;

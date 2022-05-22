@@ -24,10 +24,11 @@ import java.lang.reflect.InvocationTargetException;
 
 @Deprecated
 public final class LabymodShadowIntegration {
-  private final static int SHADOW_VERSION = 1;
+  private static final int SHADOW_VERSION = 1;
   private final IntavePlugin plugin;
 
   private final LabymodClientListener shadowPacketListener;
+
   public LabymodShadowIntegration(IntavePlugin plugin) {
     this.plugin = plugin;
     this.shadowPacketListener = new LabymodClientListener(plugin, "info", this::processIncomingMessage);

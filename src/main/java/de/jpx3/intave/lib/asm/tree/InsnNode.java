@@ -52,7 +52,7 @@ public class InsnNode extends AbstractInsnNode {
    *               D2L, D2F, I2B, I2C, I2S, LCMP, FCMPL, FCMPG, DCMPL, DCMPG, IRETURN, LRETURN, FRETURN,
    *               DRETURN, ARETURN, RETURN, ARRAYLENGTH, ATHROW, MONITORENTER, or MONITOREXIT.
    */
-  public InsnNode(final int opcode) {
+  public InsnNode(int opcode) {
     super(opcode);
   }
 
@@ -62,13 +62,13 @@ public class InsnNode extends AbstractInsnNode {
   }
 
   @Override
-  public void accept(final MethodVisitor methodVisitor) {
+  public void accept(MethodVisitor methodVisitor) {
     methodVisitor.visitInsn(opcode);
     acceptAnnotations(methodVisitor);
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
+  public AbstractInsnNode clone(Map<LabelNode, LabelNode> clonedLabels) {
     return new InsnNode(opcode).cloneAnnotations(this);
   }
 }

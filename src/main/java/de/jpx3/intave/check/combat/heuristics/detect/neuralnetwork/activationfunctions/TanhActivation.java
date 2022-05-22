@@ -5,7 +5,7 @@ public class TanhActivation extends ActivationFunction {
   public double function(double input) {
     return Math.tanh(input);
   }
-  
+
   @Override
   public double derivative(double input) {
 //    return (Math.log(1 + input) - Math.log(1 - input)) / 2;

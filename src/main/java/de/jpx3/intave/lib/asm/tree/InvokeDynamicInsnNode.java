@@ -73,10 +73,10 @@ public class InvokeDynamicInsnNode extends AbstractInsnNode {
    *                                 content of the array so a caller should expect that this array may change.
    */
   public InvokeDynamicInsnNode(
-    final String name,
-    final String descriptor,
-    final Handle bootstrapMethodHandle,
-    final Object... bootstrapMethodArguments) { // NOPMD(ArrayIsStoredDirectly): public field.
+    String name,
+    String descriptor,
+    Handle bootstrapMethodHandle,
+    Object... bootstrapMethodArguments) { // NOPMD(ArrayIsStoredDirectly): public field.
     super(Opcodes.INVOKEDYNAMIC);
     this.name = name;
     this.desc = descriptor;
@@ -90,13 +90,13 @@ public class InvokeDynamicInsnNode extends AbstractInsnNode {
   }
 
   @Override
-  public void accept(final MethodVisitor methodVisitor) {
+  public void accept(MethodVisitor methodVisitor) {
     methodVisitor.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
     acceptAnnotations(methodVisitor);
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
+  public AbstractInsnNode clone(Map<LabelNode, LabelNode> clonedLabels) {
     return new InvokeDynamicInsnNode(name, desc, bsm, bsmArgs).cloneAnnotations(this);
   }
 }

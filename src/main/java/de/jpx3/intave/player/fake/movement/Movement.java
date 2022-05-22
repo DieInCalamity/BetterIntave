@@ -22,7 +22,7 @@ import static de.jpx3.intave.shade.ClientMathHelper.floor;
 import static de.jpx3.intave.shade.Direction.Axis.*;
 
 public abstract class Movement extends HeadRotationMovement {
-  private final static double BOT_DISTANCE_ADJUSTMENT = 0.15;
+  private static final double BOT_DISTANCE_ADJUSTMENT = 0.15;
 
   public double motionX = 0.0, motionY = 0.0, motionZ = 0.0;
   public Location location;
@@ -108,7 +108,8 @@ public abstract class Movement extends HeadRotationMovement {
     endTick();
   }
 
-  public void endTick() {}
+  public void endTick() {
+  }
 
   private SimpleColliderSimulationResult collide(BoundingBox boundingBox, double motionX, double motionY, double motionZ) {
     List<BoundingBox> collisionBoxes = resolveCollisions(location.getWorld(), boundingBox.expand(motionX, motionY, motionZ));
@@ -128,7 +129,7 @@ public abstract class Movement extends HeadRotationMovement {
     return new SimpleColliderSimulationResult(motionX, motionY, motionZ, onGround, startMotionY != motionY);
   }
 
-  private final static ShapeResolverPipeline boundingBoxResolver = ShapeResolver.pipelineHead();
+  private static final ShapeResolverPipeline boundingBoxResolver = ShapeResolver.pipelineHead();
 
   private List<BoundingBox> resolveCollisions(World world, BoundingBox boundingBox) {
     int minX = floor(boundingBox.minX);

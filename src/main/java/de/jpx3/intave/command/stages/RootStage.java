@@ -504,7 +504,7 @@ public final class RootStage extends CommandStage {
     player.sendMessage(ChatColor.GREEN + "Block summoned");
   }
 
-  private final static Map<Class<?>, String> CLASS_NAME = new HashMap<>();
+  private static final Map<Class<?>, String> CLASS_NAME = new HashMap<>();
 
   static {
     CLASS_NAME.put(BoundingBox.class, "BoundingBoxes");

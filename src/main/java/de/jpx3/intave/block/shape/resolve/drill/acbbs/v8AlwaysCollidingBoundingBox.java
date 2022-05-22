@@ -8,7 +8,7 @@ import net.minecraft.server.v1_8_R3.AxisAlignedBB;
 public final class v8AlwaysCollidingBoundingBox extends AxisAlignedBB {
   @PatchyAutoTranslation
   public v8AlwaysCollidingBoundingBox() {
-    super(0,0,0,1,1,1);
+    super(0, 0, 0, 1, 1, 1);
   }
 
   @Override

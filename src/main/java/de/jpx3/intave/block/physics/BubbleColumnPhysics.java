@@ -31,7 +31,7 @@ final class BubbleColumnPhysics implements BlockPhysic {
   public Motion entityCollidedWithBlock(User user, Location location, Location from, double motionX, double motionY, double motionZ) {
     ProtocolMetadata protocol = user.meta().protocol();
     if (protocol.waterUpdate()) {
-      boolean water = Fluids.fluidAt(user, location.clone().add(0,1,0)).isOfWater();
+      boolean water = Fluids.fluidAt(user, location.clone().add(0, 1, 0)).isOfWater();
       BlockVariant variant = VolatileBlockAccess.variantAccess(user, location);
       boolean downwards = variant.propertyOf("drag");
       if (water) {

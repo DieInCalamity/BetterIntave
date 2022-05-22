@@ -37,6 +37,7 @@ public final class IntaveViolationEvent extends IntaveEvent implements Cancellab
 
   /**
    * Retrieve the detected player
+   *
    * @return the player detected
    */
   public Player player() {
@@ -45,6 +46,7 @@ public final class IntaveViolationEvent extends IntaveEvent implements Cancellab
 
   /**
    * Retrieve the detected players {@link PlayerAccess}
+   *
    * @return the detected players {@link PlayerAccess}
    */
   public PlayerAccess playerAccess() {
@@ -58,6 +60,7 @@ public final class IntaveViolationEvent extends IntaveEvent implements Cancellab
 
   /**
    * Retrieve the executing checks name
+   *
    * @return the name of the executing check
    */
   public String checkName() {
@@ -66,6 +69,7 @@ public final class IntaveViolationEvent extends IntaveEvent implements Cancellab
 
   /**
    * Retrieve the executing checks corresponding {@link Check}
+   *
    * @return the executing checks corresponding {@link Check}
    */
   public Check checkEnum() {
@@ -75,6 +79,7 @@ public final class IntaveViolationEvent extends IntaveEvent implements Cancellab
   /**
    * Retrieve a generalized detection message for the specific violation, when available
    * followed by violation details encapsulated in exclamation marks.
+   *
    * @return a generalized message for this violation with violation details in exclamation marks.
    */
   public String message() {
@@ -86,6 +91,7 @@ public final class IntaveViolationEvent extends IntaveEvent implements Cancellab
 
   /**
    * Retrieve details on the specific violation
+   *
    * @return details on the specific violation
    */
   public String details() {
@@ -95,6 +101,7 @@ public final class IntaveViolationEvent extends IntaveEvent implements Cancellab
   /**
    * Retrieve a generalized message for the specific violation.
    * Usually in a format where it can be prefixed with the players name, eg. "moved incorrectly"
+   *
    * @return a generalized message for this violation
    */
   public String compactMessage() {
@@ -103,13 +110,14 @@ public final class IntaveViolationEvent extends IntaveEvent implements Cancellab
 
   /**
    * Retrieve the amount of added violation points
+   *
    * @return the added violation points
    */
   public double addedViolationPoints() {
     return reducePrecision(vlAfter - vlBefore);
   }
 
-  private final static double REDUCE_APPLIER = 1000d;
+  private static final double REDUCE_APPLIER = 1000d;
 
   private double reducePrecision(double input) {
     return Math.round(input * REDUCE_APPLIER) / REDUCE_APPLIER;
@@ -117,6 +125,7 @@ public final class IntaveViolationEvent extends IntaveEvent implements Cancellab
 
   /**
    * Retrieve the violation level before the violation
+   *
    * @return the violation level before the violation
    */
   public double violationLevelBeforeViolation() {
@@ -125,6 +134,7 @@ public final class IntaveViolationEvent extends IntaveEvent implements Cancellab
 
   /**
    * Retrieve the violation level after the violation
+   *
    * @return the violation level after the violation
    */
   public double violationLevelAfterViolation() {
@@ -133,6 +143,7 @@ public final class IntaveViolationEvent extends IntaveEvent implements Cancellab
 
   /**
    * Retrieves whether the reaction has been altered
+   *
    * @return true if the reaction has been altered, false if not
    */
   @Override
@@ -143,6 +154,7 @@ public final class IntaveViolationEvent extends IntaveEvent implements Cancellab
 
   /**
    * Change whether we should ignore this violation
+   *
    * @param cancelled the new cancelled variant
    */
   @Override
@@ -153,8 +165,9 @@ public final class IntaveViolationEvent extends IntaveEvent implements Cancellab
 
   /**
    * Suggest a new reaction for this violation.
-   * @see Reaction
+   *
    * @param reaction the suggested reaction
+   * @see Reaction
    */
   public void suggestReaction(Reaction reaction) {
     Preconditions.checkNotNull(reaction);
@@ -164,6 +177,7 @@ public final class IntaveViolationEvent extends IntaveEvent implements Cancellab
   /**
    * Retrieve the reaction to perform.
    * This setting is only modified by the user and always INTERRUPT_AND_REPORT on violation.
+   *
    * @return the reaction to perform.
    */
   public Reaction reaction() {

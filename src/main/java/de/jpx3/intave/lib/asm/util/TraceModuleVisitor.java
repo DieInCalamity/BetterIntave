@@ -37,7 +37,9 @@ import de.jpx3.intave.lib.asm.Opcodes;
  */
 public final class TraceModuleVisitor extends ModuleVisitor {
 
-  /** The printer to convert the visited module into text. */
+  /**
+   * The printer to convert the visited module into text.
+   */
   // DontCheck(MemberName): can't be renamed (for backward binary compatibility).
   public final Printer p;
 
@@ -46,7 +48,7 @@ public final class TraceModuleVisitor extends ModuleVisitor {
    *
    * @param printer the printer to convert the visited module into text.
    */
-  public TraceModuleVisitor(final Printer printer) {
+  public TraceModuleVisitor(Printer printer) {
     this(null, printer);
   }
 
@@ -54,51 +56,51 @@ public final class TraceModuleVisitor extends ModuleVisitor {
    * Constructs a new {@link TraceModuleVisitor}.
    *
    * @param moduleVisitor the module visitor to which to delegate calls. May be {@literal null}.
-   * @param printer the printer to convert the visited module into text.
+   * @param printer       the printer to convert the visited module into text.
    */
-  public TraceModuleVisitor(final ModuleVisitor moduleVisitor, final Printer printer) {
+  public TraceModuleVisitor(ModuleVisitor moduleVisitor, Printer printer) {
     super(/* latest api = */ Opcodes.ASM7, moduleVisitor);
     this.p = printer;
   }
 
   @Override
-  public void visitMainClass(final String mainClass) {
+  public void visitMainClass(String mainClass) {
     p.visitMainClass(mainClass);
     super.visitMainClass(mainClass);
   }
 
   @Override
-  public void visitPackage(final String packaze) {
+  public void visitPackage(String packaze) {
     p.visitPackage(packaze);
     super.visitPackage(packaze);
   }
 
   @Override
-  public void visitRequire(final String module, final int access, final String version) {
+  public void visitRequire(String module, int access, String version) {
     p.visitRequire(module, access, version);
     super.visitRequire(module, access, version);
   }
 
   @Override
-  public void visitExport(final String packaze, final int access, final String... modules) {
+  public void visitExport(String packaze, int access, String... modules) {
     p.visitExport(packaze, access, modules);
     super.visitExport(packaze, access, modules);
   }
 
   @Override
-  public void visitOpen(final String packaze, final int access, final String... modules) {
+  public void visitOpen(String packaze, int access, String... modules) {
     p.visitOpen(packaze, access, modules);
     super.visitOpen(packaze, access, modules);
   }
 
   @Override
-  public void visitUse(final String use) {
+  public void visitUse(String use) {
     p.visitUse(use);
     super.visitUse(use);
   }
 
   @Override
-  public void visitProvide(final String service, final String... providers) {
+  public void visitProvide(String service, String... providers) {
     p.visitProvide(service, providers);
     super.visitProvide(service, providers);
   }

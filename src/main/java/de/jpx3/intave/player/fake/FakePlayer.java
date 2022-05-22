@@ -32,10 +32,10 @@ import static de.jpx3.intave.player.fake.MetadataAccess.updateHealthFor;
 import static de.jpx3.intave.player.fake.ProfileLookup.acquireGameProfile;
 
 public final class FakePlayer extends FakePlayerBody {
-  public final static float SPAWN_HEALTH_STATE = 20.0f;
-  private final static IntavePlugin plugin = IntavePlugin.singletonInstance();
-  private final static int LATENCY_JITTER_INTERVAL = 25;
-  private final static double MAX_RELATIVE_MOVE_DIST = 3.5;
+  public static final float SPAWN_HEALTH_STATE = 20.0f;
+  private static final IntavePlugin plugin = IntavePlugin.singletonInstance();
+  private static final int LATENCY_JITTER_INTERVAL = 25;
+  private static final double MAX_RELATIVE_MOVE_DIST = 3.5;
   private final Map<Class<? extends Action>, Action> actions;
   private final Movement movement;
   private final Player observer;
@@ -311,7 +311,8 @@ public final class FakePlayer extends FakePlayerBody {
     private String prefix = "";
     private Movement movement = null;
     private int attributes = 0;
-    private Consumer<FakePlayer> attackSubscriber = fakePlayer -> {};
+    private Consumer<FakePlayer> attackSubscriber = fakePlayer -> {
+    };
 
     Builder(Player observer) {
       this.observer = observer;

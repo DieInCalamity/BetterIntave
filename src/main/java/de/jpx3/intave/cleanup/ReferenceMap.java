@@ -12,16 +12,17 @@ import java.util.function.Function;
 
 /**
  * A {@link Map} delegate wrapping its values in soft or weak references
+ *
  * @param <K> the map key
  * @param <V> the map value
  */
 public final class ReferenceMap<K, V> implements Map<K, V> {
   private final Map<K, Reference<V>> map;
-  private final Function<V, Reference<V>> referencer;
+  private final Function<? super V, ? extends Reference<V>> referencer;
 
   private ReferenceMap(
     Map<K, Reference<V>> map,
-    Function<V, Reference<V>> referencer
+    Function<? super V, ? extends Reference<V>> referencer
   ) {
     this.map = map;
     this.referencer = referencer;

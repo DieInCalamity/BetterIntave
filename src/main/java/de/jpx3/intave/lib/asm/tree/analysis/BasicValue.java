@@ -83,7 +83,7 @@ public class BasicValue implements Value {
    *
    * @param type the value type.
    */
-  public BasicValue(final Type type) {
+  public BasicValue(Type type) {
     this.type = type;
   }
 
@@ -111,7 +111,7 @@ public class BasicValue implements Value {
   }
 
   @Override
-  public boolean equals(final Object value) {
+  public boolean equals(Object value) {
     if (value == this) {
       return true;
     } else if (value instanceof BasicValue) {

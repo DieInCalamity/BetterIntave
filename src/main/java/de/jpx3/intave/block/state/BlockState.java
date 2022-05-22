@@ -21,7 +21,7 @@ import java.util.Objects;
  * @see BlockVariantRegister
  */
 public final class BlockState extends MemoryTraced {
-  private final static BlockState EMPTY = new BlockState(BlockShapes.emptyShape(), Material.AIR, 0);
+  private static final BlockState EMPTY = new BlockState(BlockShapes.emptyShape(), Material.AIR, 0);
   private final BlockShape shape;
   private final Material type;
   private final int variantIndex;
@@ -35,6 +35,7 @@ public final class BlockState extends MemoryTraced {
 
   /**
    * Retrieve the blocks bounding boxes
+   *
    * @return the blocks bounding boxes
    */
   public BlockShape shape() {
@@ -43,6 +44,7 @@ public final class BlockState extends MemoryTraced {
 
   /**
    * Retrieve the blocks type
+   *
    * @return the blocks type
    */
   public Material type() {
@@ -51,6 +53,7 @@ public final class BlockState extends MemoryTraced {
 
   /**
    * Retrieve the blocks variant
+   *
    * @return the blocks variant
    */
   public int variantIndex() {
@@ -60,6 +63,7 @@ public final class BlockState extends MemoryTraced {
   /**
    * Indicates if this entry effectively expired.
    * Expiries neither have to be acknowledged nor followed - this only serves as a possible indicator
+   *
    * @return whether the state is expired
    */
   public boolean expired() {

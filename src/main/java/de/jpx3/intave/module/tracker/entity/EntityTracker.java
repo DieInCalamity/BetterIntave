@@ -82,9 +82,9 @@ public final class EntityTracker extends Module {
     }
   }
 
-  private final static int REQUIRED_DISTANCE = 16;
-  private final static int MAX_TRACED_ENTITIES = 4;
-  private final static int MAX_DOUBLE_TRACED_ENTITIES = 1;
+  private static final int REQUIRED_DISTANCE = 16;
+  private static final int MAX_TRACED_ENTITIES = 4;
+  private static final int MAX_DOUBLE_TRACED_ENTITIES = 1;
 
   private void selectEntitiesToTraceFor(Player player) {
     User user = UserRepository.userOf(player);
@@ -361,7 +361,7 @@ public final class EntityTracker extends Module {
 //        FeedbackCallback<PacketEvent> verificationTask = (x, theEvent) -> entity.verifiedPosition = true;
 //        Modules.feedback().tracedDoubleSynchronize(player, event, event, task, verificationTask, feedbackTracker, feedbackTracker);
 //      } else {
-        Modules.feedback().tracedSingleSynchronize(player, event, task, feedbackTracker);
+      Modules.feedback().tracedSingleSynchronize(player, event, task, feedbackTracker);
 //      }
     } else {
       entity.handleEntityTeleport(packet);
@@ -420,7 +420,7 @@ public final class EntityTracker extends Module {
 //        FeedbackCallback<PacketEvent> verificationTask = (x, theEvent) -> entity.verifiedPosition = true;
 //        Modules.feedback().tracedDoubleSynchronize(player, event, event, task, verificationTask, tracker, tracker);
 //      } else {
-        Modules.feedback().tracedSingleSynchronize(player, event, task, tracker);
+      Modules.feedback().tracedSingleSynchronize(player, event, task, tracker);
 //      }
     } else {
       entity.handleEntityMovement(packet);
@@ -430,7 +430,7 @@ public final class EntityTracker extends Module {
 
   private final BiConsumer<User, Consumer<EventSink>> sinkCallback = Modules.nayoro().sinkCallback();
 
-  private void nayoroEntityPositionUpdate(Player player, EntityShade entity)  {
+  private void nayoroEntityPositionUpdate(Player player, EntityShade entity) {
     Nayoro nayoro = Modules.nayoro();
     if (!nayoro.recordingActiveFor(UserRepository.userOf(player))) {
       return;
@@ -674,7 +674,7 @@ public final class EntityTracker extends Module {
         int index = watchableObject.getIndex();
         Object value = watchableObject.getValue();
         if (MinecraftVersions.VER1_14_0.atOrAbove()) {
-          if (processFireworkModern(player, index, value)){
+          if (processFireworkModern(player, index, value)) {
             // ?
             return;
           }
@@ -704,7 +704,7 @@ public final class EntityTracker extends Module {
     return false;
   }
 
-  private final static int MODERN_ENTITY_ID_ACCESS_INDEX = MinecraftVersions.VER1_17_0.atOrAbove() ? 9 : 8;
+  private static final int MODERN_ENTITY_ID_ACCESS_INDEX = MinecraftVersions.VER1_17_0.atOrAbove() ? 9 : 8;
 
   private boolean processFireworkModern(Player player, int index, Object value) {
     User user = UserRepository.userOf(player);

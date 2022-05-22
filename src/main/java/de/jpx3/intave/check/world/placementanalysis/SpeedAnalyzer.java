@@ -31,8 +31,8 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Client.BLOCK_PLACE;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.USE_ITEM;
 
 public final class SpeedAnalyzer extends MetaCheckPart<PlacementAnalysis, SpeedAnalyzer.PlacementSpeedMeta> {
-  private final static int CHECK_LENGTH = 8;
-  private final static int DIRECTION_EVAL_LENGTH = 5;
+  private static final int CHECK_LENGTH = 8;
+  private static final int DIRECTION_EVAL_LENGTH = 5;
 
   private final IntavePlugin plugin;
 
@@ -126,7 +126,7 @@ public final class SpeedAnalyzer extends MetaCheckPart<PlacementAnalysis, SpeedA
   }
 
   private boolean blockUnderPlayer(Block block, Player player) {
-    return block.getLocation().clone().add(0,1,0).distance(player.getLocation()) < 1.3;
+    return block.getLocation().clone().add(0, 1, 0).distance(player.getLocation()) < 1.3;
   }
 
   private int blockCollisions(Block block) {
@@ -142,10 +142,10 @@ public final class SpeedAnalyzer extends MetaCheckPart<PlacementAnalysis, SpeedA
 
   private boolean isOneLine(List<Location> blocks) {
     int lastBlockX = 0,
-        lastBlockY = 0,
-        lastBlockZ = 0;
+      lastBlockY = 0,
+      lastBlockZ = 0;
     boolean lockedOnX = false,
-            lockedOnZ = false;
+      lockedOnZ = false;
     boolean first = true;
     for (Location block : blocks) {
       if (!first) {

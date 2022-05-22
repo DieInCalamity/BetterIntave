@@ -65,9 +65,9 @@ public final class Nayoro extends Module {
 
   public void disableRecordingFor(User user) {
     List<EventSink> remove = eventSinks.get(user).stream()
-        .filter(eventSink -> eventSink instanceof RecordEventSink)
-        .peek(EventSink::close)
-        .collect(Collectors.toList());
+      .filter(eventSink -> eventSink instanceof RecordEventSink)
+      .peek(EventSink::close)
+      .collect(Collectors.toList());
     remove.forEach(eventSinks.get(user)::remove);
     recording.get(user).set(false);
   }

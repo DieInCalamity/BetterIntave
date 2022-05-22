@@ -6,7 +6,7 @@ import org.bukkit.Location;
  * This movement mode doesn't apply real gravity on the entity.
  */
 public final class FloatingMovement extends Movement {
-  private final static double MOVE_MULTIPLIER = 0.91f;
+  private static final double MOVE_MULTIPLIER = 0.91f;
 
   @Override
   public void move(Location parentLocation) {

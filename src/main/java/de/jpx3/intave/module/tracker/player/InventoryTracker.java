@@ -142,7 +142,7 @@ public final class InventoryTracker extends Module {
 //      GameProfile profile = (GameProfile) profileField.get(meta);
 //      System.out.println(profile);
 //      return profile.getName();
-      return meta.getOwner();
+    return meta.getOwner();
 //    } catch (Exception exception) {
 //      exception.printStackTrace();
 //    }

@@ -93,7 +93,7 @@ public class InsnList implements Iterable<AbstractInsnNode> {
    * @return the instruction whose index is given.
    * @throws IndexOutOfBoundsException if (index &lt; 0 || index &gt;= size()).
    */
-  public AbstractInsnNode get(final int index) {
+  public AbstractInsnNode get(int index) {
     if (index < 0 || index >= size) {
       throw new IndexOutOfBoundsException();
     }
@@ -111,7 +111,7 @@ public class InsnList implements Iterable<AbstractInsnNode> {
    * @param insnNode an instruction.
    * @return {@literal true} if the given instruction belongs to this list.
    */
-  public boolean contains(final AbstractInsnNode insnNode) {
+  public boolean contains(AbstractInsnNode insnNode) {
     AbstractInsnNode currentInsn = firstInsn;
     while (currentInsn != null && currentInsn != insnNode) {
       currentInsn = currentInsn.nextInsn;
@@ -130,7 +130,7 @@ public class InsnList implements Iterable<AbstractInsnNode> {
    * undefined if the given instruction does not belong to this list</i>. Use {@link #contains }
    * to test if an instruction belongs to an instruction list or not.
    */
-  public int indexOf(final AbstractInsnNode insnNode) {
+  public int indexOf(AbstractInsnNode insnNode) {
     if (cache == null) {
       cache = toArray();
     }
@@ -142,7 +142,7 @@ public class InsnList implements Iterable<AbstractInsnNode> {
    *
    * @param methodVisitor the method visitor that must visit the instructions.
    */
-  public void accept(final MethodVisitor methodVisitor) {
+  public void accept(MethodVisitor methodVisitor) {
     AbstractInsnNode currentInsn = firstInsn;
     while (currentInsn != null) {
       currentInsn.accept(methodVisitor);
@@ -167,7 +167,7 @@ public class InsnList implements Iterable<AbstractInsnNode> {
    * @return an iterator over the instructions in this list.
    */
   @SuppressWarnings("unchecked")
-  public ListIterator<AbstractInsnNode> iterator(final int index) {
+  public ListIterator<AbstractInsnNode> iterator(int index) {
     return new InsnListIterator(index);
   }
 
@@ -194,7 +194,7 @@ public class InsnList implements Iterable<AbstractInsnNode> {
    * @param oldInsnNode an instruction <i>of this list</i>.
    * @param newInsnNode another instruction, <i>which must not belong to any {@link InsnList}</i>.
    */
-  public void set(final AbstractInsnNode oldInsnNode, final AbstractInsnNode newInsnNode) {
+  public void set(AbstractInsnNode oldInsnNode, AbstractInsnNode newInsnNode) {
     AbstractInsnNode nextInsn = oldInsnNode.nextInsn;
     newInsnNode.nextInsn = nextInsn;
     if (nextInsn != null) {
@@ -226,7 +226,7 @@ public class InsnList implements Iterable<AbstractInsnNode> {
    *
    * @param insnNode an instruction, <i>which must not belong to any {@link InsnList}</i>.
    */
-  public void add(final AbstractInsnNode insnNode) {
+  public void add(AbstractInsnNode insnNode) {
     ++size;
     if (lastInsn == null) {
       firstInsn = insnNode;
@@ -246,7 +246,7 @@ public class InsnList implements Iterable<AbstractInsnNode> {
    * @param insnList an instruction list, which is cleared during the process. This list must be
    *                 different from 'this'.
    */
-  public void add(final InsnList insnList) {
+  public void add(InsnList insnList) {
     if (insnList.size == 0) {
       return;
     }
@@ -269,7 +269,7 @@ public class InsnList implements Iterable<AbstractInsnNode> {
    *
    * @param insnNode an instruction, <i>which must not belong to any {@link InsnList}</i>.
    */
-  public void insert(final AbstractInsnNode insnNode) {
+  public void insert(AbstractInsnNode insnNode) {
     ++size;
     if (firstInsn == null) {
       firstInsn = insnNode;
@@ -289,7 +289,7 @@ public class InsnList implements Iterable<AbstractInsnNode> {
    * @param insnList an instruction list, which is cleared during the process. This list must be
    *                 different from 'this'.
    */
-  public void insert(final InsnList insnList) {
+  public void insert(InsnList insnList) {
     if (insnList.size == 0) {
       return;
     }
@@ -314,7 +314,7 @@ public class InsnList implements Iterable<AbstractInsnNode> {
    * @param insnNode     the instruction to be inserted, <i>which must not belong to any {@link
    *                     InsnList}</i>.
    */
-  public void insert(final AbstractInsnNode previousInsn, final AbstractInsnNode insnNode) {
+  public void insert(AbstractInsnNode previousInsn, AbstractInsnNode insnNode) {
     ++size;
     AbstractInsnNode nextInsn = previousInsn.nextInsn;
     if (nextInsn == null) {
@@ -337,7 +337,7 @@ public class InsnList implements Iterable<AbstractInsnNode> {
    * @param insnList     the instruction list to be inserted, which is cleared during the process. This
    *                     list must be different from 'this'.
    */
-  public void insert(final AbstractInsnNode previousInsn, final InsnList insnList) {
+  public void insert(AbstractInsnNode previousInsn, InsnList insnList) {
     if (insnList.size == 0) {
       return;
     }
@@ -364,7 +364,7 @@ public class InsnList implements Iterable<AbstractInsnNode> {
    * @param insnNode the instruction to be inserted, <i>which must not belong to any {@link
    *                 InsnList}</i>.
    */
-  public void insertBefore(final AbstractInsnNode nextInsn, final AbstractInsnNode insnNode) {
+  public void insertBefore(AbstractInsnNode nextInsn, AbstractInsnNode insnNode) {
     ++size;
     AbstractInsnNode previousInsn = nextInsn.previousInsn;
     if (previousInsn == null) {
@@ -387,7 +387,7 @@ public class InsnList implements Iterable<AbstractInsnNode> {
    * @param insnList the instruction list to be inserted, which is cleared during the process. This
    *                 list must be different from 'this'.
    */
-  public void insertBefore(final AbstractInsnNode nextInsn, final InsnList insnList) {
+  public void insertBefore(AbstractInsnNode nextInsn, InsnList insnList) {
     if (insnList.size == 0) {
       return;
     }
@@ -412,7 +412,7 @@ public class InsnList implements Iterable<AbstractInsnNode> {
    *
    * @param insnNode the instruction <i>of this list</i> that must be removed.
    */
-  public void remove(final AbstractInsnNode insnNode) {
+  public void remove(AbstractInsnNode insnNode) {
     --size;
     AbstractInsnNode nextInsn = insnNode.nextInsn;
     AbstractInsnNode previousInsn = insnNode.previousInsn;
@@ -444,7 +444,7 @@ public class InsnList implements Iterable<AbstractInsnNode> {
    *
    * @param mark if the instructions must be marked as no longer belonging to any {@link InsnList}.
    */
-  void removeAll(final boolean mark) {
+  void removeAll(boolean mark) {
     if (mark) {
       AbstractInsnNode currentInsn = firstInsn;
       while (currentInsn != null) {
@@ -492,7 +492,7 @@ public class InsnList implements Iterable<AbstractInsnNode> {
 
     AbstractInsnNode remove;
 
-    InsnListIterator(final int index) {
+    InsnListIterator(int index) {
       if (index == size()) {
         nextInsn = null;
         previousInsn = getLast();
@@ -574,7 +574,7 @@ public class InsnList implements Iterable<AbstractInsnNode> {
     }
 
     @Override
-    public void add(final Object o) {
+    public void add(Object o) {
       if (nextInsn != null) {
         InsnList.this.insertBefore(nextInsn, (AbstractInsnNode) o);
       } else if (previousInsn != null) {
@@ -587,7 +587,7 @@ public class InsnList implements Iterable<AbstractInsnNode> {
     }
 
     @Override
-    public void set(final Object o) {
+    public void set(Object o) {
       if (remove != null) {
         InsnList.this.set(remove, (AbstractInsnNode) o);
         if (remove == previousInsn) {

@@ -8,6 +8,7 @@ import java.util.Map;
 
 public final class SibylPacketRegister {
   private static Map<String, Class<? extends SibylPacket>> availablePackets = new HashMap<>();
+
   static {
     availablePackets.put("out-attack-cancel", SibylPacketOutAttackCancel.class);
 

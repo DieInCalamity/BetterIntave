@@ -319,7 +319,7 @@ class BaseSimulator extends Simulator {
     }
   }
 
-  private final static double FLYING_DISTANCE = 0.0009;
+  private static final double FLYING_DISTANCE = 0.0009;
 
   boolean flyingPacket(double diffX, double diffY, double diffZ) {
     double distance = diffX * diffX + diffY * diffY + diffZ * diffZ;

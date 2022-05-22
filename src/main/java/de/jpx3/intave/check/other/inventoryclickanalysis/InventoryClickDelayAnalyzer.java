@@ -29,7 +29,7 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Client.WINDOW_CLICK;
 import static de.jpx3.intave.module.mitigate.AttackNerfStrategy.*;
 
 public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryClickAnalysis, InventoryClickDelayAnalyzer.ClickDelayMeta> {
-  private final static boolean MODERN_WINDOW_CLICK = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
+  private static final boolean MODERN_WINDOW_CLICK = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
 
   private final IntavePlugin plugin;
   private final boolean highToleranceMode;
@@ -90,7 +90,7 @@ public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryCl
       meta.clickDelayList.add(time);
     }
     if (meta.clickDelayList.size() > 10) {
-      if(isPartner()) {
+      if (isPartner()) {
         processStandardDeviationCheck(player, meta);
       }
       meta.clickDelayList.clear();
@@ -192,6 +192,6 @@ public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryCl
     CLONE,
     THROW,
     QUICK_CRAFT,
-    PICKUP_ALL;
+    PICKUP_ALL
   }
 }

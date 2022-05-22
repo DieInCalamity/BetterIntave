@@ -15,15 +15,15 @@ import static de.jpx3.intave.reflect.access.ReflectiveHandleAccess.handleOf;
 
 @SuppressWarnings("UnstableApiUsage")
 public final class EntityLookup {
-  private final static MethodHandle entityByIdAccessor = MethodSearchBySignature
+  private static final MethodHandle entityByIdAccessor = MethodSearchBySignature
     .search(Lookup.serverClass("World"), new Class[]{Integer.TYPE}, Lookup.serverClass("Entity"))
     .findAnyOrThrow();
 
-  private final static MethodHandle bukkitEntityFromEntityAccessor = MethodSearchBySignature
+  private static final MethodHandle bukkitEntityFromEntityAccessor = MethodSearchBySignature
     .search(Lookup.serverClass("Entity"), new Class[0], Lookup.craftBukkitClass("entity.CraftEntity"))
     .findAnyOrThrow();
 
-  private final static Cache<Integer, Entity> entityAccessCache =
+  private static final Cache<Integer, Entity> entityAccessCache =
     CacheBuilder.newBuilder()
       .expireAfterAccess(16, TimeUnit.SECONDS).weakValues()
       .concurrencyLevel(16).build();

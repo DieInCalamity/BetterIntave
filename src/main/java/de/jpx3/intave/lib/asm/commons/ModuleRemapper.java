@@ -38,52 +38,54 @@ import de.jpx3.intave.lib.asm.Opcodes;
  */
 public class ModuleRemapper extends ModuleVisitor {
 
-  /** The remapper used to remap the types in the visited module. */
+  /**
+   * The remapper used to remap the types in the visited module.
+   */
   protected final Remapper remapper;
 
   /**
    * Constructs a new {@link ModuleRemapper}. <i>Subclasses must not use this constructor</i>.
-   * Instead, they must use the {@link #ModuleRemapper(int,ModuleVisitor,Remapper)} version.
+   * Instead, they must use the {@link #ModuleRemapper(int, ModuleVisitor, Remapper)} version.
    *
    * @param moduleVisitor the module visitor this remapper must deleted to.
-   * @param remapper the remapper to use to remap the types in the visited module.
+   * @param remapper      the remapper to use to remap the types in the visited module.
    */
-  public ModuleRemapper(final ModuleVisitor moduleVisitor, final Remapper remapper) {
+  public ModuleRemapper(ModuleVisitor moduleVisitor, Remapper remapper) {
     this(/* latest api = */ Opcodes.ASM7, moduleVisitor, remapper);
   }
 
   /**
    * Constructs a new {@link ModuleRemapper}.
    *
-   * @param api the ASM API version supported by this remapper. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link
-   *     Opcodes#ASM6}.
+   * @param api           the ASM API version supported by this remapper. Must be one of {@link
+   *                      Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link
+   *                      Opcodes#ASM6}.
    * @param moduleVisitor the module visitor this remapper must deleted to.
-   * @param remapper the remapper to use to remap the types in the visited module.
+   * @param remapper      the remapper to use to remap the types in the visited module.
    */
   protected ModuleRemapper(
-      final int api, final ModuleVisitor moduleVisitor, final Remapper remapper) {
+    int api, ModuleVisitor moduleVisitor, Remapper remapper) {
     super(api, moduleVisitor);
     this.remapper = remapper;
   }
 
   @Override
-  public void visitMainClass(final String mainClass) {
+  public void visitMainClass(String mainClass) {
     super.visitMainClass(remapper.mapType(mainClass));
   }
 
   @Override
-  public void visitPackage(final String packaze) {
+  public void visitPackage(String packaze) {
     super.visitPackage(remapper.mapPackageName(packaze));
   }
 
   @Override
-  public void visitRequire(final String module, final int access, final String version) {
+  public void visitRequire(String module, int access, String version) {
     super.visitRequire(remapper.mapModuleName(module), access, version);
   }
 
   @Override
-  public void visitExport(final String packaze, final int access, final String... modules) {
+  public void visitExport(String packaze, int access, String... modules) {
     String[] remappedModules = null;
     if (modules != null) {
       remappedModules = new String[modules.length];
@@ -95,7 +97,7 @@ public class ModuleRemapper extends ModuleVisitor {
   }
 
   @Override
-  public void visitOpen(final String packaze, final int access, final String... modules) {
+  public void visitOpen(String packaze, int access, String... modules) {
     String[] remappedModules = null;
     if (modules != null) {
       remappedModules = new String[modules.length];
@@ -107,12 +109,12 @@ public class ModuleRemapper extends ModuleVisitor {
   }
 
   @Override
-  public void visitUse(final String service) {
+  public void visitUse(String service) {
     super.visitUse(remapper.mapType(service));
   }
 
   @Override
-  public void visitProvide(final String service, final String... providers) {
+  public void visitProvide(String service, String... providers) {
     String[] remappedProviders = new String[providers.length];
     for (int i = 0; i < providers.length; ++i) {
       remappedProviders[i] = remapper.mapType(providers[i]);

@@ -5,7 +5,7 @@ public class LogActivation extends ActivationFunction {
   public double function(double input) {
     return Math.log(input);
   }
-  
+
   @Override
   public double derivative(double input) {
     return Math.log(1 - input);

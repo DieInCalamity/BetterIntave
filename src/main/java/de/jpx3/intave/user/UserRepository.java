@@ -12,8 +12,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class UserRepository {
-  private final static Map<UUID, User> repository = MemoryWatchdog.watch("users", new ConcurrentHashMap<>());
-  private final static User fallbackUser = UserFactory.createFallback();
+  private static final Map<UUID, User> repository = MemoryWatchdog.watch("users", new ConcurrentHashMap<>());
+  private static final User fallbackUser = UserFactory.createFallback();
   private static boolean closed;
 
   // used to load the class on startup

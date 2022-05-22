@@ -12,8 +12,8 @@ public abstract class ActivationFunction implements Serializable {
   public static TanhActivation tanh = new TanhActivation();
   public static TestActivation test = new TestActivation();
   public static LogActivation log = new LogActivation();
-  
+
   public abstract double function(double input);
-  
+
   public abstract double derivative(double input);
 }

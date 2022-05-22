@@ -11,7 +11,7 @@ public final class ApplyOnShapeBoundingBoxBuilder {
   private ApplyOnShapeBoundingBoxBuilder() {
     this.boundingBoxes = new ArrayList<>();
   }
-  
+
   public void shapeAndApply(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
     BoundingBox boundingBox = BoundingBox.fromBounds(minX, minY, minZ, maxX, maxY, maxZ);
     boundingBox.makeOriginBox();

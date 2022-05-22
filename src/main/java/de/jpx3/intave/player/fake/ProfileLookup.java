@@ -56,7 +56,7 @@ public final class ProfileLookup {
     return wrappedGameProfile;
   }
 
-  private final static char[] ALPHABET = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+  private static final char[] ALPHABET = "abcdefghijklmnopqrstuvwxyz".toCharArray();
 
   private static String randomString() {
     StringBuilder stringBuilder = new StringBuilder();

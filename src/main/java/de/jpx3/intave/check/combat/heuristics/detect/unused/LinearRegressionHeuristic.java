@@ -124,7 +124,7 @@ public final class LinearRegressionHeuristic extends MetaCheckPart<Heuristics, L
         public void paint(Graphics g) {
           super.paint(g);
           String newTitle = "Value count: " + meta.vectorList.size();
-          for(int i = newTitle.length(); i < 30; i++)
+          for (int i = newTitle.length(); i < 30; i++)
             newTitle += " ";
           window.setTitle(newTitle);
 
@@ -146,7 +146,7 @@ public final class LinearRegressionHeuristic extends MetaCheckPart<Heuristics, L
           int maxVectorX = Integer.MIN_VALUE;
           int maxVectorY = Integer.MIN_VALUE;
 
-          for(Vector2d vector : meta.vectorList) {
+          for (Vector2d vector : meta.vectorList) {
             if (vector.x > maxVectorX)
               maxVectorX = (int) vector.x;
             if (vector.y > maxVectorY)
@@ -162,7 +162,7 @@ public final class LinearRegressionHeuristic extends MetaCheckPart<Heuristics, L
           int lastVectorX = Integer.MAX_VALUE;
           int lastVectorY = Integer.MAX_VALUE;
 
-          for(Vector2d vector : meta.vectorList) {
+          for (Vector2d vector : meta.vectorList) {
             int vectorX = (int) map2(vector.x, minVectorX, maxVectorX, 0, getWidth());
             int vectorY = (int) map2(vector.y, minVectorY, maxVectorY, 0, getHeight());
 
@@ -190,17 +190,19 @@ public final class LinearRegressionHeuristic extends MetaCheckPart<Heuristics, L
       panel.setBackground(new Color(51, 51, 51));
       panel.setLocation(20, 20);
 
-      JPanel outerPanel = new JPanel() {{
-        setLayout(null);
+      JPanel outerPanel = new JPanel() {
+        {
+          setLayout(null);
 
-        addComponentListener(new ComponentAdapter( ) {
-          public void componentResized(ComponentEvent ev) {
-            panel.setSize(getWidth() - 40, getHeight() - 40);
-          }
-        });
+          addComponentListener(new ComponentAdapter() {
+            public void componentResized(ComponentEvent ev) {
+              panel.setSize(getWidth() - 40, getHeight() - 40);
+            }
+          });
 
-        panel.invalidate();
-      }
+          panel.invalidate();
+        }
+
         @Override
         public void paint(Graphics g) {
           super.paint(g);
@@ -226,13 +228,14 @@ public final class LinearRegressionHeuristic extends MetaCheckPart<Heuristics, L
 
     return to;
   }
+
   private static double map(double from, double minFrom, double maxFrom, double minTo, double maxTo) {
     return from / (Math.abs(minFrom) + Math.abs(maxFrom)) * (Math.abs(minTo) + Math.abs(maxTo));
   }
 
   public static class LinearRegressionHeuristicMeta extends CheckCustomMetadata {
     public JPanel panel;
-//    public double b;
+    //    public double b;
 //    public double m;
     List<Vector2d> vectorList = new CopyOnWriteArrayList<>();
     long lastMoveTimeStamp = 0;

@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class KeyPressStudy {
-  private final static Map<String, Long> keys = new ConcurrentHashMap<>();
+  private static final Map<String, Long> keys = new ConcurrentHashMap<>();
 
   public static void enterKeyPress(int forward, int strafe) {
     String keys = resolveKeysFromInput(forward, strafe);

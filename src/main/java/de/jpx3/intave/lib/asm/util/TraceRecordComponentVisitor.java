@@ -44,7 +44,8 @@ public final class TraceRecordComponentVisitor extends RecordComponentVisitor {
    *
    * @deprecated This is an experimental API.
    */
-  @Deprecated public final Printer printerExperimental;
+  @Deprecated
+  public final Printer printerExperimental;
 
   /**
    * Constructs a new {@link TraceRecordComponentVisitor}.
@@ -53,7 +54,7 @@ public final class TraceRecordComponentVisitor extends RecordComponentVisitor {
    * @deprecated This is an experimental API.
    */
   @Deprecated
-  public TraceRecordComponentVisitor(final Printer printer) {
+  public TraceRecordComponentVisitor(Printer printer) {
     this(null, printer);
   }
 
@@ -61,13 +62,13 @@ public final class TraceRecordComponentVisitor extends RecordComponentVisitor {
    * Constructs a new {@link TraceRecordComponentVisitor}.
    *
    * @param recordComponentVisitor the record component visitor to which to delegate calls. May be
-   *     {@literal null}.
-   * @param printer the printer to convert the visited record component into text.
+   *                               {@literal null}.
+   * @param printer                the printer to convert the visited record component into text.
    * @deprecated This is an experimental API.
    */
   @Deprecated
   public TraceRecordComponentVisitor(
-      final RecordComponentVisitor recordComponentVisitor, final Printer printer) {
+    RecordComponentVisitor recordComponentVisitor, Printer printer) {
     // TODO: add 'latest api =' comment when no longer experimental.
     super(Opcodes.ASM8_EXPERIMENTAL, recordComponentVisitor);
     this.printerExperimental = printer;
@@ -75,26 +76,26 @@ public final class TraceRecordComponentVisitor extends RecordComponentVisitor {
 
   @Override
   public AnnotationVisitor visitAnnotationExperimental(
-      final String descriptor, final boolean visible) {
+    String descriptor, boolean visible) {
     Printer annotationPrinter =
-        printerExperimental.visitRecordComponentAnnotationExperimental(descriptor, visible);
+      printerExperimental.visitRecordComponentAnnotationExperimental(descriptor, visible);
     return new TraceAnnotationVisitor(
-        super.visitAnnotationExperimental(descriptor, visible), annotationPrinter);
+      super.visitAnnotationExperimental(descriptor, visible), annotationPrinter);
   }
 
   @Override
   public AnnotationVisitor visitTypeAnnotationExperimental(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     Printer annotationPrinter =
-        printerExperimental.visitRecordComponentTypeAnnotationExperimental(
-            typeRef, typePath, descriptor, visible);
+      printerExperimental.visitRecordComponentTypeAnnotationExperimental(
+        typeRef, typePath, descriptor, visible);
     return new TraceAnnotationVisitor(
-        super.visitTypeAnnotationExperimental(typeRef, typePath, descriptor, visible),
-        annotationPrinter);
+      super.visitTypeAnnotationExperimental(typeRef, typePath, descriptor, visible),
+      annotationPrinter);
   }
 
   @Override
-  public void visitAttributeExperimental(final Attribute attribute) {
+  public void visitAttributeExperimental(Attribute attribute) {
     printerExperimental.visitRecordComponentAttributeExperimental(attribute);
     super.visitAttributeExperimental(attribute);
   }

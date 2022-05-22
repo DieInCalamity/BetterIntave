@@ -55,7 +55,7 @@ public class ModuleProvideNode {
    * @param providers the internal names of the implementations of the service (there is at least
    *                  one provider).
    */
-  public ModuleProvideNode(final String service, final List<String> providers) {
+  public ModuleProvideNode(String service, List<String> providers) {
     this.service = service;
     this.providers = providers;
   }
@@ -65,7 +65,7 @@ public class ModuleProvideNode {
    *
    * @param moduleVisitor a module visitor.
    */
-  public void accept(final ModuleVisitor moduleVisitor) {
+  public void accept(ModuleVisitor moduleVisitor) {
     moduleVisitor.visitProvide(service, providers.toArray(new String[0]));
   }
 }

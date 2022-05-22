@@ -19,7 +19,8 @@ import java.util.List;
 import java.util.Map;
 
 public final class ConnectionTracker extends Module {
-  private final static long TIMEOUT_DURATION = 1000 * 30;
+  private static final long TIMEOUT_DURATION = 1000 * 30;
+
   @Override
   public void enable() {
     int taskId = this.plugin.getServer().getScheduler().scheduleAsyncRepeatingTask(plugin, () -> {
@@ -49,10 +50,10 @@ public final class ConnectionTracker extends Module {
           }
         }
 //        if (containsIntave) {
-          System.out.println("Thread:" + thread.getName());
-          Exception exception = new Exception();
-          exception.setStackTrace(stackTraceElements);
-          exception.printStackTrace();
+        System.out.println("Thread:" + thread.getName());
+        Exception exception = new Exception();
+        exception.setStackTrace(stackTraceElements);
+        exception.printStackTrace();
 //        }
       }
     });

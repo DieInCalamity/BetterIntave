@@ -19,7 +19,7 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Client.ARM_ANIMATION;
 
 @Relocate
 public final class ClickPatterns extends Check {
-  private final static double MAX_VL_DEDUCTION_PER_MINUTE = 16;
+  private static final double MAX_VL_DEDUCTION_PER_MINUTE = 16;
   private final CheckViolationLevelDecrementer decrementer;
 
   public ClickPatterns() {

@@ -13,8 +13,8 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 public final class BlockInteractionAccess {
-  private final static boolean MODERN_MATERIAL_PROCESSING = MinecraftVersions.VER1_14_0.atOrAbove();
-  private final static Set<Material> clickableMaterials = new HashSet<>();
+  private static final boolean MODERN_MATERIAL_PROCESSING = MinecraftVersions.VER1_14_0.atOrAbove();
+  private static final Set<Material> clickableMaterials = new HashSet<>();
 
   public static void setup() {
     loadMaterials();

@@ -23,7 +23,7 @@ import static de.jpx3.intave.IntaveControl.IGNORE_CHUNK_PACKETS;
 
 @DoNotFlowObfuscate
 public final class PacketSubscriptionLinker extends Module {
-  private final static boolean IGNORE_CHAT_PACKETS = false;
+  private static final boolean IGNORE_CHAT_PACKETS = false;
   private final IntavePlugin plugin;
   private final Map<PacketType, SCOWAList<FilteringPacketAdapter>> customEngineListenerMappings = new ConcurrentHashMap<>();
   private final Map<PacketType, SCOWAList<FilteringPacketAdapter>> internalPacketListenerMappings = new ConcurrentHashMap<>();
@@ -125,10 +125,10 @@ public final class PacketSubscriptionLinker extends Module {
     ListenerPriority priority = metadata.priority();
     PacketType[] packetTypes = translatePacketTypes(metadata.packetsIn(), metadata.packetsOut());
     boolean ignoreCancelled = metadata.ignoreCancelled();
-    if(metadata.engine() == Engine.ASYNC_INTERNAL) {
+    if (metadata.engine() == Engine.ASYNC_INTERNAL) {
       performCustomLinkage(subscriber, priority, packetTypes, ignoreCancelled, methodName, executor);
     } else {
-      if(metadata.prioritySlot() == PrioritySlot.INTERNAL) {
+      if (metadata.prioritySlot() == PrioritySlot.INTERNAL) {
         performInternalLinkage(subscriber, priority, packetTypes, ignoreCancelled, methodName, executor);
       } else {
         performExternalLinkage(subscriber, priority, packetTypes, ignoreCancelled, methodName, executor);
@@ -304,7 +304,7 @@ public final class PacketSubscriptionLinker extends Module {
       return;
     }
     for (PacketType translatePacketType : translatePacketTypes) {
-      FilteringPacketAdapter adapter = new FilteringPacketAdapter(plugin, subscriber, priority, new PacketType[] {translatePacketType}, methodName, executor, ignoreCancelled);
+      FilteringPacketAdapter adapter = new FilteringPacketAdapter(plugin, subscriber, priority, new PacketType[]{translatePacketType}, methodName, executor, ignoreCancelled);
       internalPacketListenerMappings.computeIfAbsent(translatePacketType, x -> new SCOWAList<>()).add(adapter);
     }
   }

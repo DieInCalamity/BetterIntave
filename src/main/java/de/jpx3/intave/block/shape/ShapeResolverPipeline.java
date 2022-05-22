@@ -7,5 +7,6 @@ import org.bukkit.entity.Player;
 public interface ShapeResolverPipeline {
   BlockShape resolve(World world, Player player, Material type, int blockState, int posX, int posY, int posZ);
 
-  default void downstreamTypeReset(Material type) {}
+  default void downstreamTypeReset(Material type) {
+  }
 }

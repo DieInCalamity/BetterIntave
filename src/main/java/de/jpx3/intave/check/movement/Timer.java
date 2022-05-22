@@ -27,7 +27,7 @@ public final class Timer extends Check {
     }
     this.balance = new Balance(this);
     appendCheckPart(balance);
-  //  appendCheckPart(new MovementFrequency(this));
+    //  appendCheckPart(new MovementFrequency(this));
   }
 
   public void receiveMovement(PacketEvent event) {

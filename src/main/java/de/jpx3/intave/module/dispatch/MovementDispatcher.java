@@ -458,7 +458,7 @@ public final class MovementDispatcher extends Module {
     InventoryMetadata inventory = user.meta().inventory();
     inventory.blockNextArrow = inventory.pastHotBarSlotChange < 4 && ItemProperties.isBow(inventory.releaseItemType) || ItemProperties.isBow(inventory.activeItem());
     PacketContainer packet = protocolManager.createPacket(PacketType.Play.Client.BLOCK_DIG);
-    packet.getBlockPositionModifier().write(0, new BlockPosition(0,0,0));
+    packet.getBlockPositionModifier().write(0, new BlockPosition(0, 0, 0));
     packet.getDirections().write(0, EnumWrappers.Direction.DOWN);
     packet.getPlayerDigTypes().write(0, EnumWrappers.PlayerDigType.RELEASE_USE_ITEM);
     user.ignoreNextInboundPacket();

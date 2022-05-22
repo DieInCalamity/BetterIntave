@@ -24,25 +24,37 @@ public enum Direction {
   WEST(4, 5, 1, "west", NEGATIVE, X_AXIS, new NativeVector(-1, 0, 0)),
   EAST(5, 4, 3, "east", POSITIVE, X_AXIS, new NativeVector(1, 0, 0));
 
-  /** Ordering index for D-U-N-S-W-E */
+  /**
+   * Ordering index for D-U-N-S-W-E
+   */
   private final int index;
 
-  /** Index of the opposite Facing in the VALUES array */
+  /**
+   * Index of the opposite Facing in the VALUES array
+   */
   private final int opposite;
 
-  /** Ordering index for the HORIZONTALS field (S-W-N-E) */
+  /**
+   * Ordering index for the HORIZONTALS field (S-W-N-E)
+   */
   private final int horizontalIndex;
   private final String name;
   private final Direction.Axis axis;
   private final Direction.AxisDirection axisDirection;
 
-  /** Normalized Vector that points in the direction of this Facing */
+  /**
+   * Normalized Vector that points in the direction of this Facing
+   */
   private final NativeVector directionVec;
 
-  /** All facings in D-U-N-S-W-E order */
+  /**
+   * All facings in D-U-N-S-W-E order
+   */
   private static final Direction[] VALUES = new Direction[6];
 
-  /** All Facings with horizontal axis in order S-W-N-E */
+  /**
+   * All Facings with horizontal axis in order S-W-N-E
+   */
   private static final Direction[] HORIZONTALS = new Direction[4];
   private static final Map<String, Direction> NAME_LOOKUP = Maps.newHashMap();
 
@@ -57,7 +69,7 @@ public enum Direction {
   }
 
   public static Direction getFacingFromAxisDirection(Direction.Axis axisIn, Direction.AxisDirection axisDirectionIn) {
-    switch(axisIn) {
+    switch (axisIn) {
       case X_AXIS:
         return axisDirectionIn == POSITIVE ? EAST : WEST;
       case Y_AXIS:
@@ -237,6 +249,7 @@ public enum Direction {
   public int getZOffset() {
     return this.axis == Z_AXIS ? this.axisDirection.getOffset() : 0;
   }
+
   /**
    * Get the facing specified by the given name
    */

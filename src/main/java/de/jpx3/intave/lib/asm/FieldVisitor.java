@@ -42,33 +42,35 @@ public abstract class FieldVisitor {
    */
   protected final int api;
 
-  /** The field visitor to which this visitor must delegate method calls. May be {@literal null}. */
+  /**
+   * The field visitor to which this visitor must delegate method calls. May be {@literal null}.
+   */
   protected FieldVisitor fv;
 
   /**
    * Constructs a new {@link FieldVisitor}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   *            Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
-  public FieldVisitor(final int api) {
+  public FieldVisitor(int api) {
     this(api, null);
   }
 
   /**
    * Constructs a new {@link FieldVisitor}.
    *
-   * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   * @param api          the ASM API version implemented by this visitor. Must be one of {@link
+   *                     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    * @param fieldVisitor the field visitor to which this visitor must delegate method calls. May be
-   *     null.
+   *                     null.
    */
-  public FieldVisitor(final int api, final FieldVisitor fieldVisitor) {
+  public FieldVisitor(int api, FieldVisitor fieldVisitor) {
     if (api != Opcodes.ASM7
-        && api != Opcodes.ASM6
-        && api != Opcodes.ASM5
-        && api != Opcodes.ASM4
-        && api != Opcodes.ASM8_EXPERIMENTAL) {
+      && api != Opcodes.ASM6
+      && api != Opcodes.ASM5
+      && api != Opcodes.ASM4
+      && api != Opcodes.ASM8_EXPERIMENTAL) {
       throw new IllegalArgumentException("Unsupported api " + api);
     }
     if (api == Opcodes.ASM8_EXPERIMENTAL) {
@@ -82,11 +84,11 @@ public abstract class FieldVisitor {
    * Visits an annotation of the field.
    *
    * @param descriptor the class descriptor of the annotation class.
-   * @param visible {@literal true} if the annotation is visible at runtime.
+   * @param visible    {@literal true} if the annotation is visible at runtime.
    * @return a visitor to visit the annotation values, or {@literal null} if this visitor is not
-   *     interested in visiting this annotation.
+   * interested in visiting this annotation.
    */
-  public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+  public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
     if (fv != null) {
       return fv.visitAnnotation(descriptor, visible);
     }
@@ -96,18 +98,18 @@ public abstract class FieldVisitor {
   /**
    * Visits an annotation on the type of the field.
    *
-   * @param typeRef a reference to the annotated type. The sort of this type reference must be
-   *     {@link TypeReference#FIELD}. See {@link TypeReference}.
-   * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
-   *     static inner type within 'typeRef'. May be {@literal null} if the annotation targets
-   *     'typeRef' as a whole.
+   * @param typeRef    a reference to the annotated type. The sort of this type reference must be
+   *                   {@link TypeReference#FIELD}. See {@link TypeReference}.
+   * @param typePath   the path to the annotated type argument, wildcard bound, array element type, or
+   *                   static inner type within 'typeRef'. May be {@literal null} if the annotation targets
+   *                   'typeRef' as a whole.
    * @param descriptor the class descriptor of the annotation class.
-   * @param visible {@literal true} if the annotation is visible at runtime.
+   * @param visible    {@literal true} if the annotation is visible at runtime.
    * @return a visitor to visit the annotation values, or {@literal null} if this visitor is not
-   *     interested in visiting this annotation.
+   * interested in visiting this annotation.
    */
   public AnnotationVisitor visitTypeAnnotation(
-      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     if (api < Opcodes.ASM5) {
       throw new UnsupportedOperationException("This feature requires ASM5");
     }
@@ -122,7 +124,7 @@ public abstract class FieldVisitor {
    *
    * @param attribute an attribute.
    */
-  public void visitAttribute(final Attribute attribute) {
+  public void visitAttribute(Attribute attribute) {
     if (fv != null) {
       fv.visitAttribute(attribute);
     }

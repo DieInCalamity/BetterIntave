@@ -75,10 +75,10 @@ public final class CommandFilter extends Filter {
       return;
     }
     String[] stuff = packet.getStringArrays().readSafely(0);
-    if(stuff != null) {
+    if (stuff != null) {
       List<String> newTabCompletions = Lists.newArrayList();
       Arrays.stream(stuff).filter(string -> !string.contains("/intave") && !string.contains("/iac")).forEach(newTabCompletions::add);
-      if(newTabCompletions.size() != stuff.length) {
+      if (newTabCompletions.size() != stuff.length) {
         packet.getStringArrays().writeSafely(0, newTabCompletions.toArray(new String[0]));
       }
     }

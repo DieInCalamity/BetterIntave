@@ -27,10 +27,10 @@ import static de.jpx3.intave.module.feedback.FeedbackSender.TRANSACTION_MAX_CODE
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
 public final class FeedbackReceiver extends Module {
-  private final static boolean USE_PING_PONG_PACKETS = MinecraftVersions.VER1_17_0.atOrAbove();
-  private final static long TIMEOUT = 2000;
-  private final static long TIMEOUT_KICK = TimeUnit.SECONDS.toMillis(40);
-  private final static long CHECK_TIMEOUT_KICK = TIMEOUT_KICK / 4;
+  private static final boolean USE_PING_PONG_PACKETS = MinecraftVersions.VER1_17_0.atOrAbove();
+  private static final long TIMEOUT = 2000;
+  private static final long TIMEOUT_KICK = TimeUnit.SECONDS.toMillis(40);
+  private static final long CHECK_TIMEOUT_KICK = TIMEOUT_KICK / 4;
 
   public FeedbackReceiver(IntavePlugin plugin) {
     int taskId = plugin.getServer().getScheduler()

@@ -38,8 +38,8 @@ public final class FallbackUser implements User {
   private final ColliderProcessor colliderProcessor;
   private final SimpleColliderProcessor simpleColliderProcessor;
   private final Map<Pose, HitboxSize> poseSizes;
-  private BlockStateAccess blockStateAccess;
-  private CustomClientSupportConfig customClientSupportConfig = CustomClientSupportConfig.createDefault();
+  private final BlockStateAccess blockStateAccess;
+  private final CustomClientSupportConfig customClientSupportConfig = CustomClientSupportConfig.createDefault();
 
   private final UserContext userContext = new UserContext(this);
   private final PlayerContext playerContext = PlayerContext.empty();

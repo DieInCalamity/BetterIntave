@@ -72,7 +72,7 @@ public class InnerClassNode {
    *                  class.
    */
   public InnerClassNode(
-    final String name, final String outerName, final String innerName, final int access) {
+    String name, String outerName, String innerName, int access) {
     this.name = name;
     this.outerName = outerName;
     this.innerName = innerName;
@@ -84,7 +84,7 @@ public class InnerClassNode {
    *
    * @param classVisitor a class visitor.
    */
-  public void accept(final ClassVisitor classVisitor) {
+  public void accept(ClassVisitor classVisitor) {
     classVisitor.visitInnerClass(name, outerName, innerName, access);
   }
 }

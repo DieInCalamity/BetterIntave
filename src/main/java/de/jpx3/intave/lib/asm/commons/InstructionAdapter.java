@@ -37,7 +37,9 @@ import de.jpx3.intave.lib.asm.*;
  */
 public class InstructionAdapter extends MethodVisitor {
 
-  /** The type of the java.lang.Object class. */
+  /**
+   * The type of the java.lang.Object class.
+   */
   public static final Type OBJECT_TYPE = Type.getType("Ljava/lang/Object;");
 
   /**
@@ -47,7 +49,7 @@ public class InstructionAdapter extends MethodVisitor {
    * @param methodVisitor the method visitor to which this adapter delegates calls.
    * @throws IllegalStateException If a subclass calls this constructor.
    */
-  public InstructionAdapter(final MethodVisitor methodVisitor) {
+  public InstructionAdapter(MethodVisitor methodVisitor) {
     this(/* latest api = */ Opcodes.ASM7, methodVisitor);
     if (getClass() != InstructionAdapter.class) {
       throw new IllegalStateException();
@@ -57,16 +59,16 @@ public class InstructionAdapter extends MethodVisitor {
   /**
    * Constructs a new {@link InstructionAdapter}.
    *
-   * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   * @param api           the ASM API version implemented by this visitor. Must be one of {@link
+   *                      Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    * @param methodVisitor the method visitor to which this adapter delegates calls.
    */
-  protected InstructionAdapter(final int api, final MethodVisitor methodVisitor) {
+  protected InstructionAdapter(int api, MethodVisitor methodVisitor) {
     super(api, methodVisitor);
   }
 
   @Override
-  public void visitInsn(final int opcode) {
+  public void visitInsn(int opcode) {
     switch (opcode) {
       case Opcodes.NOP:
         nop();
@@ -375,7 +377,7 @@ public class InstructionAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitIntInsn(final int opcode, final int operand) {
+  public void visitIntInsn(int opcode, int operand) {
     switch (opcode) {
       case Opcodes.BIPUSH:
         iconst(operand);
@@ -419,7 +421,7 @@ public class InstructionAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitVarInsn(final int opcode, final int var) {
+  public void visitVarInsn(int opcode, int var) {
     switch (opcode) {
       case Opcodes.ILOAD:
         load(var, Type.INT_TYPE);
@@ -460,7 +462,7 @@ public class InstructionAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitTypeInsn(final int opcode, final String type) {
+  public void visitTypeInsn(int opcode, String type) {
     Type objectType = Type.getObjectType(type);
     switch (opcode) {
       case Opcodes.NEW:
@@ -482,7 +484,7 @@ public class InstructionAdapter extends MethodVisitor {
 
   @Override
   public void visitFieldInsn(
-      final int opcode, final String owner, final String name, final String descriptor) {
+    int opcode, String owner, String name, String descriptor) {
     switch (opcode) {
       case Opcodes.GETSTATIC:
         getstatic(owner, name, descriptor);
@@ -503,11 +505,11 @@ public class InstructionAdapter extends MethodVisitor {
 
   @Override
   public void visitMethodInsn(
-      final int opcodeAndSource,
-      final String owner,
-      final String name,
-      final String descriptor,
-      final boolean isInterface) {
+    int opcodeAndSource,
+    String owner,
+    String name,
+    String descriptor,
+    boolean isInterface) {
     if (api < Opcodes.ASM5 && (opcodeAndSource & Opcodes.SOURCE_DEPRECATED) == 0) {
       // Redirect the call to the deprecated version of this method.
       super.visitMethodInsn(opcodeAndSource, owner, name, descriptor, isInterface);
@@ -535,15 +537,15 @@ public class InstructionAdapter extends MethodVisitor {
 
   @Override
   public void visitInvokeDynamicInsn(
-      final String name,
-      final String descriptor,
-      final Handle bootstrapMethodHandle,
-      final Object... bootstrapMethodArguments) {
+    String name,
+    String descriptor,
+    Handle bootstrapMethodHandle,
+    Object... bootstrapMethodArguments) {
     invokedynamic(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
   }
 
   @Override
-  public void visitJumpInsn(final int opcode, final Label label) {
+  public void visitJumpInsn(int opcode, Label label) {
     switch (opcode) {
       case Opcodes.IFEQ:
         ifeq(label);
@@ -605,15 +607,15 @@ public class InstructionAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitLabel(final Label label) {
+  public void visitLabel(Label label) {
     mark(label);
   }
 
   @Override
-  public void visitLdcInsn(final Object value) {
+  public void visitLdcInsn(Object value) {
     if (api < Opcodes.ASM5
-        && (value instanceof Handle
-            || (value instanceof Type && ((Type) value).getSort() == Type.METHOD))) {
+      && (value instanceof Handle
+      || (value instanceof Type && ((Type) value).getSort() == Type.METHOD))) {
       throw new UnsupportedOperationException("This feature requires ASM5");
     }
     if (api < Opcodes.ASM7 && value instanceof ConstantDynamic) {
@@ -649,29 +651,31 @@ public class InstructionAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitIincInsn(final int var, final int increment) {
+  public void visitIincInsn(int var, int increment) {
     iinc(var, increment);
   }
 
   @Override
   public void visitTableSwitchInsn(
-      final int min, final int max, final Label dflt, final Label... labels) {
+    int min, int max, Label dflt, Label... labels) {
     tableswitch(min, max, dflt, labels);
   }
 
   @Override
-  public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
+  public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
     lookupswitch(dflt, keys, labels);
   }
 
   @Override
-  public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
+  public void visitMultiANewArrayInsn(String descriptor, int numDimensions) {
     multianewarray(descriptor, numDimensions);
   }
 
   // -----------------------------------------------------------------------------------------------
 
-  /** Generates a nop instruction. */
+  /**
+   * Generates a nop instruction.
+   */
   public void nop() {
     mv.visitInsn(Opcodes.NOP);
   }
@@ -680,13 +684,13 @@ public class InstructionAdapter extends MethodVisitor {
    * Generates the instruction to push the given value on the stack.
    *
    * @param value the constant to be pushed on the stack. This parameter must be an {@link Integer},
-   *     a {@link Float}, a {@link Long}, a {@link Double}, a {@link String}, a {@link Type} of
-   *     OBJECT or ARRAY sort for {@code .class} constants, for classes whose version is 49, a
-   *     {@link Type} of METHOD sort for MethodType, a {@link Handle} for MethodHandle constants,
-   *     for classes whose version is 51 or a {@link ConstantDynamic} for a constant dynamic for
-   *     classes whose version is 55.
+   *              a {@link Float}, a {@link Long}, a {@link Double}, a {@link String}, a {@link Type} of
+   *              OBJECT or ARRAY sort for {@code .class} constants, for classes whose version is 49, a
+   *              {@link Type} of METHOD sort for MethodType, a {@link Handle} for MethodHandle constants,
+   *              for classes whose version is 51 or a {@link ConstantDynamic} for a constant dynamic for
+   *              classes whose version is 55.
    */
-  public void aconst(final Object value) {
+  public void aconst(Object value) {
     if (value == null) {
       mv.visitInsn(Opcodes.ACONST_NULL);
     } else {
@@ -699,7 +703,7 @@ public class InstructionAdapter extends MethodVisitor {
    *
    * @param intValue the constant to be pushed on the stack.
    */
-  public void iconst(final int intValue) {
+  public void iconst(int intValue) {
     if (intValue >= -1 && intValue <= 5) {
       mv.visitInsn(Opcodes.ICONST_0 + intValue);
     } else if (intValue >= Byte.MIN_VALUE && intValue <= Byte.MAX_VALUE) {
@@ -716,7 +720,7 @@ public class InstructionAdapter extends MethodVisitor {
    *
    * @param longValue the constant to be pushed on the stack.
    */
-  public void lconst(final long longValue) {
+  public void lconst(long longValue) {
     if (longValue == 0L || longValue == 1L) {
       mv.visitInsn(Opcodes.LCONST_0 + (int) longValue);
     } else {
@@ -729,7 +733,7 @@ public class InstructionAdapter extends MethodVisitor {
    *
    * @param floatValue the constant to be pushed on the stack.
    */
-  public void fconst(final float floatValue) {
+  public void fconst(float floatValue) {
     int bits = Float.floatToIntBits(floatValue);
     if (bits == 0L || bits == 0x3F800000 || bits == 0x40000000) { // 0..2
       mv.visitInsn(Opcodes.FCONST_0 + (int) floatValue);
@@ -743,7 +747,7 @@ public class InstructionAdapter extends MethodVisitor {
    *
    * @param doubleValue the constant to be pushed on the stack.
    */
-  public void dconst(final double doubleValue) {
+  public void dconst(double doubleValue) {
     long bits = Double.doubleToLongBits(doubleValue);
     if (bits == 0L || bits == 0x3FF0000000000000L) { // +0.0d and 1.0d
       mv.visitInsn(Opcodes.DCONST_0 + (int) doubleValue);
@@ -757,7 +761,7 @@ public class InstructionAdapter extends MethodVisitor {
    *
    * @param type the type to be pushed on the stack.
    */
-  public void tconst(final Type type) {
+  public void tconst(Type type) {
     mv.visitLdcInsn(type);
   }
 
@@ -766,7 +770,7 @@ public class InstructionAdapter extends MethodVisitor {
    *
    * @param handle the handle to be pushed on the stack.
    */
-  public void hconst(final Handle handle) {
+  public void hconst(Handle handle) {
     mv.visitLdcInsn(handle);
   }
 
@@ -775,23 +779,23 @@ public class InstructionAdapter extends MethodVisitor {
    *
    * @param constantDynamic the constant dynamic to be pushed on the stack.
    */
-  public void cconst(final ConstantDynamic constantDynamic) {
+  public void cconst(ConstantDynamic constantDynamic) {
     mv.visitLdcInsn(constantDynamic);
   }
 
-  public void load(final int var, final Type type) {
+  public void load(int var, Type type) {
     mv.visitVarInsn(type.getOpcode(Opcodes.ILOAD), var);
   }
 
-  public void aload(final Type type) {
+  public void aload(Type type) {
     mv.visitInsn(type.getOpcode(Opcodes.IALOAD));
   }
 
-  public void store(final int var, final Type type) {
+  public void store(int var, Type type) {
     mv.visitVarInsn(type.getOpcode(Opcodes.ISTORE), var);
   }
 
-  public void astore(final Type type) {
+  public void astore(Type type) {
     mv.visitInsn(type.getOpcode(Opcodes.IASTORE));
   }
 
@@ -831,55 +835,55 @@ public class InstructionAdapter extends MethodVisitor {
     mv.visitInsn(Opcodes.SWAP);
   }
 
-  public void add(final Type type) {
+  public void add(Type type) {
     mv.visitInsn(type.getOpcode(Opcodes.IADD));
   }
 
-  public void sub(final Type type) {
+  public void sub(Type type) {
     mv.visitInsn(type.getOpcode(Opcodes.ISUB));
   }
 
-  public void mul(final Type type) {
+  public void mul(Type type) {
     mv.visitInsn(type.getOpcode(Opcodes.IMUL));
   }
 
-  public void div(final Type type) {
+  public void div(Type type) {
     mv.visitInsn(type.getOpcode(Opcodes.IDIV));
   }
 
-  public void rem(final Type type) {
+  public void rem(Type type) {
     mv.visitInsn(type.getOpcode(Opcodes.IREM));
   }
 
-  public void neg(final Type type) {
+  public void neg(Type type) {
     mv.visitInsn(type.getOpcode(Opcodes.INEG));
   }
 
-  public void shl(final Type type) {
+  public void shl(Type type) {
     mv.visitInsn(type.getOpcode(Opcodes.ISHL));
   }
 
-  public void shr(final Type type) {
+  public void shr(Type type) {
     mv.visitInsn(type.getOpcode(Opcodes.ISHR));
   }
 
-  public void ushr(final Type type) {
+  public void ushr(Type type) {
     mv.visitInsn(type.getOpcode(Opcodes.IUSHR));
   }
 
-  public void and(final Type type) {
+  public void and(Type type) {
     mv.visitInsn(type.getOpcode(Opcodes.IAND));
   }
 
-  public void or(final Type type) {
+  public void or(Type type) {
     mv.visitInsn(type.getOpcode(Opcodes.IOR));
   }
 
-  public void xor(final Type type) {
+  public void xor(Type type) {
     mv.visitInsn(type.getOpcode(Opcodes.IXOR));
   }
 
-  public void iinc(final int var, final int increment) {
+  public void iinc(int var, int increment) {
     mv.visitIincInsn(var, increment);
   }
 
@@ -887,9 +891,9 @@ public class InstructionAdapter extends MethodVisitor {
    * Generates the instruction to cast from the first given type to the other.
    *
    * @param from a Type.
-   * @param to a Type.
+   * @param to   a Type.
    */
-  public void cast(final Type from, final Type to) {
+  public void cast(Type from, Type to) {
     cast(mv, from, to);
   }
 
@@ -897,10 +901,10 @@ public class InstructionAdapter extends MethodVisitor {
    * Generates the instruction to cast from the first given type to the other.
    *
    * @param methodVisitor the method visitor to use to generate the instruction.
-   * @param from a Type.
-   * @param to a Type.
+   * @param from          a Type.
+   * @param to            a Type.
    */
-  static void cast(final MethodVisitor methodVisitor, final Type from, final Type to) {
+  static void cast(MethodVisitor methodVisitor, Type from, Type to) {
     if (from != to) {
       if (from == Type.DOUBLE_TYPE) {
         if (to == Type.FLOAT_TYPE) {
@@ -951,120 +955,120 @@ public class InstructionAdapter extends MethodVisitor {
     mv.visitInsn(Opcodes.LCMP);
   }
 
-  public void cmpl(final Type type) {
+  public void cmpl(Type type) {
     mv.visitInsn(type == Type.FLOAT_TYPE ? Opcodes.FCMPL : Opcodes.DCMPL);
   }
 
-  public void cmpg(final Type type) {
+  public void cmpg(Type type) {
     mv.visitInsn(type == Type.FLOAT_TYPE ? Opcodes.FCMPG : Opcodes.DCMPG);
   }
 
-  public void ifeq(final Label label) {
+  public void ifeq(Label label) {
     mv.visitJumpInsn(Opcodes.IFEQ, label);
   }
 
-  public void ifne(final Label label) {
+  public void ifne(Label label) {
     mv.visitJumpInsn(Opcodes.IFNE, label);
   }
 
-  public void iflt(final Label label) {
+  public void iflt(Label label) {
     mv.visitJumpInsn(Opcodes.IFLT, label);
   }
 
-  public void ifge(final Label label) {
+  public void ifge(Label label) {
     mv.visitJumpInsn(Opcodes.IFGE, label);
   }
 
-  public void ifgt(final Label label) {
+  public void ifgt(Label label) {
     mv.visitJumpInsn(Opcodes.IFGT, label);
   }
 
-  public void ifle(final Label label) {
+  public void ifle(Label label) {
     mv.visitJumpInsn(Opcodes.IFLE, label);
   }
 
-  public void ificmpeq(final Label label) {
+  public void ificmpeq(Label label) {
     mv.visitJumpInsn(Opcodes.IF_ICMPEQ, label);
   }
 
-  public void ificmpne(final Label label) {
+  public void ificmpne(Label label) {
     mv.visitJumpInsn(Opcodes.IF_ICMPNE, label);
   }
 
-  public void ificmplt(final Label label) {
+  public void ificmplt(Label label) {
     mv.visitJumpInsn(Opcodes.IF_ICMPLT, label);
   }
 
-  public void ificmpge(final Label label) {
+  public void ificmpge(Label label) {
     mv.visitJumpInsn(Opcodes.IF_ICMPGE, label);
   }
 
-  public void ificmpgt(final Label label) {
+  public void ificmpgt(Label label) {
     mv.visitJumpInsn(Opcodes.IF_ICMPGT, label);
   }
 
-  public void ificmple(final Label label) {
+  public void ificmple(Label label) {
     mv.visitJumpInsn(Opcodes.IF_ICMPLE, label);
   }
 
-  public void ifacmpeq(final Label label) {
+  public void ifacmpeq(Label label) {
     mv.visitJumpInsn(Opcodes.IF_ACMPEQ, label);
   }
 
-  public void ifacmpne(final Label label) {
+  public void ifacmpne(Label label) {
     mv.visitJumpInsn(Opcodes.IF_ACMPNE, label);
   }
 
-  public void goTo(final Label label) {
+  public void goTo(Label label) {
     mv.visitJumpInsn(Opcodes.GOTO, label);
   }
 
-  public void jsr(final Label label) {
+  public void jsr(Label label) {
     mv.visitJumpInsn(Opcodes.JSR, label);
   }
 
-  public void ret(final int var) {
+  public void ret(int var) {
     mv.visitVarInsn(Opcodes.RET, var);
   }
 
-  public void tableswitch(final int min, final int max, final Label dflt, final Label... labels) {
+  public void tableswitch(int min, int max, Label dflt, Label... labels) {
     mv.visitTableSwitchInsn(min, max, dflt, labels);
   }
 
-  public void lookupswitch(final Label dflt, final int[] keys, final Label[] labels) {
+  public void lookupswitch(Label dflt, int[] keys, Label[] labels) {
     mv.visitLookupSwitchInsn(dflt, keys, labels);
   }
 
-  public void areturn(final Type type) {
+  public void areturn(Type type) {
     mv.visitInsn(type.getOpcode(Opcodes.IRETURN));
   }
 
-  public void getstatic(final String owner, final String name, final String descriptor) {
+  public void getstatic(String owner, String name, String descriptor) {
     mv.visitFieldInsn(Opcodes.GETSTATIC, owner, name, descriptor);
   }
 
-  public void putstatic(final String owner, final String name, final String descriptor) {
+  public void putstatic(String owner, String name, String descriptor) {
     mv.visitFieldInsn(Opcodes.PUTSTATIC, owner, name, descriptor);
   }
 
-  public void getfield(final String owner, final String name, final String descriptor) {
+  public void getfield(String owner, String name, String descriptor) {
     mv.visitFieldInsn(Opcodes.GETFIELD, owner, name, descriptor);
   }
 
-  public void putfield(final String owner, final String name, final String descriptor) {
+  public void putfield(String owner, String name, String descriptor) {
     mv.visitFieldInsn(Opcodes.PUTFIELD, owner, name, descriptor);
   }
 
   /**
    * Deprecated.
    *
-   * @param owner the internal name of the method's owner class.
-   * @param name the method's name.
+   * @param owner      the internal name of the method's owner class.
+   * @param name       the method's name.
    * @param descriptor the method's descriptor (see {@link Type}).
    * @deprecated use {@link #invokevirtual(String, String, String, boolean)} instead.
    */
   @Deprecated
-  public void invokevirtual(final String owner, final String name, final String descriptor) {
+  public void invokevirtual(String owner, String name, String descriptor) {
     if (api >= Opcodes.ASM5) {
       invokevirtual(owner, name, descriptor, false);
       return;
@@ -1075,14 +1079,14 @@ public class InstructionAdapter extends MethodVisitor {
   /**
    * Generates the instruction to call the given virtual method.
    *
-   * @param owner the internal name of the method's owner class (see {@link
-   *     Type#getInternalName()}).
-   * @param name the method's name.
-   * @param descriptor the method's descriptor (see {@link Type}).
+   * @param owner       the internal name of the method's owner class (see {@link
+   *                    Type#getInternalName()}).
+   * @param name        the method's name.
+   * @param descriptor  the method's descriptor (see {@link Type}).
    * @param isInterface if the method's owner class is an interface.
    */
   public void invokevirtual(
-      final String owner, final String name, final String descriptor, final boolean isInterface) {
+    String owner, String name, String descriptor, boolean isInterface) {
     if (api < Opcodes.ASM5) {
       if (isInterface) {
         throw new IllegalArgumentException("INVOKEVIRTUAL on interfaces require ASM 5");
@@ -1096,13 +1100,13 @@ public class InstructionAdapter extends MethodVisitor {
   /**
    * Deprecated.
    *
-   * @param owner the internal name of the method's owner class.
-   * @param name the method's name.
+   * @param owner      the internal name of the method's owner class.
+   * @param name       the method's name.
    * @param descriptor the method's descriptor (see {@link Type}).
    * @deprecated use {@link #invokespecial(String, String, String, boolean)} instead.
    */
   @Deprecated
-  public void invokespecial(final String owner, final String name, final String descriptor) {
+  public void invokespecial(String owner, String name, String descriptor) {
     if (api >= Opcodes.ASM5) {
       invokespecial(owner, name, descriptor, false);
       return;
@@ -1113,14 +1117,14 @@ public class InstructionAdapter extends MethodVisitor {
   /**
    * Generates the instruction to call the given special method.
    *
-   * @param owner the internal name of the method's owner class (see {@link
-   *     Type#getInternalName()}).
-   * @param name the method's name.
-   * @param descriptor the method's descriptor (see {@link Type}).
+   * @param owner       the internal name of the method's owner class (see {@link
+   *                    Type#getInternalName()}).
+   * @param name        the method's name.
+   * @param descriptor  the method's descriptor (see {@link Type}).
    * @param isInterface if the method's owner class is an interface.
    */
   public void invokespecial(
-      final String owner, final String name, final String descriptor, final boolean isInterface) {
+    String owner, String name, String descriptor, boolean isInterface) {
     if (api < Opcodes.ASM5) {
       if (isInterface) {
         throw new IllegalArgumentException("INVOKESPECIAL on interfaces require ASM 5");
@@ -1134,13 +1138,13 @@ public class InstructionAdapter extends MethodVisitor {
   /**
    * Deprecated.
    *
-   * @param owner the internal name of the method's owner class.
-   * @param name the method's name.
+   * @param owner      the internal name of the method's owner class.
+   * @param name       the method's name.
    * @param descriptor the method's descriptor (see {@link Type}).
    * @deprecated use {@link #invokestatic(String, String, String, boolean)} instead.
    */
   @Deprecated
-  public void invokestatic(final String owner, final String name, final String descriptor) {
+  public void invokestatic(String owner, String name, String descriptor) {
     if (api >= Opcodes.ASM5) {
       invokestatic(owner, name, descriptor, false);
       return;
@@ -1151,14 +1155,14 @@ public class InstructionAdapter extends MethodVisitor {
   /**
    * Generates the instruction to call the given static method.
    *
-   * @param owner the internal name of the method's owner class (see {@link
-   *     Type#getInternalName()}).
-   * @param name the method's name.
-   * @param descriptor the method's descriptor (see {@link Type}).
+   * @param owner       the internal name of the method's owner class (see {@link
+   *                    Type#getInternalName()}).
+   * @param name        the method's name.
+   * @param descriptor  the method's descriptor (see {@link Type}).
    * @param isInterface if the method's owner class is an interface.
    */
   public void invokestatic(
-      final String owner, final String name, final String descriptor, final boolean isInterface) {
+    String owner, String name, String descriptor, boolean isInterface) {
     if (api < Opcodes.ASM5) {
       if (isInterface) {
         throw new IllegalArgumentException("INVOKESTATIC on interfaces require ASM 5");
@@ -1172,35 +1176,35 @@ public class InstructionAdapter extends MethodVisitor {
   /**
    * Generates the instruction to call the given interface method.
    *
-   * @param owner the internal name of the method's owner class (see {@link
-   *     Type#getInternalName()}).
-   * @param name the method's name.
+   * @param owner      the internal name of the method's owner class (see {@link
+   *                   Type#getInternalName()}).
+   * @param name       the method's name.
    * @param descriptor the method's descriptor (see {@link Type}).
    */
-  public void invokeinterface(final String owner, final String name, final String descriptor) {
+  public void invokeinterface(String owner, String name, String descriptor) {
     mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, owner, name, descriptor, true);
   }
 
   /**
    * Generates the instruction to call the given dynamic method.
    *
-   * @param name the method's name.
-   * @param descriptor the method's descriptor (see {@link Type}).
-   * @param bootstrapMethodHandle the bootstrap method.
+   * @param name                     the method's name.
+   * @param descriptor               the method's descriptor (see {@link Type}).
+   * @param bootstrapMethodHandle    the bootstrap method.
    * @param bootstrapMethodArguments the bootstrap method constant arguments. Each argument must be
-   *     an {@link Integer}, {@link Float}, {@link Long}, {@link Double}, {@link String}, {@link
-   *     Type}, {@link Handle} or {@link ConstantDynamic} value. This method is allowed to modify
-   *     the content of the array so a caller should expect that this array may change.
+   *                                 an {@link Integer}, {@link Float}, {@link Long}, {@link Double}, {@link String}, {@link
+   *                                 Type}, {@link Handle} or {@link ConstantDynamic} value. This method is allowed to modify
+   *                                 the content of the array so a caller should expect that this array may change.
    */
   public void invokedynamic(
-      final String name,
-      final String descriptor,
-      final Handle bootstrapMethodHandle,
-      final Object[] bootstrapMethodArguments) {
+    String name,
+    String descriptor,
+    Handle bootstrapMethodHandle,
+    Object[] bootstrapMethodArguments) {
     mv.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
   }
 
-  public void anew(final Type type) {
+  public void anew(Type type) {
     mv.visitTypeInsn(Opcodes.NEW, type.getInternalName());
   }
 
@@ -1209,7 +1213,7 @@ public class InstructionAdapter extends MethodVisitor {
    *
    * @param type an array Type.
    */
-  public void newarray(final Type type) {
+  public void newarray(Type type) {
     newarray(mv, type);
   }
 
@@ -1217,9 +1221,9 @@ public class InstructionAdapter extends MethodVisitor {
    * Generates the instruction to create and push on the stack an array of the given type.
    *
    * @param methodVisitor the method visitor to use to generate the instruction.
-   * @param type an array Type.
+   * @param type          an array Type.
    */
-  static void newarray(final MethodVisitor methodVisitor, final Type type) {
+  static void newarray(MethodVisitor methodVisitor, Type type) {
     int arrayType;
     switch (type.getSort()) {
       case Type.BOOLEAN:
@@ -1261,11 +1265,11 @@ public class InstructionAdapter extends MethodVisitor {
     mv.visitInsn(Opcodes.ATHROW);
   }
 
-  public void checkcast(final Type type) {
+  public void checkcast(Type type) {
     mv.visitTypeInsn(Opcodes.CHECKCAST, type.getInternalName());
   }
 
-  public void instanceOf(final Type type) {
+  public void instanceOf(Type type) {
     mv.visitTypeInsn(Opcodes.INSTANCEOF, type.getInternalName());
   }
 
@@ -1277,19 +1281,19 @@ public class InstructionAdapter extends MethodVisitor {
     mv.visitInsn(Opcodes.MONITOREXIT);
   }
 
-  public void multianewarray(final String descriptor, final int numDimensions) {
+  public void multianewarray(String descriptor, int numDimensions) {
     mv.visitMultiANewArrayInsn(descriptor, numDimensions);
   }
 
-  public void ifnull(final Label label) {
+  public void ifnull(Label label) {
     mv.visitJumpInsn(Opcodes.IFNULL, label);
   }
 
-  public void ifnonnull(final Label label) {
+  public void ifnonnull(Label label) {
     mv.visitJumpInsn(Opcodes.IFNONNULL, label);
   }
 
-  public void mark(final Label label) {
+  public void mark(Label label) {
     mv.visitLabel(label);
   }
 }

@@ -50,13 +50,19 @@ import de.jpx3.intave.lib.asm.Opcodes;
  */
 public abstract class SignatureVisitor {
 
-  /** Wildcard for an "extends" type argument. */
+  /**
+   * Wildcard for an "extends" type argument.
+   */
   public static final char EXTENDS = '+';
 
-  /** Wildcard for a "super" type argument. */
+  /**
+   * Wildcard for a "super" type argument.
+   */
   public static final char SUPER = '-';
 
-  /** Wildcard for a normal type argument. */
+  /**
+   * Wildcard for a normal type argument.
+   */
   public static final char INSTANCEOF = '=';
 
   /**
@@ -69,14 +75,14 @@ public abstract class SignatureVisitor {
    * Constructs a new {@link SignatureVisitor}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   *            Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
-  public SignatureVisitor(final int api) {
+  public SignatureVisitor(int api) {
     if (api != Opcodes.ASM7
-        && api != Opcodes.ASM6
-        && api != Opcodes.ASM5
-        && api != Opcodes.ASM4
-        && api != Opcodes.ASM8_EXPERIMENTAL) {
+      && api != Opcodes.ASM6
+      && api != Opcodes.ASM5
+      && api != Opcodes.ASM4
+      && api != Opcodes.ASM8_EXPERIMENTAL) {
       throw new IllegalArgumentException("Unsupported api " + api);
     }
     this.api = api;
@@ -87,7 +93,8 @@ public abstract class SignatureVisitor {
    *
    * @param name the name of the formal parameter.
    */
-  public void visitFormalTypeParameter(final String name) {}
+  public void visitFormalTypeParameter(String name) {
+  }
 
   /**
    * Visits the class bound of the last visited formal type parameter.
@@ -157,14 +164,16 @@ public abstract class SignatureVisitor {
    *
    * @param descriptor the descriptor of the primitive type, or 'V' for {@code void} .
    */
-  public void visitBaseType(final char descriptor) {}
+  public void visitBaseType(char descriptor) {
+  }
 
   /**
    * Visits a signature corresponding to a type variable.
    *
    * @param name the name of the type variable.
    */
-  public void visitTypeVariable(final String name) {}
+  public void visitTypeVariable(String name) {
+  }
 
   /**
    * Visits a signature corresponding to an array type.
@@ -180,17 +189,22 @@ public abstract class SignatureVisitor {
    *
    * @param name the internal name of the class or interface.
    */
-  public void visitClassType(final String name) {}
+  public void visitClassType(String name) {
+  }
 
   /**
    * Visits an inner class.
    *
    * @param name the local name of the inner class in its enclosing class.
    */
-  public void visitInnerClassType(final String name) {}
+  public void visitInnerClassType(String name) {
+  }
 
-  /** Visits an unbounded type argument of the last visited class or inner class type. */
-  public void visitTypeArgument() {}
+  /**
+   * Visits an unbounded type argument of the last visited class or inner class type.
+   */
+  public void visitTypeArgument() {
+  }
 
   /**
    * Visits a type argument of the last visited class or inner class type.
@@ -198,10 +212,13 @@ public abstract class SignatureVisitor {
    * @param wildcard '+', '-' or '='.
    * @return a non null visitor to visit the signature of the type argument.
    */
-  public SignatureVisitor visitTypeArgument(final char wildcard) {
+  public SignatureVisitor visitTypeArgument(char wildcard) {
     return this;
   }
 
-  /** Ends the visit of a signature corresponding to a class or interface type. */
-  public void visitEnd() {}
+  /**
+   * Ends the visit of a signature corresponding to a class or interface type.
+   */
+  public void visitEnd() {
+  }
 }

@@ -55,7 +55,7 @@ public class IincInsnNode extends AbstractInsnNode {
    * @param var  index of the local variable to be incremented.
    * @param incr increment amount to increment the local variable by.
    */
-  public IincInsnNode(final int var, final int incr) {
+  public IincInsnNode(int var, int incr) {
     super(Opcodes.IINC);
     this.var = var;
     this.incr = incr;
@@ -67,13 +67,13 @@ public class IincInsnNode extends AbstractInsnNode {
   }
 
   @Override
-  public void accept(final MethodVisitor methodVisitor) {
+  public void accept(MethodVisitor methodVisitor) {
     methodVisitor.visitIincInsn(var, incr);
     acceptAnnotations(methodVisitor);
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
+  public AbstractInsnNode clone(Map<LabelNode, LabelNode> clonedLabels) {
     return new IincInsnNode(var, incr).cloneAnnotations(this);
   }
 }

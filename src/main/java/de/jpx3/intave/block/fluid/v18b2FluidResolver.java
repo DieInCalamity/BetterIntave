@@ -65,10 +65,10 @@ final class v18b2FluidResolver extends FluidResolver {
   @PatchyTranslateParameters
   private FluidTag tagKeyResolve(Object fluid) {
     try {
-      if ((boolean)resolveTagKey.invoke(fluid, TAG_KEY_WATER)) {
+      if ((boolean) resolveTagKey.invoke(fluid, TAG_KEY_WATER)) {
         return FluidTag.WATER;
       }
-      if ((boolean)resolveTagKey.invoke(fluid, TAG_KEY_LAVA)) {
+      if ((boolean) resolveTagKey.invoke(fluid, TAG_KEY_LAVA)) {
         return FluidTag.LAVA;
       }
     } catch (Throwable exception) {

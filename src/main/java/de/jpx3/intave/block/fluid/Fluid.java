@@ -1,7 +1,7 @@
 package de.jpx3.intave.block.fluid;
 
 public final class Fluid {
-  private final static Fluid EMPTY = new Fluid(FluidTag.EMPTY, true, 0);
+  private static final Fluid EMPTY = new Fluid(FluidTag.EMPTY, true, 0);
 
   private final FluidTag fluidTag;
   private final boolean empty;

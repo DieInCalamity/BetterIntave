@@ -36,7 +36,9 @@ import de.jpx3.intave.lib.asm.*;
  */
 public final class TraceMethodVisitor extends MethodVisitor {
 
-  /** The printer to convert the visited method into text. */
+  /**
+   * The printer to convert the visited method into text.
+   */
   // DontCheck(MemberName): can't be renamed (for backward binary compatibility).
   public final Printer p;
 
@@ -45,7 +47,7 @@ public final class TraceMethodVisitor extends MethodVisitor {
    *
    * @param printer the printer to convert the visited method into text.
    */
-  public TraceMethodVisitor(final Printer printer) {
+  public TraceMethodVisitor(Printer printer) {
     this(null, printer);
   }
 
@@ -53,36 +55,36 @@ public final class TraceMethodVisitor extends MethodVisitor {
    * Constructs a new {@link TraceMethodVisitor}.
    *
    * @param methodVisitor the method visitor to which to delegate calls. May be {@literal null}.
-   * @param printer the printer to convert the visited method into text.
+   * @param printer       the printer to convert the visited method into text.
    */
-  public TraceMethodVisitor(final MethodVisitor methodVisitor, final Printer printer) {
+  public TraceMethodVisitor(MethodVisitor methodVisitor, Printer printer) {
     super(/* latest api = */ Opcodes.ASM7, methodVisitor);
     this.p = printer;
   }
 
   @Override
-  public void visitParameter(final String name, final int access) {
+  public void visitParameter(String name, int access) {
     p.visitParameter(name, access);
     super.visitParameter(name, access);
   }
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+  public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
     Printer annotationPrinter = p.visitMethodAnnotation(descriptor, visible);
     return new TraceAnnotationVisitor(
-        super.visitAnnotation(descriptor, visible), annotationPrinter);
+      super.visitAnnotation(descriptor, visible), annotationPrinter);
   }
 
   @Override
   public AnnotationVisitor visitTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     Printer annotationPrinter = p.visitMethodTypeAnnotation(typeRef, typePath, descriptor, visible);
     return new TraceAnnotationVisitor(
-        super.visitTypeAnnotation(typeRef, typePath, descriptor, visible), annotationPrinter);
+      super.visitTypeAnnotation(typeRef, typePath, descriptor, visible), annotationPrinter);
   }
 
   @Override
-  public void visitAttribute(final Attribute attribute) {
+  public void visitAttribute(Attribute attribute) {
     p.visitMethodAttribute(attribute);
     super.visitAttribute(attribute);
   }
@@ -94,17 +96,17 @@ public final class TraceMethodVisitor extends MethodVisitor {
   }
 
   @Override
-  public void visitAnnotableParameterCount(final int parameterCount, final boolean visible) {
+  public void visitAnnotableParameterCount(int parameterCount, boolean visible) {
     p.visitAnnotableParameterCount(parameterCount, visible);
     super.visitAnnotableParameterCount(parameterCount, visible);
   }
 
   @Override
   public AnnotationVisitor visitParameterAnnotation(
-      final int parameter, final String descriptor, final boolean visible) {
+    int parameter, String descriptor, boolean visible) {
     Printer annotationPrinter = p.visitParameterAnnotation(parameter, descriptor, visible);
     return new TraceAnnotationVisitor(
-        super.visitParameterAnnotation(parameter, descriptor, visible), annotationPrinter);
+      super.visitParameterAnnotation(parameter, descriptor, visible), annotationPrinter);
   }
 
   @Override
@@ -115,42 +117,42 @@ public final class TraceMethodVisitor extends MethodVisitor {
 
   @Override
   public void visitFrame(
-      final int type,
-      final int numLocal,
-      final Object[] local,
-      final int numStack,
-      final Object[] stack) {
+    int type,
+    int numLocal,
+    Object[] local,
+    int numStack,
+    Object[] stack) {
     p.visitFrame(type, numLocal, local, numStack, stack);
     super.visitFrame(type, numLocal, local, numStack, stack);
   }
 
   @Override
-  public void visitInsn(final int opcode) {
+  public void visitInsn(int opcode) {
     p.visitInsn(opcode);
     super.visitInsn(opcode);
   }
 
   @Override
-  public void visitIntInsn(final int opcode, final int operand) {
+  public void visitIntInsn(int opcode, int operand) {
     p.visitIntInsn(opcode, operand);
     super.visitIntInsn(opcode, operand);
   }
 
   @Override
-  public void visitVarInsn(final int opcode, final int var) {
+  public void visitVarInsn(int opcode, int var) {
     p.visitVarInsn(opcode, var);
     super.visitVarInsn(opcode, var);
   }
 
   @Override
-  public void visitTypeInsn(final int opcode, final String type) {
+  public void visitTypeInsn(int opcode, String type) {
     p.visitTypeInsn(opcode, type);
     super.visitTypeInsn(opcode, type);
   }
 
   @Override
   public void visitFieldInsn(
-      final int opcode, final String owner, final String name, final String descriptor) {
+    int opcode, String owner, String name, String descriptor) {
     p.visitFieldInsn(opcode, owner, name, descriptor);
     super.visitFieldInsn(opcode, owner, name, descriptor);
   }
@@ -158,11 +160,11 @@ public final class TraceMethodVisitor extends MethodVisitor {
   @Override
   @SuppressWarnings("deprecation")
   public void visitMethodInsn(
-      final int opcode,
-      final String owner,
-      final String name,
-      final String descriptor,
-      final boolean isInterface) {
+    int opcode,
+    String owner,
+    String name,
+    String descriptor,
+    boolean isInterface) {
     // Call the method that p is supposed to implement, depending on its api version.
     if (p.api < Opcodes.ASM5) {
       if (isInterface != (opcode == Opcodes.INVOKEINTERFACE)) {
@@ -183,117 +185,117 @@ public final class TraceMethodVisitor extends MethodVisitor {
 
   @Override
   public void visitInvokeDynamicInsn(
-      final String name,
-      final String descriptor,
-      final Handle bootstrapMethodHandle,
-      final Object... bootstrapMethodArguments) {
+    String name,
+    String descriptor,
+    Handle bootstrapMethodHandle,
+    Object... bootstrapMethodArguments) {
     p.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
     super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
   }
 
   @Override
-  public void visitJumpInsn(final int opcode, final Label label) {
+  public void visitJumpInsn(int opcode, Label label) {
     p.visitJumpInsn(opcode, label);
     super.visitJumpInsn(opcode, label);
   }
 
   @Override
-  public void visitLabel(final Label label) {
+  public void visitLabel(Label label) {
     p.visitLabel(label);
     super.visitLabel(label);
   }
 
   @Override
-  public void visitLdcInsn(final Object value) {
+  public void visitLdcInsn(Object value) {
     p.visitLdcInsn(value);
     super.visitLdcInsn(value);
   }
 
   @Override
-  public void visitIincInsn(final int var, final int increment) {
+  public void visitIincInsn(int var, int increment) {
     p.visitIincInsn(var, increment);
     super.visitIincInsn(var, increment);
   }
 
   @Override
   public void visitTableSwitchInsn(
-      final int min, final int max, final Label dflt, final Label... labels) {
+    int min, int max, Label dflt, Label... labels) {
     p.visitTableSwitchInsn(min, max, dflt, labels);
     super.visitTableSwitchInsn(min, max, dflt, labels);
   }
 
   @Override
-  public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
+  public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
     p.visitLookupSwitchInsn(dflt, keys, labels);
     super.visitLookupSwitchInsn(dflt, keys, labels);
   }
 
   @Override
-  public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
+  public void visitMultiANewArrayInsn(String descriptor, int numDimensions) {
     p.visitMultiANewArrayInsn(descriptor, numDimensions);
     super.visitMultiANewArrayInsn(descriptor, numDimensions);
   }
 
   @Override
   public AnnotationVisitor visitInsnAnnotation(
-      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     Printer annotationPrinter = p.visitInsnAnnotation(typeRef, typePath, descriptor, visible);
     return new TraceAnnotationVisitor(
-        super.visitInsnAnnotation(typeRef, typePath, descriptor, visible), annotationPrinter);
+      super.visitInsnAnnotation(typeRef, typePath, descriptor, visible), annotationPrinter);
   }
 
   @Override
   public void visitTryCatchBlock(
-      final Label start, final Label end, final Label handler, final String type) {
+    Label start, Label end, Label handler, String type) {
     p.visitTryCatchBlock(start, end, handler, type);
     super.visitTryCatchBlock(start, end, handler, type);
   }
 
   @Override
   public AnnotationVisitor visitTryCatchAnnotation(
-      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     Printer annotationPrinter = p.visitTryCatchAnnotation(typeRef, typePath, descriptor, visible);
     return new TraceAnnotationVisitor(
-        super.visitTryCatchAnnotation(typeRef, typePath, descriptor, visible), annotationPrinter);
+      super.visitTryCatchAnnotation(typeRef, typePath, descriptor, visible), annotationPrinter);
   }
 
   @Override
   public void visitLocalVariable(
-      final String name,
-      final String descriptor,
-      final String signature,
-      final Label start,
-      final Label end,
-      final int index) {
+    String name,
+    String descriptor,
+    String signature,
+    Label start,
+    Label end,
+    int index) {
     p.visitLocalVariable(name, descriptor, signature, start, end, index);
     super.visitLocalVariable(name, descriptor, signature, start, end, index);
   }
 
   @Override
   public AnnotationVisitor visitLocalVariableAnnotation(
-      final int typeRef,
-      final TypePath typePath,
-      final Label[] start,
-      final Label[] end,
-      final int[] index,
-      final String descriptor,
-      final boolean visible) {
+    int typeRef,
+    TypePath typePath,
+    Label[] start,
+    Label[] end,
+    int[] index,
+    String descriptor,
+    boolean visible) {
     Printer annotationPrinter =
-        p.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, descriptor, visible);
+      p.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, descriptor, visible);
     return new TraceAnnotationVisitor(
-        super.visitLocalVariableAnnotation(
-            typeRef, typePath, start, end, index, descriptor, visible),
-        annotationPrinter);
+      super.visitLocalVariableAnnotation(
+        typeRef, typePath, start, end, index, descriptor, visible),
+      annotationPrinter);
   }
 
   @Override
-  public void visitLineNumber(final int line, final Label start) {
+  public void visitLineNumber(int line, Label start) {
     p.visitLineNumber(line, start);
     super.visitLineNumber(line, start);
   }
 
   @Override
-  public void visitMaxs(final int maxStack, final int maxLocals) {
+  public void visitMaxs(int maxStack, int maxLocals) {
     p.visitMaxs(maxStack, maxLocals);
     super.visitMaxs(maxStack, maxLocals);
   }

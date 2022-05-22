@@ -20,6 +20,7 @@ public final class AgentAccessor {
   }
 
   private static Instrumentation instrumentation;
+
   public static Instrumentation instrumentation() {
     if (instrumentation == null && agentAvailable()) {
       try {
@@ -135,7 +136,7 @@ public final class AgentAccessor {
   private static boolean methodsEqual(
     String methodAName, String methodBName,
     String methodADescription, String methodBDescription
-  ){
+  ) {
     return methodAName.equalsIgnoreCase(methodBName)
       && methodADescription.equalsIgnoreCase(methodBDescription);
   }
@@ -145,6 +146,7 @@ public final class AgentAccessor {
   }
 
   private static Method classBytesOfMethod;
+
   public static byte[] sourceBytesOfMinecraftClass(String minecraftClassName) {
     try {
       if (classBytesOfMethod == null) {

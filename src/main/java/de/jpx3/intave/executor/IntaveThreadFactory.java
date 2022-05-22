@@ -6,8 +6,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class IntaveThreadFactory implements ThreadFactory {
-  private final static AtomicInteger poolNumber = new AtomicInteger(1);
-  private final static ThreadGroup intaveThreadGroup = new ThreadGroup("intave");
+  private static final AtomicInteger poolNumber = new AtomicInteger(1);
+  private static final ThreadGroup intaveThreadGroup = new ThreadGroup("intave");
   private final AtomicInteger threadNumber = new AtomicInteger(1);
 
   private final int currentPoolNumber;

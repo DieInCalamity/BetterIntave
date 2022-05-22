@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class MessageChannelSubscriptions {
-  private final static Collection<Player> sibylRepo = GarbageCollector.watch(new CopyOnWriteArrayList<>());
+  private static final Collection<Player> sibylRepo = GarbageCollector.watch(new CopyOnWriteArrayList<>());
 
   public static Collection<? extends Player> sibylReceiver() {
     return sibylRepo;
@@ -26,7 +26,7 @@ public final class MessageChannelSubscriptions {
     }
   }
 
-  private final static Map<MessageChannel, List<Player>> messageChannelSubscriptions = new ConcurrentHashMap<>();
+  private static final Map<MessageChannel, List<Player>> messageChannelSubscriptions = new ConcurrentHashMap<>();
 
   public static Collection<Player> receiverOf(MessageChannel channel) {
     return messageChannelSubscriptions.computeIfAbsent(channel, theChannel -> new CopyOnWriteArrayList<>());

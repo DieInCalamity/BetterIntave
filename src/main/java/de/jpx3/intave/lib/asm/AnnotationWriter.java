@@ -34,16 +34,18 @@ package de.jpx3.intave.lib.asm;
  * attributes can be generated with the {@link #putAnnotations} method. Similarly, arrays of such
  * lists can be used to generate Runtime[In]VisibleParameterAnnotations attributes.
  *
- * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16">JVMS
- *     4.7.16</a>
- * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20">JVMS
- *     4.7.20</a>
  * @author Eric Bruneton
  * @author Eugene Kuleshov
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16">JVMS
+ * 4.7.16</a>
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20">JVMS
+ * 4.7.20</a>
  */
 final class AnnotationWriter extends AnnotationVisitor {
 
-  /** Where the constants used in this AnnotationWriter must be stored. */
+  /**
+   * Where the constants used in this AnnotationWriter must be stored.
+   */
   private final SymbolTable symbolTable;
 
   /**
@@ -73,7 +75,9 @@ final class AnnotationWriter extends AnnotationVisitor {
    */
   private final int numElementValuePairsOffset;
 
-  /** The number of element value pairs visited so far. */
+  /**
+   * The number of element value pairs visited so far.
+   */
   private int numElementValuePairs;
 
   /**
@@ -97,21 +101,21 @@ final class AnnotationWriter extends AnnotationVisitor {
   /**
    * Constructs a new {@link AnnotationWriter}.
    *
-   * @param symbolTable where the constants used in this AnnotationWriter must be stored.
-   * @param useNamedValues whether values are named or not. AnnotationDefault and annotation arrays
-   *     use unnamed values.
-   * @param annotation where the 'annotation' or 'type_annotation' JVMS structure corresponding to
-   *     the visited content must be stored. This ByteVector must already contain all the fields of
-   *     the structure except the last one (the element_value_pairs array).
+   * @param symbolTable        where the constants used in this AnnotationWriter must be stored.
+   * @param useNamedValues     whether values are named or not. AnnotationDefault and annotation arrays
+   *                           use unnamed values.
+   * @param annotation         where the 'annotation' or 'type_annotation' JVMS structure corresponding to
+   *                           the visited content must be stored. This ByteVector must already contain all the fields of
+   *                           the structure except the last one (the element_value_pairs array).
    * @param previousAnnotation the previously visited annotation of the
-   *     Runtime[In]Visible[Type]Annotations attribute to which this annotation belongs, or
-   *     {@literal null} in other cases (e.g. nested or array annotations).
+   *                           Runtime[In]Visible[Type]Annotations attribute to which this annotation belongs, or
+   *                           {@literal null} in other cases (e.g. nested or array annotations).
    */
   AnnotationWriter(
-      final SymbolTable symbolTable,
-      final boolean useNamedValues,
-      final ByteVector annotation,
-      final AnnotationWriter previousAnnotation) {
+    SymbolTable symbolTable,
+    boolean useNamedValues,
+    ByteVector annotation,
+    AnnotationWriter previousAnnotation) {
     super(/* latest api = */ Opcodes.ASM7);
     this.symbolTable = symbolTable;
     this.useNamedValues = useNamedValues;
@@ -127,49 +131,49 @@ final class AnnotationWriter extends AnnotationVisitor {
   /**
    * Creates a new {@link AnnotationWriter} using named values.
    *
-   * @param symbolTable where the constants used in this AnnotationWriter must be stored.
-   * @param descriptor the class descriptor of the annotation class.
+   * @param symbolTable        where the constants used in this AnnotationWriter must be stored.
+   * @param descriptor         the class descriptor of the annotation class.
    * @param previousAnnotation the previously visited annotation of the
-   *     Runtime[In]Visible[Type]Annotations attribute to which this annotation belongs, or
-   *     {@literal null} in other cases (e.g. nested or array annotations).
+   *                           Runtime[In]Visible[Type]Annotations attribute to which this annotation belongs, or
+   *                           {@literal null} in other cases (e.g. nested or array annotations).
    * @return a new {@link AnnotationWriter} for the given annotation descriptor.
    */
   static AnnotationWriter create(
-      final SymbolTable symbolTable,
-      final String descriptor,
-      final AnnotationWriter previousAnnotation) {
+    SymbolTable symbolTable,
+    String descriptor,
+    AnnotationWriter previousAnnotation) {
     // Create a ByteVector to hold an 'annotation' JVMS structure.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.
     ByteVector annotation = new ByteVector();
     // Write type_index and reserve space for num_element_value_pairs.
     annotation.putShort(symbolTable.addConstantUtf8(descriptor)).putShort(0);
     return new AnnotationWriter(
-        symbolTable, /* useNamedValues = */ true, annotation, previousAnnotation);
+      symbolTable, /* useNamedValues = */ true, annotation, previousAnnotation);
   }
 
   /**
    * Creates a new {@link AnnotationWriter} using named values.
    *
-   * @param symbolTable where the constants used in this AnnotationWriter must be stored.
-   * @param typeRef a reference to the annotated type. The sort of this type reference must be
-   *     {@link TypeReference#CLASS_TYPE_PARAMETER}, {@link
-   *     TypeReference#CLASS_TYPE_PARAMETER_BOUND} or {@link TypeReference#CLASS_EXTENDS}. See
-   *     {@link TypeReference}.
-   * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
-   *     static inner type within 'typeRef'. May be {@literal null} if the annotation targets
-   *     'typeRef' as a whole.
-   * @param descriptor the class descriptor of the annotation class.
+   * @param symbolTable        where the constants used in this AnnotationWriter must be stored.
+   * @param typeRef            a reference to the annotated type. The sort of this type reference must be
+   *                           {@link TypeReference#CLASS_TYPE_PARAMETER}, {@link
+   *                           TypeReference#CLASS_TYPE_PARAMETER_BOUND} or {@link TypeReference#CLASS_EXTENDS}. See
+   *                           {@link TypeReference}.
+   * @param typePath           the path to the annotated type argument, wildcard bound, array element type, or
+   *                           static inner type within 'typeRef'. May be {@literal null} if the annotation targets
+   *                           'typeRef' as a whole.
+   * @param descriptor         the class descriptor of the annotation class.
    * @param previousAnnotation the previously visited annotation of the
-   *     Runtime[In]Visible[Type]Annotations attribute to which this annotation belongs, or
-   *     {@literal null} in other cases (e.g. nested or array annotations).
+   *                           Runtime[In]Visible[Type]Annotations attribute to which this annotation belongs, or
+   *                           {@literal null} in other cases (e.g. nested or array annotations).
    * @return a new {@link AnnotationWriter} for the given type annotation reference and descriptor.
    */
   static AnnotationWriter create(
-      final SymbolTable symbolTable,
-      final int typeRef,
-      final TypePath typePath,
-      final String descriptor,
-      final AnnotationWriter previousAnnotation) {
+    SymbolTable symbolTable,
+    int typeRef,
+    TypePath typePath,
+    String descriptor,
+    AnnotationWriter previousAnnotation) {
     // Create a ByteVector to hold a 'type_annotation' JVMS structure.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.
     ByteVector typeAnnotation = new ByteVector();
@@ -179,7 +183,7 @@ final class AnnotationWriter extends AnnotationVisitor {
     // Write type_index and reserve space for num_element_value_pairs.
     typeAnnotation.putShort(symbolTable.addConstantUtf8(descriptor)).putShort(0);
     return new AnnotationWriter(
-        symbolTable, /* useNamedValues = */ true, typeAnnotation, previousAnnotation);
+      symbolTable, /* useNamedValues = */ true, typeAnnotation, previousAnnotation);
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -187,7 +191,7 @@ final class AnnotationWriter extends AnnotationVisitor {
   // -----------------------------------------------------------------------------------------------
 
   @Override
-  public void visit(final String name, final Object value) {
+  public void visit(String name, Object value) {
     // Case of an element_value with a const_value_index, class_info_index or array_index field.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.1.
     ++numElementValuePairs;
@@ -262,7 +266,7 @@ final class AnnotationWriter extends AnnotationVisitor {
   }
 
   @Override
-  public void visitEnum(final String name, final String descriptor, final String value) {
+  public void visitEnum(String name, String descriptor, String value) {
     // Case of an element_value with an enum_const_value field.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.1.
     ++numElementValuePairs;
@@ -270,12 +274,12 @@ final class AnnotationWriter extends AnnotationVisitor {
       annotation.putShort(symbolTable.addConstantUtf8(name));
     }
     annotation
-        .put12('e', symbolTable.addConstantUtf8(descriptor))
-        .putShort(symbolTable.addConstantUtf8(value));
+      .put12('e', symbolTable.addConstantUtf8(descriptor))
+      .putShort(symbolTable.addConstantUtf8(value));
   }
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String name, final String descriptor) {
+  public AnnotationVisitor visitAnnotation(String name, String descriptor) {
     // Case of an element_value with an annotation_value field.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.1.
     ++numElementValuePairs;
@@ -288,7 +292,7 @@ final class AnnotationWriter extends AnnotationVisitor {
   }
 
   @Override
-  public AnnotationVisitor visitArray(final String name) {
+  public AnnotationVisitor visitArray(String name) {
     // Case of an element_value with an array_value field.
     // https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.1
     ++numElementValuePairs;
@@ -326,10 +330,10 @@ final class AnnotationWriter extends AnnotationVisitor {
    *
    * @param attributeName one of "Runtime[In]Visible[Type]Annotations", or {@literal null}.
    * @return the size in bytes of a Runtime[In]Visible[Type]Annotations attribute containing this
-   *     annotation and all its predecessors. This includes the size of the attribute_name_index and
-   *     attribute_length fields.
+   * annotation and all its predecessors. This includes the size of the attribute_name_index and
+   * attribute_length fields.
    */
-  int computeAnnotationsSize(final String attributeName) {
+  int computeAnnotationsSize(String attributeName) {
     if (attributeName != null) {
       symbolTable.addConstantUtf8(attributeName);
     }
@@ -348,47 +352,47 @@ final class AnnotationWriter extends AnnotationVisitor {
    * annotations and all their <i>predecessors</i> (see {@link #previousAnnotation}. Also adds the
    * attribute names to the constant pool of the class (if not null).
    *
-   * @param lastRuntimeVisibleAnnotation The last runtime visible annotation of a field, method or
-   *     class. The previous ones can be accessed with the {@link #previousAnnotation} field. May be
-   *     {@literal null}.
-   * @param lastRuntimeInvisibleAnnotation The last runtime invisible annotation of this a field,
-   *     method or class. The previous ones can be accessed with the {@link #previousAnnotation}
-   *     field. May be {@literal null}.
-   * @param lastRuntimeVisibleTypeAnnotation The last runtime visible type annotation of this a
-   *     field, method or class. The previous ones can be accessed with the {@link
-   *     #previousAnnotation} field. May be {@literal null}.
+   * @param lastRuntimeVisibleAnnotation       The last runtime visible annotation of a field, method or
+   *                                           class. The previous ones can be accessed with the {@link #previousAnnotation} field. May be
+   *                                           {@literal null}.
+   * @param lastRuntimeInvisibleAnnotation     The last runtime invisible annotation of this a field,
+   *                                           method or class. The previous ones can be accessed with the {@link #previousAnnotation}
+   *                                           field. May be {@literal null}.
+   * @param lastRuntimeVisibleTypeAnnotation   The last runtime visible type annotation of this a
+   *                                           field, method or class. The previous ones can be accessed with the {@link
+   *                                           #previousAnnotation} field. May be {@literal null}.
    * @param lastRuntimeInvisibleTypeAnnotation The last runtime invisible type annotation of a
-   *     field, method or class field. The previous ones can be accessed with the {@link
-   *     #previousAnnotation} field. May be {@literal null}.
+   *                                           field, method or class field. The previous ones can be accessed with the {@link
+   *                                           #previousAnnotation} field. May be {@literal null}.
    * @return the size in bytes of a Runtime[In]Visible[Type]Annotations attribute containing the
-   *     given annotations and all their predecessors. This includes the size of the
-   *     attribute_name_index and attribute_length fields.
+   * given annotations and all their predecessors. This includes the size of the
+   * attribute_name_index and attribute_length fields.
    */
   static int computeAnnotationsSize(
-      final AnnotationWriter lastRuntimeVisibleAnnotation,
-      final AnnotationWriter lastRuntimeInvisibleAnnotation,
-      final AnnotationWriter lastRuntimeVisibleTypeAnnotation,
-      final AnnotationWriter lastRuntimeInvisibleTypeAnnotation) {
+    AnnotationWriter lastRuntimeVisibleAnnotation,
+    AnnotationWriter lastRuntimeInvisibleAnnotation,
+    AnnotationWriter lastRuntimeVisibleTypeAnnotation,
+    AnnotationWriter lastRuntimeInvisibleTypeAnnotation) {
     int size = 0;
     if (lastRuntimeVisibleAnnotation != null) {
       size +=
-          lastRuntimeVisibleAnnotation.computeAnnotationsSize(
-              Constants.RUNTIME_VISIBLE_ANNOTATIONS);
+        lastRuntimeVisibleAnnotation.computeAnnotationsSize(
+          Constants.RUNTIME_VISIBLE_ANNOTATIONS);
     }
     if (lastRuntimeInvisibleAnnotation != null) {
       size +=
-          lastRuntimeInvisibleAnnotation.computeAnnotationsSize(
-              Constants.RUNTIME_INVISIBLE_ANNOTATIONS);
+        lastRuntimeInvisibleAnnotation.computeAnnotationsSize(
+          Constants.RUNTIME_INVISIBLE_ANNOTATIONS);
     }
     if (lastRuntimeVisibleTypeAnnotation != null) {
       size +=
-          lastRuntimeVisibleTypeAnnotation.computeAnnotationsSize(
-              Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS);
+        lastRuntimeVisibleTypeAnnotation.computeAnnotationsSize(
+          Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS);
     }
     if (lastRuntimeInvisibleTypeAnnotation != null) {
       size +=
-          lastRuntimeInvisibleTypeAnnotation.computeAnnotationsSize(
-              Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
+        lastRuntimeInvisibleTypeAnnotation.computeAnnotationsSize(
+          Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
     }
     return size;
   }
@@ -399,10 +403,10 @@ final class AnnotationWriter extends AnnotationVisitor {
    * put in the same order they have been visited.
    *
    * @param attributeNameIndex the constant pool index of the attribute name (one of
-   *     "Runtime[In]Visible[Type]Annotations").
-   * @param output where the attribute must be put.
+   *                           "Runtime[In]Visible[Type]Annotations").
+   * @param output             where the attribute must be put.
    */
-  void putAnnotations(final int attributeNameIndex, final ByteVector output) {
+  void putAnnotations(int attributeNameIndex, ByteVector output) {
     int attributeLength = 2; // For num_annotations.
     int numAnnotations = 0;
     AnnotationWriter annotationWriter = this;
@@ -430,43 +434,43 @@ final class AnnotationWriter extends AnnotationVisitor {
    * all their <i>predecessors</i> (see {@link #previousAnnotation} in the given ByteVector.
    * Annotations are put in the same order they have been visited.
    *
-   * @param symbolTable where the constants used in the AnnotationWriter instances are stored.
-   * @param lastRuntimeVisibleAnnotation The last runtime visible annotation of a field, method or
-   *     class. The previous ones can be accessed with the {@link #previousAnnotation} field. May be
-   *     {@literal null}.
-   * @param lastRuntimeInvisibleAnnotation The last runtime invisible annotation of this a field,
-   *     method or class. The previous ones can be accessed with the {@link #previousAnnotation}
-   *     field. May be {@literal null}.
-   * @param lastRuntimeVisibleTypeAnnotation The last runtime visible type annotation of this a
-   *     field, method or class. The previous ones can be accessed with the {@link
-   *     #previousAnnotation} field. May be {@literal null}.
+   * @param symbolTable                        where the constants used in the AnnotationWriter instances are stored.
+   * @param lastRuntimeVisibleAnnotation       The last runtime visible annotation of a field, method or
+   *                                           class. The previous ones can be accessed with the {@link #previousAnnotation} field. May be
+   *                                           {@literal null}.
+   * @param lastRuntimeInvisibleAnnotation     The last runtime invisible annotation of this a field,
+   *                                           method or class. The previous ones can be accessed with the {@link #previousAnnotation}
+   *                                           field. May be {@literal null}.
+   * @param lastRuntimeVisibleTypeAnnotation   The last runtime visible type annotation of this a
+   *                                           field, method or class. The previous ones can be accessed with the {@link
+   *                                           #previousAnnotation} field. May be {@literal null}.
    * @param lastRuntimeInvisibleTypeAnnotation The last runtime invisible type annotation of a
-   *     field, method or class field. The previous ones can be accessed with the {@link
-   *     #previousAnnotation} field. May be {@literal null}.
-   * @param output where the attributes must be put.
+   *                                           field, method or class field. The previous ones can be accessed with the {@link
+   *                                           #previousAnnotation} field. May be {@literal null}.
+   * @param output                             where the attributes must be put.
    */
   static void putAnnotations(
-      final SymbolTable symbolTable,
-      final AnnotationWriter lastRuntimeVisibleAnnotation,
-      final AnnotationWriter lastRuntimeInvisibleAnnotation,
-      final AnnotationWriter lastRuntimeVisibleTypeAnnotation,
-      final AnnotationWriter lastRuntimeInvisibleTypeAnnotation,
-      final ByteVector output) {
+    SymbolTable symbolTable,
+    AnnotationWriter lastRuntimeVisibleAnnotation,
+    AnnotationWriter lastRuntimeInvisibleAnnotation,
+    AnnotationWriter lastRuntimeVisibleTypeAnnotation,
+    AnnotationWriter lastRuntimeInvisibleTypeAnnotation,
+    ByteVector output) {
     if (lastRuntimeVisibleAnnotation != null) {
       lastRuntimeVisibleAnnotation.putAnnotations(
-          symbolTable.addConstantUtf8(Constants.RUNTIME_VISIBLE_ANNOTATIONS), output);
+        symbolTable.addConstantUtf8(Constants.RUNTIME_VISIBLE_ANNOTATIONS), output);
     }
     if (lastRuntimeInvisibleAnnotation != null) {
       lastRuntimeInvisibleAnnotation.putAnnotations(
-          symbolTable.addConstantUtf8(Constants.RUNTIME_INVISIBLE_ANNOTATIONS), output);
+        symbolTable.addConstantUtf8(Constants.RUNTIME_INVISIBLE_ANNOTATIONS), output);
     }
     if (lastRuntimeVisibleTypeAnnotation != null) {
       lastRuntimeVisibleTypeAnnotation.putAnnotations(
-          symbolTable.addConstantUtf8(Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS), output);
+        symbolTable.addConstantUtf8(Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS), output);
     }
     if (lastRuntimeInvisibleTypeAnnotation != null) {
       lastRuntimeInvisibleTypeAnnotation.putAnnotations(
-          symbolTable.addConstantUtf8(Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS), output);
+        symbolTable.addConstantUtf8(Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS), output);
     }
   }
 
@@ -475,19 +479,19 @@ final class AnnotationWriter extends AnnotationVisitor {
    * annotation lists from the given AnnotationWriter sub-array. Also adds the attribute name to the
    * constant pool of the class.
    *
-   * @param attributeName one of "Runtime[In]VisibleParameterAnnotations".
-   * @param annotationWriters an array of AnnotationWriter lists (designated by their <i>last</i>
-   *     element).
+   * @param attributeName           one of "Runtime[In]VisibleParameterAnnotations".
+   * @param annotationWriters       an array of AnnotationWriter lists (designated by their <i>last</i>
+   *                                element).
    * @param annotableParameterCount the number of elements in annotationWriters to take into account
-   *     (elements [0..annotableParameterCount[ are taken into account).
+   *                                (elements [0..annotableParameterCount[ are taken into account).
    * @return the size in bytes of a Runtime[In]VisibleParameterAnnotations attribute corresponding
-   *     to the given sub-array of AnnotationWriter lists. This includes the size of the
-   *     attribute_name_index and attribute_length fields.
+   * to the given sub-array of AnnotationWriter lists. This includes the size of the
+   * attribute_name_index and attribute_length fields.
    */
   static int computeParameterAnnotationsSize(
-      final String attributeName,
-      final AnnotationWriter[] annotationWriters,
-      final int annotableParameterCount) {
+    String attributeName,
+    AnnotationWriter[] annotationWriters,
+    int annotableParameterCount) {
     // Note: attributeName is added to the constant pool by the call to computeAnnotationsSize
     // below. This assumes that there is at least one non-null element in the annotationWriters
     // sub-array (which is ensured by the lazy instantiation of this array in MethodWriter).
@@ -497,7 +501,7 @@ final class AnnotationWriter extends AnnotationVisitor {
     for (int i = 0; i < annotableParameterCount; ++i) {
       AnnotationWriter annotationWriter = annotationWriters[i];
       attributeSize +=
-          annotationWriter == null ? 0 : annotationWriter.computeAnnotationsSize(attributeName) - 8;
+        annotationWriter == null ? 0 : annotationWriter.computeAnnotationsSize(attributeName) - 8;
     }
     return attributeSize;
   }
@@ -506,26 +510,26 @@ final class AnnotationWriter extends AnnotationVisitor {
    * Puts a Runtime[In]VisibleParameterAnnotations attribute containing all the annotation lists
    * from the given AnnotationWriter sub-array in the given ByteVector.
    *
-   * @param attributeNameIndex constant pool index of the attribute name (one of
-   *     Runtime[In]VisibleParameterAnnotations).
-   * @param annotationWriters an array of AnnotationWriter lists (designated by their <i>last</i>
-   *     element).
+   * @param attributeNameIndex      constant pool index of the attribute name (one of
+   *                                Runtime[In]VisibleParameterAnnotations).
+   * @param annotationWriters       an array of AnnotationWriter lists (designated by their <i>last</i>
+   *                                element).
    * @param annotableParameterCount the number of elements in annotationWriters to put (elements
-   *     [0..annotableParameterCount[ are put).
-   * @param output where the attribute must be put.
+   *                                [0..annotableParameterCount[ are put).
+   * @param output                  where the attribute must be put.
    */
   static void putParameterAnnotations(
-      final int attributeNameIndex,
-      final AnnotationWriter[] annotationWriters,
-      final int annotableParameterCount,
-      final ByteVector output) {
+    int attributeNameIndex,
+    AnnotationWriter[] annotationWriters,
+    int annotableParameterCount,
+    ByteVector output) {
     // The num_parameters field uses 1 byte, and each element of the parameter_annotations array
     // uses 2 bytes for its num_annotations field.
     int attributeLength = 1 + 2 * annotableParameterCount;
     for (int i = 0; i < annotableParameterCount; ++i) {
       AnnotationWriter annotationWriter = annotationWriters[i];
       attributeLength +=
-          annotationWriter == null ? 0 : annotationWriter.computeAnnotationsSize(null) - 8;
+        annotationWriter == null ? 0 : annotationWriter.computeAnnotationsSize(null) - 8;
     }
     output.putShort(attributeNameIndex);
     output.putInt(attributeLength);
@@ -545,7 +549,7 @@ final class AnnotationWriter extends AnnotationVisitor {
       annotationWriter = firstAnnotation;
       while (annotationWriter != null) {
         output.putByteArray(
-            annotationWriter.annotation.data, 0, annotationWriter.annotation.length);
+          annotationWriter.annotation.data, 0, annotationWriter.annotation.length);
         annotationWriter = annotationWriter.nextAnnotation;
       }
     }

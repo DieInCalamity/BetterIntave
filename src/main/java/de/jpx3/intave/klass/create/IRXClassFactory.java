@@ -27,7 +27,7 @@ public final class IRXClassFactory {
     );
   }
 
-  private final static List<String> assembledClassNames = Lists.newArrayList();
+  private static final List<String> assembledClassNames = Lists.newArrayList();
 
   private static synchronized String findClassName() {
     String randomClassName;

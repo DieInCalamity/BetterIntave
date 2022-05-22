@@ -68,12 +68,12 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
    *            Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link
    *            Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
-  protected BasicInterpreter(final int api) {
+  protected BasicInterpreter(int api) {
     super(api);
   }
 
   @Override
-  public BasicValue newValue(final Type type) {
+  public BasicValue newValue(Type type) {
     if (type == null) {
       return BasicValue.UNINITIALIZED_VALUE;
     }
@@ -101,7 +101,7 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
   }
 
   @Override
-  public BasicValue newOperation(final AbstractInsnNode insn) throws AnalyzerException {
+  public BasicValue newOperation(AbstractInsnNode insn) throws AnalyzerException {
     switch (insn.getOpcode()) {
       case ACONST_NULL:
         return newValue(NULL_TYPE);
@@ -166,13 +166,13 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
   }
 
   @Override
-  public BasicValue copyOperation(final AbstractInsnNode insn, final BasicValue value)
+  public BasicValue copyOperation(AbstractInsnNode insn, BasicValue value)
     throws AnalyzerException {
     return value;
   }
 
   @Override
-  public BasicValue unaryOperation(final AbstractInsnNode insn, final BasicValue value)
+  public BasicValue unaryOperation(AbstractInsnNode insn, BasicValue value)
     throws AnalyzerException {
     switch (insn.getOpcode()) {
       case INEG:
@@ -260,7 +260,7 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
 
   @Override
   public BasicValue binaryOperation(
-    final AbstractInsnNode insn, final BasicValue value1, final BasicValue value2)
+    AbstractInsnNode insn, BasicValue value1, BasicValue value2)
     throws AnalyzerException {
     switch (insn.getOpcode()) {
       case IALOAD:
@@ -331,17 +331,17 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
 
   @Override
   public BasicValue ternaryOperation(
-    final AbstractInsnNode insn,
-    final BasicValue value1,
-    final BasicValue value2,
-    final BasicValue value3)
+    AbstractInsnNode insn,
+    BasicValue value1,
+    BasicValue value2,
+    BasicValue value3)
     throws AnalyzerException {
     return null;
   }
 
   @Override
   public BasicValue naryOperation(
-    final AbstractInsnNode insn, final List<? extends BasicValue> values)
+    AbstractInsnNode insn, List<? extends BasicValue> values)
     throws AnalyzerException {
     int opcode = insn.getOpcode();
     if (opcode == MULTIANEWARRAY) {
@@ -355,13 +355,13 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
 
   @Override
   public void returnOperation(
-    final AbstractInsnNode insn, final BasicValue value, final BasicValue expected)
+    AbstractInsnNode insn, BasicValue value, BasicValue expected)
     throws AnalyzerException {
     // Nothing to do.
   }
 
   @Override
-  public BasicValue merge(final BasicValue value1, final BasicValue value2) {
+  public BasicValue merge(BasicValue value1, BasicValue value2) {
     if (!value1.equals(value2)) {
       return BasicValue.UNINITIALIZED_VALUE;
     }

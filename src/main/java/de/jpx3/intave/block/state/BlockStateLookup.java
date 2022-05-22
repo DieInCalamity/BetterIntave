@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 public interface BlockStateLookup {
   /**
    * Resolve-if-not-cached and retrieve the bounding boxes of the specified block.
+   *
    * @param posX the blocks x coordinate
    * @param posY the blocks y coordinate
    * @param posZ the blocks z coordinate
@@ -29,6 +30,7 @@ public interface BlockStateLookup {
 
   /**
    * Resolve-if-not-cached and retrieve the type of the specified block.
+   *
    * @param posX the blocks x coordinate
    * @param posY the blocks y coordinate
    * @param posZ the blocks z coordinate
@@ -38,6 +40,7 @@ public interface BlockStateLookup {
 
   /**
    * Resolve-if-not-cached and retrieve the variant index of the specified block.
+   *
    * @param posX the blocks x coordinate
    * @param posY the blocks y coordinate
    * @param posZ the blocks z coordinate

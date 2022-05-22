@@ -17,10 +17,10 @@ import java.util.stream.IntStream;
  * So we reserve us a bunch of ids so we can use them later
  */
 public final class IdentifierReserve {
-  private final static Field ENTITY_COUNT_FIELD = Lookup.serverField("Entity", "entityCount");
-  private final static int REQUIRED_ID_POOL_SIZE = 25;
+  private static final Field ENTITY_COUNT_FIELD = Lookup.serverField("Entity", "entityCount");
+  private static final int REQUIRED_ID_POOL_SIZE = 25;
 
-  private final static Queue<Integer> availableIds = new ConcurrentLinkedDeque<>();
+  private static final Queue<Integer> availableIds = new ConcurrentLinkedDeque<>();
 
   public static void setup() {
     refreshIfRequired();
@@ -53,7 +53,7 @@ public final class IdentifierReserve {
     return IntStream.range(0, amount).map(i -> reserveEntityId()).toArray();
   }
 
-  private final static boolean ATOMIC_INTEGER_FIELD = MinecraftVersions.VER1_14_0.atOrAbove();
+  private static final boolean ATOMIC_INTEGER_FIELD = MinecraftVersions.VER1_14_0.atOrAbove();
 
   private static int reserveEntityId() {
     int newId = 0;

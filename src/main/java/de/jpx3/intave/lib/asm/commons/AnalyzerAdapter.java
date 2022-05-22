@@ -73,7 +73,9 @@ public class AnalyzerAdapter extends MethodVisitor {
    */
   public List<Object> stack;
 
-  /** The labels that designate the next instruction to be visited. May be {@literal null}. */
+  /**
+   * The labels that designate the next instruction to be visited. May be {@literal null}.
+   */
   private List<Label> labels;
 
   /**
@@ -84,13 +86,19 @@ public class AnalyzerAdapter extends MethodVisitor {
    */
   public Map<Object, Object> uninitializedTypes;
 
-  /** The maximum stack size of this method. */
+  /**
+   * The maximum stack size of this method.
+   */
   private int maxStack;
 
-  /** The maximum number of local variables of this method. */
+  /**
+   * The maximum number of local variables of this method.
+   */
   private int maxLocals;
 
-  /** The owner's class name. */
+  /**
+   * The owner's class name.
+   */
   private final String owner;
 
   /**
@@ -98,20 +106,20 @@ public class AnalyzerAdapter extends MethodVisitor {
    * Instead, they must use the {@link #AnalyzerAdapter(int, String, int, String, String,
    * MethodVisitor)} version.
    *
-   * @param owner the owner's class name.
-   * @param access the method's access flags (see {@link Opcodes}).
-   * @param name the method's name.
-   * @param descriptor the method's descriptor (see {@link Type}).
+   * @param owner         the owner's class name.
+   * @param access        the method's access flags (see {@link Opcodes}).
+   * @param name          the method's name.
+   * @param descriptor    the method's descriptor (see {@link Type}).
    * @param methodVisitor the method visitor to which this adapter delegates calls. May be {@literal
-   *     null}.
+   *                      null}.
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public AnalyzerAdapter(
-      final String owner,
-      final int access,
-      final String name,
-      final String descriptor,
-      final MethodVisitor methodVisitor) {
+    String owner,
+    int access,
+    String name,
+    String descriptor,
+    MethodVisitor methodVisitor) {
     this(/* latest api = */ Opcodes.ASM7, owner, access, name, descriptor, methodVisitor);
     if (getClass() != AnalyzerAdapter.class) {
       throw new IllegalStateException();
@@ -121,26 +129,26 @@ public class AnalyzerAdapter extends MethodVisitor {
   /**
    * Constructs a new {@link AnalyzerAdapter}.
    *
-   * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
-   * @param owner the owner's class name.
-   * @param access the method's access flags (see {@link Opcodes}).
-   * @param name the method's name.
-   * @param descriptor the method's descriptor (see {@link Type}).
+   * @param api           the ASM API version implemented by this visitor. Must be one of {@link
+   *                      Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   * @param owner         the owner's class name.
+   * @param access        the method's access flags (see {@link Opcodes}).
+   * @param name          the method's name.
+   * @param descriptor    the method's descriptor (see {@link Type}).
    * @param methodVisitor the method visitor to which this adapter delegates calls. May be {@literal
-   *     null}.
+   *                      null}.
    */
   protected AnalyzerAdapter(
-      final int api,
-      final String owner,
-      final int access,
-      final String name,
-      final String descriptor,
-      final MethodVisitor methodVisitor) {
+    int api,
+    String owner,
+    int access,
+    String name,
+    String descriptor,
+    MethodVisitor methodVisitor) {
     super(api, methodVisitor);
     this.owner = owner;
-    locals = new ArrayList<>();;
-    stack = new ArrayList<>();;
+    locals = new ArrayList<>();
+    stack = new ArrayList<>();
     uninitializedTypes = new HashMap<>();
 
     if ((access & Opcodes.ACC_STATIC) == 0) {
@@ -185,14 +193,14 @@ public class AnalyzerAdapter extends MethodVisitor {
 
   @Override
   public void visitFrame(
-      final int type,
-      final int numLocal,
-      final Object[] local,
-      final int numStack,
-      final Object[] stack) {
+    int type,
+    int numLocal,
+    Object[] local,
+    int numStack,
+    Object[] stack) {
     if (type != Opcodes.F_NEW) { // Uncompressed frame.
       throw new IllegalArgumentException(
-          "AnalyzerAdapter only accepts expanded frames (see ClassReader.EXPAND_FRAMES)");
+        "AnalyzerAdapter only accepts expanded frames (see ClassReader.EXPAND_FRAMES)");
     }
 
     super.visitFrame(type, numLocal, local, numStack, stack);
@@ -201,8 +209,8 @@ public class AnalyzerAdapter extends MethodVisitor {
       this.locals.clear();
       this.stack.clear();
     } else {
-      this.locals = new ArrayList<>();;
-      this.stack = new ArrayList<>();;
+      this.locals = new ArrayList<>();
+      this.stack = new ArrayList<>();
     }
     visitFrameTypes(numLocal, local, this.locals);
     visitFrameTypes(numStack, stack, this.stack);
@@ -211,7 +219,7 @@ public class AnalyzerAdapter extends MethodVisitor {
   }
 
   private static void visitFrameTypes(
-      final int numTypes, final Object[] frameTypes, final List<Object> result) {
+    int numTypes, Object[] frameTypes, List<Object> result) {
     for (int i = 0; i < numTypes; ++i) {
       Object frameType = frameTypes[i];
       result.add(frameType);
@@ -222,7 +230,7 @@ public class AnalyzerAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitInsn(final int opcode) {
+  public void visitInsn(int opcode) {
     super.visitInsn(opcode);
     execute(opcode, 0, null);
     if ((opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN) || opcode == Opcodes.ATHROW) {
@@ -232,25 +240,25 @@ public class AnalyzerAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitIntInsn(final int opcode, final int operand) {
+  public void visitIntInsn(int opcode, int operand) {
     super.visitIntInsn(opcode, operand);
     execute(opcode, operand, null);
   }
 
   @Override
-  public void visitVarInsn(final int opcode, final int var) {
+  public void visitVarInsn(int opcode, int var) {
     super.visitVarInsn(opcode, var);
     boolean isLongOrDouble =
-        opcode == Opcodes.LLOAD
-            || opcode == Opcodes.DLOAD
-            || opcode == Opcodes.LSTORE
-            || opcode == Opcodes.DSTORE;
+      opcode == Opcodes.LLOAD
+        || opcode == Opcodes.DLOAD
+        || opcode == Opcodes.LSTORE
+        || opcode == Opcodes.DSTORE;
     maxLocals = Math.max(maxLocals, var + (isLongOrDouble ? 2 : 1));
     execute(opcode, var, null);
   }
 
   @Override
-  public void visitTypeInsn(final int opcode, final String type) {
+  public void visitTypeInsn(int opcode, String type) {
     if (opcode == Opcodes.NEW) {
       if (labels == null) {
         Label label = new Label();
@@ -270,18 +278,18 @@ public class AnalyzerAdapter extends MethodVisitor {
 
   @Override
   public void visitFieldInsn(
-      final int opcode, final String owner, final String name, final String descriptor) {
+    int opcode, String owner, String name, String descriptor) {
     super.visitFieldInsn(opcode, owner, name, descriptor);
     execute(opcode, 0, descriptor);
   }
 
   @Override
   public void visitMethodInsn(
-      final int opcodeAndSource,
-      final String owner,
-      final String name,
-      final String descriptor,
-      final boolean isInterface) {
+    int opcodeAndSource,
+    String owner,
+    String name,
+    String descriptor,
+    boolean isInterface) {
     if (api < Opcodes.ASM5 && (opcodeAndSource & Opcodes.SOURCE_DEPRECATED) == 0) {
       // Redirect the call to the deprecated version of this method.
       super.visitMethodInsn(opcodeAndSource, owner, name, descriptor, isInterface);
@@ -322,10 +330,10 @@ public class AnalyzerAdapter extends MethodVisitor {
 
   @Override
   public void visitInvokeDynamicInsn(
-      final String name,
-      final String descriptor,
-      final Handle bootstrapMethodHandle,
-      final Object... bootstrapMethodArguments) {
+    String name,
+    String descriptor,
+    Handle bootstrapMethodHandle,
+    Object... bootstrapMethodArguments) {
     super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
     if (this.locals == null) {
       labels = null;
@@ -337,7 +345,7 @@ public class AnalyzerAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitJumpInsn(final int opcode, final Label label) {
+  public void visitJumpInsn(int opcode, Label label) {
     super.visitJumpInsn(opcode, label);
     execute(opcode, 0, null);
     if (opcode == Opcodes.GOTO) {
@@ -347,7 +355,7 @@ public class AnalyzerAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitLabel(final Label label) {
+  public void visitLabel(Label label) {
     super.visitLabel(label);
     if (labels == null) {
       labels = new ArrayList<>(3);
@@ -356,7 +364,7 @@ public class AnalyzerAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitLdcInsn(final Object value) {
+  public void visitLdcInsn(Object value) {
     super.visitLdcInsn(value);
     if (this.locals == null) {
       labels = null;
@@ -394,7 +402,7 @@ public class AnalyzerAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitIincInsn(final int var, final int increment) {
+  public void visitIincInsn(int var, int increment) {
     super.visitIincInsn(var, increment);
     maxLocals = Math.max(maxLocals, var + 1);
     execute(Opcodes.IINC, var, null);
@@ -402,7 +410,7 @@ public class AnalyzerAdapter extends MethodVisitor {
 
   @Override
   public void visitTableSwitchInsn(
-      final int min, final int max, final Label dflt, final Label... labels) {
+    int min, int max, Label dflt, Label... labels) {
     super.visitTableSwitchInsn(min, max, dflt, labels);
     execute(Opcodes.TABLESWITCH, 0, null);
     this.locals = null;
@@ -410,7 +418,7 @@ public class AnalyzerAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
+  public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
     super.visitLookupSwitchInsn(dflt, keys, labels);
     execute(Opcodes.LOOKUPSWITCH, 0, null);
     this.locals = null;
@@ -418,28 +426,28 @@ public class AnalyzerAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
+  public void visitMultiANewArrayInsn(String descriptor, int numDimensions) {
     super.visitMultiANewArrayInsn(descriptor, numDimensions);
     execute(Opcodes.MULTIANEWARRAY, numDimensions, descriptor);
   }
 
   @Override
   public void visitLocalVariable(
-      final String name,
-      final String descriptor,
-      final String signature,
-      final Label start,
-      final Label end,
-      final int index) {
+    String name,
+    String descriptor,
+    String signature,
+    Label start,
+    Label end,
+    int index) {
     char firstDescriptorChar = descriptor.charAt(0);
     maxLocals =
-        Math.max(
-            maxLocals, index + (firstDescriptorChar == 'J' || firstDescriptorChar == 'D' ? 2 : 1));
+      Math.max(
+        maxLocals, index + (firstDescriptorChar == 'J' || firstDescriptorChar == 'D' ? 2 : 1));
     super.visitLocalVariable(name, descriptor, signature, start, end, index);
   }
 
   @Override
-  public void visitMaxs(final int maxStack, final int maxLocals) {
+  public void visitMaxs(int maxStack, int maxLocals) {
     if (mv != null) {
       this.maxStack = Math.max(this.maxStack, maxStack);
       this.maxLocals = Math.max(this.maxLocals, maxLocals);
@@ -449,12 +457,12 @@ public class AnalyzerAdapter extends MethodVisitor {
 
   // -----------------------------------------------------------------------------------------------
 
-  private Object get(final int local) {
+  private Object get(int local) {
     maxLocals = Math.max(maxLocals, local + 1);
     return local < locals.size() ? locals.get(local) : Opcodes.TOP;
   }
 
-  private void set(final int local, final Object type) {
+  private void set(int local, Object type) {
     maxLocals = Math.max(maxLocals, local + 1);
     while (local >= locals.size()) {
       locals.add(Opcodes.TOP);
@@ -462,16 +470,16 @@ public class AnalyzerAdapter extends MethodVisitor {
     locals.set(local, type);
   }
 
-  private void push(final Object type) {
+  private void push(Object type) {
     stack.add(type);
     maxStack = Math.max(maxStack, stack.size());
   }
 
-  private void pushDescriptor(final String fieldOrMethodDescriptor) {
+  private void pushDescriptor(String fieldOrMethodDescriptor) {
     String descriptor =
-        fieldOrMethodDescriptor.charAt(0) == '('
-            ? Type.getReturnType(fieldOrMethodDescriptor).getDescriptor()
-            : fieldOrMethodDescriptor;
+      fieldOrMethodDescriptor.charAt(0) == '('
+        ? Type.getReturnType(fieldOrMethodDescriptor).getDescriptor()
+        : fieldOrMethodDescriptor;
     switch (descriptor.charAt(0)) {
       case 'V':
         return;
@@ -508,7 +516,7 @@ public class AnalyzerAdapter extends MethodVisitor {
     return stack.remove(stack.size() - 1);
   }
 
-  private void pop(final int numSlots) {
+  private void pop(int numSlots) {
     int size = stack.size();
     int end = size - numSlots;
     for (int i = size - 1; i >= end; --i) {
@@ -516,7 +524,7 @@ public class AnalyzerAdapter extends MethodVisitor {
     }
   }
 
-  private void pop(final String descriptor) {
+  private void pop(String descriptor) {
     char firstDescriptorChar = descriptor.charAt(0);
     if (firstDescriptorChar == '(') {
       int numSlots = 0;
@@ -532,7 +540,7 @@ public class AnalyzerAdapter extends MethodVisitor {
     }
   }
 
-  private void execute(final int opcode, final int intArg, final String stringArg) {
+  private void execute(int opcode, int intArg, String stringArg) {
     if (opcode == Opcodes.JSR || opcode == Opcodes.RET) {
       throw new IllegalArgumentException("JSR/RET are not supported");
     }

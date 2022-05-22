@@ -51,7 +51,8 @@ public final class HealthFilter extends Filter {
             packet.getWatchableCollectionModifier().write(0, watcher.getWatchableObjects());
           }
         }
-    } catch (Exception ignored) {}
+    } catch (Exception ignored) {
+    }
   }
 
   private void stripHealthFromDataWatcher(WrappedDataWatcher watcher) {

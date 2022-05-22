@@ -26,8 +26,8 @@ public class EntityShade {
   this type of entity ensures that the synchrosized packets are handled correctly.
   */
   private static EntityShade DESTROYED_ENTITY;
-  private final static boolean NEW_POSITION_PROCESSING_1_9 = MinecraftVersions.VER1_9_0.atOrAbove();
-  private final static boolean NEW_POSITION_PROCESSING_1_14 = MinecraftVersions.VER1_14_0.atOrAbove();
+  private static final boolean NEW_POSITION_PROCESSING_1_9 = MinecraftVersions.VER1_9_0.atOrAbove();
+  private static final boolean NEW_POSITION_PROCESSING_1_14 = MinecraftVersions.VER1_14_0.atOrAbove();
   private EntityTypeData typeData;
 
   private final int entityId;

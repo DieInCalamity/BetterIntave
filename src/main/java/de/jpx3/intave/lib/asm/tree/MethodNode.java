@@ -196,7 +196,7 @@ public class MethodNode extends MethodVisitor {
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
    *            Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
-  public MethodNode(final int api) {
+  public MethodNode(int api) {
     super(api);
     this.instructions = new InsnList();
   }
@@ -215,11 +215,11 @@ public class MethodNode extends MethodVisitor {
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public MethodNode(
-    final int access,
-    final String name,
-    final String descriptor,
-    final String signature,
-    final String[] exceptions) {
+    int access,
+    String name,
+    String descriptor,
+    String signature,
+    String[] exceptions) {
     this(/* latest api = */ Opcodes.ASM7, access, name, descriptor, signature, exceptions);
     if (getClass() != MethodNode.class) {
       throw new IllegalStateException();
@@ -240,12 +240,12 @@ public class MethodNode extends MethodVisitor {
    *                   Type#getInternalName()}). May be {@literal null}.
    */
   public MethodNode(
-    final int api,
-    final int access,
-    final String name,
-    final String descriptor,
-    final String signature,
-    final String[] exceptions) {
+    int api,
+    int access,
+    String name,
+    String descriptor,
+    String signature,
+    String[] exceptions) {
     super(api);
     this.access = access;
     this.name = name;
@@ -264,7 +264,7 @@ public class MethodNode extends MethodVisitor {
   // -----------------------------------------------------------------------------------------------
 
   @Override
-  public void visitParameter(final String name, final int access) {
+  public void visitParameter(String name, int access) {
     if (parameters == null) {
       parameters = new ArrayList<>(5);
     }
@@ -277,7 +277,7 @@ public class MethodNode extends MethodVisitor {
     return new AnnotationNode(
       new ArrayList<Object>(0) {
         @Override
-        public boolean add(final Object o) {
+        public boolean add(Object o) {
           annotationDefault = o;
           return super.add(o);
         }
@@ -285,7 +285,7 @@ public class MethodNode extends MethodVisitor {
   }
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+  public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
     AnnotationNode annotation = new AnnotationNode(descriptor);
     if (visible) {
       visibleAnnotations = Util.add(visibleAnnotations, annotation);
@@ -297,7 +297,7 @@ public class MethodNode extends MethodVisitor {
 
   @Override
   public AnnotationVisitor visitTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     TypeAnnotationNode typeAnnotation = new TypeAnnotationNode(typeRef, typePath, descriptor);
     if (visible) {
       visibleTypeAnnotations = Util.add(visibleTypeAnnotations, typeAnnotation);
@@ -308,7 +308,7 @@ public class MethodNode extends MethodVisitor {
   }
 
   @Override
-  public void visitAnnotableParameterCount(final int parameterCount, final boolean visible) {
+  public void visitAnnotableParameterCount(int parameterCount, boolean visible) {
     if (visible) {
       visibleAnnotableParameterCount = parameterCount;
     } else {
@@ -319,7 +319,7 @@ public class MethodNode extends MethodVisitor {
   @Override
   @SuppressWarnings("unchecked")
   public AnnotationVisitor visitParameterAnnotation(
-    final int parameter, final String descriptor, final boolean visible) {
+    int parameter, String descriptor, boolean visible) {
     AnnotationNode annotation = new AnnotationNode(descriptor);
     if (visible) {
       if (visibleParameterAnnotations == null) {
@@ -340,7 +340,7 @@ public class MethodNode extends MethodVisitor {
   }
 
   @Override
-  public void visitAttribute(final Attribute attribute) {
+  public void visitAttribute(Attribute attribute) {
     attrs = Util.add(attrs, attribute);
   }
 
@@ -351,11 +351,11 @@ public class MethodNode extends MethodVisitor {
 
   @Override
   public void visitFrame(
-    final int type,
-    final int numLocal,
-    final Object[] local,
-    final int numStack,
-    final Object[] stack) {
+    int type,
+    int numLocal,
+    Object[] local,
+    int numStack,
+    Object[] stack) {
     instructions.add(
       new FrameNode(
         type,
@@ -366,38 +366,38 @@ public class MethodNode extends MethodVisitor {
   }
 
   @Override
-  public void visitInsn(final int opcode) {
+  public void visitInsn(int opcode) {
     instructions.add(new InsnNode(opcode));
   }
 
   @Override
-  public void visitIntInsn(final int opcode, final int operand) {
+  public void visitIntInsn(int opcode, int operand) {
     instructions.add(new IntInsnNode(opcode, operand));
   }
 
   @Override
-  public void visitVarInsn(final int opcode, final int var) {
+  public void visitVarInsn(int opcode, int var) {
     instructions.add(new VarInsnNode(opcode, var));
   }
 
   @Override
-  public void visitTypeInsn(final int opcode, final String type) {
+  public void visitTypeInsn(int opcode, String type) {
     instructions.add(new TypeInsnNode(opcode, type));
   }
 
   @Override
   public void visitFieldInsn(
-    final int opcode, final String owner, final String name, final String descriptor) {
+    int opcode, String owner, String name, String descriptor) {
     instructions.add(new FieldInsnNode(opcode, owner, name, descriptor));
   }
 
   @Override
   public void visitMethodInsn(
-    final int opcodeAndSource,
-    final String owner,
-    final String name,
-    final String descriptor,
-    final boolean isInterface) {
+    int opcodeAndSource,
+    String owner,
+    String name,
+    String descriptor,
+    boolean isInterface) {
     if (api < Opcodes.ASM5 && (opcodeAndSource & Opcodes.SOURCE_DEPRECATED) == 0) {
       // Redirect the call to the deprecated version of this method.
       super.visitMethodInsn(opcodeAndSource, owner, name, descriptor, isInterface);
@@ -410,54 +410,54 @@ public class MethodNode extends MethodVisitor {
 
   @Override
   public void visitInvokeDynamicInsn(
-    final String name,
-    final String descriptor,
-    final Handle bootstrapMethodHandle,
-    final Object... bootstrapMethodArguments) {
+    String name,
+    String descriptor,
+    Handle bootstrapMethodHandle,
+    Object... bootstrapMethodArguments) {
     instructions.add(
       new InvokeDynamicInsnNode(
         name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments));
   }
 
   @Override
-  public void visitJumpInsn(final int opcode, final Label label) {
+  public void visitJumpInsn(int opcode, Label label) {
     instructions.add(new JumpInsnNode(opcode, getLabelNode(label)));
   }
 
   @Override
-  public void visitLabel(final Label label) {
+  public void visitLabel(Label label) {
     instructions.add(getLabelNode(label));
   }
 
   @Override
-  public void visitLdcInsn(final Object value) {
+  public void visitLdcInsn(Object value) {
     instructions.add(new LdcInsnNode(value));
   }
 
   @Override
-  public void visitIincInsn(final int var, final int increment) {
+  public void visitIincInsn(int var, int increment) {
     instructions.add(new IincInsnNode(var, increment));
   }
 
   @Override
   public void visitTableSwitchInsn(
-    final int min, final int max, final Label dflt, final Label... labels) {
+    int min, int max, Label dflt, Label... labels) {
     instructions.add(new TableSwitchInsnNode(min, max, getLabelNode(dflt), getLabelNodes(labels)));
   }
 
   @Override
-  public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
+  public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
     instructions.add(new LookupSwitchInsnNode(getLabelNode(dflt), keys, getLabelNodes(labels)));
   }
 
   @Override
-  public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
+  public void visitMultiANewArrayInsn(String descriptor, int numDimensions) {
     instructions.add(new MultiANewArrayInsnNode(descriptor, numDimensions));
   }
 
   @Override
   public AnnotationVisitor visitInsnAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     // Find the last real instruction, i.e. the instruction targeted by this annotation.
     AbstractInsnNode currentInsn = instructions.getLast();
     while (currentInsn.getOpcode() == -1) {
@@ -477,7 +477,7 @@ public class MethodNode extends MethodVisitor {
 
   @Override
   public void visitTryCatchBlock(
-    final Label start, final Label end, final Label handler, final String type) {
+    Label start, Label end, Label handler, String type) {
     TryCatchBlockNode tryCatchBlock =
       new TryCatchBlockNode(getLabelNode(start), getLabelNode(end), getLabelNode(handler), type);
     tryCatchBlocks = Util.add(tryCatchBlocks, tryCatchBlock);
@@ -485,7 +485,7 @@ public class MethodNode extends MethodVisitor {
 
   @Override
   public AnnotationVisitor visitTryCatchAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     TryCatchBlockNode tryCatchBlock = tryCatchBlocks.get((typeRef & 0x00FFFF00) >> 8);
     TypeAnnotationNode typeAnnotation = new TypeAnnotationNode(typeRef, typePath, descriptor);
     if (visible) {
@@ -500,12 +500,12 @@ public class MethodNode extends MethodVisitor {
 
   @Override
   public void visitLocalVariable(
-    final String name,
-    final String descriptor,
-    final String signature,
-    final Label start,
-    final Label end,
-    final int index) {
+    String name,
+    String descriptor,
+    String signature,
+    Label start,
+    Label end,
+    int index) {
     LocalVariableNode localVariable =
       new LocalVariableNode(
         name, descriptor, signature, getLabelNode(start), getLabelNode(end), index);
@@ -514,13 +514,13 @@ public class MethodNode extends MethodVisitor {
 
   @Override
   public AnnotationVisitor visitLocalVariableAnnotation(
-    final int typeRef,
-    final TypePath typePath,
-    final Label[] start,
-    final Label[] end,
-    final int[] index,
-    final String descriptor,
-    final boolean visible) {
+    int typeRef,
+    TypePath typePath,
+    Label[] start,
+    Label[] end,
+    int[] index,
+    String descriptor,
+    boolean visible) {
     LocalVariableAnnotationNode localVariableAnnotation =
       new LocalVariableAnnotationNode(
         typeRef, typePath, getLabelNodes(start), getLabelNodes(end), index, descriptor);
@@ -535,12 +535,12 @@ public class MethodNode extends MethodVisitor {
   }
 
   @Override
-  public void visitLineNumber(final int line, final Label start) {
+  public void visitLineNumber(int line, Label start) {
     instructions.add(new LineNumberNode(line, getLabelNode(start)));
   }
 
   @Override
-  public void visitMaxs(final int maxStack, final int maxLocals) {
+  public void visitMaxs(int maxStack, int maxLocals) {
     this.maxStack = maxStack;
     this.maxLocals = maxLocals;
   }
@@ -558,14 +558,14 @@ public class MethodNode extends MethodVisitor {
    * @param label a Label.
    * @return the LabelNode corresponding to label.
    */
-  protected LabelNode getLabelNode(final Label label) {
+  protected LabelNode getLabelNode(Label label) {
     if (!(label.info instanceof LabelNode)) {
       label.info = new LabelNode();
     }
     return (LabelNode) label.info;
   }
 
-  private LabelNode[] getLabelNodes(final Label[] labels) {
+  private LabelNode[] getLabelNodes(Label[] labels) {
     LabelNode[] labelNodes = new LabelNode[labels.length];
     for (int i = 0, n = labels.length; i < n; ++i) {
       labelNodes[i] = getLabelNode(labels[i]);
@@ -573,7 +573,7 @@ public class MethodNode extends MethodVisitor {
     return labelNodes;
   }
 
-  private Object[] getLabelNodes(final Object[] objects) {
+  private Object[] getLabelNodes(Object[] objects) {
     Object[] labelNodes = new Object[objects.length];
     for (int i = 0, n = objects.length; i < n; ++i) {
       Object o = objects[i];
@@ -597,7 +597,7 @@ public class MethodNode extends MethodVisitor {
    * @param api an ASM API version. Must be one of {@link Opcodes#ASM4}, {@link Opcodes#ASM5},
    *            {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
-  public void check(final int api) {
+  public void check(int api) {
     if (api == Opcodes.ASM4) {
       if (parameters != null && !parameters.isEmpty()) {
         throw new UnsupportedClassVersionException();
@@ -668,7 +668,7 @@ public class MethodNode extends MethodVisitor {
    *
    * @param classVisitor a class visitor.
    */
-  public void accept(final ClassVisitor classVisitor) {
+  public void accept(ClassVisitor classVisitor) {
     String[] exceptionsArray = exceptions == null ? null : exceptions.toArray(new String[0]);
     MethodVisitor methodVisitor =
       classVisitor.visitMethod(access, name, desc, signature, exceptionsArray);
@@ -687,7 +687,7 @@ public class MethodNode extends MethodVisitor {
    *
    * @param methodVisitor a method visitor.
    */
-  public void accept(final MethodVisitor methodVisitor) {
+  public void accept(MethodVisitor methodVisitor) {
     // Visit the parameters.
     if (parameters != null) {
       for (int i = 0, n = parameters.size(); i < n; i++) {

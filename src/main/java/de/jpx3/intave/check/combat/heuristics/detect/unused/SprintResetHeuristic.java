@@ -44,11 +44,11 @@ public final class SprintResetHeuristic extends MetaCheckPart<Heuristics, Sprint
     SprintResetHeuristicMeta meta = metaOf(user);
     PlayerAction playerAction = PlayerActionResolver.resolveActionFromPacket(event.getPacket());
 
-    if(playerAction == PlayerAction.START_SPRINTING) {
+    if (playerAction == PlayerAction.START_SPRINTING) {
       meta.startSprint = true;
-    } else if(playerAction == PlayerAction.STOP_SPRINTING) {
+    } else if (playerAction == PlayerAction.STOP_SPRINTING) {
       meta.stopSprint = true;
-    } else if(playerAction == PlayerAction.START_SNEAKING) {
+    } else if (playerAction == PlayerAction.START_SNEAKING) {
       meta.startSneak = true;
     }
   }
@@ -68,7 +68,7 @@ public final class SprintResetHeuristic extends MetaCheckPart<Heuristics, Sprint
     if (action == null) {
       action = packet.getEnumEntityUseActions().read(0).getAction();
     }
-    if(action == EnumWrappers.EntityUseAction.ATTACK) {
+    if (action == EnumWrappers.EntityUseAction.ATTACK) {
       meta.lastAttack = 0;
     }
   }
@@ -84,12 +84,12 @@ public final class SprintResetHeuristic extends MetaCheckPart<Heuristics, Sprint
     User user = userOf(player);
     SprintResetHeuristicMeta meta = metaOf(user);
 
-    if(meta.stopSprint) {
-      if(!user.meta().abilities().inGameMode(GameMode.CREATIVE)) {
+    if (meta.stopSprint) {
+      if (!user.meta().abilities().inGameMode(GameMode.CREATIVE)) {
         playerUnsprinted(player, meta, event.getPacketType());
       }
     }
-    if(meta.startSprint) {
+    if (meta.startSprint) {
       playerStartSprinting(meta);
     }
 
@@ -102,7 +102,7 @@ public final class SprintResetHeuristic extends MetaCheckPart<Heuristics, Sprint
     meta.stopSprint = false;
     meta.startSneak = false;
 
-    if (meta.sprintingTicksLeft > 0)  {
+    if (meta.sprintingTicksLeft > 0) {
       --meta.sprintingTicksLeft;
     }
   }
@@ -124,15 +124,15 @@ public final class SprintResetHeuristic extends MetaCheckPart<Heuristics, Sprint
     AbilityMetadata abilityData = user.meta().abilities();
 
     boolean sendFlyingPacket = false;
-    if(packetType.name().equals("FLYING") || packetType == PacketType.Play.Client.LOOK) {
+    if (packetType.name().equals("FLYING") || packetType == PacketType.Play.Client.LOOK) {
       sendFlyingPacket = true;
-    } else if(user.meta().protocol().protocolVersion() >= ProtocolMetadata.VER_1_9) {
-      if(movementData.recentlyEncounteredFlyingPacket(2) || movementData.pastFlyingPacketAccurate() <= 2) {
+    } else if (user.meta().protocol().protocolVersion() >= ProtocolMetadata.VER_1_9) {
+      if (movementData.recentlyEncounteredFlyingPacket(2) || movementData.pastFlyingPacketAccurate() <= 2) {
         sendFlyingPacket = true;
       }
     }
 
-    if(!attacked
+    if (!attacked
       && movementData.pastInWeb > 2
       && player.getFoodLevel() > 6
       && abilityData.unsynchronizedHealth > 0
@@ -148,10 +148,10 @@ public final class SprintResetHeuristic extends MetaCheckPart<Heuristics, Sprint
       && !sendFlyingPacket
     ) {
       boolean collided = movementData.collidedHorizontally;
-      if(!collided) {
+      if (!collided) {
         collided = canCollideHorizontally(user, movementData);
       }
-      if(!collided) {
+      if (!collided) {
         ProtocolMetadata clientData = user.meta().protocol();
         String details = "unsprinted and pressed W " + clientData.versionString() + " " + meta.lastAttack;
         Anomaly anomaly = Anomaly.anomalyOf("220",

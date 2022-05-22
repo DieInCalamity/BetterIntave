@@ -65,7 +65,7 @@ final class SmallSet<T> extends AbstractSet<T> {
    *
    * @param element the unique set element.
    */
-  SmallSet(final T element) {
+  SmallSet(T element) {
     this.element1 = element;
     this.element2 = null;
   }
@@ -76,7 +76,7 @@ final class SmallSet<T> extends AbstractSet<T> {
    * @param element1 see {@link #element1}.
    * @param element2 see {@link #element2}.
    */
-  private SmallSet(final T element1, final T element2) {
+  private SmallSet(T element1, T element2) {
     this.element1 = element1;
     this.element2 = element2;
   }
@@ -111,7 +111,7 @@ final class SmallSet<T> extends AbstractSet<T> {
    * @param otherSet another small set.
    * @return the union of this set and of otherSet.
    */
-  Set<T> union(final SmallSet<T> otherSet) {
+  Set<T> union(SmallSet<T> otherSet) {
     // If the two sets are equal, return this set.
     if ((otherSet.element1 == element1 && otherSet.element2 == element2)
       || (otherSet.element1 == element2 && otherSet.element2 == element1)) {
@@ -171,7 +171,7 @@ final class SmallSet<T> extends AbstractSet<T> {
      */
     private T secondElement;
 
-    IteratorImpl(final T firstElement, final T secondElement) {
+    IteratorImpl(T firstElement, T secondElement) {
       this.firstElement = firstElement;
       this.secondElement = secondElement;
     }

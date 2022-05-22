@@ -19,7 +19,7 @@ import java.util.List;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.PLAYER_INFO;
 
 public final class PlayerPingPacketDispatcher implements PacketEventSubscriber {
-  private final static long MIN_TIME_BETWEEN_PLAYER_INFO_UPDATE = 10_000;
+  private static final long MIN_TIME_BETWEEN_PLAYER_INFO_UPDATE = 10_000;
 
   public PlayerPingPacketDispatcher(IntavePlugin plugin) {
     plugin.packetSubscriptionLinker().linkSubscriptionsIn(this);

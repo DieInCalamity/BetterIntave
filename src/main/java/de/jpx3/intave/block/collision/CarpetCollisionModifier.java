@@ -10,8 +10,8 @@ import org.bukkit.Material;
 import java.util.EnumSet;
 
 public final class CarpetCollisionModifier extends CollisionModifier {
-  private final static BlockShape CARPET_FROM_ABOVE = BoundingBox.originFromX16(0,-1,0,16, 0, 16);
-  private final static BlockShape CARPET_FROM_BELOW = BoundingBox.originFromX16(0,0,0,16, 1, 16);
+  private static final BlockShape CARPET_FROM_ABOVE = BoundingBox.originFromX16(0, -1, 0, 16, 0, 16);
+  private static final BlockShape CARPET_FROM_BELOW = BoundingBox.originFromX16(0, 0, 0, 16, 1, 16);
   private final EnumSet<Material> CARPETS = EnumSet.noneOf(Material.class);
 
   @Override

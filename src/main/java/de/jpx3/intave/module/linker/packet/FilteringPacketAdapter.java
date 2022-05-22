@@ -16,7 +16,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class FilteringPacketAdapter extends WeakReferencePacketAdapter implements Comparable<FilteringPacketAdapter> {
-  private final static boolean TEMP_PLAYER_CHECK;
+  private static final boolean TEMP_PLAYER_CHECK;
+
   static {
     TEMP_PLAYER_CHECK = Arrays.stream(PacketEvent.class.getMethods())
       .anyMatch(method -> method.getName().equalsIgnoreCase("isPlayerTemporary"));
@@ -115,17 +116,17 @@ public final class FilteringPacketAdapter extends WeakReferencePacketAdapter imp
 
   private void processException(PacketType packetType, RuntimeException exception) {
     String simpleName = exception.getClass().getSimpleName();
-    IntaveLogger.logger().printLine("[Intave] " + resolveIndefArticle(simpleName) + " " + simpleName + " occurred while processing a "+packetType.name()+" packet ("+subscriber.getClass().getSimpleName()+"."+methodName+")");
+    IntaveLogger.logger().printLine("[Intave] " + resolveIndefArticle(simpleName) + " " + simpleName + " occurred while processing a " + packetType.name() + " packet (" + subscriber.getClass().getSimpleName() + "." + methodName + ")");
     exception.printStackTrace();
   }
 
   private void processError(PacketType packetType, Error error) {
     String simpleName = error.getClass().getSimpleName();
-    IntaveLogger.logger().printLine("[Intave] " + resolveIndefArticle(simpleName) + " " + simpleName + " occurred while processing a "+packetType.name()+" packet ("+subscriber.getClass().getSimpleName()+"."+methodName+")");
+    IntaveLogger.logger().printLine("[Intave] " + resolveIndefArticle(simpleName) + " " + simpleName + " occurred while processing a " + packetType.name() + " packet (" + subscriber.getClass().getSimpleName() + "." + methodName + ")");
     error.printStackTrace();
   }
 
-  private final static char[] vocals = "AEIOU".toCharArray();
+  private static final char[] vocals = "AEIOU".toCharArray();
 
   private String resolveIndefArticle(String exceptionName) {
     if (exceptionName.isEmpty()) {

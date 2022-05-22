@@ -53,78 +53,82 @@ import java.util.List;
  */
 public class ClassRemapper extends ClassVisitor {
 
-  /** The remapper used to remap the types in the visited class. */
+  /**
+   * The remapper used to remap the types in the visited class.
+   */
   protected final Remapper remapper;
 
-  /** The internal name of the visited class. */
+  /**
+   * The internal name of the visited class.
+   */
   protected String className;
 
   /**
    * Constructs a new {@link ClassRemapper}. <i>Subclasses must not use this constructor</i>.
-   * Instead, they must use the {@link #ClassRemapper(int,ClassVisitor,Remapper)} version.
+   * Instead, they must use the {@link #ClassRemapper(int, ClassVisitor, Remapper)} version.
    *
    * @param classVisitor the class visitor this remapper must deleted to.
-   * @param remapper the remapper to use to remap the types in the visited class.
+   * @param remapper     the remapper to use to remap the types in the visited class.
    */
-  public ClassRemapper(final ClassVisitor classVisitor, final Remapper remapper) {
+  public ClassRemapper(ClassVisitor classVisitor, Remapper remapper) {
     this(/* latest api = */ Opcodes.ASM7, classVisitor, remapper);
   }
 
   /**
    * Constructs a new {@link ClassRemapper}.
    *
-   * @param api the ASM API version supported by this remapper. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link
-   *     Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   * @param api          the ASM API version supported by this remapper. Must be one of {@link
+   *                     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link
+   *                     Opcodes#ASM6} or {@link Opcodes#ASM7}.
    * @param classVisitor the class visitor this remapper must deleted to.
-   * @param remapper the remapper to use to remap the types in the visited class.
+   * @param remapper     the remapper to use to remap the types in the visited class.
    */
-  protected ClassRemapper(final int api, final ClassVisitor classVisitor, final Remapper remapper) {
+  protected ClassRemapper(int api, ClassVisitor classVisitor, Remapper remapper) {
     super(api, classVisitor);
     this.remapper = remapper;
   }
 
   @Override
   public void visit(
-      final int version,
-      final int access,
-      final String name,
-      final String signature,
-      final String superName,
-      final String[] interfaces) {
+    int version,
+    int access,
+    String name,
+    String signature,
+    String superName,
+    String[] interfaces) {
     this.className = name;
     super.visit(
-        version,
-        access,
-        remapper.mapType(name),
-        remapper.mapSignature(signature, false),
-        remapper.mapType(superName),
-        interfaces == null ? null : remapper.mapTypes(interfaces));
+      version,
+      access,
+      remapper.mapType(name),
+      remapper.mapSignature(signature, false),
+      remapper.mapType(superName),
+      interfaces == null ? null : remapper.mapTypes(interfaces));
   }
 
   @Override
-  public ModuleVisitor visitModule(final String name, final int flags, final String version) {
+  public ModuleVisitor visitModule(String name, int flags, String version) {
     ModuleVisitor moduleVisitor = super.visitModule(remapper.mapModuleName(name), flags, version);
     return moduleVisitor == null ? null : createModuleRemapper(moduleVisitor);
   }
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+  public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
     AnnotationVisitor annotationVisitor =
-        super.visitAnnotation(remapper.mapDesc(descriptor), visible);
+      super.visitAnnotation(remapper.mapDesc(descriptor), visible);
     return annotationVisitor == null ? null : createAnnotationRemapper(annotationVisitor);
   }
 
   @Override
   public AnnotationVisitor visitTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     AnnotationVisitor annotationVisitor =
-        super.visitTypeAnnotation(typeRef, typePath, remapper.mapDesc(descriptor), visible);
+      super.visitTypeAnnotation(typeRef, typePath, remapper.mapDesc(descriptor), visible);
     return annotationVisitor == null ? null : createAnnotationRemapper(annotationVisitor);
   }
 
   @Override
-  public void visitAttribute(final Attribute attribute) {
+  public void visitAttribute(Attribute attribute) {
     if (attribute instanceof ModuleHashesAttribute) {
       ModuleHashesAttribute moduleHashesAttribute = (ModuleHashesAttribute) attribute;
       List<String> modules = moduleHashesAttribute.modules;
@@ -137,83 +141,83 @@ public class ClassRemapper extends ClassVisitor {
 
   @Override
   public RecordComponentVisitor visitRecordComponentExperimental(
-      final int access, final String name, final String descriptor, final String signature) {
+    int access, String name, String descriptor, String signature) {
     RecordComponentVisitor recordComponentVisitor =
-        super.visitRecordComponentExperimental(
-            access,
-            remapper.mapRecordComponentNameExperimental(className, name, descriptor),
-            remapper.mapDesc(descriptor),
-            remapper.mapSignature(signature, true));
+      super.visitRecordComponentExperimental(
+        access,
+        remapper.mapRecordComponentNameExperimental(className, name, descriptor),
+        remapper.mapDesc(descriptor),
+        remapper.mapSignature(signature, true));
     return recordComponentVisitor == null
-        ? null
-        : createRecordComponentRemapper(recordComponentVisitor);
+      ? null
+      : createRecordComponentRemapper(recordComponentVisitor);
   }
 
   @Override
   public FieldVisitor visitField(
-      final int access,
-      final String name,
-      final String descriptor,
-      final String signature,
-      final Object value) {
+    int access,
+    String name,
+    String descriptor,
+    String signature,
+    Object value) {
     FieldVisitor fieldVisitor =
-        super.visitField(
-            access,
-            remapper.mapFieldName(className, name, descriptor),
-            remapper.mapDesc(descriptor),
-            remapper.mapSignature(signature, true),
-            (value == null) ? null : remapper.mapValue(value));
+      super.visitField(
+        access,
+        remapper.mapFieldName(className, name, descriptor),
+        remapper.mapDesc(descriptor),
+        remapper.mapSignature(signature, true),
+        (value == null) ? null : remapper.mapValue(value));
     return fieldVisitor == null ? null : createFieldRemapper(fieldVisitor);
   }
 
   @Override
   public MethodVisitor visitMethod(
-      final int access,
-      final String name,
-      final String descriptor,
-      final String signature,
-      final String[] exceptions) {
+    int access,
+    String name,
+    String descriptor,
+    String signature,
+    String[] exceptions) {
     String remappedDescriptor = remapper.mapMethodDesc(descriptor);
     MethodVisitor methodVisitor =
-        super.visitMethod(
-            access,
-            remapper.mapMethodName(className, name, descriptor),
-            remappedDescriptor,
-            remapper.mapSignature(signature, false),
-            exceptions == null ? null : remapper.mapTypes(exceptions));
+      super.visitMethod(
+        access,
+        remapper.mapMethodName(className, name, descriptor),
+        remappedDescriptor,
+        remapper.mapSignature(signature, false),
+        exceptions == null ? null : remapper.mapTypes(exceptions));
     return methodVisitor == null ? null : createMethodRemapper(methodVisitor);
   }
 
   @Override
   public void visitInnerClass(
-      final String name, final String outerName, final String innerName, final int access) {
+    String name, String outerName, String innerName, int access) {
     super.visitInnerClass(
-        remapper.mapType(name),
-        outerName == null ? null : remapper.mapType(outerName),
-        innerName == null ? null : remapper.mapInnerClassName(name, outerName, innerName),
-        access);
+      remapper.mapType(name),
+      outerName == null ? null : remapper.mapType(outerName),
+      innerName == null ? null : remapper.mapInnerClassName(name, outerName, innerName),
+      access);
   }
 
   @Override
-  public void visitOuterClass(final String owner, final String name, final String descriptor) {
+  public void visitOuterClass(String owner, String name, String descriptor) {
     super.visitOuterClass(
-        remapper.mapType(owner),
-        name == null ? null : remapper.mapMethodName(owner, name, descriptor),
-        descriptor == null ? null : remapper.mapMethodDesc(descriptor));
+      remapper.mapType(owner),
+      name == null ? null : remapper.mapMethodName(owner, name, descriptor),
+      descriptor == null ? null : remapper.mapMethodDesc(descriptor));
   }
 
   @Override
-  public void visitNestHost(final String nestHost) {
+  public void visitNestHost(String nestHost) {
     super.visitNestHost(remapper.mapType(nestHost));
   }
 
   @Override
-  public void visitNestMember(final String nestMember) {
+  public void visitNestMember(String nestMember) {
     super.visitNestMember(remapper.mapType(nestMember));
   }
 
   @Override
-  public void visitPermittedSubtypeExperimental(final String permittedSubtype) {
+  public void visitPermittedSubtypeExperimental(String permittedSubtype) {
     super.visitPermittedSubtypeExperimental(remapper.mapType(permittedSubtype));
   }
 
@@ -224,7 +228,7 @@ public class ClassRemapper extends ClassVisitor {
    * @param fieldVisitor the FieldVisitor the remapper must delegate to.
    * @return the newly created remapper.
    */
-  protected FieldVisitor createFieldRemapper(final FieldVisitor fieldVisitor) {
+  protected FieldVisitor createFieldRemapper(FieldVisitor fieldVisitor) {
     return new FieldRemapper(api, fieldVisitor, remapper);
   }
 
@@ -235,7 +239,7 @@ public class ClassRemapper extends ClassVisitor {
    * @param methodVisitor the MethodVisitor the remapper must delegate to.
    * @return the newly created remapper.
    */
-  protected MethodVisitor createMethodRemapper(final MethodVisitor methodVisitor) {
+  protected MethodVisitor createMethodRemapper(MethodVisitor methodVisitor) {
     return new MethodRemapper(api, methodVisitor, remapper);
   }
 
@@ -246,7 +250,7 @@ public class ClassRemapper extends ClassVisitor {
    * @param annotationVisitor the AnnotationVisitor the remapper must delegate to.
    * @return the newly created remapper.
    */
-  protected AnnotationVisitor createAnnotationRemapper(final AnnotationVisitor annotationVisitor) {
+  protected AnnotationVisitor createAnnotationRemapper(AnnotationVisitor annotationVisitor) {
     return new AnnotationRemapper(api, annotationVisitor, remapper);
   }
 
@@ -257,7 +261,7 @@ public class ClassRemapper extends ClassVisitor {
    * @param moduleVisitor the ModuleVisitor the remapper must delegate to.
    * @return the newly created remapper.
    */
-  protected ModuleVisitor createModuleRemapper(final ModuleVisitor moduleVisitor) {
+  protected ModuleVisitor createModuleRemapper(ModuleVisitor moduleVisitor) {
     return new ModuleRemapper(api, moduleVisitor, remapper);
   }
 
@@ -269,7 +273,7 @@ public class ClassRemapper extends ClassVisitor {
    * @return the newly created remapper.
    */
   protected RecordComponentVisitor createRecordComponentRemapper(
-      final RecordComponentVisitor recordComponentVisitor) {
+    RecordComponentVisitor recordComponentVisitor) {
     return new RecordComponentRemapper(api, recordComponentVisitor, remapper);
   }
 }

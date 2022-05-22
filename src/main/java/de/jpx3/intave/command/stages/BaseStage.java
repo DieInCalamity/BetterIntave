@@ -200,7 +200,7 @@ public final class BaseStage extends CommandStage {
 
   private void outputHistory(CommandSender sender, String name, UUID id, ViolationStorage violationStorage) {
     StorageViolationEvents violations = violationStorage.violations();
-    sender.sendMessage(String.format("%sHistory of "+ChatColor.RED+"%s%s:", IntavePlugin.prefix(), name, IntavePlugin.defaultColor()));
+    sender.sendMessage(String.format("%sHistory of " + ChatColor.RED + "%s%s:", IntavePlugin.prefix(), name, IntavePlugin.defaultColor()));
     if (violations.isEmpty()) {
       sender.sendMessage(IntavePlugin.prefix() + ChatColor.GREEN + "No violations found");
       return;

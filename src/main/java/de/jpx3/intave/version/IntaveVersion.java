@@ -70,7 +70,7 @@ public final class IntaveVersion {
     DISABLED("DISABLED"),
     INVALID("");
 
-    private final static Map<String, Status> map = new HashMap<>();
+    private static final Map<String, Status> map = new HashMap<>();
     private final String typeName;
 
     static {

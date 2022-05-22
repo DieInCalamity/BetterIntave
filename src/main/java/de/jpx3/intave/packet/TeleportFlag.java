@@ -43,7 +43,7 @@ public enum TeleportFlag {
     return var1;
   }
 
-  private final static Class<?> nativeClass = Lookup.serverClass("PacketPlayOutPosition$EnumPlayerTeleportFlags");
+  private static final Class<?> nativeClass = Lookup.serverClass("PacketPlayOutPosition$EnumPlayerTeleportFlags");
 
   public static Set<?> setOfAllFlags() {
     return fromIndex(0b11111);

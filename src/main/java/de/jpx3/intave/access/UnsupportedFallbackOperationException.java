@@ -6,7 +6,7 @@ import de.jpx3.intave.IntaveControl;
  * This exception is not used
  */
 public final class UnsupportedFallbackOperationException extends IntaveInternalException {
-  public final static UnsupportedFallbackOperationException INSTANCE = new UnsupportedFallbackOperationException("Can't locate player here");
+  public static final UnsupportedFallbackOperationException INSTANCE = new UnsupportedFallbackOperationException("Can't locate player here");
 
   private UnsupportedFallbackOperationException() {
     super();

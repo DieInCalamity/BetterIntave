@@ -7,9 +7,9 @@ import org.bukkit.Location;
  * This movement mode performs entity movement with real gravity, means that the bot can fall down.
  */
 public final class WalkingMovement extends Movement {
-  private final static double JUMP_UPWARDS_MOTION = 0.42f;
-  private final static double MOVE_MULTIPLIER = 0.91f;
-  private final static double MIN_MOVEMENT_DIST = 0.005;
+  private static final double JUMP_UPWARDS_MOTION = 0.42f;
+  private static final double MOVE_MULTIPLIER = 0.91f;
+  private static final double MIN_MOVEMENT_DIST = 0.005;
   private int lastJump = 0;
 
   @Override

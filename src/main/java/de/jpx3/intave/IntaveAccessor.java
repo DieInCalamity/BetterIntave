@@ -6,7 +6,7 @@ import de.jpx3.intave.access.IntaveColdException;
 import java.lang.ref.WeakReference;
 
 public final class IntaveAccessor {
-  private static transient WeakReference<IntaveAccess> weakAccess;
+  private static WeakReference<IntaveAccess> weakAccess;
 
   public static synchronized boolean loaded() {
     IntavePlugin plugin = IntavePlugin.singletonInstance();

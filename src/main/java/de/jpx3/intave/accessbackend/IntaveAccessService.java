@@ -66,6 +66,7 @@ public final class IntaveAccessService {
         if (NativeCheck.checkActive()) {
           return;
         }
+        IntaveLogger.logger().info("Set trust factor resolver to " + resolver);
         plugin.trustFactorService().setTrustFactorResolver(resolver);
       }
 
@@ -78,6 +79,7 @@ public final class IntaveAccessService {
         if (defaultTrustFactor == null) {
           throw new NullPointerException("Default TrustFactor must not be null");
         }
+        IntaveLogger.logger().info("Setting default trust factor to " + defaultTrustFactor.coloredBaseName());
         plugin.trustFactorService().setDefaultTrustFactor(defaultTrustFactor);
       }
 
@@ -93,6 +95,7 @@ public final class IntaveAccessService {
 
       @Override
       public void setStorageGateway(StorageGateway gateway) {
+        IntaveLogger.logger().info("Set storage gateway to " + gateway);
         Modules.storage().setStorageGateway(gateway);
       }
 

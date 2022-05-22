@@ -23,12 +23,12 @@ import java.util.concurrent.LinkedBlockingDeque;
 import static de.jpx3.intave.module.feedback.FeedbackOptions.*;
 
 public final class FeedbackSender extends Module {
-  public final static short TRANSACTION_MIN_CODE = -32768;
-  public final static short TRANSACTION_MAX_CODE = -16370;
-  public final static int PING_MASK = 0xf5550000;
+  public static final short TRANSACTION_MIN_CODE = -32768;
+  public static final short TRANSACTION_MAX_CODE = -16370;
+  public static final int PING_MASK = 0xf5550000;
   private final boolean USE_PING_PONG_PACKETS = MinecraftVersions.VER1_17_0.atOrAbove();
-  private final static long OPTIONAL_PENDING_LIMIT = 20;
-  private final static long OPTIONAL_SENT_LIMIT = 100;
+  private static final long OPTIONAL_PENDING_LIMIT = 20;
+  private static final long OPTIONAL_SENT_LIMIT = 100;
 
   private final ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
 
@@ -153,7 +153,7 @@ public final class FeedbackSender extends Module {
     performRequest(player, request);
   }
 
-  private final static Object FALLBACK_OBJECT = new Object();
+  private static final Object FALLBACK_OBJECT = new Object();
 
   private <T> void appendRequestToContext(
     Player player, T obj, FeedbackCallback<T> callback

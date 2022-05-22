@@ -65,7 +65,7 @@ public class ModuleExportNode {
    * @param modules a list of modules that can access this exported package, specified with fully
    *                qualified names (using dots).
    */
-  public ModuleExportNode(final String packaze, final int access, final List<String> modules) {
+  public ModuleExportNode(String packaze, int access, List<String> modules) {
     this.packaze = packaze;
     this.access = access;
     this.modules = modules;
@@ -76,7 +76,7 @@ public class ModuleExportNode {
    *
    * @param moduleVisitor a module visitor.
    */
-  public void accept(final ModuleVisitor moduleVisitor) {
+  public void accept(ModuleVisitor moduleVisitor) {
     moduleVisitor.visitExport(
       packaze, access, modules == null ? null : modules.toArray(new String[0]));
   }

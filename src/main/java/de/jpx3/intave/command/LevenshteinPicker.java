@@ -71,7 +71,7 @@ final class LevenshteinPicker {
   }
 
   public static class SearchResult {
-    private final static SearchResult EMPTY = new SearchResult(Result.NONE, Collections.emptyList());
+    private static final SearchResult EMPTY = new SearchResult(Result.NONE, Collections.emptyList());
 
     private final Result result;
     private final List<String> matches;

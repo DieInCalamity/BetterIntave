@@ -47,12 +47,12 @@ import de.jpx3.intave.user.meta.CheckCustomMetadata;
  * }
  * }</pre>
  *
- * @param <PARENT> The parent check.
+ * @param <PARENT>         The parent check.
  * @param <BLUEPRINT_META> The blueprint meta class.
- * @param <CHECK_META> The check meta class.
+ * @param <CHECK_META>     The check meta class.
+ * @author Jpx3
  * @see de.jpx3.intave.check.CheckPart
  * @see de.jpx3.intave.check.MetaCheckPart
- * @author Jpx3
  */
 public abstract class Blueprint
   <PARENT extends Check,

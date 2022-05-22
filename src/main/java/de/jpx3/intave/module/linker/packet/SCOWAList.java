@@ -8,7 +8,7 @@ import java.util.*;
 // successfully copy-pasted from ProtocolLib
 
 // SortedCopyOnWriteArray-List
-public final class SCOWAList<T extends Comparable<T>> implements Collection<T>  {
+public final class SCOWAList<T extends Comparable<T>> implements Collection<T> {
   private volatile List<T> list;
 
   public SCOWAList() {
@@ -32,7 +32,7 @@ public final class SCOWAList<T extends Comparable<T>> implements Collection<T>  
     } else {
       List<T> copy = new ArrayList<>();
       T element;
-      for(Iterator<T> var3 = this.list.iterator(); var3.hasNext(); copy.add(element)) {
+      for (Iterator<T> var3 = this.list.iterator(); var3.hasNext(); copy.add(element)) {
         element = var3.next();
         if (value != null && value.compareTo(element) < 0) {
           copy.add(value);

@@ -33,6 +33,7 @@ public final class CheckStatistics {
 
   /**
    * Retrieve the amount of total violations
+   *
    * @return the amount of total violations
    */
   public long totalViolations() {

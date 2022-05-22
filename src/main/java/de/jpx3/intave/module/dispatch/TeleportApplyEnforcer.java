@@ -29,8 +29,8 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Server.POSITION;
 import static org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.NETHER_PORTAL;
 
 public final class TeleportApplyEnforcer implements PacketEventSubscriber {
-  private final static boolean TELEPORTATION_DEBUG = false;
-  private final static boolean NEW_TELEPORTATION = MinecraftVersions.VER1_9_0.atOrAbove();
+  private static final boolean TELEPORTATION_DEBUG = false;
+  private static final boolean NEW_TELEPORTATION = MinecraftVersions.VER1_9_0.atOrAbove();
 
   public void setup() {
     Modules.linker().packetEvents().linkSubscriptionsIn(this);

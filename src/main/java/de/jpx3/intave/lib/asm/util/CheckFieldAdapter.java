@@ -36,7 +36,9 @@ import de.jpx3.intave.lib.asm.*;
  */
 public class CheckFieldAdapter extends FieldVisitor {
 
-  /** Whether the {@link #visitEnd} method has been called. */
+  /**
+   * Whether the {@link #visitEnd} method has been called.
+   */
   private boolean visitEndCalled;
 
   /**
@@ -46,7 +48,7 @@ public class CheckFieldAdapter extends FieldVisitor {
    * @param fieldVisitor the field visitor to which this adapter must delegate calls.
    * @throws IllegalStateException If a subclass calls this constructor.
    */
-  public CheckFieldAdapter(final FieldVisitor fieldVisitor) {
+  public CheckFieldAdapter(FieldVisitor fieldVisitor) {
     this(/* latest api = */ Opcodes.ASM7, fieldVisitor);
     if (getClass() != CheckFieldAdapter.class) {
       throw new IllegalStateException();
@@ -56,16 +58,16 @@ public class CheckFieldAdapter extends FieldVisitor {
   /**
    * Constructs a new {@link CheckFieldAdapter}.
    *
-   * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   * @param api          the ASM API version implemented by this visitor. Must be one of {@link
+   *                     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    * @param fieldVisitor the field visitor to which this adapter must delegate calls.
    */
-  protected CheckFieldAdapter(final int api, final FieldVisitor fieldVisitor) {
+  protected CheckFieldAdapter(int api, FieldVisitor fieldVisitor) {
     super(api, fieldVisitor);
   }
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+  public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
     checkVisitEndNotCalled();
     // Annotations can only appear in V1_5 or more classes.
     CheckMethodAdapter.checkDescriptor(Opcodes.V1_5, descriptor, false);
@@ -74,21 +76,21 @@ public class CheckFieldAdapter extends FieldVisitor {
 
   @Override
   public AnnotationVisitor visitTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     checkVisitEndNotCalled();
     int sort = new TypeReference(typeRef).getSort();
     if (sort != TypeReference.FIELD) {
       throw new IllegalArgumentException(
-          "Invalid type reference sort 0x" + Integer.toHexString(sort));
+        "Invalid type reference sort 0x" + Integer.toHexString(sort));
     }
     CheckClassAdapter.checkTypeRef(typeRef);
     CheckMethodAdapter.checkDescriptor(Opcodes.V1_5, descriptor, false);
     return new CheckAnnotationAdapter(
-        super.visitTypeAnnotation(typeRef, typePath, descriptor, visible));
+      super.visitTypeAnnotation(typeRef, typePath, descriptor, visible));
   }
 
   @Override
-  public void visitAttribute(final Attribute attribute) {
+  public void visitAttribute(Attribute attribute) {
     checkVisitEndNotCalled();
     if (attribute == null) {
       throw new IllegalArgumentException("Invalid attribute (must not be null)");

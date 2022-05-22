@@ -9,8 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class MemoryTraced {
-  private final static Map<Class<?>, AtomicLong> objectsLoaded = new ConcurrentHashMap<>();
-  private final static Map<Class<?>, Integer> BYTES = new HashMap<>();
+  private static final Map<Class<?>, AtomicLong> objectsLoaded = new ConcurrentHashMap<>();
+  private static final Map<Class<?>, Integer> BYTES = new HashMap<>();
 
   static {
     BYTES.put(BoundingBox.class, Double.BYTES * 6);

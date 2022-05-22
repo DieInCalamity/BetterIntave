@@ -9,47 +9,47 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 
 public class Matrix implements Serializable {
-  final public double[][] data;
-  
+  public final double[][] data;
+
   public int rows() { // Zeile
     return data.length;
   }
-  
+
   public int cols() { // Spalte
     return data[0].length;
   }
-  
+
   public Matrix(double[][] data) {
     this.data = data;
   }
-  
+
   public Matrix(int rows, int cols) {
     this.data = new double[rows][cols];
   }
-  
+
   public Matrix transpose() {
     double[][] newData = new double[cols()][rows()];
-    
+
     for (int rowsIndex = 0; rowsIndex < rows(); rowsIndex++) {
       for (int colsIndex = 0; colsIndex < cols(); colsIndex++) {
         newData[colsIndex][rowsIndex] = data[rowsIndex][colsIndex];
       }
     }
-    
+
     return new Matrix(newData);
   }
-  
+
   public Matrix copy() {
     double[][] copyData = Arrays.stream(data).map(double[]::clone).toArray(double[][]::new);
     return new Matrix(copyData);
   }
-  
+
   /*
   Executes a function for every element of the Matrix.
    */
   public Matrix executeFunction(Function<Double, Double> function) {
     double[][] newData = new double[rows()][cols()];
-  
+
     for (int rowIndex = 0; rowIndex < rows(); rowIndex++) {
       for (int colIndex = 0; colIndex < cols(); colIndex++) {
         newData[rowIndex][colIndex] = function.apply(data[rowIndex][colIndex]);
@@ -57,16 +57,16 @@ public class Matrix implements Serializable {
     }
     return new Matrix(newData);
   }
-  
+
   public Matrix forwardActivationFunction(ActivationFunction activationFunction) {
     double[][] newData = new double[rows()][cols()];
-    
-    if(activationFunction instanceof SoftMaxActivation) {
+
+    if (activationFunction instanceof SoftMaxActivation) {
       SoftMaxActivation softMax = (SoftMaxActivation) activationFunction;
       newData[0] = softMax.activationFunction(data[0]);
       return new Matrix(newData);
     }
-    
+
     for (int rowIndex = 0; rowIndex < rows(); rowIndex++) {
       for (int colIndex = 0; colIndex < cols(); colIndex++) {
         newData[rowIndex][colIndex] = activationFunction.function(data[rowIndex][colIndex]);
@@ -74,14 +74,14 @@ public class Matrix implements Serializable {
     }
     return new Matrix(newData);
   }
-  
+
   public Matrix backwardsActivationFunction(ActivationFunction dActivationFunction) {
     double[][] newData = new double[rows()][cols()];
-  
-    if(dActivationFunction instanceof SoftMaxActivation) {
+
+    if (dActivationFunction instanceof SoftMaxActivation) {
       SoftMaxActivation softMax = (SoftMaxActivation) dActivationFunction;
       newData[0] = softMax.dActivationFunction(data[0]);
-  
+
       return new Matrix(newData);
     }
     for (int rowIndex = 0; rowIndex < rows(); rowIndex++) {
@@ -91,10 +91,10 @@ public class Matrix implements Serializable {
     }
     return new Matrix(newData);
   }
-  
+
   public Matrix merge(Matrix other) {
     double[][] newData = new double[rows()][cols()];
-    
+
     for (int rowIndex = 0; rowIndex < rows(); rowIndex++) {
       for (int colIndex = 0; colIndex < cols(); colIndex++) {
         if (ThreadLocalRandom.current().nextBoolean()) {
@@ -106,7 +106,7 @@ public class Matrix implements Serializable {
     }
     return new Matrix(newData);
   }
-  
+
   public static Matrix matrixOf1DimArray(double[] input) {
     double[][] newData = new double[input.length][1];
     for (int index = 0; index < input.length; index++) {
@@ -114,7 +114,7 @@ public class Matrix implements Serializable {
     }
     return new Matrix(newData);
   }
-  
+
   public Matrix randomize(double from, double to) {
     for (int rowIndex = 0; rowIndex < rows(); rowIndex++) {
       for (int colIndex = 0; colIndex < cols(); colIndex++) {
@@ -123,7 +123,7 @@ public class Matrix implements Serializable {
     }
     return this;
   }
-  
+
   public Matrix add(double other) {
     double[][] newData = new double[rows()][cols()];
     for (int rowIndex = 0; rowIndex < rows(); rowIndex++) {
@@ -133,7 +133,7 @@ public class Matrix implements Serializable {
     }
     return new Matrix(newData);
   }
-  
+
   // TODO: addAssign function which doesn't return something but instead changes the values of the matrix
   public Matrix add(Matrix other) {
     if (rows() != other.rows()) {
@@ -142,7 +142,7 @@ public class Matrix implements Serializable {
       throw new RuntimeException("Column doesn't match with others " + cols() + ", " + other.cols());
     }
     double[][] newData = new double[rows()][cols()];
-    
+
     for (int rowIndex = 0; rowIndex < rows(); rowIndex++) {
       for (int colIndex = 0; colIndex < cols(); colIndex++) {
         newData[rowIndex][colIndex] = data[rowIndex][colIndex] + other.data[rowIndex][colIndex];
@@ -150,7 +150,7 @@ public class Matrix implements Serializable {
     }
     return new Matrix(newData);
   }
-  
+
   public Matrix inverse() {
     double[][] newData = new double[rows()][cols()];
     for (int rowIndex = 0; rowIndex < rows(); rowIndex++) {
@@ -160,7 +160,7 @@ public class Matrix implements Serializable {
     }
     return new Matrix(newData);
   }
-  
+
   public Matrix subtract(double other) {
     double[][] newData = new double[rows()][cols()];
     for (int rowIndex = 0; rowIndex < rows(); rowIndex++) {
@@ -170,7 +170,7 @@ public class Matrix implements Serializable {
     }
     return new Matrix(newData);
   }
-  
+
   public Matrix subtractReverse(double other) {
     double[][] newData = new double[rows()][cols()];
     for (int rowIndex = 0; rowIndex < rows(); rowIndex++) {
@@ -180,16 +180,16 @@ public class Matrix implements Serializable {
     }
     return new Matrix(newData);
   }
-  
+
   public Matrix subtract(Matrix other) {
     if (rows() != other.rows()) {
       throw new RuntimeException("Rows doesn't match with others " + rows() + ", " + other.rows());
     } else if (cols() != other.cols()) {
       throw new RuntimeException("Column doesn't match with others " + cols() + ", " + other.cols());
     }
-    
+
     double[][] newData = new double[rows()][cols()];
-    
+
     for (int rowIndex = 0; rowIndex < rows(); rowIndex++) {
       for (int colIndex = 0; colIndex < cols(); colIndex++) {
         newData[rowIndex][colIndex] = data[rowIndex][colIndex] - other.data[rowIndex][colIndex];
@@ -197,7 +197,7 @@ public class Matrix implements Serializable {
     }
     return new Matrix(newData);
   }
-  
+
   public Matrix multiplyScalar(double other) {
     double[][] newData = new double[rows()][cols()];
     for (int rowIndex = 0; rowIndex < rows(); rowIndex++) {
@@ -207,7 +207,7 @@ public class Matrix implements Serializable {
     }
     return new Matrix(newData);
   }
-  
+
   public static Matrix divideScalar(double value, Matrix matrix) {
     double[][] newData = new double[matrix.rows()][matrix.cols()];
     for (int rowIndex = 0; rowIndex < matrix.rows(); rowIndex++) {
@@ -217,7 +217,7 @@ public class Matrix implements Serializable {
     }
     return new Matrix(newData);
   }
-  
+
   public static Matrix subtractScalar(double value, Matrix matrix) {
     double[][] newData = new double[matrix.rows()][matrix.cols()];
     for (int rowIndex = 0; rowIndex < matrix.rows(); rowIndex++) {
@@ -227,14 +227,14 @@ public class Matrix implements Serializable {
     }
     return new Matrix(newData);
   }
-  
+
   // represents the numpy.dot(a, b) function of array and matrix
   public Matrix multiplyDot(Matrix other) {
     if (cols() != other.rows()) {
       throw new RuntimeException("Columns doesn't match rows " + cols() + ", " + other.rows());
     }
     double[][] newData = new double[rows()][other.cols()];
-    
+
     for (int rowIndex = 0; rowIndex < rows(); rowIndex++) {
       for (int colIndex = 0; colIndex < other.cols(); colIndex++) {
         double sum = 0;
@@ -244,10 +244,10 @@ public class Matrix implements Serializable {
         newData[rowIndex][colIndex] = sum;
       }
     }
-    
+
     return new Matrix(newData);
   }
-  
+
   public Matrix multiplyHadamard(Matrix other) {
     double[][] newData = new double[rows()][cols()];
     // hadamard product
@@ -256,10 +256,10 @@ public class Matrix implements Serializable {
         newData[rowIndex][colIndex] = data[rowIndex][colIndex] * other.data[rowIndex][colIndex];
       }
     }
-    
+
     return new Matrix(newData);
   }
-  
+
   public Matrix divide(double other) {
     double[][] newData = new double[rows()][cols()];
     for (int rowIndex = 0; rowIndex < rows(); rowIndex++) {
@@ -269,14 +269,14 @@ public class Matrix implements Serializable {
     }
     return new Matrix(newData);
   }
-  
+
   public Matrix divide(Matrix other) {
     if (cols() != other.rows()) {
       throw new RuntimeException("Columns doesn't match rows " + cols() + ", " + other.rows());
     }
-    
+
     double[][] newData = new double[rows()][other.cols()];
-    
+
     for (int rowIndex = 0; rowIndex < rows(); rowIndex++) {
       for (int colIndex = 0; colIndex < other.cols(); colIndex++) {
         double sum = 0;
@@ -286,14 +286,14 @@ public class Matrix implements Serializable {
         newData[rowIndex][colIndex] = sum;
       }
     }
-    
+
     return new Matrix(newData);
   }
-  
+
   public String dimension() {
     return "(" + rows() + ", " + cols() + ")";
   }
-  
+
   @Override
   public String toString() {
     StringBuilder output = new StringBuilder("matrix(");

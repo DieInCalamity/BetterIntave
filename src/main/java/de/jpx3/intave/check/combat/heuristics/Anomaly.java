@@ -87,7 +87,7 @@ public final class Anomaly {
       '}';
   }
 
-  private final static long ANOMALY_EXPIRE_DURATION = TimeUnit.MINUTES.toMillis(5);
+  private static final long ANOMALY_EXPIRE_DURATION = TimeUnit.MINUTES.toMillis(5);
 
   public static Anomaly anomalyOf(String key, Confidence confidence, Type type, String description, int options, long expireDuration) {
     return new Anomaly(key, confidence, type, description, options, expireDuration);
@@ -117,17 +117,17 @@ public final class Anomaly {
   }
 
   public static class AnomalyOption {
-    public final static int LIMIT_1 = 1;
-    public final static int LIMIT_2 = 1 << 1;
-    public final static int LIMIT_4 = 1 << 2;
-    public final static int LIMIT_8 = 1 << 3;
-    public final static int SUGGEST_MINING = 1 << 4;
-    public final static int REQUIRES_HEAVY_COMBAT = 1 << 5;
-    public final static int DELAY_16s = 1 << 6;
-    public final static int DELAY_32s = 1 << 7;
-    public final static int DELAY_64s = 1 << 8;
-    public final static int DELAY_128s = 1 << 9;
-    public final static int FORCE_APPLY = 1 << 10;
+    public static final int LIMIT_1 = 1;
+    public static final int LIMIT_2 = 1 << 1;
+    public static final int LIMIT_4 = 1 << 2;
+    public static final int LIMIT_8 = 1 << 3;
+    public static final int SUGGEST_MINING = 1 << 4;
+    public static final int REQUIRES_HEAVY_COMBAT = 1 << 5;
+    public static final int DELAY_16s = 1 << 6;
+    public static final int DELAY_32s = 1 << 7;
+    public static final int DELAY_64s = 1 << 8;
+    public static final int DELAY_128s = 1 << 9;
+    public static final int FORCE_APPLY = 1 << 10;
 
     public static boolean matches(int optionInt, int option) {
       return (optionInt & option) > 0;

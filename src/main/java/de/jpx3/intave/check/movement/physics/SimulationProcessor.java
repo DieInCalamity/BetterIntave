@@ -6,7 +6,7 @@ public interface SimulationProcessor {
   Simulation simulate(User user, Simulator simulator);
 
   default Simulation simulateWithoutKeyPress(User user, Simulator simulator) {
-    return simulateWithKeyPress(user, simulator,0, 0, false);
+    return simulateWithKeyPress(user, simulator, 0, 0, false);
   }
 
   @Deprecated

@@ -43,7 +43,7 @@ public final class CheckAccessor {
     }
   }
 
-  private final static Map<String, Double> DEFAULT_RETURN = new HashMap<>();
+  private static final Map<String, Double> DEFAULT_RETURN = new HashMap<>();
 
   private CheckAccess newCheckMirrorOf(Check check) {
     return new CheckAccess() {

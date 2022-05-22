@@ -21,8 +21,8 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Client.ARM_ANIMATION;
 
 @Relocate
 public final class Spikes extends MetaCheckPart<ClickPatterns, Spikes.SpikesMeta> {
-  private final static int BUFFER_TIMEOUT = 4000;
-  private final static int BUFFER_LENGTH = 10;
+  private static final int BUFFER_TIMEOUT = 4000;
+  private static final int BUFFER_LENGTH = 10;
 
   public Spikes(ClickPatterns parentCheck) {
     super(parentCheck, SpikesMeta.class);

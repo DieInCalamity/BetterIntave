@@ -51,26 +51,22 @@ public abstract class ModuleVisitor {
    * Constructs a new {@link ModuleVisitor}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link Opcodes#ASM6}
-   *     or {@link Opcodes#ASM7}.
+   *            or {@link Opcodes#ASM7}.
    */
-  public ModuleVisitor(final int api) {
+  public ModuleVisitor(int api) {
     this(api, null);
   }
 
   /**
    * Constructs a new {@link ModuleVisitor}.
    *
-   * @param api the ASM API version implemented by this visitor. Must be one of {@link Opcodes#ASM6}
-   *     or {@link Opcodes#ASM7}.
+   * @param api           the ASM API version implemented by this visitor. Must be one of {@link Opcodes#ASM6}
+   *                      or {@link Opcodes#ASM7}.
    * @param moduleVisitor the module visitor to which this visitor must delegate method calls. May
-   *     be null.
+   *                      be null.
    */
-  public ModuleVisitor(final int api, final ModuleVisitor moduleVisitor) {
-    if (api != Opcodes.ASM7
-        && api != Opcodes.ASM6
-        && api != Opcodes.ASM5
-        && api != Opcodes.ASM4
-        && api != Opcodes.ASM8_EXPERIMENTAL) {
+  public ModuleVisitor(int api, ModuleVisitor moduleVisitor) {
+    if (api != Opcodes.ASM7 && api != Opcodes.ASM6 && api != Opcodes.ASM5 && api != Opcodes.ASM4 && api != Opcodes.ASM8_EXPERIMENTAL) {
       throw new IllegalArgumentException("Unsupported api " + api);
     }
     if (api == Opcodes.ASM8_EXPERIMENTAL) {
@@ -85,7 +81,7 @@ public abstract class ModuleVisitor {
    *
    * @param mainClass the internal name of the main class of the current module.
    */
-  public void visitMainClass(final String mainClass) {
+  public void visitMainClass(String mainClass) {
     if (mv != null) {
       mv.visitMainClass(mainClass);
     }
@@ -96,7 +92,7 @@ public abstract class ModuleVisitor {
    *
    * @param packaze the internal name of a package.
    */
-  public void visitPackage(final String packaze) {
+  public void visitPackage(String packaze) {
     if (mv != null) {
       mv.visitPackage(packaze);
     }
@@ -105,12 +101,12 @@ public abstract class ModuleVisitor {
   /**
    * Visits a dependence of the current module.
    *
-   * @param module the fully qualified name (using dots) of the dependence.
-   * @param access the access flag of the dependence among {@code ACC_TRANSITIVE}, {@code
-   *     ACC_STATIC_PHASE}, {@code ACC_SYNTHETIC} and {@code ACC_MANDATED}.
+   * @param module  the fully qualified name (using dots) of the dependence.
+   * @param access  the access flag of the dependence among {@code ACC_TRANSITIVE}, {@code
+   *                ACC_STATIC_PHASE}, {@code ACC_SYNTHETIC} and {@code ACC_MANDATED}.
    * @param version the module version at compile time, or {@literal null}.
    */
-  public void visitRequire(final String module, final int access, final String version) {
+  public void visitRequire(String module, int access, String version) {
     if (mv != null) {
       mv.visitRequire(module, access, version);
     }
@@ -120,12 +116,12 @@ public abstract class ModuleVisitor {
    * Visit an exported package of the current module.
    *
    * @param packaze the internal name of the exported package.
-   * @param access the access flag of the exported package, valid values are among {@code
-   *     ACC_SYNTHETIC} and {@code ACC_MANDATED}.
+   * @param access  the access flag of the exported package, valid values are among {@code
+   *                ACC_SYNTHETIC} and {@code ACC_MANDATED}.
    * @param modules the fully qualified names (using dots) of the modules that can access the public
-   *     classes of the exported package, or {@literal null}.
+   *                classes of the exported package, or {@literal null}.
    */
-  public void visitExport(final String packaze, final int access, final String... modules) {
+  public void visitExport(String packaze, int access, String... modules) {
     if (mv != null) {
       mv.visitExport(packaze, access, modules);
     }
@@ -135,12 +131,12 @@ public abstract class ModuleVisitor {
    * Visit an open package of the current module.
    *
    * @param packaze the internal name of the opened package.
-   * @param access the access flag of the opened package, valid values are among {@code
-   *     ACC_SYNTHETIC} and {@code ACC_MANDATED}.
+   * @param access  the access flag of the opened package, valid values are among {@code
+   *                ACC_SYNTHETIC} and {@code ACC_MANDATED}.
    * @param modules the fully qualified names (using dots) of the modules that can use deep
-   *     reflection to the classes of the open package, or {@literal null}.
+   *                reflection to the classes of the open package, or {@literal null}.
    */
-  public void visitOpen(final String packaze, final int access, final String... modules) {
+  public void visitOpen(String packaze, int access, String... modules) {
     if (mv != null) {
       mv.visitOpen(packaze, access, modules);
     }
@@ -152,7 +148,7 @@ public abstract class ModuleVisitor {
    *
    * @param service the internal name of the service.
    */
-  public void visitUse(final String service) {
+  public void visitUse(String service) {
     if (mv != null) {
       mv.visitUse(service);
     }
@@ -161,11 +157,11 @@ public abstract class ModuleVisitor {
   /**
    * Visit an implementation of a service.
    *
-   * @param service the internal name of the service.
+   * @param service   the internal name of the service.
    * @param providers the internal names of the implementations of the service (there is at least
-   *     one provider).
+   *                  one provider).
    */
-  public void visitProvide(final String service, final String... providers) {
+  public void visitProvide(String service, String... providers) {
     if (mv != null) {
       mv.visitProvide(service, providers);
     }

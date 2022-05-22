@@ -139,7 +139,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
     }
   )
   public void receiveMovementPacket(PacketEvent event) {
-  // moved to enabled() function at the bottom
+    // moved to enabled() function at the bottom
 //    if (MinecraftVersions.VER1_9_0.atOrAbove()) {
 //      return;
 //    }
@@ -268,9 +268,9 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
     }
 
     if (liteFlag) {
-      String description = "rotation snap scaffold [" +  MathHelper.formatDouble(meta.yawMotions[0], 2) + "]";
+      String description = "rotation snap scaffold [" + MathHelper.formatDouble(meta.yawMotions[0], 2) + "]";
       int addedViolationLevel = 30;
-      if(IntaveControl.GOMME_MODE) {
+      if (IntaveControl.GOMME_MODE) {
         addedViolationLevel = 30;
       }
       handleConfidence(user, "103", addedViolationLevel, description);
@@ -295,7 +295,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
       description += " conf:" + confidence.level() + "/" + meta.internalViolation;
       Anomaly anomaly = Anomaly.anomalyOf(key, confidence, Anomaly.Type.KILLAURA, description, anomalyOptions(isPartner()));
       parentCheck().saveAnomaly(player, anomaly);
-    } else if(confidence.level() > 0) {
+    } else if (confidence.level() > 0) {
       description += " nonflag(" + violationToAdd + "/" + confidence.level() + "/" + meta.internalViolation + ")";
       Anomaly anomaly = Anomaly.anomalyOf(key, Confidence.NONE, Anomaly.Type.KILLAURA, description, anomalyOptions(isPartner()));
       parentCheck().saveAnomaly(player, anomaly);
@@ -352,7 +352,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
     }
     // added the division because there are false flaggs when a player has less than 20 fps
     vl /= 3;
-    if(vl > 160 && valueOfSnap < 360) {
+    if (vl > 160 && valueOfSnap < 360) {
       vl = 160;
     }
     return vl;

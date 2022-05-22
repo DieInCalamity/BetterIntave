@@ -42,7 +42,7 @@ import java.util.function.Consumer;
  * @see de.jpx3.intave.check.MetaCheck
  * @see de.jpx3.intave.check.MetaCheckPart
  */
- public abstract class Check implements EventProcessor {
+public abstract class Check implements EventProcessor {
   private final IntavePlugin plugin;
   private final String checkName;
   private final String configurationKey;
@@ -81,6 +81,7 @@ import java.util.function.Consumer;
 
   /**
    * Performs a {@link User} lookup of a corresponding {@link Player}.
+   *
    * @param player the player search
    * @return a blank or corresponding user
    */
@@ -93,6 +94,7 @@ import java.util.function.Consumer;
    * loading and unloading sequence. When appending check parts, the implementation class must not
    * hold <b>any</b> code for detection, so the use of this method consequently constraints the class
    * to follow the standard of clear differentiation between <i>detection algorithm</i> and <i>detection cluster</i>.
+   *
    * @param checkPart the checkpart to append
    */
   protected void appendCheckPart(CheckPart<?> checkPart) {
@@ -116,7 +118,8 @@ import java.util.function.Consumer;
 
   /**
    * Retrieves a {@link TrustFactor} setting for a given key using the trustfactor of the given {@link Player}.
-   * @param key the trustfactor setting key
+   *
+   * @param key    the trustfactor setting key
    * @param player the affected player
    * @return trustfactor setting
    */
@@ -127,7 +130,8 @@ import java.util.function.Consumer;
 
   /**
    * Apply a change to the base statistics and all other statistics of abstract categories.
-   * @param user the affected user
+   *
+   * @param user    the affected user
    * @param applier the player statistic applier
    */
   public void statisticApply(User user, Consumer<CheckStatistics> applier) {
@@ -146,6 +150,7 @@ import java.util.function.Consumer;
 
   /**
    * Retrieve the check's name.
+   *
    * @return the check's name
    */
   public String name() {
@@ -154,6 +159,7 @@ import java.util.function.Consumer;
 
   /**
    * Retrieve the check's configuration key.
+   *
    * @return the check's configuration key
    */
   public String configurationKey() {
@@ -162,6 +168,7 @@ import java.util.function.Consumer;
 
   /**
    * Access the check's configuration.
+   *
    * @return the check's configuraiton
    */
   public CheckConfiguration configuration() {
@@ -172,6 +179,7 @@ import java.util.function.Consumer;
    * Retrieve a check's mitigation strategy.
    * Will return {@link MitigationStrategy#NOT_SUPPORTED} when the child-class
    * does not support {@link MitigationStrategy}s.
+   *
    * @return the check's mitigation strategy
    */
   public MitigationStrategy mitigationStrategy() {
@@ -183,6 +191,7 @@ import java.util.function.Consumer;
 
   /**
    * Override the current mitigation strategy.
+   *
    * @param mitigationStrategy the new mitigation strategy
    */
   public void setMitigationStrategy(MitigationStrategy mitigationStrategy) {
@@ -198,6 +207,7 @@ import java.util.function.Consumer;
    * Retrieve whether the check is enabled.
    * The {@link Physics} and {@link Timer} check override this method to always return {@code true},
    * as they must be enabled and therefore can't be disabled.
+   *
    * @return whether the check is enabled
    */
   public boolean enabled() {
@@ -210,6 +220,7 @@ import java.util.function.Consumer;
    * {@link PacketSubscription} and {@link BukkitEventSubscription} should subscribe their corresponding frameworks.
    * The {@link InteractionRaytrace}, {@link Timer} and {@link Physics} check override this method to always return
    * {@code true}, as they are intrinsically required to be linked.
+   *
    * @return whether internal subscriptions should be linked
    */
   public boolean performLinkage() {

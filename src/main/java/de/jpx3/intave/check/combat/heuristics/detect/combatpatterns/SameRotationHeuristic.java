@@ -47,7 +47,7 @@ public final class SameRotationHeuristic extends MetaCheckPart<Heuristics, SameR
     ViolationMetadata violationLevelData = metadata.violationLevel();
     AbilityMetadata abilityMetadata = metadata.abilities();
 
-    if(abilityMetadata.health <= 0 || abilityMetadata.unsynchronizedHealth <= 0) {
+    if (abilityMetadata.health <= 0 || abilityMetadata.unsynchronizedHealth <= 0) {
       meta.ticksSinceRespawn = 0;
     }
 

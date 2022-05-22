@@ -34,14 +34,16 @@ import de.jpx3.intave.lib.asm.MethodVisitor;
  * A parser for signature literals, as defined in the Java Virtual Machine Specification (JVMS), to
  * visit them with a SignatureVisitor.
  *
- * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.9.1">JVMS
- *     4.7.9.1</a>
  * @author Thomas Hallgren
  * @author Eric Bruneton
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.9.1">JVMS
+ * 4.7.9.1</a>
  */
 public class SignatureReader {
 
-  /** The JVMS signature to be read. */
+  /**
+   * The JVMS signature to be read.
+   */
   private final String signatureValue;
 
   /**
@@ -49,7 +51,7 @@ public class SignatureReader {
    *
    * @param signature A <i>JavaTypeSignature</i>, <i>ClassSignature</i> or <i>MethodSignature</i>.
    */
-  public SignatureReader(final String signature) {
+  public SignatureReader(String signature) {
     this.signatureValue = signature;
   }
 
@@ -63,7 +65,7 @@ public class SignatureReader {
    *
    * @param signatureVistor the visitor that must visit this signature.
    */
-  public void accept(final SignatureVisitor signatureVistor) {
+  public void accept(SignatureVisitor signatureVistor) {
     String signature = this.signatureValue;
     int length = signature.length();
     int offset; // Current offset in the parsed signature (parsed from left to right).
@@ -80,7 +82,7 @@ public class SignatureReader {
         // The formal type parameter name is everything between offset - 1 and the first ':'.
         int classBoundStartOffset = signature.indexOf(':', offset);
         signatureVistor.visitFormalTypeParameter(
-            signature.substring(offset - 1, classBoundStartOffset));
+          signature.substring(offset - 1, classBoundStartOffset));
 
         // If the character after the ':' class bound marker is not the start of a
         // ReferenceTypeSignature, it means the class bound is empty (which is a valid case).
@@ -139,20 +141,20 @@ public class SignatureReader {
    *
    * @param signatureVisitor the visitor that must visit this signature.
    */
-  public void acceptType(final SignatureVisitor signatureVisitor) {
+  public void acceptType(SignatureVisitor signatureVisitor) {
     parseType(signatureValue, 0, signatureVisitor);
   }
 
   /**
    * Parses a JavaTypeSignature and makes the given visitor visit it.
    *
-   * @param signature a string containing the signature that must be parsed.
-   * @param startOffset index of the first character of the signature to parsed.
+   * @param signature        a string containing the signature that must be parsed.
+   * @param startOffset      index of the first character of the signature to parsed.
    * @param signatureVisitor the visitor that must visit this signature.
    * @return the index of the first character after the parsed signature.
    */
   private static int parseType(
-      final String signature, final int startOffset, final SignatureVisitor signatureVisitor) {
+    String signature, int startOffset, SignatureVisitor signatureVisitor) {
     int offset = startOffset; // Current offset in the parsed signature.
     char currentChar = signature.charAt(offset++); // The signature character at 'offset'.
 
@@ -235,8 +237,8 @@ public class SignatureReader {
                 case '-':
                   // Extends or Super TypeArgument. Use offset + 1 to skip the '+' or '-'.
                   offset =
-                      parseType(
-                          signature, offset + 1, signatureVisitor.visitTypeArgument(currentChar));
+                    parseType(
+                      signature, offset + 1, signatureVisitor.visitTypeArgument(currentChar));
                   break;
                 default:
                   // Instanceof TypeArgument. The '=' is implicit.

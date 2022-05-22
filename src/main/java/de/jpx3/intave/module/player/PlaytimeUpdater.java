@@ -18,7 +18,6 @@ public final class PlaytimeUpdater extends Module {
       Bukkit.getOnlinePlayers().forEach(player -> {
         User user = UserRepository.userOf(player);
         PlaytimeRecorder recorder = plugin.analytics().recorderOf(PlaytimeRecorder.class);
-
         PlaytimeStorage playtimeStorage = user.storageOf(PlaytimeStorage.class);
         if (System.currentTimeMillis() - user.meta().movement().lastMovement > 1000 * 60 * 2) {
           playtimeStorage.incrementMinutesAfkBy(3);

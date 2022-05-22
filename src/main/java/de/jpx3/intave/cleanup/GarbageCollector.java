@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 public final class GarbageCollector {
-  private final static List<Reference<Map<?, ?>>> boundMaps = Lists.newCopyOnWriteArrayList();
-  private final static List<Reference<List<?>>> boundLists = Lists.newCopyOnWriteArrayList();
+  private static final List<Reference<Map<?, ?>>> boundMaps = Lists.newCopyOnWriteArrayList();
+  private static final List<Reference<List<?>>> boundLists = Lists.newCopyOnWriteArrayList();
 
   private GarbageCollector() {
     throw new UnsupportedOperationException();

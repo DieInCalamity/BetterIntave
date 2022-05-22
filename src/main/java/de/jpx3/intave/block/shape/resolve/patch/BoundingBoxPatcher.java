@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public final class BoundingBoxPatcher {
-  private final static Map<Material, BoundingBoxPatch> patches = new HashMap<>();
+  private static final Map<Material, BoundingBoxPatch> patches = new HashMap<>();
 
   public static void setup() {
     add(TrapdoorBlockPatch.class);

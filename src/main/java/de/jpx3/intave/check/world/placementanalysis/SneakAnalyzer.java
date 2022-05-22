@@ -26,7 +26,7 @@ import java.util.List;
 import static de.jpx3.intave.check.world.PlacementAnalysis.COMMON_FLAG_MESSAGE;
 
 public final class SneakAnalyzer extends MetaCheckPart<PlacementAnalysis, SneakAnalyzer.SneakMeta> {
-  private final static int CHECK_LENGTH = 24;
+  private static final int CHECK_LENGTH = 24;
 
   private final IntavePlugin plugin;
 

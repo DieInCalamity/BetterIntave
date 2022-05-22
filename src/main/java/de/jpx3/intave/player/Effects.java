@@ -10,9 +10,9 @@ import org.bukkit.potion.PotionEffectType;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_13;
 
 public final class Effects {
-  public final static PotionEffectType EFFECT_LEVITATION = PotionEffectType.getByName("LEVITATION");
-  private final static PotionEffectType EFFECT_SLOW_FALLING = PotionEffectType.getByName("SLOW_FALLING");
-  private final static PotionEffectType EFFECT_DOLPHIN = PotionEffectType.getByName("DOLPHINS_GRACE");
+  public static final PotionEffectType EFFECT_LEVITATION = PotionEffectType.getByName("LEVITATION");
+  private static final PotionEffectType EFFECT_SLOW_FALLING = PotionEffectType.getByName("SLOW_FALLING");
+  private static final PotionEffectType EFFECT_DOLPHIN = PotionEffectType.getByName("DOLPHINS_GRACE");
 
   public static int effectAmplifier(Player player, PotionEffectType type) {
     for (PotionEffect activeEffect : player.getActivePotionEffects()) {

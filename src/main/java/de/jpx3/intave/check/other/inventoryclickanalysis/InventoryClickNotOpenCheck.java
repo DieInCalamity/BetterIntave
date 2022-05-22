@@ -69,7 +69,7 @@ public final class InventoryClickNotOpenCheck extends CheckPart<InventoryClickAn
     }
   }
 
-  private final static Class<?> NATIVE_INVENTORY_CLICK_TYPE_CLASS = MinecraftVersions.VER1_9_0.atOrAbove() ? Lookup.serverClass("InventoryClickType") : Object.class;
+  private static final Class<?> NATIVE_INVENTORY_CLICK_TYPE_CLASS = MinecraftVersions.VER1_9_0.atOrAbove() ? Lookup.serverClass("InventoryClickType") : Object.class;
 
   private InventoryClickType readClickTypeFrom(PacketContainer packet) {
     if (MinecraftVersions.VER1_9_0.atOrAbove()) {
@@ -88,6 +88,6 @@ public final class InventoryClickNotOpenCheck extends CheckPart<InventoryClickAn
     CLONE,
     THROW,
     QUICK_CRAFT,
-    PICKUP_ALL;
+    PICKUP_ALL
   }
 }

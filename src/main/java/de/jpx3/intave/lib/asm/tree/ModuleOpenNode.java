@@ -64,7 +64,7 @@ public class ModuleOpenNode {
    * @param modules the fully qualified names (using dots) of the modules that can use deep
    *                reflection to the classes of the open package, or {@literal null}.
    */
-  public ModuleOpenNode(final String packaze, final int access, final List<String> modules) {
+  public ModuleOpenNode(String packaze, int access, List<String> modules) {
     this.packaze = packaze;
     this.access = access;
     this.modules = modules;
@@ -75,7 +75,7 @@ public class ModuleOpenNode {
    *
    * @param moduleVisitor a module visitor.
    */
-  public void accept(final ModuleVisitor moduleVisitor) {
+  public void accept(ModuleVisitor moduleVisitor) {
     moduleVisitor.visitOpen(
       packaze, access, modules == null ? null : modules.toArray(new String[0]));
   }

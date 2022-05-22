@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 public final class MetadataAccess {
-  private final static int SPRINT_BYTE = 3;
+  private static final int SPRINT_BYTE = 3;
 
   public static void setSprinting(
     Player player,
@@ -36,7 +36,7 @@ public final class MetadataAccess {
     updateMetaData(player, identity, watchableObjects);
   }
 
-  private final static int SNEAK_BYTE = 1;
+  private static final int SNEAK_BYTE = 1;
 
   public static void setSneaking(
     Player player,
@@ -75,7 +75,7 @@ public final class MetadataAccess {
     updateMetaData(player, identity, watchableObjects);
   }
 
-  private final static int INVISIBLE_BYTE = 5;
+  private static final int INVISIBLE_BYTE = 5;
 
   public static void updateVisibility(
     Player player,
@@ -108,7 +108,7 @@ public final class MetadataAccess {
     PacketSender.sendServerPacket(player, packet);
   }
 
-  private final static boolean SERIALIZE = MinecraftVersions.VER1_9_0.atOrAbove();
+  private static final boolean SERIALIZE = MinecraftVersions.VER1_9_0.atOrAbove();
 
   public static void metadataAccept(WrappedDataWatcher dataWatcher, int index, Class<?> classOfValue, Object value) {
     if (SERIALIZE) {

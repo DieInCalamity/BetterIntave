@@ -6,13 +6,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class IterativeStudy {
-  private final static Map<Integer, AtomicLong> trials = new ConcurrentHashMap<>();
+  private static final Map<Integer, AtomicLong> trials = new ConcurrentHashMap<>();
 
-  public final static Iterator USE_ITEM_ITERATOR = new Iterator();
-  public final static Iterator ATTACK_REDUCE_ITERATOR = new Iterator();
-  public final static Iterator JUMP_ITERATOR = new Iterator();
+  public static final Iterator USE_ITEM_ITERATOR = new Iterator();
+  public static final Iterator ATTACK_REDUCE_ITERATOR = new Iterator();
+  public static final Iterator JUMP_ITERATOR = new Iterator();
 
-  public final static Map<String, Iterator> ITERATORS = new HashMap<String, Iterator>() {
+  public static final Map<String, Iterator> ITERATORS = new HashMap<String, Iterator>() {
     {
       put("use-item", USE_ITEM_ITERATOR);
       put("attack-reduce", ATTACK_REDUCE_ITERATOR);

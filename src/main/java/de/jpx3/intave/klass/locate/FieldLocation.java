@@ -7,7 +7,7 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
 public final class FieldLocation extends Location {
-  private final static Reference<Field> EMPTY_FIELD_REFERENCE = new WeakReference<>(null);
+  private static final Reference<Field> EMPTY_FIELD_REFERENCE = new WeakReference<>(null);
   private final String classKey;
   private final String target;
   private Reference<Field> fieldCache = EMPTY_FIELD_REFERENCE;
@@ -49,7 +49,7 @@ public final class FieldLocation extends Location {
 
   @Override
   public String toString() {
-    return "FieldLocation{"+classKey+"/"+key()+" -> "+target+" @"+versionMatcher()+"}";
+    return "FieldLocation{" + classKey + "/" + key() + " -> " + target + " @" + versionMatcher() + "}";
   }
 
   public static FieldLocation defaultFor(String classKey, String fieldKey) {

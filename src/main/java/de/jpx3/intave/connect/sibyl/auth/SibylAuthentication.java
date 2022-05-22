@@ -40,11 +40,12 @@ import static de.jpx3.intave.IntaveControl.SIBYL_DEBUG;
 
 /**
  * The Sibyl authentication protocol (SAP)
- *
+ * <p>
  * Client sends greeting to server Server sends greeting back with SERVER_GREET_RESPONSE_KEY and the license name Client
  * makes an auth key request with the license name to intave.de Client sends auth key to server Server gets a request
  * with the secret authkey and the license name to intave.de Server accepts the client and unlocks the protocol or
  * reject the connection
+ * </p>
  */
 
 

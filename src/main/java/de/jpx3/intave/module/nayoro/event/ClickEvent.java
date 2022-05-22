@@ -7,7 +7,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 
 public final class ClickEvent extends Event {
-  private final static ClickEvent SINGLETON = new ClickEvent();
+  private static final ClickEvent SINGLETON = new ClickEvent();
 
   public ClickEvent() {
   }

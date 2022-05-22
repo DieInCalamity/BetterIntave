@@ -34,15 +34,15 @@ public final class PacketSender {
     }
   }
 
-  private final static boolean PROTOCOL_LIB_CORRECTED_THEIR_TYPO = Arrays.stream(ProtocolManager.class.getDeclaredMethods()).anyMatch(method -> method.getName().equalsIgnoreCase("receiveClientPacket"));
-  private final static Method RECEIVE_PACKET_METHOD;
+  private static final boolean PROTOCOL_LIB_CORRECTED_THEIR_TYPO = Arrays.stream(ProtocolManager.class.getDeclaredMethods()).anyMatch(method -> method.getName().equalsIgnoreCase("receiveClientPacket"));
+  private static final Method RECEIVE_PACKET_METHOD;
 
   static {
     Method method = null;
     try {
       method = PROTOCOL_LIB_CORRECTED_THEIR_TYPO ?
-       ProtocolManager.class.getMethod("receiveClientPacket", Player.class, PacketContainer.class) :
-       ProtocolManager.class.getMethod("recieveClientPacket", Player.class, PacketContainer.class);
+        ProtocolManager.class.getMethod("receiveClientPacket", Player.class, PacketContainer.class) :
+        ProtocolManager.class.getMethod("recieveClientPacket", Player.class, PacketContainer.class);
     } catch (NoSuchMethodException e) {
       e.printStackTrace();
     }

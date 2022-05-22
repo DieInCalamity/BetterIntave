@@ -5,10 +5,10 @@ import org.bukkit.ChatColor;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class RandomStringGenerator {
-  private final static char ALTERNATE_COLOR = '&';
-  private final static int MIN_NAME_LENGTH = 4;
-  private final static int MAX_NAME_LENGTH = 8;
-  private final static char[] characters = "abcdefghijklmnopqrstuvwxyz0123456789_".toCharArray();
+  private static final char ALTERNATE_COLOR = '&';
+  private static final int MIN_NAME_LENGTH = 4;
+  private static final int MAX_NAME_LENGTH = 8;
+  private static final char[] characters = "abcdefghijklmnopqrstuvwxyz0123456789_".toCharArray();
 
   public static String randomString() {
     int nameLength = ThreadLocalRandom.current().nextInt(MIN_NAME_LENGTH, MAX_NAME_LENGTH);

@@ -7,9 +7,7 @@ public enum ListenerPriority {
   NORMAL(3),
   HIGH(4),
   HIGHEST(5),
-  MONITOR(6)
-
-  ;
+  MONITOR(6);
 
   final int slot;
 

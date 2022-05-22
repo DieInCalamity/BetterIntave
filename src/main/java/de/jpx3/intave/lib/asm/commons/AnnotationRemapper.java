@@ -38,47 +38,49 @@ import de.jpx3.intave.lib.asm.Opcodes;
  */
 public class AnnotationRemapper extends AnnotationVisitor {
 
-  /** The remapper used to remap the types in the visited annotation. */
+  /**
+   * The remapper used to remap the types in the visited annotation.
+   */
   protected final Remapper remapper;
 
   /**
    * Constructs a new {@link AnnotationRemapper}. <i>Subclasses must not use this constructor</i>.
-   * Instead, they must use the {@link #AnnotationRemapper(int,AnnotationVisitor,Remapper)} version.
+   * Instead, they must use the {@link #AnnotationRemapper(int, AnnotationVisitor, Remapper)} version.
    *
    * @param annotationVisitor the annotation visitor this remapper must deleted to.
-   * @param remapper the remapper to use to remap the types in the visited annotation.
+   * @param remapper          the remapper to use to remap the types in the visited annotation.
    */
-  public AnnotationRemapper(final AnnotationVisitor annotationVisitor, final Remapper remapper) {
+  public AnnotationRemapper(AnnotationVisitor annotationVisitor, Remapper remapper) {
     this(/* latest api = */ Opcodes.ASM7, annotationVisitor, remapper);
   }
 
   /**
    * Constructs a new {@link AnnotationRemapper}.
    *
-   * @param api the ASM API version supported by this remapper. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link
-   *     Opcodes#ASM6}.
+   * @param api               the ASM API version supported by this remapper. Must be one of {@link
+   *                          Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link
+   *                          Opcodes#ASM6}.
    * @param annotationVisitor the annotation visitor this remapper must deleted to.
-   * @param remapper the remapper to use to remap the types in the visited annotation.
+   * @param remapper          the remapper to use to remap the types in the visited annotation.
    */
   protected AnnotationRemapper(
-      final int api, final AnnotationVisitor annotationVisitor, final Remapper remapper) {
+    int api, AnnotationVisitor annotationVisitor, Remapper remapper) {
     super(api, annotationVisitor);
     this.remapper = remapper;
   }
 
   @Override
-  public void visit(final String name, final Object value) {
+  public void visit(String name, Object value) {
     super.visit(name, remapper.mapValue(value));
   }
 
   @Override
-  public void visitEnum(final String name, final String descriptor, final String value) {
+  public void visitEnum(String name, String descriptor, String value) {
     super.visitEnum(name, remapper.mapDesc(descriptor), value);
   }
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String name, final String descriptor) {
+  public AnnotationVisitor visitAnnotation(String name, String descriptor) {
     AnnotationVisitor annotationVisitor = super.visitAnnotation(name, remapper.mapDesc(descriptor));
     if (annotationVisitor == null) {
       return null;
@@ -88,7 +90,7 @@ public class AnnotationRemapper extends AnnotationVisitor {
   }
 
   @Override
-  public AnnotationVisitor visitArray(final String name) {
+  public AnnotationVisitor visitArray(String name) {
     AnnotationVisitor annotationVisitor = super.visitArray(name);
     if (annotationVisitor == null) {
       return null;
@@ -104,7 +106,7 @@ public class AnnotationRemapper extends AnnotationVisitor {
    * @param annotationVisitor the AnnotationVisitor the remapper must delegate to.
    * @return the newly created remapper.
    */
-  protected AnnotationVisitor createAnnotationRemapper(final AnnotationVisitor annotationVisitor) {
+  protected AnnotationVisitor createAnnotationRemapper(AnnotationVisitor annotationVisitor) {
     return new AnnotationRemapper(api, annotationVisitor, remapper);
   }
 }

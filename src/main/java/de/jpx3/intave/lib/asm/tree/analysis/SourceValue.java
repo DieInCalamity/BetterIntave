@@ -65,7 +65,7 @@ public class SourceValue implements Value {
    * @param size the size of this value, in 32 bits words. This size is 1 for byte, boolean, char,
    *             short, int, float, object and array types, and 2 for long and double.
    */
-  public SourceValue(final int size) {
+  public SourceValue(int size) {
     this(size, new SmallSet<AbstractInsnNode>());
   }
 
@@ -76,7 +76,7 @@ public class SourceValue implements Value {
    *                 short, int, float, object and array types, and 2 for long and double.
    * @param insnNode an instruction that can produce this value.
    */
-  public SourceValue(final int size, final AbstractInsnNode insnNode) {
+  public SourceValue(int size, AbstractInsnNode insnNode) {
     this.size = size;
     this.insns = new SmallSet<>(insnNode);
   }
@@ -88,7 +88,7 @@ public class SourceValue implements Value {
    *                short, int, float, object and array types, and 2 for long and double.
    * @param insnSet the instructions that can produce this value.
    */
-  public SourceValue(final int size, final Set<AbstractInsnNode> insnSet) {
+  public SourceValue(int size, Set<AbstractInsnNode> insnSet) {
     this.size = size;
     this.insns = insnSet;
   }
@@ -105,7 +105,7 @@ public class SourceValue implements Value {
   }
 
   @Override
-  public boolean equals(final Object value) {
+  public boolean equals(Object value) {
     if (!(value instanceof SourceValue)) {
       return false;
     }

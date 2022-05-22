@@ -37,7 +37,7 @@ public final class ServerStatisticAccessor {
           doubleConsumer.accept(tickAverage);
         }
       });
-    },20,20 * 5);
+    }, 20, 20 * 5);
     ShutdownTasks.add(this::shutdownScheduler);
   }
 

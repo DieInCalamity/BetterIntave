@@ -71,7 +71,7 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
    *               handler block for the {@code min + i} key.
    */
   public TableSwitchInsnNode(
-    final int min, final int max, final LabelNode dflt, final LabelNode... labels) {
+    int min, int max, LabelNode dflt, LabelNode... labels) {
     super(Opcodes.TABLESWITCH);
     this.min = min;
     this.max = max;
@@ -85,7 +85,7 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
   }
 
   @Override
-  public void accept(final MethodVisitor methodVisitor) {
+  public void accept(MethodVisitor methodVisitor) {
     Label[] labelsArray = new Label[this.labels.size()];
     for (int i = 0, n = labelsArray.length; i < n; ++i) {
       labelsArray[i] = this.labels.get(i).getLabel();
@@ -95,7 +95,7 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
+  public AbstractInsnNode clone(Map<LabelNode, LabelNode> clonedLabels) {
     return new TableSwitchInsnNode(min, max, clone(dflt, clonedLabels), clone(labels, clonedLabels))
       .cloneAnnotations(this);
   }

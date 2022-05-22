@@ -21,15 +21,15 @@ import static org.bukkit.event.entity.EntityDamageEvent.DamageModifier.BLOCKING;
 
 @Relocate
 public final class PunishmentMetadata {
-  public final static long DAMAGE_CANCEL_LIGHT_DURATION = 40_000;
-  private final static long DAMAGE_CANCEL_MEDIUM_DURATION = 40_000;
-  private final static long DAMAGE_CANCEL_HEAVY_DURATION = 5_000;
-  private final static long BLOCKING_DAMAGE_CANCEL_DURATION = 15_000;
+  public static final long DAMAGE_CANCEL_LIGHT_DURATION = 40_000;
+  private static final long DAMAGE_CANCEL_MEDIUM_DURATION = 40_000;
+  private static final long DAMAGE_CANCEL_HEAVY_DURATION = 5_000;
+  private static final long BLOCKING_DAMAGE_CANCEL_DURATION = 15_000;
 
-  private final static long DAMAGE_CANCEL_FIRST_HIT_DURATION = 60_000;
-  private final static long ENTITY_HURT_TIME_CHANGE_DURATION = 5_000;
+  private static final long DAMAGE_CANCEL_FIRST_HIT_DURATION = 60_000;
+  private static final long ENTITY_HURT_TIME_CHANGE_DURATION = 5_000;
 
-  private final static long GARBAGE_HITS_DURATION = 120_000;
+  private static final long GARBAGE_HITS_DURATION = 120_000;
 
   private final Map<AttackNerfStrategy, AttackNerfer> attackNerfersMap = new HashMap<>();
   private final List<AttackNerfer> attackNerfers;
@@ -50,7 +50,8 @@ public final class PunishmentMetadata {
       ),
       new AttackNerfer(
         AttackNerfStrategy.CANCEL_FIRST_HIT, DAMAGE_CANCEL_FIRST_HIT_DURATION,
-        event -> {}
+        event -> {
+        }
       ),
       new AttackNerfer(
         AttackNerfStrategy.DMG_MEDIUM, DAMAGE_CANCEL_MEDIUM_DURATION,

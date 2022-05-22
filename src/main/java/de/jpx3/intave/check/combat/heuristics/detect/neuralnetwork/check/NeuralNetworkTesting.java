@@ -23,20 +23,20 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
 public class NeuralNetworkTesting extends MetaCheckPart<Heuristics, NeuralNetworkTesting.NeuralNetworkTestingMeta> {
   // for testing without needing to run intave on a server
-  
+
   private final String testUsername = "DarkAndBlue";
-  
+
   public NeuralNetworkTesting(Heuristics parentCheck) {
     super(parentCheck, NeuralNetworkTesting.NeuralNetworkTestingMeta.class);
   }
-  
+
   public static class NeuralNetworkTestingMeta extends CheckCustomMetadata {
     public int lastAttack;
   }
-  
+
   private static CopyOnWriteArrayList<Point> redPoints = new CopyOnWriteArrayList<>();
   private static CopyOnWriteArrayList<Point> greenPoints = new CopyOnWriteArrayList<>();
-  
+
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
     packetsIn = {
@@ -55,7 +55,7 @@ public class NeuralNetworkTesting extends MetaCheckPart<Heuristics, NeuralNetwor
       meta.lastAttack = 0;
     }
   }
-  
+
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
     packetsIn = {
@@ -69,7 +69,7 @@ public class NeuralNetworkTesting extends MetaCheckPart<Heuristics, NeuralNetwor
     Player player = event.getPlayer();
     User user = userOf(player);
     NeuralNetworkTestingMeta meta = metaOf(player);
-    
+
     EntityShade target = user.meta().attack().lastAttackedEntity();
     if (target == null) {
       return;
@@ -80,7 +80,7 @@ public class NeuralNetworkTesting extends MetaCheckPart<Heuristics, NeuralNetwor
     float lastPlayerYaw = ClientMathHelper.wrapAngleTo180_float(movementData.lastRotationYaw);
     float playerYaw = ClientMathHelper.wrapAngleTo180_float(movementData.rotationYaw);
     float serverYaw = resolveYawRotation(target.position, movementData.lastPositionX, movementData.lastPositionZ);
-  
+
     float expectedYawDelta = (serverYaw - lastPlayerYaw) % 360f;
     float yawDelta = (playerYaw - lastPlayerYaw) % 360f;
     //player.sendMessage(String.format("%.4f %.4f", expectedYawDelta, yawDelta));
@@ -91,13 +91,13 @@ public class NeuralNetworkTesting extends MetaCheckPart<Heuristics, NeuralNetwor
       addPoint(player, point);
     }
   }
-  
+
   private float resolveYawRotation(EntityShade.EntityPositionContext entityPositions, double posX, double posZ) {
-    final double diffX = entityPositions.posX - posX;
-    final double diffZ = entityPositions.posZ - posZ;
+    double diffX = entityPositions.posX - posX;
+    double diffZ = entityPositions.posZ - posZ;
     return (float) Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0f;
   }
-  
+
   @PacketSubscription(
     priority = ListenerPriority.HIGHEST,
     packetsIn = {
@@ -112,7 +112,7 @@ public class NeuralNetworkTesting extends MetaCheckPart<Heuristics, NeuralNetwor
     NeuralNetworkTestingMeta neuralNetworkTestingMeta = metaOf(player);
     neuralNetworkTestingMeta.lastAttack++;
   }
-  
+
   void addPoint(Player player, Point point) {
     if (player.getName().contains(testUsername)) {
       greenPoints.add(point);
@@ -120,7 +120,7 @@ public class NeuralNetworkTesting extends MetaCheckPart<Heuristics, NeuralNetwor
       redPoints.add(point);
     }
   }
-  
+
   @PacketSubscription(
     priority = ListenerPriority.NORMAL,
     packetsIn = {
@@ -132,7 +132,7 @@ public class NeuralNetworkTesting extends MetaCheckPart<Heuristics, NeuralNetwor
     Player player = event.getPlayer();
     User user = userOf(player);
     MovementMetadata movement = user.meta().movement();
-    
+
     if (playerActions != null) {
       if (playerActions == EnumWrappers.PlayerAction.START_SNEAKING && player.getName().contains(testUsername)) {
         double motion = Math.hypot(movement.motionX(), movement.motionZ());
@@ -142,11 +142,11 @@ public class NeuralNetworkTesting extends MetaCheckPart<Heuristics, NeuralNetwor
       }
     }
   }
-  
+
   static void openWindow() {
     redPoints = new CopyOnWriteArrayList<>();
     greenPoints = new CopyOnWriteArrayList<>();
-    
+
     // opening a new thread to let old JFrames open
     ExecutorService executorService = Executors.newSingleThreadExecutor(IntaveThreadFactory.ofLowestPriority());
     executorService.execute(() -> {

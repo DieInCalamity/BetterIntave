@@ -43,7 +43,9 @@ public final class ModuleResolutionAttribute extends Attribute {
    */
   public static final int RESOLUTION_DO_NOT_RESOLVE_BY_DEFAULT = 1;
 
-  /** The resolution variant of a module meaning the module is marked as deprecated. */
+  /**
+   * The resolution variant of a module meaning the module is marked as deprecated.
+   */
   public static final int RESOLUTION_WARN_DEPRECATED = 2;
 
   /**
@@ -68,10 +70,10 @@ public final class ModuleResolutionAttribute extends Attribute {
    * Constructs a new {@link ModuleResolutionAttribute}.
    *
    * @param resolution the resolution variant of the module. Must be one of {@link
-   *     #RESOLUTION_WARN_DEPRECATED}, {@link #RESOLUTION_WARN_DEPRECATED_FOR_REMOVAL}, and {@link
-   *     #RESOLUTION_WARN_INCUBATING}.
+   *                   #RESOLUTION_WARN_DEPRECATED}, {@link #RESOLUTION_WARN_DEPRECATED_FOR_REMOVAL}, and {@link
+   *                   #RESOLUTION_WARN_INCUBATING}.
    */
-  public ModuleResolutionAttribute(final int resolution) {
+  public ModuleResolutionAttribute(int resolution) {
     super("ModuleResolution");
     this.resolution = resolution;
   }
@@ -86,22 +88,22 @@ public final class ModuleResolutionAttribute extends Attribute {
 
   @Override
   protected Attribute read(
-      final ClassReader classReader,
-      final int offset,
-      final int length,
-      final char[] charBuffer,
-      final int codeOffset,
-      final Label[] labels) {
+    ClassReader classReader,
+    int offset,
+    int length,
+    char[] charBuffer,
+    int codeOffset,
+    Label[] labels) {
     return new ModuleResolutionAttribute(classReader.readUnsignedShort(offset));
   }
 
   @Override
   protected ByteVector write(
-      final ClassWriter classWriter,
-      final byte[] code,
-      final int codeLength,
-      final int maxStack,
-      final int maxLocals) {
+    ClassWriter classWriter,
+    byte[] code,
+    int codeLength,
+    int maxStack,
+    int maxLocals) {
     ByteVector byteVector = new ByteVector();
     byteVector.putShort(resolution);
     return byteVector;

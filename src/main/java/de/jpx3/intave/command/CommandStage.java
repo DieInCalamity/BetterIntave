@@ -13,7 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class CommandStage {
-  private final static Map<Class<? extends CommandStage>, CommandStage> globalInstances = new HashMap<>();
+  private static final Map<Class<? extends CommandStage>, CommandStage> globalInstances = new HashMap<>();
   private final CommandStage parent;
   private final String name;
   private final List<CommandExecutor> commandExecutors = new ArrayList<>();
@@ -40,7 +40,7 @@ public abstract class CommandStage {
     commandExecutors.sort(Comparator.comparing(commandExecutor -> commandExecutor.selectors()[0]));
   }
 
-  private final static String NO_PERMISSION_MESSAGE = ChatColor.RED + "I'm sorry, but you do not have permission to perform this command. Please contact the server administrators if you believe that this is in error.";
+  private static final String NO_PERMISSION_MESSAGE = ChatColor.RED + "I'm sorry, but you do not have permission to perform this command. Please contact the server administrators if you believe that this is in error.";
 
   {
     NativeCheck.registerNative(() -> execute(null, null));
@@ -133,7 +133,7 @@ public abstract class CommandStage {
       .collect(Collectors.toList());
   }
 
-  private final static int COMMAND_SHOW_LIMIT = 8;
+  private static final int COMMAND_SHOW_LIMIT = 8;
 
   @Native
   protected void showAllCommands(CommandSender sender) {
@@ -206,7 +206,7 @@ public abstract class CommandStage {
 
   private static String describeListSelection(List<String> elements) {
     int size = elements.size();
-    if(size == 0) {
+    if (size == 0) {
       return "";
     } else if (size == 1) {
       return elements.get(0);
@@ -249,7 +249,7 @@ public abstract class CommandStage {
         continue;
       }
       for (String selector : subCommand.selectors()) {
-        if(selector.equals(search)) {
+        if (selector.equals(search)) {
           return subCommand;
         }
       }

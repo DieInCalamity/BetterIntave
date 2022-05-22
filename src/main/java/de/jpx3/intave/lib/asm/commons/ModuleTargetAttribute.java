@@ -37,7 +37,9 @@ import de.jpx3.intave.lib.asm.*;
  */
 public final class ModuleTargetAttribute extends Attribute {
 
-  /** The name of the platform on which the module can run. */
+  /**
+   * The name of the platform on which the module can run.
+   */
   public String platform;
 
   /**
@@ -45,7 +47,7 @@ public final class ModuleTargetAttribute extends Attribute {
    *
    * @param platform the name of the platform on which the module can run.
    */
-  public ModuleTargetAttribute(final String platform) {
+  public ModuleTargetAttribute(String platform) {
     super("ModuleTarget");
     this.platform = platform;
   }
@@ -60,22 +62,22 @@ public final class ModuleTargetAttribute extends Attribute {
 
   @Override
   protected Attribute read(
-      final ClassReader classReader,
-      final int offset,
-      final int length,
-      final char[] charBuffer,
-      final int codeOffset,
-      final Label[] labels) {
+    ClassReader classReader,
+    int offset,
+    int length,
+    char[] charBuffer,
+    int codeOffset,
+    Label[] labels) {
     return new ModuleTargetAttribute(classReader.readUTF8(offset, charBuffer));
   }
 
   @Override
   protected ByteVector write(
-      final ClassWriter classWriter,
-      final byte[] code,
-      final int codeLength,
-      final int maxStack,
-      final int maxLocals) {
+    ClassWriter classWriter,
+    byte[] code,
+    int codeLength,
+    int maxStack,
+    int maxLocals) {
     ByteVector byteVector = new ByteVector();
     byteVector.putShort(platform == null ? 0 : classWriter.newUTF8(platform));
     return byteVector;

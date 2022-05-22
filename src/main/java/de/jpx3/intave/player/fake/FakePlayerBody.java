@@ -30,10 +30,10 @@ import static de.jpx3.intave.player.fake.TablistMutator.addToTabList;
 import static de.jpx3.intave.player.fake.TablistMutator.removeFromTabList;
 
 public abstract class FakePlayerBody extends FakePlayerIdentity {
-  private final static boolean POSITION_PROCESSING_1_9 = MinecraftVersions.VER1_9_0.atOrAbove();
-  private final static boolean POSITION_PROCESSING_1_14 = MinecraftVersions.VER1_14_0.atOrAbove();
+  private static final boolean POSITION_PROCESSING_1_9 = MinecraftVersions.VER1_9_0.atOrAbove();
+  private static final boolean POSITION_PROCESSING_1_14 = MinecraftVersions.VER1_14_0.atOrAbove();
 
-  private final static Map<Integer, Object> METADATA = new HashMap<Integer, Object>() {{
+  private static final Map<Integer, Object> METADATA = new HashMap<Integer, Object>() {{
     // Entity
     put(0, (byte) 0);
     put(1, returnShortOrInt(POSITION_PROCESSING_1_9));
@@ -220,7 +220,7 @@ public abstract class FakePlayerBody extends FakePlayerIdentity {
     return !equalYaw || !equalPitch;
   }
 
-  private final static double COORDINATE_COMPRESSION_FACTOR = 32.0D;
+  private static final double COORDINATE_COMPRESSION_FACTOR = 32.0D;
 
   private byte compressAxisUpdate(double coordinateTo, double coordinateFrom) {
     double fixedTo = ClientMathHelper.floor(coordinateTo * COORDINATE_COMPRESSION_FACTOR);
@@ -258,7 +258,7 @@ public abstract class FakePlayerBody extends FakePlayerIdentity {
 
   private static final float FIX_CONVERT_FACTOR = 256.0F / 360.0F;
 
-  private byte compressRotation(final float f) {
+  private byte compressRotation(float f) {
     return (byte) (f * FIX_CONVERT_FACTOR);
   }
 
@@ -266,7 +266,7 @@ public abstract class FakePlayerBody extends FakePlayerIdentity {
     return (int) Math.floor(coordinate * COORDINATE_COMPRESSION_FACTOR);
   }
 
-  private final static int SOUND_CONVERT_FACTOR = 8;
+  private static final int SOUND_CONVERT_FACTOR = 8;
 
   public void makeWalkingSound(Location location) {
     PacketContainer packet = create(PacketType.Play.Server.NAMED_SOUND_EFFECT);

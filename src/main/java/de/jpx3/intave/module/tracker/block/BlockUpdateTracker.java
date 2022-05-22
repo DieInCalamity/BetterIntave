@@ -169,8 +169,8 @@ public final class BlockUpdateTracker extends Module {
   private static double distance(Location playerLocation, BlockPosition blockPosition) {
     return Math.sqrt(
       NumberConversions.square(playerLocation.getBlockX() - blockPosition.getX()) +
-      NumberConversions.square(playerLocation.getBlockY() - blockPosition.getY()) +
-      NumberConversions.square(playerLocation.getBlockZ() - blockPosition.getZ())
+        NumberConversions.square(playerLocation.getBlockY() - blockPosition.getY()) +
+        NumberConversions.square(playerLocation.getBlockZ() - blockPosition.getZ())
     );
   }
 }

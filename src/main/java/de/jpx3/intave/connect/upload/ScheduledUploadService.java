@@ -31,7 +31,7 @@ import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 public final class ScheduledUploadService {
   private static UUID temporaryId = null;
 
-  private final static long STORAGE_BYTE_LIMIT = 1024 * 1024 * 64; // 64 MB
+  private static final long STORAGE_BYTE_LIMIT = 1024 * 1024 * 64; // 64 MB
   private final Map<String, byte[]> storage = new HashMap<>();
   private long storageSize = 0;
 
@@ -278,7 +278,8 @@ public final class ScheduledUploadService {
       if (lockFile.exists() && System.currentTimeMillis() - lockFile.lastModified() > 5 * 60 * 1000) {
         try {
           lockFile.delete();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
       }
       int attemptsRemaining = 30 * 1000 / 50;
       while (lockFile.exists() && attemptsRemaining-- > 0) {
@@ -355,7 +356,7 @@ public final class ScheduledUploadService {
 
   private File tempDirectory() {
     // get the temp directory
-    return new File(System.getProperty("java.io.tmpdir"), "intave-"+ temporaryId);
+    return new File(System.getProperty("java.io.tmpdir"), "intave-" + temporaryId);
   }
 
   private long currentDay() {

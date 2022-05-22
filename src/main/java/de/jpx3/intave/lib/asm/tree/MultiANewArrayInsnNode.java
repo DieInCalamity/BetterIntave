@@ -56,7 +56,7 @@ public class MultiANewArrayInsnNode extends AbstractInsnNode {
    * @param descriptor    an array type descriptor (see {@link Type}).
    * @param numDimensions the number of dimensions of the array to allocate.
    */
-  public MultiANewArrayInsnNode(final String descriptor, final int numDimensions) {
+  public MultiANewArrayInsnNode(String descriptor, int numDimensions) {
     super(Opcodes.MULTIANEWARRAY);
     this.desc = descriptor;
     this.dims = numDimensions;
@@ -68,13 +68,13 @@ public class MultiANewArrayInsnNode extends AbstractInsnNode {
   }
 
   @Override
-  public void accept(final MethodVisitor methodVisitor) {
+  public void accept(MethodVisitor methodVisitor) {
     methodVisitor.visitMultiANewArrayInsn(desc, dims);
     acceptAnnotations(methodVisitor);
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
+  public AbstractInsnNode clone(Map<LabelNode, LabelNode> clonedLabels) {
     return new MultiANewArrayInsnNode(desc, dims).cloneAnnotations(this);
   }
 }

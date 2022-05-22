@@ -63,7 +63,7 @@ final class Subroutine {
    * @param maxLocals the local variables that are read or written by this subroutine.
    * @param caller    a JSR instruction that jump to this subroutine.
    */
-  Subroutine(final LabelNode start, final int maxLocals, final JumpInsnNode caller) {
+  Subroutine(LabelNode start, int maxLocals, JumpInsnNode caller) {
     this.start = start;
     this.localsUsed = new boolean[maxLocals];
     this.callers = new ArrayList<>();
@@ -75,7 +75,7 @@ final class Subroutine {
    *
    * @param subroutine the subroutine to copy.
    */
-  Subroutine(final Subroutine subroutine) {
+  Subroutine(Subroutine subroutine) {
     this.start = subroutine.start;
     this.localsUsed = subroutine.localsUsed.clone();
     this.callers = new ArrayList<>(subroutine.callers);
@@ -89,7 +89,7 @@ final class Subroutine {
    * @param subroutine another subroutine. This subroutine is left unchanged by this method.
    * @return whether this subroutine has been modified by this method.
    */
-  public boolean merge(final Subroutine subroutine) {
+  public boolean merge(Subroutine subroutine) {
     boolean changed = false;
     for (int i = 0; i < localsUsed.length; ++i) {
       if (subroutine.localsUsed[i] && !localsUsed[i]) {

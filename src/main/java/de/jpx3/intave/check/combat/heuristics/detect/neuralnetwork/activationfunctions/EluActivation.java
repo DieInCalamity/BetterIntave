@@ -2,7 +2,7 @@ package de.jpx3.intave.check.combat.heuristics.detect.neuralnetwork.activationfu
 
 public class EluActivation extends ActivationFunction {
   public static double alpha = 1;
-  
+
   @Override
   public double function(double input) {
     if (input >= 0)
@@ -10,7 +10,7 @@ public class EluActivation extends ActivationFunction {
     else
       return alpha * (Math.pow(Math.E, input) - 1);
   }
-  
+
   @Override
   public double derivative(double input) {
     if (input > 0)

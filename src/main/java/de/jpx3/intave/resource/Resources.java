@@ -59,7 +59,7 @@ public final class Resources {
     return new FileSpreadLayer(file, resourcer, spreads);
   }
 
-  private final static int CLASS_VERSION = 4;
+  private static final int CLASS_VERSION = 4;
 
   @Native
   public static Resource versionDependentEncryptedFileResourceChain(String identifier) {

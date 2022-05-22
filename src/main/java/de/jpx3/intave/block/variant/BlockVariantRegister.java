@@ -19,10 +19,10 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 public final class BlockVariantRegister {
-  private final static boolean AVOID_LEGACY_IDS = MinecraftVersions.VER1_13_0.atOrAbove();
-  private final static Map<Material, Map<Object, Integer>> blockDataIndex = new EnumMap<>(Material.class);
-  private final static Map<Material, Map<Integer, Object>> blockDataRegister = new EnumMap<>(Material.class);
-  private final static Map<Material, Map<Integer, BlockVariant>> blockVariants = new EnumMap<>(Material.class);
+  private static final boolean AVOID_LEGACY_IDS = MinecraftVersions.VER1_13_0.atOrAbove();
+  private static final Map<Material, Map<Object, Integer>> blockDataIndex = new EnumMap<>(Material.class);
+  private static final Map<Material, Map<Integer, Object>> blockDataRegister = new EnumMap<>(Material.class);
+  private static final Map<Material, Map<Integer, BlockVariant>> blockVariants = new EnumMap<>(Material.class);
 
   static {
     PatchyLoadingInjector.loadUnloadedClassPatched(IntavePlugin.class.getClassLoader(), "de.jpx3.intave.block.variant.BlockVariantRegister$Indexer");
@@ -63,7 +63,7 @@ public final class BlockVariantRegister {
 
   @PatchyAutoTranslation
   private static class Indexer {
-    private final static boolean AQUATIC_INDEX = MinecraftVersions.VER1_14_0.atOrAbove();
+    private static final boolean AQUATIC_INDEX = MinecraftVersions.VER1_14_0.atOrAbove();
 
     @PatchyAutoTranslation
     public static void index(

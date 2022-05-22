@@ -52,7 +52,7 @@ public final class MiscBukkitEvents extends Module {
         long duration = System.currentTimeMillis() - version.release();
         String durationAsString = DurationTranslator.translateDuration(duration);
 
-        sendPrefixedMessage(ChatColor.RED + "This server is running an outdated version of Intave ("+durationAsString+" old)", player);
+        sendPrefixedMessage(ChatColor.RED + "This server is running an outdated version of Intave (" + durationAsString + " old)", player);
         if (!Bukkit.getPluginManager().isPluginEnabled("IntaveBootstrap")) {
           sendPrefixedMessage(ChatColor.RED + "Too lazy? Stay up-to-date automatically with IntaveBootstrap", player);
         }

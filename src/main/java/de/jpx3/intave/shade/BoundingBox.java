@@ -191,7 +191,7 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
     return false;
   }
 
-  private final static double EPSILON = 0.00001;
+  private static final double EPSILON = 0.00001;
 
   @Override
   public boolean isCubic() {
@@ -252,7 +252,7 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
     return direction == null ? null : BlockRaytrace.from(direction, distanceStorage[0]);
   }
 
-  private final static double TOLERANCE = 0.0000001;
+  private static final double TOLERANCE = 0.0000001;
 
   @SuppressWarnings({"SuspiciousNameCombination", "ConstantConditions"})
   @Nullable
@@ -569,8 +569,8 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
   }
 
   // just assuming defaults - please remove
-  private final static float PLAYER_HEIGHT = 1.8f;
-  private final static double HALF_WIDTH = 0.3;
+  private static final float PLAYER_HEIGHT = 1.8f;
+  private static final double HALF_WIDTH = 0.3;
 
   @Deprecated
   // doomed to be inaccurate, just guesses default BB size - please remove ~richy

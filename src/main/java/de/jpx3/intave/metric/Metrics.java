@@ -111,7 +111,8 @@ public final class Metrics {
           service.getField("B_STATS_VERSION"); // Our identifier :)
           found = true; // We aren't the first
           break;
-        } catch (NoSuchFieldException ignored) {}
+        } catch (NoSuchFieldException ignored) {
+        }
       }
       // Register our service
       Bukkit.getServicesManager().register(Metrics.class, this, plugin, ServicePriority.Normal);
@@ -175,7 +176,7 @@ public final class Metrics {
    * @return The gzipped String.
    * @throws IOException If the compression failed.
    */
-  private static byte[] compress(final String str) throws IOException {
+  private static byte[] compress(String str) throws IOException {
     if (str == null) {
       return null;
     }
@@ -211,7 +212,7 @@ public final class Metrics {
    * Starts the Scheduler which submits our data every 30 minutes.
    */
   private void startSubmitting() {
-    final Runnable submitTask = () -> {
+    Runnable submitTask = () -> {
       if (!plugin.isEnabled()) { // Plugin was disabled
         scheduler.shutdown();
         return;
@@ -304,7 +305,7 @@ public final class Metrics {
    * Collects the data and sends it afterwards.
    */
   private void submitData() {
-    final JsonObject data = getServerData();
+    JsonObject data = getServerData();
     JsonArray pluginData = new JsonArray();
     // Search for all other bStats Metrics classes to get their plugin data
     for (Class<?> service : Bukkit.getServicesManager().getKnownServices()) {
@@ -332,9 +333,11 @@ public final class Metrics {
                 }
               }
             }
-          } catch (NullPointerException | NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {}
+          } catch (NullPointerException | NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
+          }
         }
-      } catch (NoSuchFieldException ignored) {}
+      } catch (NoSuchFieldException ignored) {
+      }
     }
     data.add("plugins", pluginData);
     BackgroundExecutor.execute(() -> {
@@ -353,7 +356,7 @@ public final class Metrics {
   /**
    * Represents a custom chart.
    */
-  public static abstract class CustomChart {
+  public abstract static class CustomChart {
     // The id of the chart
     final String chartId;
 

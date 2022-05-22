@@ -27,7 +27,7 @@ public final class PlayerMoveEvent extends Event {
     this.pitch = pitch;
   }
 
-  private final static double EPSILON = 1.0E-09;
+  private static final double EPSILON = 1.0E-09;
 
   public PlayerMoveEvent(
     double lastX, double lastY, double lastZ,

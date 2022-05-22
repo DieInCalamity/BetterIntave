@@ -117,7 +117,7 @@ public final class RotationAccuracyYawHeuristic extends MetaCheckPart<Heuristics
         if (distanceToPerfectYaw > 4.0) {
           heuristicMeta.balanceYawAccuracyOther = 0;
         } else if (heuristicMeta.balanceYawAccuracyOther++ > 50) {
-          String description = "keeps high yaw accuracy in " + (int)heuristicMeta.balanceYawAccuracyOther + " rotations";
+          String description = "keeps high yaw accuracy in " + (int) heuristicMeta.balanceYawAccuracyOther + " rotations";
           int options = LIMIT_2 | DELAY_32s | SUGGEST_MINING;
           Anomaly anomaly = Anomaly.anomalyOf("84", Confidence.MAYBE, Anomaly.Type.KILLAURA, description, options);
           parentCheck().saveAnomaly(player, anomaly);
@@ -127,11 +127,9 @@ public final class RotationAccuracyYawHeuristic extends MetaCheckPart<Heuristics
         }
       }
     }
-    if (
-      Hypot.fast(movementData.motionX(), movementData.motionZ()) < 0.05
+    if (Hypot.fast(movementData.motionX(), movementData.motionZ()) < 0.05
       || attackData.lastReach() < 1
-      || !entity.moving(0.05)
-    ) {
+      || !entity.moving(0.05)) {
       return;
     }
     int direction = perfectYaw > rotationYaw ? 1 : 0;
@@ -156,7 +154,7 @@ public final class RotationAccuracyYawHeuristic extends MetaCheckPart<Heuristics
     heuristicMeta.prevDistanceToPerfectYaw = distanceToPerfectYaw;
   }
 
-  public final static class RotationAccuracyHeuristicMeta extends CheckCustomMetadata {
+  public static final class RotationAccuracyHeuristicMeta extends CheckCustomMetadata {
     private double balanceYawAccuracy;
     private double balanceYawAccuracyOther;
     private double rotationAccuracyVL;

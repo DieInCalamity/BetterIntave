@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 final class EntityTypeDataRegistry implements EntityTypeDataResolver {
-  private final static Map<Integer, EntityTypeData> entityTypeRegister = new HashMap<>();
+  private static final Map<Integer, EntityTypeData> entityTypeRegister = new HashMap<>();
 
   public static void setup() {
     registerTileEntity(1, "Item", HitboxSize.of(0.25F, 0.25F));

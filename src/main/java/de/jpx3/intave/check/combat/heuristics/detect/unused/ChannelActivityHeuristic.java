@@ -22,7 +22,7 @@ public final class ChannelActivityHeuristic extends MetaCheckPart<Heuristics, Ch
     super(parentCheck, ChannelActivityMeta.class);
   }
 
-  public final static double AVERAGE = 50;
+  public static final double AVERAGE = 50;
 
   @PacketSubscription(
     packetsIn = {

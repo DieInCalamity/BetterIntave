@@ -22,6 +22,7 @@ public interface BlockStateCaching {
 
   /**
    * Invalidate all blocks next to a specified position
+   *
    * @param posX the x coordinate of the selected block
    * @param posY the y coordinate of the selected block
    * @param posZ the z coordinate of the selected block
@@ -38,6 +39,7 @@ public interface BlockStateCaching {
 
   /**
    * Invalidate a specific block
+   *
    * @param posX the x coordinate of the selected block
    * @param posY the y coordinate of the selected block
    * @param posZ the z coordinate of the selected block

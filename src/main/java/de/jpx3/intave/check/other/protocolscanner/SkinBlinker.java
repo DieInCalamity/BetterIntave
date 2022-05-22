@@ -18,7 +18,7 @@ import org.bukkit.inventory.MainHand;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.SETTINGS;
 
 public final class SkinBlinker extends CheckPart<ProtocolScanner> {
-  private final static boolean HAS_OFF_HAND = MinecraftVersions.VER1_9_0.atOrAbove();
+  private static final boolean HAS_OFF_HAND = MinecraftVersions.VER1_9_0.atOrAbove();
 
   private static Class<?> enumMainHandClass;
 

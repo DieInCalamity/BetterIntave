@@ -59,7 +59,7 @@ final class AnvilBlockPatch extends BoundingBoxPatch {
     return boundingBoxBuilder.resolve();
   }
 
-  private final static boolean CORRUPTED = MinecraftVersions.VER1_14_0.atOrAbove();
+  private static final boolean CORRUPTED = MinecraftVersions.VER1_14_0.atOrAbove();
 
   private Direction.Axis axisOf(int state) {
     if (CORRUPTED) {

@@ -39,7 +39,7 @@ public final class IntaveRegisteredListener extends RegisteredListener {
   @Override
   public void callEvent(Event event) throws EventException {
     if (!eventClass.isAssignableFrom(event.getClass()) ||
-        checkIfCancelled && ((Cancellable) event).isCancelled()
+      checkIfCancelled && ((Cancellable) event).isCancelled()
     ) {
       return;
     }

@@ -61,21 +61,21 @@ public final class PacketDependenciesHeuristic extends MetaCheckPart<Heuristics,
     Map<Integer, SaveMultipleTicks> multipleDependencies = new HashMap<>();
     for (int firstTick = meta.currentTick; firstTick > meta.currentTick - TICKS_TO_SAVE; firstTick--) {
       List<PacketType> firstPacketTypes = meta.packetTypeList.get(firstTick);
-      if(firstPacketTypes != null) {
+      if (firstPacketTypes != null) {
         Map<Integer, SaveOneTick> dependencies = new HashMap<>();
         /*
         Speicher pro PacketType ein anderes packetType was davor gesendet wurde in der abhängigkeit mit dem ersten packetType ab.
          */
         for (int secondTick = firstTick - 1; secondTick > meta.currentTick - TICKS_TO_SAVE; secondTick--) {
           List<PacketType> secondPacketTypes = meta.packetTypeList.get(secondTick);
-          if(secondPacketTypes != null) {
+          if (secondPacketTypes != null) {
 
             for (PacketType firstPacketType : firstPacketTypes) {
               for (PacketType secondPacketType : secondPacketTypes) {
                 int id = packetTypesToInt(firstPacketType, secondPacketType);
-                if(!dependencies.containsKey(id)) {
+                if (!dependencies.containsKey(id)) {
                   int tickDiffrence = firstTick - secondTick;
-                  if(tickDiffrence < 20) {
+                  if (tickDiffrence < 20) {
                     SaveOneTick save = new SaveOneTick(firstPacketType, secondPacketType, tickDiffrence);
                     dependencies.put(id, save);
                   }
@@ -90,7 +90,7 @@ public final class PacketDependenciesHeuristic extends MetaCheckPart<Heuristics,
           SaveOneTick save = entry.getValue();
 
           SaveMultipleTicks saveMultipleTicks = multipleDependencies.get(id);
-          if(saveMultipleTicks != null) {
+          if (saveMultipleTicks != null) {
             saveMultipleTicks.ticks.add(save.tickDiffrence);
           } else {
             saveMultipleTicks = new SaveMultipleTicks(save.firstPacketType, save.secondPacketType);
@@ -130,7 +130,7 @@ public final class PacketDependenciesHeuristic extends MetaCheckPart<Heuristics,
 
   private void addTickToPacketTypeList(PacketDependentHeuristicMeta meta, PacketType packetType) {
     List<PacketType> packetTypeArrayList = meta.packetTypeList.get(meta.currentTick);
-    if(packetTypeArrayList == null) {
+    if (packetTypeArrayList == null) {
       packetTypeArrayList = new ArrayList<>();
       meta.packetTypeList.put(meta.currentTick, packetTypeArrayList);
     }
@@ -140,7 +140,7 @@ public final class PacketDependenciesHeuristic extends MetaCheckPart<Heuristics,
   private void prepareNextTick(PacketDependentHeuristicMeta meta) {
     meta.currentTick++;
 
-    if(meta.currentTick > TICKS_TO_SAVE) {
+    if (meta.currentTick > TICKS_TO_SAVE) {
       meta.packetTypeList.remove(meta.currentTick - TICKS_TO_SAVE);
     }
   }
@@ -161,7 +161,7 @@ public final class PacketDependenciesHeuristic extends MetaCheckPart<Heuristics,
     addTickToPacketTypeList(meta, event.getPacketType());
   }
 
-  public final static class PacketDependentHeuristicMeta extends CheckCustomMetadata {
+  public static final class PacketDependentHeuristicMeta extends CheckCustomMetadata {
     int currentTick;
     Map<Integer, List<PacketType>> packetTypeList = new HashMap<>();
   }
@@ -171,16 +171,19 @@ class SaveOneTick {
   PacketType firstPacketType;
   PacketType secondPacketType;
   int tickDiffrence;
+
   public SaveOneTick(PacketType firstPacketType, PacketType secondPacketType, int tickDiffrence) {
     this.firstPacketType = firstPacketType;
     this.secondPacketType = secondPacketType;
     this.tickDiffrence = tickDiffrence;
   }
 }
+
 class SaveMultipleTicks {
   PacketType firstPacketType;
   PacketType secondPacketType;
   List<Integer> ticks = new ArrayList<>();
+
   public SaveMultipleTicks(PacketType firstPacketType, PacketType secondPacketType) {
     this.firstPacketType = firstPacketType;
     this.secondPacketType = secondPacketType;

@@ -72,7 +72,7 @@ final class TinyProtocolReflection {
 
   // Common method
   private static <T> FieldAccessor<T> getField(Class<?> target, String name, Class<T> fieldType, int index) {
-    for (final Field field : target.getDeclaredFields()) {
+    for (Field field : target.getDeclaredFields()) {
       if ((name == null || field.getName().equals(name)) && fieldType.isAssignableFrom(field.getType()) && index-- <= 0) {
         field.setAccessible(true);
 
@@ -194,7 +194,7 @@ final class TinyProtocolReflection {
    * @throws IllegalStateException If we cannot find this method.
    */
   public static ConstructorInvoker getConstructor(Class<?> clazz, Class<?>... params) {
-    for (final Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+    for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
       if (Arrays.equals(constructor.getParameterTypes(), params)) {
         constructor.setAccessible(true);
         return arguments -> {

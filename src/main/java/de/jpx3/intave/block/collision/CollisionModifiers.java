@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class CollisionModifiers {
-  private final static Map<Material, CollisionModifier> repository = new ConcurrentHashMap<>();
+  private static final Map<Material, CollisionModifier> repository = new ConcurrentHashMap<>();
 
   public static void setup() {
     setup(ScaffoldingCollisionModifier.class);

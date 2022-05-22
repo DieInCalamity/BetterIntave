@@ -60,7 +60,7 @@ public final class MovementEmulator extends Module {
     this.teleportMethodContainer = new InternalTeleportApplier();
   }
 
-  private final static Set<TeleportCause> BANNED_TELEPORT_CAUSES = new HashSet<>(
+  private static final Set<TeleportCause> BANNED_TELEPORT_CAUSES = new HashSet<>(
     Arrays.asList(NETHER_PORTAL /* Intave */, UNKNOWN /* Vanilla "AntiCheat" */)
   );
 
@@ -456,7 +456,7 @@ public final class MovementEmulator extends Module {
           throw new IntaveBootFailureException("Setback location cannot be null");
         }
         if (Math.abs(nativeYaw) > 360f) {
-          teleportMethodContainer.teleport(player, dest,  nativeYaw % 360f, nativePitch, false);
+          teleportMethodContainer.teleport(player, dest, nativeYaw % 360f, nativePitch, false);
         } else {
           Field yawField = Lookup.serverField("Entity", "yaw");
           Field pitchField = Lookup.serverField("Entity", "pitch");

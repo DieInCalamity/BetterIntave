@@ -3,7 +3,7 @@ package de.jpx3.intave.diagnostic;
 import java.util.concurrent.TimeUnit;
 
 public final class LatencyStudy {
-//  private final static Map<Short, AtomicLong> hitDelays = new ConcurrentHashMap<>();
+  //  private final static Map<Short, AtomicLong> hitDelays = new ConcurrentHashMap<>();
   private static long hitDelayCount;
   private static long hitDelayNum;
 

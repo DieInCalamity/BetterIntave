@@ -43,6 +43,7 @@ public final class IntaveCommandExecutionEvent extends IntaveEvent implements Ca
 
   /**
    * Retrieves the player a command is executed upon
+   *
    * @return the targeted player
    */
   public Player player() {
@@ -51,6 +52,7 @@ public final class IntaveCommandExecutionEvent extends IntaveEvent implements Ca
 
   /**
    * Retrieves the executed command
+   *
    * @return the executed command
    */
   public String command() {
@@ -59,6 +61,7 @@ public final class IntaveCommandExecutionEvent extends IntaveEvent implements Ca
 
   /**
    * Overrides the executed command
+   *
    * @param command the new command to be executed
    */
   public void setCommand(String command) {
@@ -68,6 +71,7 @@ public final class IntaveCommandExecutionEvent extends IntaveEvent implements Ca
 
   /**
    * The name of check of the underlying violation
+   *
    * @return the check name
    */
   public String violationCheck() {
@@ -76,6 +80,7 @@ public final class IntaveCommandExecutionEvent extends IntaveEvent implements Ca
 
   /**
    * The message of the underlying violation
+   *
    * @return the violation message
    */
   public String violationMessage() {
@@ -84,6 +89,7 @@ public final class IntaveCommandExecutionEvent extends IntaveEvent implements Ca
 
   /**
    * The details of the underlying violation
+   *
    * @return the violation details
    */
   public String violationDetails() {
@@ -92,6 +98,7 @@ public final class IntaveCommandExecutionEvent extends IntaveEvent implements Ca
 
   /**
    * The activation violation level of the underlying violation
+   *
    * @return the violation activation level
    */
   public double activationVL() {
@@ -100,6 +107,7 @@ public final class IntaveCommandExecutionEvent extends IntaveEvent implements Ca
 
   /**
    * Returns whether the command was executed with delay
+   *
    * @return true if the command was executed delayed, false if not
    */
   public boolean delayedExecute() {
@@ -108,6 +116,7 @@ public final class IntaveCommandExecutionEvent extends IntaveEvent implements Ca
 
   /**
    * Returns whether the event should be cancelled
+   *
    * @return true when the event is cancelled, false when it is not
    */
   @Override
@@ -117,6 +126,7 @@ public final class IntaveCommandExecutionEvent extends IntaveEvent implements Ca
 
   /**
    * Cancels or uncancels the event
+   *
    * @param cancelled the new cancel variant
    */
   @Override

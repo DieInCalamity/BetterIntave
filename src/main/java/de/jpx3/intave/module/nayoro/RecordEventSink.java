@@ -46,7 +46,7 @@ class RecordEventSink extends EventSink {
   public void close() {
     try {
       if (dataOutput instanceof Closeable) {
-        ((Closeable)dataOutput).close();
+        ((Closeable) dataOutput).close();
       }
     } catch (IOException exception) {
       throw new IllegalStateException("Could not close data output", exception);

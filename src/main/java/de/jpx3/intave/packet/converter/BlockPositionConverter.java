@@ -9,7 +9,7 @@ import com.comphenix.protocol.wrappers.BlockPosition;
 import java.lang.reflect.Constructor;
 
 public final class BlockPositionConverter {
-  private final static ThreadLocal<EquivalentConverter<BlockPosition>> internalConverter =
+  private static final ThreadLocal<EquivalentConverter<BlockPosition>> internalConverter =
     ThreadLocal.withInitial(BlockPositionConverter::newConverter);
 
   private static Constructor<?> blockPositionConstructor;

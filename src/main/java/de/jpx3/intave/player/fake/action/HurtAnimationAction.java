@@ -14,7 +14,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import static de.jpx3.intave.player.fake.FakePlayer.SPAWN_HEALTH_STATE;
 
 public final class HurtAnimationAction extends Action {
-  private final static EntityVelocityCache entityVelocityCache = IntavePlugin.singletonInstance().fakePlayerEventService().entityVelocityCache();
+  private static final EntityVelocityCache entityVelocityCache = IntavePlugin.singletonInstance().fakePlayerEventService().entityVelocityCache();
   private float currentHealthState = SPAWN_HEALTH_STATE;
   private long lastNaturalHealthUpdate = System.currentTimeMillis();
 
@@ -39,7 +39,7 @@ public final class HurtAnimationAction extends Action {
     }
   }
 
-  private final static byte DAMAGE_ANIMATION = 1;
+  private static final byte DAMAGE_ANIMATION = 1;
 
   private void sendHurtAnimation() {
     PacketContainer packet = create(PacketType.Play.Server.ANIMATION);
@@ -49,7 +49,7 @@ public final class HurtAnimationAction extends Action {
     sendHealthUpdate(Math.max(1, currentHealthState - ThreadLocalRandom.current().nextInt(1, 4)));
   }
 
-  private final static double VELOCITY_CONVERT_FACTOR = 8000.0D;
+  private static final double VELOCITY_CONVERT_FACTOR = 8000.0D;
 
   private void sendEntityVelocity() {
     PacketContainer packet = create(PacketType.Play.Server.ENTITY_VELOCITY);

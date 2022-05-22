@@ -35,7 +35,7 @@ public final class EquipmentArmorAction extends Action {
     }
   }
 
-  private final static boolean HAS_OFF_HAND = MinecraftVersions.VER1_9_0.atOrAbove();
+  private static final boolean HAS_OFF_HAND = MinecraftVersions.VER1_9_0.atOrAbove();
 
   private void sendEquipment(ArmorSlot slot, Material material) {
     ItemStack itemStack = new ItemStack(material);

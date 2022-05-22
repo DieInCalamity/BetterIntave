@@ -68,7 +68,7 @@ public final class BlackListService implements BukkitEventSubscriber {
     return blackList != null && (blackList.nameBlacklisted(name) || blackList.idBlacklisted(id));
   }
 
-  private final static String KICK_MESSAGE = ChatColor.RED + "You can't join this server";
+  private static final String KICK_MESSAGE = ChatColor.RED + "You can't join this server";
 
   private void disconnect(Player player) {
     player.kickPlayer(KICK_MESSAGE);

@@ -18,8 +18,8 @@ public final class DefaultForwardingPermissionTrustFactorResolver implements Tru
   public void resolve(Player player, Consumer<TrustFactor> callback) {
     Optional<TrustFactor> resolvedTrustFactor =
       Arrays.stream(TrustFactor.values())
-      .filter(trustFactor -> hasPermissionFor(player, trustFactor))
-      .findFirst();
+        .filter(trustFactor -> hasPermissionFor(player, trustFactor))
+        .findFirst();
 
     if (resolvedTrustFactor.isPresent()) {
       callback.accept(resolvedTrustFactor.get());

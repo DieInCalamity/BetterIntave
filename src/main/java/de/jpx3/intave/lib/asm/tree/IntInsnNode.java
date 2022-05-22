@@ -50,7 +50,7 @@ public class IntInsnNode extends AbstractInsnNode {
    *                SIPUSH or NEWARRAY.
    * @param operand the operand of the instruction to be constructed.
    */
-  public IntInsnNode(final int opcode, final int operand) {
+  public IntInsnNode(int opcode, int operand) {
     super(opcode);
     this.operand = operand;
   }
@@ -60,7 +60,7 @@ public class IntInsnNode extends AbstractInsnNode {
    *
    * @param opcode the new instruction opcode. This opcode must be BIPUSH, SIPUSH or NEWARRAY.
    */
-  public void setOpcode(final int opcode) {
+  public void setOpcode(int opcode) {
     this.opcode = opcode;
   }
 
@@ -70,13 +70,13 @@ public class IntInsnNode extends AbstractInsnNode {
   }
 
   @Override
-  public void accept(final MethodVisitor methodVisitor) {
+  public void accept(MethodVisitor methodVisitor) {
     methodVisitor.visitIntInsn(opcode, operand);
     acceptAnnotations(methodVisitor);
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
+  public AbstractInsnNode clone(Map<LabelNode, LabelNode> clonedLabels) {
     return new IntInsnNode(opcode, operand).cloneAnnotations(this);
   }
 }

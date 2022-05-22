@@ -91,7 +91,7 @@ public final class ViolationProcessor extends Module {
     violationContext.setPreventionActivation(reducePrecision(preventionActivation));
   }
 
-  private final static double REDUCE_APPLIER = 1000d;
+  private static final double REDUCE_APPLIER = 1000d;
 
   private double reducePrecision(double input) {
     return Math.round(input * REDUCE_APPLIER) / REDUCE_APPLIER;
@@ -161,7 +161,7 @@ public final class ViolationProcessor extends Module {
     check.statisticApply(user, CheckStatistics::increaseViolations);
   }
 
-  private final static String LOGGER_MESSAGE_LAYOUT = "%s/%s %s %s(+%s -> %s on %s)";
+  private static final String LOGGER_MESSAGE_LAYOUT = "%s/%s %s %s(+%s -> %s on %s)";
 
   private void processViolationVerbose(ViolationContext violationContext) {
     if (violationContext.completed()) {
@@ -184,7 +184,7 @@ public final class ViolationProcessor extends Module {
       message, details, vlAdded, vlAfterViolation, checkName
     );
     if (IntaveControl.GOMME_MODE) {
-      consoleMessage += " | TPS: "+ ServerHealth.stringFormattedTick() +" Ping: "+user.latency()+"ms";
+      consoleMessage += " | TPS: " + ServerHealth.stringFormattedTick() + " Ping: " + user.latency() + "ms";
     }
     plugin.logger().violation(consoleMessage);
   }
@@ -214,7 +214,8 @@ public final class ViolationProcessor extends Module {
       String threshold = violation.threshold();
       double violationLevelAfter = violationContext.violationLevelAfter();
       violationMapOf(player).computeIfAbsent(checkName, s -> new HashMap<>()).put(threshold, violationLevelAfter);
-    } catch (Exception ignored) {}
+    } catch (Exception ignored) {
+    }
   }
 
   private void lookupThresholdCommands(ViolationContext violationContext) {
@@ -292,7 +293,7 @@ public final class ViolationProcessor extends Module {
     });
   }
 
-  private final static MessageChannel NOTIFY_MESSAGE_CHANNEL = MessageChannel.NOTIFY;
+  private static final MessageChannel NOTIFY_MESSAGE_CHANNEL = MessageChannel.NOTIFY;
 
   public void broadcastNotify(String fullMessage) {
     Collection<Player> receivers = MessageChannelSubscriptions.receiverOf(NOTIFY_MESSAGE_CHANNEL);
@@ -308,7 +309,7 @@ public final class ViolationProcessor extends Module {
     }
   }
 
-  private final static MessageChannel VERBOSE_MESSAGE_CHANNEL = MessageChannel.VERBOSE;
+  private static final MessageChannel VERBOSE_MESSAGE_CHANNEL = MessageChannel.VERBOSE;
 
   public void broadcastVerbose(Player target, ViolationContext violationContext) {
     Collection<Player> receivers = MessageChannelSubscriptions.receiverOf(VERBOSE_MESSAGE_CHANNEL);

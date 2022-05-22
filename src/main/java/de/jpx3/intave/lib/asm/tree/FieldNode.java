@@ -106,11 +106,11 @@ public class FieldNode extends FieldVisitor {
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public FieldNode(
-    final int access,
-    final String name,
-    final String descriptor,
-    final String signature,
-    final Object value) {
+    int access,
+    String name,
+    String descriptor,
+    String signature,
+    Object value) {
     this(/* latest api = */ Opcodes.ASM7, access, name, descriptor, signature, value);
     if (getClass() != FieldNode.class) {
       throw new IllegalStateException();
@@ -132,12 +132,12 @@ public class FieldNode extends FieldVisitor {
    *                   Long}, a {@link Double} or a {@link String}.
    */
   public FieldNode(
-    final int api,
-    final int access,
-    final String name,
-    final String descriptor,
-    final String signature,
-    final Object value) {
+    int api,
+    int access,
+    String name,
+    String descriptor,
+    String signature,
+    Object value) {
     super(api);
     this.access = access;
     this.name = name;
@@ -151,7 +151,7 @@ public class FieldNode extends FieldVisitor {
   // -----------------------------------------------------------------------------------------------
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+  public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
     AnnotationNode annotation = new AnnotationNode(descriptor);
     if (visible) {
       visibleAnnotations = Util.add(visibleAnnotations, annotation);
@@ -163,7 +163,7 @@ public class FieldNode extends FieldVisitor {
 
   @Override
   public AnnotationVisitor visitTypeAnnotation(
-    final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     TypeAnnotationNode typeAnnotation = new TypeAnnotationNode(typeRef, typePath, descriptor);
     if (visible) {
       visibleTypeAnnotations = Util.add(visibleTypeAnnotations, typeAnnotation);
@@ -174,7 +174,7 @@ public class FieldNode extends FieldVisitor {
   }
 
   @Override
-  public void visitAttribute(final Attribute attribute) {
+  public void visitAttribute(Attribute attribute) {
     attrs = Util.add(attrs, attribute);
   }
 
@@ -195,7 +195,7 @@ public class FieldNode extends FieldVisitor {
    * @param api an ASM API version. Must be one of {@link Opcodes#ASM4}, {@link Opcodes#ASM5},
    *            {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
-  public void check(final int api) {
+  public void check(int api) {
     if (api == Opcodes.ASM4) {
       if (visibleTypeAnnotations != null && !visibleTypeAnnotations.isEmpty()) {
         throw new UnsupportedClassVersionException();
@@ -211,7 +211,7 @@ public class FieldNode extends FieldVisitor {
    *
    * @param classVisitor a class visitor.
    */
-  public void accept(final ClassVisitor classVisitor) {
+  public void accept(ClassVisitor classVisitor) {
     FieldVisitor fieldVisitor = classVisitor.visitField(access, name, desc, signature, value);
     if (fieldVisitor == null) {
       return;

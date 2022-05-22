@@ -34,9 +34,9 @@ import java.util.Map;
 
 @HighOrderService
 public final class ProxyMessenger {
-  public final static int PROTOCOL_VERSION = 5;
-  public final static String INCOMING_CHANNEL = "intave:proxy";
-  public final static String OUTGOING_CHANNEL = "BungeeCord";
+  public static final int PROTOCOL_VERSION = 5;
+  public static final String INCOMING_CHANNEL = "intave:proxy";
+  public static final String OUTGOING_CHANNEL = "BungeeCord";
 
   private final IntavePlugin plugin;
   private final IntavePacketSerializer packetSerializer = new IntavePacketSerializer();

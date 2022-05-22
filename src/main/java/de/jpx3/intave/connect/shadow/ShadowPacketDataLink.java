@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Deprecated
 public final class ShadowPacketDataLink {
   private final User user;
-  private Map<Object, ShadowContext> movementLink = new ConcurrentHashMap<>(512);
+  private final Map<Object, ShadowContext> movementLink = new ConcurrentHashMap<>(512);
 
   public ShadowPacketDataLink(User user) {
     this.user = user;

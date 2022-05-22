@@ -4,7 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 public final class ShutdownTasks {
-  private final static Deque<Runnable> tasks = new ArrayDeque<>();
+  private static final Deque<Runnable> tasks = new ArrayDeque<>();
 
   private ShutdownTasks() {
     throw new UnsupportedOperationException("Initialization of helper class");
@@ -29,7 +29,7 @@ public final class ShutdownTasks {
       try {
         task.run();
       } catch (Exception exception) {
-        System.out.println("[Intave] Shutdown task " +task + " failed to complete");
+        System.out.println("[Intave] Shutdown task " + task + " failed to complete");
         exception.printStackTrace();
       }
     }

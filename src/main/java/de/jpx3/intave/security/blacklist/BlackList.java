@@ -62,12 +62,13 @@ public final class BlackList {
       Scanner scanner = new Scanner(inputStream);
       while (scanner.hasNextLine()) {
         String line = scanner.nextLine();
-        if(line.length() == 64) {
+        if (line.length() == 64) {
           blacklistedHash.add(line);
         }
       }
       inputStream.close();
-    } catch (Exception ignored) {}
+    } catch (Exception ignored) {
+    }
     return new BlackList(ImmutableList.copyOf(blacklistedHash));
   }
 }

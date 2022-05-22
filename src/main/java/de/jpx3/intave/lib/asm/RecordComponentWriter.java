@@ -28,7 +28,9 @@
 package de.jpx3.intave.lib.asm;
 
 final class RecordComponentWriter extends RecordComponentVisitor {
-  /** Where the constants used in this RecordComponentWriter must be stored. */
+  /**
+   * Where the constants used in this RecordComponentWriter must be stored.
+   */
   private final SymbolTable symbolTable;
 
   // Note: fields are ordered as in the component_info structure, and those related to attributes
@@ -37,13 +39,19 @@ final class RecordComponentWriter extends RecordComponentVisitor {
   // ACC_DEPRECATED which is represented by an attribute in the structure and as an access flag by
   // ASM.
 
-  /** The access_flags field can only be {@link Opcodes#ACC_DEPRECATED}. */
+  /**
+   * The access_flags field can only be {@link Opcodes#ACC_DEPRECATED}.
+   */
   private final int accessFlags;
 
-  /** The name_index field of the Record attribute. */
+  /**
+   * The name_index field of the Record attribute.
+   */
   private final int nameIndex;
 
-  /** The descriptor_index field of the the Record attribute. */
+  /**
+   * The descriptor_index field of the the Record attribute.
+   */
   private final int descriptorIndex;
 
   /**
@@ -93,16 +101,16 @@ final class RecordComponentWriter extends RecordComponentVisitor {
    *
    * @param symbolTable where the constants used in this RecordComponentWriter must be stored.
    * @param accessFlags the record component access flags, only synthetic and/or deprecated.
-   * @param name the record component name.
-   * @param descriptor the record component descriptor (see {@link Type}).
-   * @param signature the record component signature. May be {@literal null}.
+   * @param name        the record component name.
+   * @param descriptor  the record component descriptor (see {@link Type}).
+   * @param signature   the record component signature. May be {@literal null}.
    */
   RecordComponentWriter(
-      final SymbolTable symbolTable,
-      final int accessFlags,
-      final String name,
-      final String descriptor,
-      final String signature) {
+    SymbolTable symbolTable,
+    int accessFlags,
+    String name,
+    String descriptor,
+    String signature) {
     super(/* latest api = */ Opcodes.ASM7);
     this.symbolTable = symbolTable;
     this.accessFlags = accessFlags;
@@ -119,32 +127,32 @@ final class RecordComponentWriter extends RecordComponentVisitor {
 
   @Override
   public AnnotationVisitor visitAnnotationExperimental(
-      final String descriptor, final boolean visible) {
+    String descriptor, boolean visible) {
     if (visible) {
       return lastRuntimeVisibleAnnotation =
-          AnnotationWriter.create(symbolTable, descriptor, lastRuntimeVisibleAnnotation);
+        AnnotationWriter.create(symbolTable, descriptor, lastRuntimeVisibleAnnotation);
     } else {
       return lastRuntimeInvisibleAnnotation =
-          AnnotationWriter.create(symbolTable, descriptor, lastRuntimeInvisibleAnnotation);
+        AnnotationWriter.create(symbolTable, descriptor, lastRuntimeInvisibleAnnotation);
     }
   }
 
   @Override
   public AnnotationVisitor visitTypeAnnotationExperimental(
-      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    int typeRef, TypePath typePath, String descriptor, boolean visible) {
     if (visible) {
       return lastRuntimeVisibleTypeAnnotation =
-          AnnotationWriter.create(
-              symbolTable, typeRef, typePath, descriptor, lastRuntimeVisibleTypeAnnotation);
+        AnnotationWriter.create(
+          symbolTable, typeRef, typePath, descriptor, lastRuntimeVisibleTypeAnnotation);
     } else {
       return lastRuntimeInvisibleTypeAnnotation =
-          AnnotationWriter.create(
-              symbolTable, typeRef, typePath, descriptor, lastRuntimeInvisibleTypeAnnotation);
+        AnnotationWriter.create(
+          symbolTable, typeRef, typePath, descriptor, lastRuntimeInvisibleTypeAnnotation);
     }
   }
 
   @Override
-  public void visitAttributeExperimental(final Attribute attribute) {
+  public void visitAttributeExperimental(Attribute attribute) {
     // Store the attributes in the <i>reverse</i> order of their visit by this method.
     attribute.nextAttribute = firstAttribute;
     firstAttribute = attribute;
@@ -170,14 +178,14 @@ final class RecordComponentWriter extends RecordComponentVisitor {
     // name_index, descriptor_index and attributes_count fields use 6 bytes.
     int size = 6;
     size +=
-        Attribute.computeAttributesSize(
-            symbolTable, accessFlags & Opcodes.ACC_DEPRECATED, signatureIndex);
+      Attribute.computeAttributesSize(
+        symbolTable, accessFlags & Opcodes.ACC_DEPRECATED, signatureIndex);
     size +=
-        AnnotationWriter.computeAnnotationsSize(
-            lastRuntimeVisibleAnnotation,
-            lastRuntimeInvisibleAnnotation,
-            lastRuntimeVisibleTypeAnnotation,
-            lastRuntimeInvisibleTypeAnnotation);
+      AnnotationWriter.computeAnnotationsSize(
+        lastRuntimeVisibleAnnotation,
+        lastRuntimeInvisibleAnnotation,
+        lastRuntimeVisibleTypeAnnotation,
+        lastRuntimeInvisibleTypeAnnotation);
     if (firstAttribute != null) {
       size += firstAttribute.computeAttributesSize(symbolTable);
     }
@@ -190,7 +198,7 @@ final class RecordComponentWriter extends RecordComponentVisitor {
    *
    * @param output where the record_component_info structure must be put.
    */
-  void putRecordComponentInfo(final ByteVector output) {
+  void putRecordComponentInfo(ByteVector output) {
     output.putShort(nameIndex).putShort(descriptorIndex);
     // Compute and put the attributes_count field.
     // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
@@ -219,12 +227,12 @@ final class RecordComponentWriter extends RecordComponentVisitor {
     output.putShort(attributesCount);
     Attribute.putAttributes(symbolTable, accessFlags, signatureIndex, output);
     AnnotationWriter.putAnnotations(
-        symbolTable,
-        lastRuntimeVisibleAnnotation,
-        lastRuntimeInvisibleAnnotation,
-        lastRuntimeVisibleTypeAnnotation,
-        lastRuntimeInvisibleTypeAnnotation,
-        output);
+      symbolTable,
+      lastRuntimeVisibleAnnotation,
+      lastRuntimeInvisibleAnnotation,
+      lastRuntimeVisibleTypeAnnotation,
+      lastRuntimeInvisibleTypeAnnotation,
+      output);
     if (firstAttribute != null) {
       firstAttribute.putAttributes(symbolTable, output);
     }
@@ -235,7 +243,7 @@ final class RecordComponentWriter extends RecordComponentVisitor {
    *
    * @param attributePrototypes a set of attribute prototypes.
    */
-  final void collectAttributePrototypes(final Attribute.Set attributePrototypes) {
+  final void collectAttributePrototypes(Attribute.Set attributePrototypes) {
     attributePrototypes.addAttributes(firstAttribute);
   }
 }

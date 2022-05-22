@@ -14,7 +14,7 @@ import java.util.List;
 
 @PatchyAutoTranslation
 public final class v11ShapeDrill extends AbstractShapeDrill {
-  private final static v11AlwaysCollidingBoundingBox ALWAYS_COLLIDING_BOX = new v11AlwaysCollidingBoundingBox();
+  private static final v11AlwaysCollidingBoundingBox ALWAYS_COLLIDING_BOX = new v11AlwaysCollidingBoundingBox();
 
   @Override
   @PatchyAutoTranslation

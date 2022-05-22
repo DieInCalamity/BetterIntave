@@ -60,7 +60,7 @@ public class ModuleRequireNode {
    *                ACC_STATIC_PHASE}, {@code ACC_SYNTHETIC} and {@code ACC_MANDATED}.
    * @param version the module version at compile time, or {@literal null}.
    */
-  public ModuleRequireNode(final String module, final int access, final String version) {
+  public ModuleRequireNode(String module, int access, String version) {
     this.module = module;
     this.access = access;
     this.version = version;
@@ -71,7 +71,7 @@ public class ModuleRequireNode {
    *
    * @param moduleVisitor a module visitor.
    */
-  public void accept(final ModuleVisitor moduleVisitor) {
+  public void accept(ModuleVisitor moduleVisitor) {
     moduleVisitor.visitRequire(module, access, version);
   }
 }

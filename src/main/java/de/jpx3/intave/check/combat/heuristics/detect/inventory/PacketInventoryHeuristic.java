@@ -115,12 +115,12 @@ public final class PacketInventoryHeuristic extends MetaCheckPart<Heuristics, Pa
 
     if (meta.performedInventoryOpenOperation) {
       meta.inventoryTicks++;
-    } else{
+    } else {
       meta.inventoryTicks = 0;
     }
   }
 
-  public final static class PacketInventoryMeta extends CheckCustomMetadata {
+  public static final class PacketInventoryMeta extends CheckCustomMetadata {
     private int rotationsInInventory;
     private int inventoryTicks;
     private boolean performedInventoryOpenOperation;

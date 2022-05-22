@@ -37,7 +37,7 @@ public final class InventoryMetadata {
   public boolean releaseItemNextTick = false;
   public Material releaseItemType = Material.AIR;
 
-  private List<String> whitelistedItemIdRequests = new ArrayList<>();
+  private final List<String> whitelistedItemIdRequests = new ArrayList<>();
 
   public InventoryMetadata(Player player) {
     this.player = player;

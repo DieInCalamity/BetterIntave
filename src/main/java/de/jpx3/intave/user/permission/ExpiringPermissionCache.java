@@ -35,7 +35,7 @@ public final class ExpiringPermissionCache implements PermissionCache {
   public static class ExpiringPermissionCacheEntry {
     private boolean access;
     private long checked;
-    private long duration;
+    private final long duration;
 
     public ExpiringPermissionCacheEntry(long duration) {
       this.duration = duration;

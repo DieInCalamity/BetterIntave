@@ -40,7 +40,7 @@ public final class PlayerAccessor {
     return playerAccessCache.computeIfAbsent(player.getUniqueId(), uuid -> newPlayerAccess(player));
   }
 
-  private final static Map<String, Double> DEFAULT_RETURN = new HashMap<>();
+  private static final Map<String, Double> DEFAULT_RETURN = new HashMap<>();
 
   private PlayerAccess newPlayerAccess(Player player) {
     User user = UserRepository.userOf(player);
@@ -54,7 +54,7 @@ public final class PlayerAccessor {
 
       @Override
       public void setProtocolVersion(int paramInt) {
-        String message = "Changed protocol-version of " + player.getName() + " to " + paramInt+ " (unknown origin)";
+        String message = "Changed protocol-version of " + player.getName() + " to " + paramInt + " (unknown origin)";
         IntaveLogger.logger().info(message);
         user.meta().protocol().setProtocolVersion(paramInt);
         user.applyNewProtocolVersion();

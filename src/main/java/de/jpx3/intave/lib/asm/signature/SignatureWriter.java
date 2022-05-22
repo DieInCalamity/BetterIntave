@@ -33,20 +33,26 @@ import de.jpx3.intave.lib.asm.Opcodes;
  * A SignatureVisitor that generates signature literals, as defined in the Java Virtual Machine
  * Specification (JVMS).
  *
- * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.9.1">JVMS
- *     4.7.9.1</a>
  * @author Thomas Hallgren
  * @author Eric Bruneton
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.9.1">JVMS
+ * 4.7.9.1</a>
  */
 public class SignatureWriter extends SignatureVisitor {
 
-  /** The builder used to construct the visited signature. */
+  /**
+   * The builder used to construct the visited signature.
+   */
   private final StringBuilder stringBuilder = new StringBuilder();
 
-  /** Whether the visited signature contains formal type parameters. */
+  /**
+   * Whether the visited signature contains formal type parameters.
+   */
   private boolean hasFormals;
 
-  /** Whether the visited signature contains method parameter types. */
+  /**
+   * Whether the visited signature contains method parameter types.
+   */
   private boolean hasParameters;
 
   /**
@@ -68,7 +74,9 @@ public class SignatureWriter extends SignatureVisitor {
    */
   private int argumentStack;
 
-  /** Constructs a new {@link SignatureWriter}. */
+  /**
+   * Constructs a new {@link SignatureWriter}.
+   */
   public SignatureWriter() {
     super(Opcodes.ASM7);
   }
@@ -78,7 +86,7 @@ public class SignatureWriter extends SignatureVisitor {
   // -----------------------------------------------------------------------------------------------
 
   @Override
-  public void visitFormalTypeParameter(final String name) {
+  public void visitFormalTypeParameter(String name) {
     if (!hasFormals) {
       hasFormals = true;
       stringBuilder.append('<');
@@ -136,12 +144,12 @@ public class SignatureWriter extends SignatureVisitor {
   }
 
   @Override
-  public void visitBaseType(final char descriptor) {
+  public void visitBaseType(char descriptor) {
     stringBuilder.append(descriptor);
   }
 
   @Override
-  public void visitTypeVariable(final String name) {
+  public void visitTypeVariable(String name) {
     stringBuilder.append('T');
     stringBuilder.append(name);
     stringBuilder.append(';');
@@ -154,7 +162,7 @@ public class SignatureWriter extends SignatureVisitor {
   }
 
   @Override
-  public void visitClassType(final String name) {
+  public void visitClassType(String name) {
     stringBuilder.append('L');
     stringBuilder.append(name);
     // Pushes 'false' on the stack, meaning that this type does not have type arguments (as far as
@@ -163,7 +171,7 @@ public class SignatureWriter extends SignatureVisitor {
   }
 
   @Override
-  public void visitInnerClassType(final String name) {
+  public void visitInnerClassType(String name) {
     endArguments();
     stringBuilder.append('.');
     stringBuilder.append(name);
@@ -185,7 +193,7 @@ public class SignatureWriter extends SignatureVisitor {
   }
 
   @Override
-  public SignatureVisitor visitTypeArgument(final char wildcard) {
+  public SignatureVisitor visitTypeArgument(char wildcard) {
     // If the top of the stack is 'false', this means we are visiting the first type argument of the
     // currently visited type. We therefore need to append a '<', and to replace the top stack
     // element with 'true' (meaning that the current type does have type arguments).
@@ -219,7 +227,9 @@ public class SignatureWriter extends SignatureVisitor {
   // Utility methods
   // -----------------------------------------------------------------------------------------------
 
-  /** Ends the formal type parameters section of the signature. */
+  /**
+   * Ends the formal type parameters section of the signature.
+   */
   private void endFormals() {
     if (hasFormals) {
       hasFormals = false;
@@ -227,7 +237,9 @@ public class SignatureWriter extends SignatureVisitor {
     }
   }
 
-  /** Ends the type arguments of a class or inner class type. */
+  /**
+   * Ends the type arguments of a class or inner class type.
+   */
   private void endArguments() {
     // If the top of the stack is 'true', this means that some type arguments have been visited for
     // the type whose visit is now ending. We therefore need to append a '>', and to pop one element

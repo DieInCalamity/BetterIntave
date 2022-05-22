@@ -27,6 +27,7 @@ public interface IntaveAccess {
    * See {@link TrustFactorResolver} on how they work.
    * If a <code>null</code> reference is passed, Intave will
    * fall back to its default trustfactor resolver.
+   *
    * @param resolver The overriding resolver
    */
   void setTrustFactorResolver(TrustFactorResolver resolver);
@@ -35,18 +36,21 @@ public interface IntaveAccess {
    * Sets a new global default trustfactor.
    * This trustfactor is assigned to all new players,
    * unless stated differently with a {@link TrustFactorResolver}
+   *
    * @param defaultTrustFactor the new default trustfactor
    */
   void setDefaultTrustFactor(TrustFactor defaultTrustFactor);
 
   /**
    * Subscribe a {@link PrintStream} to Intave's console output.
+   *
    * @param stream the stream to receive Intave's console output.
    */
   void subscribeOutputStream(PrintStream stream);
 
   /**
    * Remove a subscription to Intave's console output.
+   *
    * @param stream the stream to unsubscribe
    */
   void unsubscribeOutputStream(PrintStream stream);
@@ -55,6 +59,7 @@ public interface IntaveAccess {
 
   /**
    * Retrieves player-specific access control in {@link PlayerAccess}.
+   *
    * @param player the specified player
    * @return an access controller to enter a player-constraint context
    * @throws UnknownPlayerException in case the player can't be found
@@ -63,12 +68,14 @@ public interface IntaveAccess {
 
   /**
    * Retrieves server access control in {@link ServerAccess}
+   *
    * @return an access controller to enter server context
    */
   ServerAccess server();
 
   /**
    * Retrieves check-specific access control in {@link CheckAccess}
+   *
    * @param checkName the name of the requested check
    * @return an access controller to enter check access context
    * @throws UnknownCheckException in case the check can't be found
@@ -77,6 +84,7 @@ public interface IntaveAccess {
 
   /**
    * Retrieves check-specific access control in {@link CheckAccess}
+   *
    * @param check the enum type of the requested check
    * @return an access controller to enter check access context
    */

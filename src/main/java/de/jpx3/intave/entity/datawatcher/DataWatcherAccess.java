@@ -6,7 +6,7 @@ import de.jpx3.intave.klass.rewrite.PatchyLoadingInjector;
 import org.bukkit.entity.Player;
 
 public final class DataWatcherAccess {
-  private final static boolean MODERN_ACCESS = MinecraftVersions.VER1_9_0.atOrAbove();
+  private static final boolean MODERN_ACCESS = MinecraftVersions.VER1_9_0.atOrAbove();
 
   public static final int WATCHER_BLOCKING_ID = MinecraftVersions.VER1_9_0.atOrAbove() ? 1 : 4;
   public static final int WATCHER_SNEAK_ID = 1;

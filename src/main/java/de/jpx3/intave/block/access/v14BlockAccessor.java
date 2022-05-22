@@ -21,7 +21,7 @@ import java.util.Objects;
 
 @PatchyAutoTranslation
 public final class v14BlockAccessor implements BlockAccessor {
-  private final static boolean INVENTORY_VIA_GETTER = MinecraftVersions.VER1_17_0.atOrAbove();
+  private static final boolean INVENTORY_VIA_GETTER = MinecraftVersions.VER1_17_0.atOrAbove();
 
   static {
     checkVersion();

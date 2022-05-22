@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class EquipmentFactory {
-  private final static Map<ArmorSlot, List<Material>> armorSets = Maps.newHashMap();
-  private final static List<Material> heldItems;
+  private static final Map<ArmorSlot, List<Material>> armorSets = Maps.newHashMap();
+  private static final List<Material> heldItems;
 
   static {
     heldItems = ImmutableList.of(

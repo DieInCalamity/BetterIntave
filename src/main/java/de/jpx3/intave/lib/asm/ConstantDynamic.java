@@ -36,13 +36,19 @@ import java.util.Arrays;
  */
 public final class ConstantDynamic {
 
-  /** The constant name (can be arbitrary). */
+  /**
+   * The constant name (can be arbitrary).
+   */
   private final String name;
 
-  /** The constant type (must be a field descriptor). */
+  /**
+   * The constant type (must be a field descriptor).
+   */
   private final String descriptor;
 
-  /** The bootstrap method to use to compute the constant value at runtime. */
+  /**
+   * The bootstrap method to use to compute the constant value at runtime.
+   */
   private final Handle bootstrapMethod;
 
   /**
@@ -54,17 +60,17 @@ public final class ConstantDynamic {
   /**
    * Constructs a new {@link ConstantDynamic}.
    *
-   * @param name the constant name (can be arbitrary).
-   * @param descriptor the constant type (must be a field descriptor).
-   * @param bootstrapMethod the bootstrap method to use to compute the constant value at runtime.
+   * @param name                     the constant name (can be arbitrary).
+   * @param descriptor               the constant type (must be a field descriptor).
+   * @param bootstrapMethod          the bootstrap method to use to compute the constant value at runtime.
    * @param bootstrapMethodArguments the arguments to pass to the bootstrap method, in order to
-   *     compute the constant value at runtime.
+   *                                 compute the constant value at runtime.
    */
   public ConstantDynamic(
-      final String name,
-      final String descriptor,
-      final Handle bootstrapMethod,
-      final Object... bootstrapMethodArguments) {
+    String name,
+    String descriptor,
+    Handle bootstrapMethod,
+    Object... bootstrapMethodArguments) {
     this.name = name;
     this.descriptor = descriptor;
     this.bootstrapMethod = bootstrapMethod;
@@ -103,7 +109,7 @@ public final class ConstantDynamic {
    * of this constant.
    *
    * @return the number of arguments passed to the bootstrap method, in order to compute the value
-   *     of this constant.
+   * of this constant.
    */
   public int getBootstrapMethodArgumentCount() {
     return bootstrapMethodArguments.length;
@@ -114,10 +120,10 @@ public final class ConstantDynamic {
    * constant.
    *
    * @param index an argument index, between 0 and {@link #getBootstrapMethodArgumentCount()}
-   *     (exclusive).
+   *              (exclusive).
    * @return the argument passed to the bootstrap method, with the given index.
    */
-  public Object getBootstrapMethodArgument(final int index) {
+  public Object getBootstrapMethodArgument(int index) {
     return bootstrapMethodArguments[index];
   }
 
@@ -126,7 +132,7 @@ public final class ConstantDynamic {
    * constant. WARNING: this array must not be modified, and must not be returned to the user.
    *
    * @return the arguments to pass to the bootstrap method, in order to compute the value of this
-   *     constant.
+   * constant.
    */
   Object[] getBootstrapMethodArgumentsUnsafe() {
     return bootstrapMethodArguments;
@@ -143,7 +149,7 @@ public final class ConstantDynamic {
   }
 
   @Override
-  public boolean equals(final Object object) {
+  public boolean equals(Object object) {
     if (object == this) {
       return true;
     }
@@ -152,27 +158,27 @@ public final class ConstantDynamic {
     }
     ConstantDynamic constantDynamic = (ConstantDynamic) object;
     return name.equals(constantDynamic.name)
-        && descriptor.equals(constantDynamic.descriptor)
-        && bootstrapMethod.equals(constantDynamic.bootstrapMethod)
-        && Arrays.equals(bootstrapMethodArguments, constantDynamic.bootstrapMethodArguments);
+      && descriptor.equals(constantDynamic.descriptor)
+      && bootstrapMethod.equals(constantDynamic.bootstrapMethod)
+      && Arrays.equals(bootstrapMethodArguments, constantDynamic.bootstrapMethodArguments);
   }
 
   @Override
   public int hashCode() {
     return name.hashCode()
-        ^ Integer.rotateLeft(descriptor.hashCode(), 8)
-        ^ Integer.rotateLeft(bootstrapMethod.hashCode(), 16)
-        ^ Integer.rotateLeft(Arrays.hashCode(bootstrapMethodArguments), 24);
+      ^ Integer.rotateLeft(descriptor.hashCode(), 8)
+      ^ Integer.rotateLeft(bootstrapMethod.hashCode(), 16)
+      ^ Integer.rotateLeft(Arrays.hashCode(bootstrapMethodArguments), 24);
   }
 
   @Override
   public String toString() {
     return name
-        + " : "
-        + descriptor
-        + ' '
-        + bootstrapMethod
-        + ' '
-        + Arrays.toString(bootstrapMethodArguments);
+      + " : "
+      + descriptor
+      + ' '
+      + bootstrapMethod
+      + ' '
+      + Arrays.toString(bootstrapMethodArguments);
   }
 }

@@ -64,9 +64,9 @@ public final class v14Raytracer implements Raytracer {
         int var28 = signum(var22);
         int var29 = signum(var24);
         int var30 = signum(var26);
-        double var31 = var28 == 0 ? 1.7976931348623157E308D : (double)var28 / var22;
-        double var33 = var29 == 0 ? 1.7976931348623157E308D : (double)var29 / var24;
-        double var35 = var30 == 0 ? 1.7976931348623157E308D : (double)var30 / var26;
+        double var31 = var28 == 0 ? 1.7976931348623157E308D : (double) var28 / var22;
+        double var33 = var29 == 0 ? 1.7976931348623157E308D : (double) var29 / var24;
+        double var35 = var30 == 0 ? 1.7976931348623157E308D : (double) var30 / var26;
         double var37 = var31 * (var28 > 0 ? 1.0D - subtractLongFloor(var11) : subtractLongFloor(var11));
         double var39 = var33 * (var29 > 0 ? 1.0D - subtractLongFloor(var13) : subtractLongFloor(var13));
         double var41 = var35 * (var30 > 0 ? 1.0D - subtractLongFloor(var15) : subtractLongFloor(var15));
@@ -92,7 +92,7 @@ public final class v14Raytracer implements Raytracer {
             var41 += var35;
           }
           var43 = dualRaytrace(user, var0, var20.d(var17, var18, var19));
-        } while(var43 == null);
+        } while (var43 == null);
         return var43;
       }
     }
@@ -103,13 +103,13 @@ public final class v14Raytracer implements Raytracer {
   }
 
   private long longFloor(double var0) {
-    long var2 = (long)var0;
-    return var0 < (double)var2 ? var2 - 1L : var2;
+    long var2 = (long) var0;
+    return var0 < (double) var2 ? var2 - 1L : var2;
   }
 
   private int intFloor(double var0) {
-    int var2 = (int)var0;
-    return var0 < (double)var2 ? var2 - 1 : var2;
+    int var2 = (int) var0;
+    return var0 < (double) var2 ? var2 - 1 : var2;
   }
 
   private int signum(double var0) {

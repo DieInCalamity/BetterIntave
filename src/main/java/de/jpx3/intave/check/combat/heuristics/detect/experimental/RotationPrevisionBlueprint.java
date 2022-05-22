@@ -140,8 +140,8 @@ public abstract class RotationPrevisionBlueprint<M extends RotationPrevisionBlue
   }
 
   private float expectedYaw(EntityShade.EntityPositionContext entityPositions, double posX, double posZ) {
-    final double diffX = entityPositions.posX - posX;
-    final double diffZ = entityPositions.posZ - posZ;
+    double diffX = entityPositions.posX - posX;
+    double diffZ = entityPositions.posZ - posZ;
     return (float) Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0f;
   }
 

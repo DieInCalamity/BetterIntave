@@ -30,7 +30,7 @@ import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 
 @Deprecated
 public final class EncryptedLegacyResource implements LegacyResource {
-  private final static int CLASS_VERSION = 4;
+  private static final int CLASS_VERSION = 4;
   private final String name;
   private final boolean versionDependent;
 
@@ -214,7 +214,7 @@ public final class EncryptedLegacyResource implements LegacyResource {
 
   @Native
   private String resourceId() {
-    return new UUID(~name.hashCode() | (CLASS_VERSION | CLASS_VERSION << 2), versionDependent ? ~intaveVersion().hashCode() : -391180952).toString() + "e";
+    return new UUID(~name.hashCode() | (CLASS_VERSION | CLASS_VERSION << 2), versionDependent ? ~intaveVersion().hashCode() : -391180952) + "e";
   }
 
   private String intaveVersion() {

@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public final class PacketSynchronizations {
-  private final static Map<PacketType, AtomicLong> resynchronized = new ConcurrentHashMap<>();
+  private static final Map<PacketType, AtomicLong> resynchronized = new ConcurrentHashMap<>();
 
   public static void enterResynchronization(PacketType type) {
     resynchronized.computeIfAbsent(type, ignored -> new AtomicLong()).incrementAndGet();

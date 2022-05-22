@@ -9,6 +9,7 @@ public interface DetectionSubscription {
   void onAnomaly(String key, Confidence confidence, String description);
 
   DetectionSubscription EMPTY = new EmptyDetectionSubscription();
+
   static DetectionSubscription empty() {
     return EMPTY;
   }

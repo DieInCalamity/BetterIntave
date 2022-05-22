@@ -100,10 +100,10 @@ final class DoorBlockPatch extends BoundingBoxPatch {
     return builder.applyAndResolve();
   }
 
-  private final static String NAME_PATTERN = "DOOR";
+  private static final String NAME_PATTERN = "DOOR";
 
   @Override
   public boolean appliesTo(Material material) {
-    return material.isBlock() &&  material.name().contains(NAME_PATTERN);
+    return material.isBlock() && material.name().contains(NAME_PATTERN);
   }
 }

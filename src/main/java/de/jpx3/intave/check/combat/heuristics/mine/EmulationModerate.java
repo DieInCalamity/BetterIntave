@@ -10,7 +10,7 @@ import de.jpx3.intave.user.meta.MetadataBundle;
 import static de.jpx3.intave.check.combat.heuristics.mine.EmulationLight.locationBehind;
 import static de.jpx3.intave.player.fake.FakePlayerAttribute.*;
 
-public final class EmulationModerate extends MiningStrategyExecutor{
+public final class EmulationModerate extends MiningStrategyExecutor {
   public EmulationModerate(User user) {
     super(user);
   }

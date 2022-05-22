@@ -12,18 +12,24 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 public class MovingObjectPosition {
-  private final static boolean NEW_RESOLVER = MinecraftVersions.VER1_14_0.atOrAbove();
+  private static final boolean NEW_RESOLVER = MinecraftVersions.VER1_14_0.atOrAbove();
 
   private BlockPosition blockPos;
 
-  /** What type of ray trace hit was this? 0 = block, 1 = entity */
+  /**
+   * What type of ray trace hit was this? 0 = block, 1 = entity
+   */
   public MovingObjectPosition.MovingObjectType typeOfHit;
   public Direction sideHit;
 
-  /** The vector position of the hit */
+  /**
+   * The vector position of the hit
+   */
   public NativeVector hitVec;
 
-  /** The hit entity */
+  /**
+   * The hit entity
+   */
   public Entity entityHit;
 
   public MovingObjectPosition(NativeVector hitVecIn, Direction facing, BlockPosition blockPosIn) {

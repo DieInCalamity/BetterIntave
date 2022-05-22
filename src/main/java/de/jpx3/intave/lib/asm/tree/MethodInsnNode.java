@@ -75,7 +75,7 @@ public class MethodInsnNode extends AbstractInsnNode {
    * @param descriptor the method's descriptor (see {@link Type}).
    */
   public MethodInsnNode(
-    final int opcode, final String owner, final String name, final String descriptor) {
+    int opcode, String owner, String name, String descriptor) {
     this(opcode, owner, name, descriptor, opcode == Opcodes.INVOKEINTERFACE);
   }
 
@@ -91,11 +91,11 @@ public class MethodInsnNode extends AbstractInsnNode {
    * @param isInterface if the method's owner class is an interface.
    */
   public MethodInsnNode(
-    final int opcode,
-    final String owner,
-    final String name,
-    final String descriptor,
-    final boolean isInterface) {
+    int opcode,
+    String owner,
+    String name,
+    String descriptor,
+    boolean isInterface) {
     super(opcode);
     this.owner = owner;
     this.name = name;
@@ -109,7 +109,7 @@ public class MethodInsnNode extends AbstractInsnNode {
    * @param opcode the new instruction opcode. This opcode must be INVOKEVIRTUAL, INVOKESPECIAL,
    *               INVOKESTATIC or INVOKEINTERFACE.
    */
-  public void setOpcode(final int opcode) {
+  public void setOpcode(int opcode) {
     this.opcode = opcode;
   }
 
@@ -119,13 +119,13 @@ public class MethodInsnNode extends AbstractInsnNode {
   }
 
   @Override
-  public void accept(final MethodVisitor methodVisitor) {
+  public void accept(MethodVisitor methodVisitor) {
     methodVisitor.visitMethodInsn(opcode, owner, name, desc, itf);
     acceptAnnotations(methodVisitor);
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
+  public AbstractInsnNode clone(Map<LabelNode, LabelNode> clonedLabels) {
     return new MethodInsnNode(opcode, owner, name, desc, itf).cloneAnnotations(this);
   }
 

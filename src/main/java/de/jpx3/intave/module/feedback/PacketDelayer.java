@@ -99,12 +99,10 @@ public final class PacketDelayer extends Module {
     boolean riding = movement.isInVehicle();
     boolean positionTimeout = !riding && lastMovementPacket > connection.transactionPingAverage() + LatencyStudy.transactionPingAverage() / 2 + lagTolerance + positionTimeoutTolerance;
 
-    boolean idAddressed =
-      packetType == PacketType.Play.Server.ANIMATION ||
-        packetType == PacketType.Play.Server.ENTITY_STATUS ||
-        packetType == PacketType.Play.Server.ENTITY_METADATA ||
-        packetType == PacketType.Play.Server.ENTITY_VELOCITY
-      ;
+    boolean idAddressed = packetType == PacketType.Play.Server.ANIMATION ||
+      packetType == PacketType.Play.Server.ENTITY_STATUS ||
+      packetType == PacketType.Play.Server.ENTITY_METADATA ||
+      packetType == PacketType.Play.Server.ENTITY_VELOCITY;
 
     if (idAddressed) {
       Integer entityId = packetContainer.getIntegers().read(0);
@@ -169,7 +167,7 @@ public final class PacketDelayer extends Module {
     }
     if (delayPackets && reverseLag) {
       long requestedDelay = Math.max(delayRequested ? 100 : 0, (long) (Math.max(playerLatencyGain, 100) / 2d));
-      long delay = Math.min(connection.delayedPackets++ / 2 , requestedDelay);
+      long delay = Math.min(connection.delayedPackets++ / 2, requestedDelay);
       long scheduledTime = System.nanoTime() + delay * 1_000_000;
       scheduledTime = Math.max(connection.lastDelaySlot + 1, scheduledTime);
       connection.lastDelaySlot = scheduledTime;

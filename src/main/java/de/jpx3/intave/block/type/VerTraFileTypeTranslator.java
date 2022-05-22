@@ -29,12 +29,12 @@ final class VerTraFileTypeTranslator implements FileTypeTranslator {
           String fromTypeName = split[0], toTypeName = split[1];
           Material fromType = searchMaterial(fromTypeName);
           Material toType = searchMaterial(toTypeName);
-          if(fromType != null && toType != null) {
+          if (fromType != null && toType != null) {
             translations.add(new TypeTranslation(fromVersion, toVersion, fromType, toType));
           }
         } else {
           // selector
-          if(!SELECTOR_REGEX_PATTERN.matcher(line).matches()) {
+          if (!SELECTOR_REGEX_PATTERN.matcher(line).matches()) {
             throw new IntaveResourceCompilationException("Invalid selector pattern");
           }
           int fromVersionStartIndex = afterIndex(line, "from ");

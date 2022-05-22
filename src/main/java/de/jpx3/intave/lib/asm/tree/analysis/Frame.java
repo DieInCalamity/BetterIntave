@@ -70,7 +70,7 @@ public class Frame<V extends Value> {
    * @param numStack  the maximum stack size of the frame.
    */
   @SuppressWarnings("unchecked")
-  public Frame(final int numLocals, final int numStack) {
+  public Frame(int numLocals, int numStack) {
     this.values = (V[]) new Value[numLocals + numStack];
     this.numLocals = numLocals;
   }
@@ -80,7 +80,7 @@ public class Frame<V extends Value> {
    *
    * @param frame a frame.
    */
-  public Frame(final Frame<? extends V> frame) {
+  public Frame(Frame<? extends V> frame) {
     this(frame.numLocals, frame.values.length - frame.numLocals);
     init(frame); // NOPMD(ConstructorCallsOverridableMethod): can't fix for backward compatibility.
   }
@@ -91,7 +91,7 @@ public class Frame<V extends Value> {
    * @param frame a frame.
    * @return this frame.
    */
-  public Frame<V> init(final Frame<? extends V> frame) {
+  public Frame<V> init(Frame<? extends V> frame) {
     returnValue = frame.returnValue;
     System.arraycopy(frame.values, 0, values, 0, values.length);
     numStack = frame.numStack;
@@ -116,7 +116,7 @@ public class Frame<V extends Value> {
    *               this frame corresponds to the successor of the jump instruction (i.e. the next instruction
    *               in the instructions sequence).
    */
-  public void initJumpTarget(final int opcode, final LabelNode target) {
+  public void initJumpTarget(int opcode, LabelNode target) {
     // Does nothing by default.
   }
 
@@ -126,7 +126,7 @@ public class Frame<V extends Value> {
    * @param v the expected return type of the analyzed method, or {@literal null} if the method
    *          returns void.
    */
-  public void setReturn(final V v) {
+  public void setReturn(V v) {
     returnValue = v;
   }
 
@@ -155,7 +155,7 @@ public class Frame<V extends Value> {
    * @return the value of the given local variable.
    * @throws IndexOutOfBoundsException if the variable does not exist.
    */
-  public V getLocal(final int index) {
+  public V getLocal(int index) {
     if (index >= numLocals) {
       throw new IndexOutOfBoundsException("Trying to get an inexistant local variable " + index);
     }
@@ -169,7 +169,7 @@ public class Frame<V extends Value> {
    * @param value the new value of this local variable.
    * @throws IndexOutOfBoundsException if the variable does not exist.
    */
-  public void setLocal(final int index, final V value) {
+  public void setLocal(int index, V value) {
     if (index >= numLocals) {
       throw new IndexOutOfBoundsException("Trying to set an inexistant local variable " + index);
     }
@@ -193,7 +193,7 @@ public class Frame<V extends Value> {
    * @return the value of the given operand stack slot.
    * @throws IndexOutOfBoundsException if the operand stack slot does not exist.
    */
-  public V getStack(final int index) {
+  public V getStack(int index) {
     return values[numLocals + index];
   }
 
@@ -204,7 +204,7 @@ public class Frame<V extends Value> {
    * @param value the new value of the stack slot.
    * @throws IndexOutOfBoundsException if the stack slot does not exist.
    */
-  public void setStack(final int index, final V value) {
+  public void setStack(int index, V value) {
     values[numLocals + index] = value;
   }
 
@@ -234,7 +234,7 @@ public class Frame<V extends Value> {
    * @param value the value that must be pushed into the stack.
    * @throws IndexOutOfBoundsException if the operand stack is full.
    */
-  public void push(final V value) {
+  public void push(V value) {
     if (numLocals + numStack >= values.length) {
       throw new IndexOutOfBoundsException("Insufficient maximum stack size.");
     }
@@ -249,7 +249,7 @@ public class Frame<V extends Value> {
    * @throws AnalyzerException if the instruction cannot be executed on this execution frame (e.g. a
    *                           POP on an empty operand stack).
    */
-  public void execute(final AbstractInsnNode insn, final Interpreter<V> interpreter)
+  public void execute(AbstractInsnNode insn, Interpreter<V> interpreter)
     throws AnalyzerException {
     V value1;
     V value2;
@@ -583,7 +583,7 @@ public class Frame<V extends Value> {
   }
 
   private boolean executeDupX2(
-    final AbstractInsnNode insn, final V value1, final Interpreter<V> interpreter)
+    AbstractInsnNode insn, V value1, Interpreter<V> interpreter)
     throws AnalyzerException {
     V value2 = pop();
     if (value2.getSize() == 1) {
@@ -605,7 +605,7 @@ public class Frame<V extends Value> {
   }
 
   private void executeInvokeInsn(
-    final AbstractInsnNode insn, final String methodDescriptor, final Interpreter<V> interpreter)
+    AbstractInsnNode insn, String methodDescriptor, Interpreter<V> interpreter)
     throws AnalyzerException {
     List<V> valueList = new ArrayList<>();
     for (int i = Type.getArgumentTypes(methodDescriptor).length; i > 0; --i) {
@@ -630,7 +630,7 @@ public class Frame<V extends Value> {
    * {@literal false} otherwise.
    * @throws AnalyzerException if the frames have incompatible sizes.
    */
-  public boolean merge(final Frame<? extends V> frame, final Interpreter<V> interpreter)
+  public boolean merge(Frame<? extends V> frame, Interpreter<V> interpreter)
     throws AnalyzerException {
     if (numStack != frame.numStack) {
       throw new AnalyzerException(null, "Incompatible stack heights");
@@ -657,7 +657,7 @@ public class Frame<V extends Value> {
    * @return {@literal true} if this frame has been changed as a result of the merge operation, or
    * {@literal false} otherwise.
    */
-  public boolean merge(final Frame<? extends V> frame, final boolean[] localsUsed) {
+  public boolean merge(Frame<? extends V> frame, boolean[] localsUsed) {
     boolean changed = false;
     for (int i = 0; i < numLocals; ++i) {
       if (!localsUsed[i] && !values[i].equals(frame.values[i])) {

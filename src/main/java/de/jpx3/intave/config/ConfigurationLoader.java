@@ -20,6 +20,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.util.*;
@@ -27,8 +28,8 @@ import java.util.*;
 import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 
 public final class ConfigurationLoader {
-  private final static String CONF_CACHE_FILE_SUFFIX = "x";
-  private final static String SECRET_KEY = "AES/GCM/NoPadding";
+  private static final String CONF_CACHE_FILE_SUFFIX = "x";
+  private static final String SECRET_KEY = "AES/GCM/NoPadding";
 
   private final String configurationKey;
   private YamlConfiguration configuration;
@@ -129,7 +130,6 @@ public final class ConfigurationLoader {
     this.configuration = configuration;
   }
 
-//  @Native
   public void loadConfiguration() {
     YamlConfiguration configuration;
     if (!configurationCacheExists()) {
@@ -159,15 +159,10 @@ public final class ConfigurationLoader {
     this.configuration = configuration;
   }
 
-//  @Native
   private YamlConfiguration tryDownloadConfiguration() {
     try {
       InputStream inputStream;
-
-//      boolean enterprise = (UserMetaClientData.VERSION_DETAILS & 0x200) != 0;
-//      boolean partner = (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
-
-      boolean useExternalConfigurationFile = (configurationKey.equalsIgnoreCase("file")/* && enterprise*/) || IntaveControl.USE_EXTERNAL_CONFIGURATION_FILE;
+      boolean useExternalConfigurationFile = ("file".equalsIgnoreCase(configurationKey)/* && enterprise*/) || IntaveControl.USE_EXTERNAL_CONFIGURATION_FILE;
       if (useExternalConfigurationFile) {
         IntavePlugin plugin = IntavePlugin.singletonInstance();
         File settingFile = new File(plugin.dataFolder(), "settings.yml");
@@ -187,7 +182,7 @@ public final class ConfigurationLoader {
       } else {
         URL url = new URL("https://service.intave.de/settings/download");
         URLConnection urlConnection = url.openConnection();
-        urlConnection.addRequestProperty("User-Agent", "Intave/"+IntavePlugin.version());
+        urlConnection.addRequestProperty("User-Agent", "Intave/" + IntavePlugin.version());
         urlConnection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
         urlConnection.setUseCaches(false);
         urlConnection.addRequestProperty("Pragma", "no-cache");
@@ -222,16 +217,17 @@ public final class ConfigurationLoader {
         }
         try {
           if (!outFile.exists() || replace) {
-            OutputStream out = new FileOutputStream(outFile);
+            OutputStream out = Files.newOutputStream(outFile.toPath());
             byte[] buf = new byte[1024];
             int len;
-            while((len = in.read(buf)) != -1) {
+            while ((len = in.read(buf)) != -1) {
               out.write(buf, 0, len);
             }
             out.close();
             in.close();
           }
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
       }
     } else {
       throw new IllegalArgumentException("ResourcePath cannot be null or empty");
@@ -339,7 +335,7 @@ public final class ConfigurationLoader {
   }
 
   public File configurationCache() {
-    String fileName = new UUID(((long)configurationKey.length() << 8) | (configurationKey.hashCode() >>> 1),  ~configurationKey.hashCode()).toString();
+    String fileName = new UUID(((long) configurationKey.length() << 8) | (configurationKey.hashCode() >>> 1), ~configurationKey.hashCode()).toString();
     fileName = fileName/*.substring(0, fileName.length() - 1)*/ + CONF_CACHE_FILE_SUFFIX;
     return new File(intaveTempDirectory(), fileName);
   }

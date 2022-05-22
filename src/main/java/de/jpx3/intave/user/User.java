@@ -42,6 +42,7 @@ import java.util.function.Predicate;
 public interface User {
   /**
    * Retrieve the player's "handle", the NMS-container-object of a player entity
+   *
    * @return the players "handle"
    * @throws UnsupportedFallbackOperationException when no player is present
    */
@@ -49,6 +50,7 @@ public interface User {
 
   /**
    * Retrieve the player's connection object
+   *
    * @return the player's connection
    * @throws UnsupportedFallbackOperationException when no player is present
    */
@@ -56,6 +58,7 @@ public interface User {
 
   /**
    * Retrieve the {@link User}-associated player
+   *
    * @return the player
    * @throws UnsupportedFallbackOperationException when no player is present
    */
@@ -63,6 +66,7 @@ public interface User {
 
   /**
    * Retrieve a user's {@link MetadataBundle}
+   *
    * @return a users {@link MetadataBundle}
    */
   MetadataBundle meta();
@@ -79,6 +83,7 @@ public interface User {
 
   /**
    * Retrieve whether the associated player joined in the last 5 seconds
+   *
    * @return whether the player joined recently
    */
   boolean justJoined();
@@ -86,18 +91,21 @@ public interface User {
   /**
    * Retrieve the join-timestamp of the associated player
    * When no player is present, return System.currentTimeMillies()
-   * @return  the join-timestamp of the associated player
+   *
+   * @return the join-timestamp of the associated player
    */
   long joined();
 
   /**
    * Retrieve if this {@link User} is {@link Player}-associated or a fallback
+   *
    * @return if a player is present
    */
   boolean hasPlayer();
 
   /**
    * Generate-if-absent and retrieve custom check metadata
+   *
    * @param classTarget the metadata class
    * @return custom check metadata
    * @see MetaCheck
@@ -107,30 +115,35 @@ public interface User {
 
   /**
    * Retrieve custom client settings
+   *
    * @return custom client settings
    */
   CustomClientSupportConfig customClientSupport();
 
   /**
    * Set custom client settings settings
+   *
    * @param customClientSupportConfig the new client settings
    */
   void setCustomClientSupport(CustomClientSupportConfig customClientSupportConfig);
 
   /**
    * Retrieve the player's permission cache
+   *
    * @return the player's permission cache
    */
   PermissionCache permissionCache();
 
   /**
    * Returns whether the next inbound packet will be ignored
+   *
    * @return true if the next inbound packet is to be ignored, false if not
    */
   boolean shouldIgnoreNextInboundPacket();
 
   /**
    * Returns whether the next outbound packet should be ignored
+   *
    * @return true if the next outbound packet is to be ignored, false if not
    */
   boolean shouldIgnoreNextOutboundPacket();
@@ -177,6 +190,7 @@ public interface User {
 
   /**
    * Retrieve the player's block state cache
+   *
    * @return the player's block state cache
    * @see BlockStateLookup
    * @see BlockStateCaching
@@ -186,12 +200,14 @@ public interface User {
 
   /**
    * Retrieve the {@link User}-associated {@link ColliderProcessor}
+   *
    * @return the complex collider processor
    */
   ColliderProcessor collider();
 
   /**
    * Retrieve the {@link User}-associated {@link SimpleColliderProcessor}
+   *
    * @return the simple collider processor
    */
   SimpleColliderProcessor simplifiedCollider();
@@ -199,6 +215,7 @@ public interface User {
   /**
    * Retrieve the placeholder associated with the present {@link Player}
    * If no player is present, a fallback placeholder is available.
+   *
    * @return the player-associated placeholder
    * @see Placeholders
    */
@@ -206,6 +223,7 @@ public interface User {
 
   /**
    * Retrieve the placeholder associated with the present {@link User}
+   *
    * @return the user-associated placeholder
    * @see Placeholders
    */
@@ -213,6 +231,7 @@ public interface User {
 
   /**
    * Retrieve the users {@link TrustFactor}
+   *
    * @return the users trustfactor
    * @see TrustFactor
    * @see TrustFactorResolver
@@ -221,6 +240,7 @@ public interface User {
 
   /**
    * Override the users {@link TrustFactor}
+   *
    * @param trustFactor the new trustfactor
    * @see TrustFactor
    * @see TrustFactorResolver
@@ -229,6 +249,7 @@ public interface User {
 
   /**
    * Retrieve a trustfactor setting of a specific key
+   *
    * @param key a unique identifier
    * @return the settings value, as {@link Integer}
    * @see TrustFactorConfiguration#resolveSetting(String, TrustFactor)
@@ -237,6 +258,7 @@ public interface User {
 
   /**
    * Retrieves whether a player is subscribed to a {@link MessageChannel}
+   *
    * @param channel the message channel to check
    * @return true when the player is subscribed, false when not
    */
@@ -244,6 +266,7 @@ public interface User {
 
   /**
    * Toggles whether a player is subscribed to a {@link MessageChannel}
+   *
    * @param channel the message channel to toggle
    */
   void toggleReceive(MessageChannel channel);
@@ -252,13 +275,15 @@ public interface User {
    * Overrides the constraint for a message-channel.
    * It constrains the messages of the message-channel to only be sent
    * when the player causing the message obeys certain constrains, specified via {@link Predicate} of type {@link Player}.
-   * @param channel the selected channel
+   *
+   * @param channel    the selected channel
    * @param constraint the player contraint
    */
   void setChannelConstraint(MessageChannel channel, Predicate<Player> constraint);
 
   /**
    * Returns whether a message-channel has been constraint
+   *
    * @param channel the selected channel
    * @return true if a constraint is present, false if not
    */
@@ -266,6 +291,7 @@ public interface User {
 
   /**
    * Retrieve the constraint of a selected message channel
+   *
    * @param channel the selected channel
    * @return the channels constraint
    */
@@ -273,19 +299,22 @@ public interface User {
 
   /**
    * Removes a channels constraint
+   *
    * @param channel the selected channel
    */
   void removeChannelConstraint(MessageChannel channel);
 
   /**
    * Apply an {@link AttackNerfStrategy} to a player
+   *
    * @param strategy the strategy to apply
-   * @param checkId the check id (for debug purposes)
+   * @param checkId  the check id (for debug purposes)
    */
   void applyAttackNerfer(AttackNerfStrategy strategy, String checkId);
 
   /**
    * Retrieve a player's packet latency
+   *
    * @return a player's packet latency
    */
   int latency();
@@ -293,6 +322,7 @@ public interface User {
   /**
    * Retrieve a player's packet latency jitter
    * The jitter describes the amount of fluctuations in a players latency
+   *
    * @return a player's packet latency jitter
    */
   int latencyJitter();
@@ -300,6 +330,7 @@ public interface User {
   /**
    * Retrieve the {@link HitboxSize} of a {@link Pose}.
    * This is {@link User}-dependant due to changes of boundaries between Minecraft versions.
+   *
    * @param pose the selected pose
    * @return the hitbox boundaries
    */
@@ -313,13 +344,15 @@ public interface User {
   /**
    * Apply a Material-type translation from a source to a target material
    * All systems will reinterpret the material, effectively replacing it
+   *
    * @param from the source material
-   * @param to the new, target material
+   * @param to   the new, target material
    */
   void applyTypeTranslation(Material from, Material to);
 
   /**
    * Lookup a type translation
+   *
    * @param source the material source
    * @return the translated {@link Material}
    */
@@ -332,6 +365,7 @@ public interface User {
 
   /**
    * Disconnect a player
+   *
    * @param reason the reason
    */
   void kick(String reason);

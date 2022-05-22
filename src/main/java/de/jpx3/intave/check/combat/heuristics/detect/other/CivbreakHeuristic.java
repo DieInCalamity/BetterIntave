@@ -14,11 +14,11 @@ import org.bukkit.entity.Player;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.BLOCK_DIG;
 
 public final class CivbreakHeuristic extends MetaCheckPart<Heuristics, CivbreakHeuristic.CivbreakMeta> {
-  
+
   public CivbreakHeuristic(Heuristics parentCheck) {
     super(parentCheck, CivbreakMeta.class);
   }
-  
+
   /*
   What is civbreak?
   Civbreak abuses a server bug where you can instant break a block on a block position where you
@@ -35,17 +35,14 @@ public final class CivbreakHeuristic extends MetaCheckPart<Heuristics, CivbreakH
     User user = userOf(player);
     CivbreakMeta meta = metaOf(user);
     PacketContainer packet = event.getPacket();
-    
     EnumWrappers.PlayerDigType playerDigType = packet.getPlayerDigTypes().readSafely(0);
-    
     // Note: isMining should set to false on every PlayerDigType except START_DESTROY_BLOCK
-  
 //    player.sendMessage("" + playerDigType);
     if (playerDigType == EnumWrappers.PlayerDigType.START_DESTROY_BLOCK) {
       meta.isMining = true;
     }
     if (playerDigType == EnumWrappers.PlayerDigType.STOP_DESTROY_BLOCK) {
-      if(user.meta().protocol().protocolVersion() < ProtocolMetadata.VER_1_14) {
+      if (user.meta().protocol().protocolVersion() < ProtocolMetadata.VER_1_14) {
         if (!meta.isMining) {
 //          player.sendMessage("cancel");
           event.setCancelled(true);
@@ -57,7 +54,8 @@ public final class CivbreakHeuristic extends MetaCheckPart<Heuristics, CivbreakH
       meta.isMining = false;
     }
   }
-  public final static class CivbreakMeta extends CheckCustomMetadata {
+
+  public static final class CivbreakMeta extends CheckCustomMetadata {
     private boolean isMining;
   }
 }

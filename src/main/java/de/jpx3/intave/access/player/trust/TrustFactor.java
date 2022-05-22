@@ -9,9 +9,7 @@ public enum TrustFactor implements Comparable<TrustFactor> {
   YELLOW(1, ChatColor.YELLOW, "intave.trust.yellow"),
   ORANGE(0, ChatColor.GOLD, "intave.trust.orange"),
   RED(-1, ChatColor.RED, "intave.trust.red"),
-  DARK_RED(-2, ChatColor.DARK_RED, "intave.trust.darkred")
-
-  ;
+  DARK_RED(-2, ChatColor.DARK_RED, "intave.trust.darkred");
 
   final int factor;
   final ChatColor chatColor;

@@ -10,7 +10,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class PlayerStorage implements Storage {
-  private final static int STORAGE_VERSION = 2;
+  private static final int STORAGE_VERSION = 2;
 
   private final Map<Class<? extends Storage>, Storage> subStorages = new ConcurrentHashMap<>();
   private final List<Storage> storageList = new ArrayList<>();
@@ -31,7 +31,7 @@ public final class PlayerStorage implements Storage {
     storageList.forEach(child -> child.writeTo(output));
   }
 
-  private final static String INVALID_ID_ERROR = "Invalid entry fetched, expected %s but received id %s";
+  private static final String INVALID_ID_ERROR = "Invalid entry fetched, expected %s but received id %s";
 
   @Override
   public void readFrom(ByteArrayDataInput input) {

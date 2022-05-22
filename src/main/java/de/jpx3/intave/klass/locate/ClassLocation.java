@@ -6,7 +6,7 @@ import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
 public final class ClassLocation extends Location {
-  private final static Reference<Class<?>> EMPTY_CLASS_REFERENCE = new WeakReference<>(null);
+  private static final Reference<Class<?>> EMPTY_CLASS_REFERENCE = new WeakReference<>(null);
   private final String location;
   private Reference<Class<?>> classCache = EMPTY_CLASS_REFERENCE;
 

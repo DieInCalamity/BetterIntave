@@ -59,6 +59,7 @@ public final class Raytracing {
 
   /**
    * Calculates the reach with and without mouse delay fix and returns the smallest calculated reach
+   *
    * @return
    */
   public static Raytrace doubleMDFBlockConstraintEntityRaytrace(

@@ -22,7 +22,7 @@ public enum Check {
 
   ;
 
-  private final static Map<String, Check> LOOKUP_MAP = new HashMap<>();
+  private static final Map<String, Check> LOOKUP_MAP = new HashMap<>();
 
   static {
     for (Check value : values()) {

@@ -28,8 +28,8 @@ public final class YamlTrustFactorConfiguration implements TrustFactorConfigurat
     TrustFactor[] trustFactors = TrustFactor.values();
     EnumMap<TrustFactor, Integer> enumMap =
       IntStream.range(0, trustFactors.length)
-      .boxed()
-      .collect(Collectors.toMap(j -> trustFactors[j], values::get, (a, b) -> b, () -> new EnumMap<>(TrustFactor.class)));
+        .boxed()
+        .collect(Collectors.toMap(j -> trustFactors[j], values::get, (a, b) -> b, () -> new EnumMap<>(TrustFactor.class)));
     settingsMap.put(key, enumMap);
   }
 

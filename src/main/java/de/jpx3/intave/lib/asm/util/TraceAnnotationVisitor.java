@@ -37,7 +37,9 @@ import de.jpx3.intave.lib.asm.Opcodes;
  */
 public final class TraceAnnotationVisitor extends AnnotationVisitor {
 
-  /** The printer to convert the visited annotation into text. */
+  /**
+   * The printer to convert the visited annotation into text.
+   */
   private final Printer printer;
 
   /**
@@ -45,7 +47,7 @@ public final class TraceAnnotationVisitor extends AnnotationVisitor {
    *
    * @param printer the printer to convert the visited annotation into text.
    */
-  public TraceAnnotationVisitor(final Printer printer) {
+  public TraceAnnotationVisitor(Printer printer) {
     this(null, printer);
   }
 
@@ -53,34 +55,34 @@ public final class TraceAnnotationVisitor extends AnnotationVisitor {
    * Constructs a new {@link TraceAnnotationVisitor}.
    *
    * @param annotationVisitor the annotation visitor to which to delegate calls. May be {@literal
-   *     null}.
-   * @param printer the printer to convert the visited annotation into text.
+   *                          null}.
+   * @param printer           the printer to convert the visited annotation into text.
    */
-  public TraceAnnotationVisitor(final AnnotationVisitor annotationVisitor, final Printer printer) {
+  public TraceAnnotationVisitor(AnnotationVisitor annotationVisitor, Printer printer) {
     super(/* latest api = */ Opcodes.ASM7, annotationVisitor);
     this.printer = printer;
   }
 
   @Override
-  public void visit(final String name, final Object value) {
+  public void visit(String name, Object value) {
     printer.visit(name, value);
     super.visit(name, value);
   }
 
   @Override
-  public void visitEnum(final String name, final String descriptor, final String value) {
+  public void visitEnum(String name, String descriptor, String value) {
     printer.visitEnum(name, descriptor, value);
     super.visitEnum(name, descriptor, value);
   }
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String name, final String descriptor) {
+  public AnnotationVisitor visitAnnotation(String name, String descriptor) {
     Printer annotationPrinter = printer.visitAnnotation(name, descriptor);
     return new TraceAnnotationVisitor(super.visitAnnotation(name, descriptor), annotationPrinter);
   }
 
   @Override
-  public AnnotationVisitor visitArray(final String name) {
+  public AnnotationVisitor visitArray(String name) {
     Printer arrayPrinter = printer.visitArray(name);
     return new TraceAnnotationVisitor(super.visitArray(name), arrayPrinter);
   }

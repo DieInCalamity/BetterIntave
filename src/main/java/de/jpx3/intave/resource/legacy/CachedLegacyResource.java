@@ -30,7 +30,7 @@ import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 @SuppressWarnings({"UnusedReturnValue", "ResultOfMethodCallIgnored"})
 @Deprecated
 public final class CachedLegacyResource implements LegacyResource {
-  private final static String KEY = "AES/GCM/NoPadding";
+  private static final String KEY = "AES/GCM/NoPadding";
 
   private final String name;
   private final String uri;
@@ -75,7 +75,8 @@ public final class CachedLegacyResource implements LegacyResource {
     }
     try {
       inputStream.close();
-    } catch (IOException ignored) {}
+    } catch (IOException ignored) {
+    }
     return lines;
   }
 

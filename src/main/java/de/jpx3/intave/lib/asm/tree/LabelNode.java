@@ -43,7 +43,7 @@ public class LabelNode extends AbstractInsnNode {
     super(-1);
   }
 
-  public LabelNode(final Label label) {
+  public LabelNode(Label label) {
     super(-1);
     this.value = label;
   }
@@ -67,12 +67,12 @@ public class LabelNode extends AbstractInsnNode {
   }
 
   @Override
-  public void accept(final MethodVisitor methodVisitor) {
+  public void accept(MethodVisitor methodVisitor) {
     methodVisitor.visitLabel(getLabel());
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
+  public AbstractInsnNode clone(Map<LabelNode, LabelNode> clonedLabels) {
     return clonedLabels.get(this);
   }
 

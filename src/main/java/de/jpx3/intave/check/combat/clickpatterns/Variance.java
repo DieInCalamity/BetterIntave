@@ -21,8 +21,8 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Client.ARM_ANIMATION;
 
 @Relocate
 public final class Variance extends MetaCheckPart<ClickPatterns, Variance.VarianceMeta> {
-  private final static int BUFFER_TIMEOUT = 4000;
-  private final static int BUFFER_LENGTH = 50;
+  private static final int BUFFER_TIMEOUT = 4000;
+  private static final int BUFFER_LENGTH = 50;
 
   public Variance(ClickPatterns parentCheck) {
     super(parentCheck, VarianceMeta.class);

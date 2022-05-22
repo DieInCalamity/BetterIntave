@@ -15,7 +15,7 @@ import java.util.List;
 
 @PatchyAutoTranslation
 public final class v9ShapeDrill extends AbstractShapeDrill {
-  private final static v9AlwaysCollidingBoundingBox ALWAYS_COLLIDING_BOX = new v9AlwaysCollidingBoundingBox();
+  private static final v9AlwaysCollidingBoundingBox ALWAYS_COLLIDING_BOX = new v9AlwaysCollidingBoundingBox();
 
   @Override
   @PatchyAutoTranslation
@@ -34,7 +34,7 @@ public final class v9ShapeDrill extends AbstractShapeDrill {
       // we catch irregularities here elsewhere
       return BoundingBox
         // anything but a full or empty box
-        .originFromBounds(0.25,0.25,0.25,0.75,0.75,0.75)
+        .originFromBounds(0.25, 0.25, 0.25, 0.75, 0.75, 0.75)
         .contextualized(posX, posY, posZ);
     }
   }

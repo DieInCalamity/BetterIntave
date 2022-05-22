@@ -40,24 +40,30 @@ import java.util.List;
  */
 public final class ModuleHashesAttribute extends Attribute {
 
-  /** The name of the hashing algorithm. */
+  /**
+   * The name of the hashing algorithm.
+   */
   public String algorithm;
 
-  /** A list of module names. */
+  /**
+   * A list of module names.
+   */
   public List<String> modules;
 
-  /** The hash of the modules in {@link #modules}. The two lists must have the same size. */
+  /**
+   * The hash of the modules in {@link #modules}. The two lists must have the same size.
+   */
   public List<byte[]> hashes;
 
   /**
    * Constructs a new {@link ModuleHashesAttribute}.
    *
    * @param algorithm the name of the hashing algorithm.
-   * @param modules a list of module names.
-   * @param hashes the hash of the modules in 'modules'. The two lists must have the same size.
+   * @param modules   a list of module names.
+   * @param hashes    the hash of the modules in 'modules'. The two lists must have the same size.
    */
   public ModuleHashesAttribute(
-      final String algorithm, final List<String> modules, final List<byte[]> hashes) {
+    String algorithm, List<String> modules, List<byte[]> hashes) {
     super("ModuleHashes");
     this.algorithm = algorithm;
     this.modules = modules;
@@ -74,12 +80,12 @@ public final class ModuleHashesAttribute extends Attribute {
 
   @Override
   protected Attribute read(
-      final ClassReader classReader,
-      final int offset,
-      final int length,
-      final char[] charBuffer,
-      final int codeAttributeOffset,
-      final Label[] labels) {
+    ClassReader classReader,
+    int offset,
+    int length,
+    char[] charBuffer,
+    int codeAttributeOffset,
+    Label[] labels) {
     int currentOffset = offset;
 
     String hashAlgorithm = classReader.readUTF8(currentOffset, charBuffer);
@@ -110,11 +116,11 @@ public final class ModuleHashesAttribute extends Attribute {
 
   @Override
   protected ByteVector write(
-      final ClassWriter classWriter,
-      final byte[] code,
-      final int codeLength,
-      final int maxStack,
-      final int maxLocals) {
+    ClassWriter classWriter,
+    byte[] code,
+    int codeLength,
+    int maxStack,
+    int maxLocals) {
     ByteVector byteVector = new ByteVector();
     byteVector.putShort(classWriter.newUTF8(algorithm));
     if (modules == null) {
@@ -126,9 +132,9 @@ public final class ModuleHashesAttribute extends Attribute {
         String module = modules.get(i);
         byte[] hash = hashes.get(i);
         byteVector
-            .putShort(classWriter.newModule(module))
-            .putShort(hash.length)
-            .putByteArray(hash, 0, hash.length);
+          .putShort(classWriter.newModule(module))
+          .putShort(hash.length)
+          .putByteArray(hash, 0, hash.length);
       }
     }
     return byteVector;

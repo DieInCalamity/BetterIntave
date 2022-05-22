@@ -1,8 +1,8 @@
 package de.jpx3.intave.check.movement.physics;
 
 public final class MovementConfiguration {
-  private final static int BOOLEANS = 4;
-  private final static MovementConfiguration[] UNIVERSE = new MovementConfiguration[(int) (Math.pow(4, 2) * Math.pow(2, BOOLEANS)) + 1];
+  private static final int BOOLEANS = 4;
+  private static final MovementConfiguration[] UNIVERSE = new MovementConfiguration[(int) (Math.pow(4, 2) * Math.pow(2, BOOLEANS)) + 1];
 
   private final int index;
   private final int forward, strafe;
@@ -85,7 +85,7 @@ public final class MovementConfiguration {
 
   public MovementConfiguration withKeyPress(int forward, int strafe) {
     if (Math.abs(forward) > 1 || Math.abs(strafe) > 1) {
-      throw new IllegalStateException("That key can not exist (" + forward + "/" + strafe+")");
+      throw new IllegalStateException("That key can not exist (" + forward + "/" + strafe + ")");
     }
     int forwardSlot = (forward + 1 & 0x3) << BOOLEANS + 2;
     int strafeSlot = (strafe + 1 & 0x3) << BOOLEANS;
@@ -104,7 +104,7 @@ public final class MovementConfiguration {
     return config;
   }
 
-  private final static MovementConfiguration EMPTY_CONFIGURATION;
+  private static final MovementConfiguration EMPTY_CONFIGURATION;
 
   public static MovementConfiguration empty() {
     return EMPTY_CONFIGURATION;
@@ -144,8 +144,7 @@ public final class MovementConfiguration {
     if (Math.abs(forward) > 1 || Math.abs(strafe) > 1) {
       throw new IllegalStateException("That key can not exist " + forward + " " + strafe);
     }
-    int key =
-      forward + 1 << BOOLEANS + 2 | strafe + 1 << BOOLEANS |
+    int key = forward + 1 << BOOLEANS + 2 | strafe + 1 << BOOLEANS |
       (attackReduce ? 8 : 0) | (sprinting ? 4 : 0) |
       (jumped ? 2 : 0) | (handActive ? 1 : 0);
     return keyLookup(key);

@@ -34,8 +34,8 @@ package de.jpx3.intave.lib.asm;
  * respectively). An edge corresponds either to a jump or ret instruction or to an exception
  * handler.
  *
- * @see Label
  * @author Eric Bruneton
+ * @see Label
  */
 final class Edge {
 
@@ -68,7 +68,9 @@ final class Edge {
    */
   final int info;
 
-  /** The successor block of this control flow graph edge. */
+  /**
+   * The successor block of this control flow graph edge.
+   */
   final Label successor;
 
   /**
@@ -79,11 +81,11 @@ final class Edge {
   /**
    * Constructs a new Edge.
    *
-   * @param info see {@link #info}.
+   * @param info      see {@link #info}.
    * @param successor see {@link #successor}.
-   * @param nextEdge see {@link #nextEdge}.
+   * @param nextEdge  see {@link #nextEdge}.
    */
-  Edge(final int info, final Label successor, final Edge nextEdge) {
+  Edge(int info, Label successor, Edge nextEdge) {
     this.info = info;
     this.successor = successor;
     this.nextEdge = nextEdge;

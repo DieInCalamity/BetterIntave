@@ -78,12 +78,12 @@ public class LocalVariableNode {
    * @param index      the local variable's index.
    */
   public LocalVariableNode(
-    final String name,
-    final String descriptor,
-    final String signature,
-    final LabelNode start,
-    final LabelNode end,
-    final int index) {
+    String name,
+    String descriptor,
+    String signature,
+    LabelNode start,
+    LabelNode end,
+    int index) {
     this.name = name;
     this.desc = descriptor;
     this.signature = signature;
@@ -97,7 +97,7 @@ public class LocalVariableNode {
    *
    * @param methodVisitor a method visitor.
    */
-  public void accept(final MethodVisitor methodVisitor) {
+  public void accept(MethodVisitor methodVisitor) {
     methodVisitor.visitLocalVariable(
       name, desc, signature, start.getLabel(), end.getLabel(), index);
   }

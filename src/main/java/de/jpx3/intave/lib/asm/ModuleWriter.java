@@ -31,69 +31,103 @@ package de.jpx3.intave.lib.asm;
  * A {@link ModuleVisitor} that generates the corresponding Module, ModulePackages and
  * ModuleMainClass attributes, as defined in the Java Virtual Machine Specification (JVMS).
  *
- * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.25">JVMS
- *     4.7.25</a>
- * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.26">JVMS
- *     4.7.26</a>
- * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.27">JVMS
- *     4.7.27</a>
  * @author Remi Forax
  * @author Eric Bruneton
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.25">JVMS
+ * 4.7.25</a>
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.26">JVMS
+ * 4.7.26</a>
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.27">JVMS
+ * 4.7.27</a>
  */
 final class ModuleWriter extends ModuleVisitor {
 
-  /** Where the constants used in this AnnotationWriter must be stored. */
+  /**
+   * Where the constants used in this AnnotationWriter must be stored.
+   */
   private final SymbolTable symbolTable;
 
-  /** The module_name_index field of the JVMS Module attribute. */
+  /**
+   * The module_name_index field of the JVMS Module attribute.
+   */
   private final int moduleNameIndex;
 
-  /** The module_flags field of the JVMS Module attribute. */
+  /**
+   * The module_flags field of the JVMS Module attribute.
+   */
   private final int moduleFlags;
 
-  /** The module_version_index field of the JVMS Module attribute. */
+  /**
+   * The module_version_index field of the JVMS Module attribute.
+   */
   private final int moduleVersionIndex;
 
-  /** The requires_count field of the JVMS Module attribute. */
+  /**
+   * The requires_count field of the JVMS Module attribute.
+   */
   private int requiresCount;
 
-  /** The binary content of the 'requires' array of the JVMS Module attribute. */
+  /**
+   * The binary content of the 'requires' array of the JVMS Module attribute.
+   */
   private final ByteVector requires;
 
-  /** The exports_count field of the JVMS Module attribute. */
+  /**
+   * The exports_count field of the JVMS Module attribute.
+   */
   private int exportsCount;
 
-  /** The binary content of the 'exports' array of the JVMS Module attribute. */
+  /**
+   * The binary content of the 'exports' array of the JVMS Module attribute.
+   */
   private final ByteVector exports;
 
-  /** The opens_count field of the JVMS Module attribute. */
+  /**
+   * The opens_count field of the JVMS Module attribute.
+   */
   private int opensCount;
 
-  /** The binary content of the 'opens' array of the JVMS Module attribute. */
+  /**
+   * The binary content of the 'opens' array of the JVMS Module attribute.
+   */
   private final ByteVector opens;
 
-  /** The uses_count field of the JVMS Module attribute. */
+  /**
+   * The uses_count field of the JVMS Module attribute.
+   */
   private int usesCount;
 
-  /** The binary content of the 'uses_index' array of the JVMS Module attribute. */
+  /**
+   * The binary content of the 'uses_index' array of the JVMS Module attribute.
+   */
   private final ByteVector usesIndex;
 
-  /** The provides_count field of the JVMS Module attribute. */
+  /**
+   * The provides_count field of the JVMS Module attribute.
+   */
   private int providesCount;
 
-  /** The binary content of the 'provides' array of the JVMS Module attribute. */
+  /**
+   * The binary content of the 'provides' array of the JVMS Module attribute.
+   */
   private final ByteVector provides;
 
-  /** The provides_count field of the JVMS ModulePackages attribute. */
+  /**
+   * The provides_count field of the JVMS ModulePackages attribute.
+   */
   private int packageCount;
 
-  /** The binary content of the 'package_index' array of the JVMS ModulePackages attribute. */
+  /**
+   * The binary content of the 'package_index' array of the JVMS ModulePackages attribute.
+   */
   private final ByteVector packageIndex;
 
-  /** The main_class_index field of the JVMS ModuleMainClass attribute, or 0. */
+  /**
+   * The main_class_index field of the JVMS ModuleMainClass attribute, or 0.
+   */
   private int mainClassIndex;
 
-  ModuleWriter(final SymbolTable symbolTable, final int name, final int access, final int version) {
+  ModuleWriter(SymbolTable symbolTable, int name, int access, int version) {
     super(/* latest api = */ Opcodes.ASM7);
     this.symbolTable = symbolTable;
     this.moduleNameIndex = name;
@@ -108,27 +142,27 @@ final class ModuleWriter extends ModuleVisitor {
   }
 
   @Override
-  public void visitMainClass(final String mainClass) {
+  public void visitMainClass(String mainClass) {
     this.mainClassIndex = symbolTable.addConstantClass(mainClass).index;
   }
 
   @Override
-  public void visitPackage(final String packaze) {
+  public void visitPackage(String packaze) {
     packageIndex.putShort(symbolTable.addConstantPackage(packaze).index);
     packageCount++;
   }
 
   @Override
-  public void visitRequire(final String module, final int access, final String version) {
+  public void visitRequire(String module, int access, String version) {
     requires
-        .putShort(symbolTable.addConstantModule(module).index)
-        .putShort(access)
-        .putShort(version == null ? 0 : symbolTable.addConstantUtf8(version));
+      .putShort(symbolTable.addConstantModule(module).index)
+      .putShort(access)
+      .putShort(version == null ? 0 : symbolTable.addConstantUtf8(version));
     requiresCount++;
   }
 
   @Override
-  public void visitExport(final String packaze, final int access, final String... modules) {
+  public void visitExport(String packaze, int access, String... modules) {
     exports.putShort(symbolTable.addConstantPackage(packaze).index).putShort(access);
     if (modules == null) {
       exports.putShort(0);
@@ -142,7 +176,7 @@ final class ModuleWriter extends ModuleVisitor {
   }
 
   @Override
-  public void visitOpen(final String packaze, final int access, final String... modules) {
+  public void visitOpen(String packaze, int access, String... modules) {
     opens.putShort(symbolTable.addConstantPackage(packaze).index).putShort(access);
     if (modules == null) {
       opens.putShort(0);
@@ -156,13 +190,13 @@ final class ModuleWriter extends ModuleVisitor {
   }
 
   @Override
-  public void visitUse(final String service) {
+  public void visitUse(String service) {
     usesIndex.putShort(symbolTable.addConstantClass(service).index);
     usesCount++;
   }
 
   @Override
-  public void visitProvide(final String service, final String... providers) {
+  public void visitProvide(String service, String... providers) {
     provides.putShort(symbolTable.addConstantClass(service).index);
     provides.putShort(providers.length);
     for (String provider : providers) {
@@ -196,7 +230,7 @@ final class ModuleWriter extends ModuleVisitor {
     symbolTable.addConstantUtf8(Constants.MODULE);
     // 6 attribute header bytes, 6 bytes for name, flags and version, and 5 * 2 bytes for counts.
     int size =
-        22 + requires.length + exports.length + opens.length + usesIndex.length + provides.length;
+      22 + requires.length + exports.length + opens.length + usesIndex.length + provides.length;
     if (packageCount > 0) {
       symbolTable.addConstantUtf8(Constants.MODULE_PACKAGES);
       // 6 attribute header bytes, and 2 bytes for package_count.
@@ -216,38 +250,38 @@ final class ModuleWriter extends ModuleVisitor {
    *
    * @param output where the attributes must be put.
    */
-  void putAttributes(final ByteVector output) {
+  void putAttributes(ByteVector output) {
     // 6 bytes for name, flags and version, and 5 * 2 bytes for counts.
     int moduleAttributeLength =
-        16 + requires.length + exports.length + opens.length + usesIndex.length + provides.length;
+      16 + requires.length + exports.length + opens.length + usesIndex.length + provides.length;
     output
-        .putShort(symbolTable.addConstantUtf8(Constants.MODULE))
-        .putInt(moduleAttributeLength)
-        .putShort(moduleNameIndex)
-        .putShort(moduleFlags)
-        .putShort(moduleVersionIndex)
-        .putShort(requiresCount)
-        .putByteArray(requires.data, 0, requires.length)
-        .putShort(exportsCount)
-        .putByteArray(exports.data, 0, exports.length)
-        .putShort(opensCount)
-        .putByteArray(opens.data, 0, opens.length)
-        .putShort(usesCount)
-        .putByteArray(usesIndex.data, 0, usesIndex.length)
-        .putShort(providesCount)
-        .putByteArray(provides.data, 0, provides.length);
+      .putShort(symbolTable.addConstantUtf8(Constants.MODULE))
+      .putInt(moduleAttributeLength)
+      .putShort(moduleNameIndex)
+      .putShort(moduleFlags)
+      .putShort(moduleVersionIndex)
+      .putShort(requiresCount)
+      .putByteArray(requires.data, 0, requires.length)
+      .putShort(exportsCount)
+      .putByteArray(exports.data, 0, exports.length)
+      .putShort(opensCount)
+      .putByteArray(opens.data, 0, opens.length)
+      .putShort(usesCount)
+      .putByteArray(usesIndex.data, 0, usesIndex.length)
+      .putShort(providesCount)
+      .putByteArray(provides.data, 0, provides.length);
     if (packageCount > 0) {
       output
-          .putShort(symbolTable.addConstantUtf8(Constants.MODULE_PACKAGES))
-          .putInt(2 + packageIndex.length)
-          .putShort(packageCount)
-          .putByteArray(packageIndex.data, 0, packageIndex.length);
+        .putShort(symbolTable.addConstantUtf8(Constants.MODULE_PACKAGES))
+        .putInt(2 + packageIndex.length)
+        .putShort(packageCount)
+        .putByteArray(packageIndex.data, 0, packageIndex.length);
     }
     if (mainClassIndex > 0) {
       output
-          .putShort(symbolTable.addConstantUtf8(Constants.MODULE_MAIN_CLASS))
-          .putInt(2)
-          .putShort(mainClassIndex);
+        .putShort(symbolTable.addConstantUtf8(Constants.MODULE_MAIN_CLASS))
+        .putInt(2)
+        .putShort(mainClassIndex);
     }
   }
 }

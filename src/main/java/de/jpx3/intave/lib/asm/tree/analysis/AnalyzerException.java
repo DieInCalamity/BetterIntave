@@ -50,7 +50,7 @@ public class AnalyzerException extends Exception {
    * @param insn    the bytecode instruction where the analysis failed.
    * @param message the reason why the analysis failed.
    */
-  public AnalyzerException(final AbstractInsnNode insn, final String message) {
+  public AnalyzerException(AbstractInsnNode insn, String message) {
     super(message);
     this.node = insn;
   }
@@ -63,7 +63,7 @@ public class AnalyzerException extends Exception {
    * @param cause   the cause of the failure.
    */
   public AnalyzerException(
-    final AbstractInsnNode insn, final String message, final Throwable cause) {
+    AbstractInsnNode insn, String message, Throwable cause) {
     super(message, cause);
     this.node = insn;
   }
@@ -77,10 +77,10 @@ public class AnalyzerException extends Exception {
    * @param actual   the actual value, different from the expected one.
    */
   public AnalyzerException(
-    final AbstractInsnNode insn,
-    final String message,
-    final Object expected,
-    final Value actual) {
+    AbstractInsnNode insn,
+    String message,
+    Object expected,
+    Value actual) {
     super(
       (message == null ? "Expected " : message + ": expected ")
         + expected

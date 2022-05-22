@@ -158,7 +158,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
         boolean blocked = !user.trustFactor().atLeast(TrustFactor.ORANGE);
 
         if (pendingOverAverage) {
-          SibylBroadcast.broadcast(ChatColor.RED + "[R] " + player.getName() + " attack latency ("+(blocked ? "blocked, " : "") + pendingFeedbackPackets + "/"+historyBasedTransactionLimit+"p with " + transactionPingAverage + "ms tra-ping, "+entity.immediateDistanceToClientPosition()+" dist)");
+          SibylBroadcast.broadcast(ChatColor.RED + "[R] " + player.getName() + " attack latency (" + (blocked ? "blocked, " : "") + pendingFeedbackPackets + "/" + historyBasedTransactionLimit + "p with " + transactionPingAverage + "ms tra-ping, " + entity.immediateDistanceToClientPosition() + " dist)");
           if (blocked) {
             entityHasNotTimedOut = false;
           }
@@ -314,7 +314,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     attackData.setLastReach(raytrace.reach());
     String message, details, thresholdKey, special;
     AttackRaytraceResult attackRaytraceResult = AttackRaytrace.AttackRaytraceResult.of(raytrace.reach(), blockReachDistance);
-    final int vl = applicableViolationPoints(attackRaytraceResult, raytrace, entity, user, expandHitbox);
+    int vl = applicableViolationPoints(attackRaytraceResult, raytrace, entity, user, expandHitbox);
     String entityName = entity.entityName();
 
     double reach = 0;
@@ -588,7 +588,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     return minReach;
   }
 
-  private final static char[] vocals = "aeiou".toCharArray();
+  private static final char[] vocals = "aeiou".toCharArray();
 
   private String resolveArticle(String entityName) {
     char c = entityName.trim().toLowerCase(Locale.ROOT).toCharArray()[0];

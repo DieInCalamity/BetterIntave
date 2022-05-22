@@ -95,7 +95,7 @@ public class Analyzer<V extends Value> implements Opcodes {
    *
    * @param interpreter the interpreter to use to symbolically interpret the bytecode instructions.
    */
-  public Analyzer(final Interpreter<V> interpreter) {
+  public Analyzer(Interpreter<V> interpreter) {
     this.interpreter = interpreter;
   }
 
@@ -111,7 +111,7 @@ public class Analyzer<V extends Value> implements Opcodes {
    * @throws AnalyzerException if a problem occurs during the analysis.
    */
   @SuppressWarnings("unchecked")
-  public Frame<V>[] analyze(final String owner, final MethodNode method) throws AnalyzerException {
+  public Frame<V>[] analyze(String owner, MethodNode method) throws AnalyzerException {
     if ((method.access & (ACC_ABSTRACT | ACC_NATIVE)) != 0) {
       frames = (Frame<V>[]) new Frame<?>[0];
       return frames;
@@ -321,7 +321,7 @@ public class Analyzer<V extends Value> implements Opcodes {
    * @throws AnalyzerException if the control flow graph can fall off the end of the code.
    */
   private void findSubroutine(
-    final int insnIndex, final Subroutine subroutine, final List<AbstractInsnNode> jsrInsns)
+    int insnIndex, Subroutine subroutine, List<AbstractInsnNode> jsrInsns)
     throws AnalyzerException {
     List<Integer> instructionIndicesToProcess = new ArrayList<>();
     instructionIndicesToProcess.add(insnIndex);
@@ -398,7 +398,7 @@ public class Analyzer<V extends Value> implements Opcodes {
    * @param method the method to be analyzed.
    * @return the initial execution stack frame of the 'method'.
    */
-  private Frame<V> computeInitialFrame(final String owner, final MethodNode method) {
+  private Frame<V> computeInitialFrame(String owner, MethodNode method) {
     Frame<V> frame = newFrame(method.maxLocals, method.maxStack);
     int currentLocal = 0;
     boolean isInstanceMethod = (method.access & ACC_STATIC) == 0;
@@ -445,7 +445,7 @@ public class Analyzer<V extends Value> implements Opcodes {
    * @param insnIndex the index of an instruction of the last analyzed method.
    * @return a list of {@link TryCatchBlockNode} objects.
    */
-  public List<TryCatchBlockNode> getHandlers(final int insnIndex) {
+  public List<TryCatchBlockNode> getHandlers(int insnIndex) {
     return handlers[insnIndex];
   }
 
@@ -457,7 +457,7 @@ public class Analyzer<V extends Value> implements Opcodes {
    * @param method the method to be analyzed.
    * @throws AnalyzerException if a problem occurs.
    */
-  protected void init(final String owner, final MethodNode method) throws AnalyzerException {
+  protected void init(String owner, MethodNode method) throws AnalyzerException {
     // Nothing to do.
   }
 
@@ -468,7 +468,7 @@ public class Analyzer<V extends Value> implements Opcodes {
    * @param numStack  the maximum stack size of the frame.
    * @return the created frame.
    */
-  protected Frame<V> newFrame(final int numLocals, final int numStack) {
+  protected Frame<V> newFrame(int numLocals, int numStack) {
     return new Frame<>(numLocals, numStack);
   }
 
@@ -478,7 +478,7 @@ public class Analyzer<V extends Value> implements Opcodes {
    * @param frame a frame.
    * @return the created frame.
    */
-  protected Frame<V> newFrame(final Frame<? extends V> frame) {
+  protected Frame<V> newFrame(Frame<? extends V> frame) {
     return new Frame<>(frame);
   }
 
@@ -490,7 +490,7 @@ public class Analyzer<V extends Value> implements Opcodes {
    * @param insnIndex      an instruction index.
    * @param successorIndex index of a successor instruction.
    */
-  protected void newControlFlowEdge(final int insnIndex, final int successorIndex) {
+  protected void newControlFlowEdge(int insnIndex, int successorIndex) {
     // Nothing to do.
   }
 
@@ -506,7 +506,7 @@ public class Analyzer<V extends Value> implements Opcodes {
    * analyzer, or false otherwise. The default implementation of this method always returns
    * true.
    */
-  protected boolean newControlFlowExceptionEdge(final int insnIndex, final int successorIndex) {
+  protected boolean newControlFlowExceptionEdge(int insnIndex, int successorIndex) {
     return true;
   }
 
@@ -523,7 +523,7 @@ public class Analyzer<V extends Value> implements Opcodes {
    * #newControlFlowExceptionEdge(int, int)}.
    */
   protected boolean newControlFlowExceptionEdge(
-    final int insnIndex, final TryCatchBlockNode tryCatchBlock) {
+    int insnIndex, TryCatchBlockNode tryCatchBlock) {
     return newControlFlowExceptionEdge(insnIndex, insnList.indexOf(tryCatchBlock.handler));
   }
 
@@ -540,7 +540,7 @@ public class Analyzer<V extends Value> implements Opcodes {
    * @param subroutine a subroutine. This subroutine is left unchanged by this method.
    * @throws AnalyzerException if the frames have incompatible sizes.
    */
-  private void merge(final int insnIndex, final Frame<V> frame, final Subroutine subroutine)
+  private void merge(int insnIndex, Frame<V> frame, Subroutine subroutine)
     throws AnalyzerException {
     boolean changed;
     Frame<V> oldFrame = frames[insnIndex];
@@ -585,11 +585,11 @@ public class Analyzer<V extends Value> implements Opcodes {
    * @throws AnalyzerException if the frames have incompatible sizes.
    */
   private void merge(
-    final int insnIndex,
-    final Frame<V> frameBeforeJsr,
-    final Frame<V> frameAfterRet,
-    final Subroutine subroutineBeforeJsr,
-    final boolean[] localsUsed)
+    int insnIndex,
+    Frame<V> frameBeforeJsr,
+    Frame<V> frameAfterRet,
+    Subroutine subroutineBeforeJsr,
+    boolean[] localsUsed)
     throws AnalyzerException {
     frameAfterRet.merge(frameBeforeJsr, localsUsed);
 

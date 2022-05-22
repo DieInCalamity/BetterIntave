@@ -85,7 +85,7 @@ public class SimpleVerifier extends BasicVerifier {
    * @param isInterface       whether the class to be verifier is an interface.
    */
   public SimpleVerifier(
-    final Type currentClass, final Type currentSuperClass, final boolean isInterface) {
+    Type currentClass, Type currentSuperClass, boolean isInterface) {
     this(currentClass, currentSuperClass, null, isInterface);
   }
 
@@ -101,10 +101,10 @@ public class SimpleVerifier extends BasicVerifier {
    * @param isInterface            whether the class to be verifier is an interface.
    */
   public SimpleVerifier(
-    final Type currentClass,
-    final Type currentSuperClass,
-    final List<Type> currentClassInterfaces,
-    final boolean isInterface) {
+    Type currentClass,
+    Type currentSuperClass,
+    List<Type> currentClassInterfaces,
+    boolean isInterface) {
     this(
       /* latest api = */ ASM7,
       currentClass,
@@ -130,11 +130,11 @@ public class SimpleVerifier extends BasicVerifier {
    * @param isInterface            whether the class to be verifier is an interface.
    */
   protected SimpleVerifier(
-    final int api,
-    final Type currentClass,
-    final Type currentSuperClass,
-    final List<Type> currentClassInterfaces,
-    final boolean isInterface) {
+    int api,
+    Type currentClass,
+    Type currentSuperClass,
+    List<Type> currentClassInterfaces,
+    boolean isInterface) {
     super(api);
     this.currentClass = currentClass;
     this.currentSuperClass = currentSuperClass;
@@ -147,12 +147,12 @@ public class SimpleVerifier extends BasicVerifier {
    *
    * @param loader the <code>ClassLoader</code> to use.
    */
-  public void setClassLoader(final ClassLoader loader) {
+  public void setClassLoader(ClassLoader loader) {
     this.loader = loader;
   }
 
   @Override
-  public BasicValue newValue(final Type type) {
+  public BasicValue newValue(Type type) {
     if (type == null) {
       return BasicValue.UNINITIALIZED_VALUE;
     }
@@ -188,13 +188,13 @@ public class SimpleVerifier extends BasicVerifier {
   }
 
   @Override
-  protected boolean isArrayValue(final BasicValue value) {
+  protected boolean isArrayValue(BasicValue value) {
     Type type = value.getType();
     return type != null && (type.getSort() == Type.ARRAY || type.equals(NULL_TYPE));
   }
 
   @Override
-  protected BasicValue getElementValue(final BasicValue objectArrayValue) throws AnalyzerException {
+  protected BasicValue getElementValue(BasicValue objectArrayValue) throws AnalyzerException {
     Type arrayType = objectArrayValue.getType();
     if (arrayType != null) {
       if (arrayType.getSort() == Type.ARRAY) {
@@ -207,7 +207,7 @@ public class SimpleVerifier extends BasicVerifier {
   }
 
   @Override
-  protected boolean isSubTypeOf(final BasicValue value, final BasicValue expected) {
+  protected boolean isSubTypeOf(BasicValue value, BasicValue expected) {
     Type expectedType = expected.getType();
     Type type = value.getType();
     switch (expectedType.getSort()) {
@@ -241,7 +241,7 @@ public class SimpleVerifier extends BasicVerifier {
   }
 
   @Override
-  public BasicValue merge(final BasicValue value1, final BasicValue value2) {
+  public BasicValue merge(BasicValue value1, BasicValue value2) {
     if (!value1.equals(value2)) {
       Type type1 = value1.getType();
       Type type2 = value2.getType();
@@ -286,7 +286,7 @@ public class SimpleVerifier extends BasicVerifier {
     return value1;
   }
 
-  private BasicValue newArrayValue(final Type type, final int dimensions) {
+  private BasicValue newArrayValue(Type type, int dimensions) {
     if (dimensions == 0) {
       return newValue(type);
     } else {
@@ -307,7 +307,7 @@ public class SimpleVerifier extends BasicVerifier {
    * @param type a type.
    * @return whether 'type' corresponds to an interface.
    */
-  protected boolean isInterface(final Type type) {
+  protected boolean isInterface(Type type) {
     if (currentClass != null && currentClass.equals(type)) {
       return isInterface;
     }
@@ -322,7 +322,7 @@ public class SimpleVerifier extends BasicVerifier {
    * @param type a type.
    * @return the type corresponding to the super class of 'type'.
    */
-  protected Type getSuperClass(final Type type) {
+  protected Type getSuperClass(Type type) {
     if (currentClass != null && currentClass.equals(type)) {
       return currentSuperClass;
     }
@@ -342,7 +342,7 @@ public class SimpleVerifier extends BasicVerifier {
    * @return whether the class corresponding to 'type1' is either the same as, or is a superclass or
    * superinterface of the class corresponding to 'type2'.
    */
-  protected boolean isAssignableFrom(final Type type1, final Type type2) {
+  protected boolean isAssignableFrom(Type type1, Type type2) {
     if (type1.equals(type2)) {
       return true;
     }
@@ -380,7 +380,7 @@ public class SimpleVerifier extends BasicVerifier {
    * @param type a type.
    * @return the class corresponding to 'type'.
    */
-  protected Class<?> getClass(final Type type) {
+  protected Class<?> getClass(Type type) {
     try {
       if (type.getSort() == Type.ARRAY) {
         return Class.forName(type.getDescriptor().replace('/', '.'), false, loader);

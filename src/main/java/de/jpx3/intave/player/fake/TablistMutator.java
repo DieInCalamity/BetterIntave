@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class TablistMutator {
-  private final static ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
+  private static final ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
 
   public static void addToTabList(
     Player player,

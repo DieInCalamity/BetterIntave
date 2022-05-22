@@ -16,10 +16,10 @@ import java.lang.reflect.Field;
 @PatchyAutoTranslation
 @Deprecated
 public final class ReflectiveEntityAccess {
-  public final static boolean REFLECTIVE_ACCESS = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_16_0);
+  public static final boolean REFLECTIVE_ACCESS = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_16_0);
 
-  private final static Class<?> ENTITY_CLASS = Lookup.serverClass("Entity");
-  private final static Field ENTITY_GROUND_FIELD = Lookup.declaredFieldIn(ENTITY_CLASS, MinecraftVersions.VER1_17_0.atOrAbove() ? "z" :"onGround");
+  private static final Class<?> ENTITY_CLASS = Lookup.serverClass("Entity");
+  private static final Field ENTITY_GROUND_FIELD = Lookup.declaredFieldIn(ENTITY_CLASS, MinecraftVersions.VER1_17_0.atOrAbove() ? "z" : "onGround");
 
   static {
     ENTITY_GROUND_FIELD.setAccessible(true);

@@ -31,6 +31,7 @@ abstract class Playback extends SinkEnvironment {
   }
 
   public abstract void start();
+
   public abstract void stop();
 
   protected Event nextEvent() {

@@ -6,7 +6,7 @@ import de.jpx3.intave.shade.ClientMathHelper;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class HeadRotationMovement {
-  private final static double MAX_PITCH_ROTATION = 30;
+  private static final double MAX_PITCH_ROTATION = 30;
   public float prevRotationYaw, prevRotationPitch = 0.0f;
   public float rotationYaw = 0.0f, rotationPitch = 0.0f;
 

@@ -8,5 +8,5 @@ public interface ColliderProcessor {
     User user, Motion context,
     double positionX, double positionY, double positionZ,
     boolean inWeb
-    );
+  );
 }

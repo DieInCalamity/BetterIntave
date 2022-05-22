@@ -11,7 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class MethodLocation extends Location {
-  private final static Reference<Method> EMPTY_CLASS_REFERENCE = new WeakReference<>(null);
+  private static final Reference<Method> EMPTY_CLASS_REFERENCE = new WeakReference<>(null);
   private final String classKey;
   private final String target;
   private Reference<Method> methodCache = EMPTY_CLASS_REFERENCE;
@@ -75,7 +75,7 @@ public final class MethodLocation extends Location {
     return input.substring(0, input.indexOf("("));
   }
 
-  private final static Pattern REPLACE_REGEX = Pattern.compile("R([a-z]|[A-Z]|[0-9]|\\$)+;");
+  private static final Pattern REPLACE_REGEX = Pattern.compile("R([a-z]|[A-Z]|[0-9]|\\$)+;");
 
   private String methodSignature(String input) {
     String signature = input.substring(input.indexOf("("));
@@ -100,7 +100,7 @@ public final class MethodLocation extends Location {
 
   @Override
   public String toString() {
-    return "MethodLocation{"+classKey+"."+key()+"/"+translatedKey()+" -> "+target+" @"+versionMatcher()+"}";
+    return "MethodLocation{" + classKey + "." + key() + "/" + translatedKey() + " -> " + target + " @" + versionMatcher() + "}";
   }
 
   public static MethodLocation defaultFor(String classKey, String initialSignature) {

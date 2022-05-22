@@ -40,63 +40,71 @@ import de.jpx3.intave.lib.asm.Opcodes;
  */
 public class StaticInitMerger extends ClassVisitor {
 
-  /** The internal name of the visited class. */
+  /**
+   * The internal name of the visited class.
+   */
   private String owner;
 
-  /** The prefix to use to rename the existing &lt;clinit&gt; methods. */
+  /**
+   * The prefix to use to rename the existing &lt;clinit&gt; methods.
+   */
   private final String renamedClinitMethodPrefix;
 
-  /** The number of &lt;clinit&gt; methods visited so far. */
+  /**
+   * The number of &lt;clinit&gt; methods visited so far.
+   */
   private int numClinitMethods;
 
-  /** The MethodVisitor for the merged &lt;clinit&gt; method. */
+  /**
+   * The MethodVisitor for the merged &lt;clinit&gt; method.
+   */
   private MethodVisitor mergedClinitVisitor;
 
   /**
    * Constructs a new {@link StaticInitMerger}. <i>Subclasses must not use this constructor</i>.
    * Instead, they must use the {@link #StaticInitMerger(int, String, ClassVisitor)} version.
    *
-   * @param prefix the prefix to use to rename the existing &lt;clinit&gt; methods.
+   * @param prefix       the prefix to use to rename the existing &lt;clinit&gt; methods.
    * @param classVisitor the class visitor to which this visitor must delegate method calls. May be
-   *     null.
+   *                     null.
    */
-  public StaticInitMerger(final String prefix, final ClassVisitor classVisitor) {
+  public StaticInitMerger(String prefix, ClassVisitor classVisitor) {
     this(/* latest api = */ Opcodes.ASM7, prefix, classVisitor);
   }
 
   /**
    * Constructs a new {@link StaticInitMerger}.
    *
-   * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
-   * @param prefix the prefix to use to rename the existing &lt;clinit&gt; methods.
+   * @param api          the ASM API version implemented by this visitor. Must be one of {@link
+   *                     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
+   * @param prefix       the prefix to use to rename the existing &lt;clinit&gt; methods.
    * @param classVisitor the class visitor to which this visitor must delegate method calls. May be
-   *     null.
+   *                     null.
    */
-  protected StaticInitMerger(final int api, final String prefix, final ClassVisitor classVisitor) {
+  protected StaticInitMerger(int api, String prefix, ClassVisitor classVisitor) {
     super(api, classVisitor);
     this.renamedClinitMethodPrefix = prefix;
   }
 
   @Override
   public void visit(
-      final int version,
-      final int access,
-      final String name,
-      final String signature,
-      final String superName,
-      final String[] interfaces) {
+    int version,
+    int access,
+    String name,
+    String signature,
+    String superName,
+    String[] interfaces) {
     super.visit(version, access, name, signature, superName, interfaces);
     this.owner = name;
   }
 
   @Override
   public MethodVisitor visitMethod(
-      final int access,
-      final String name,
-      final String descriptor,
-      final String signature,
-      final String[] exceptions) {
+    int access,
+    String name,
+    String descriptor,
+    String signature,
+    String[] exceptions) {
     MethodVisitor methodVisitor;
     if ("<clinit>".equals(name)) {
       int newAccess = Opcodes.ACC_PRIVATE + Opcodes.ACC_STATIC;

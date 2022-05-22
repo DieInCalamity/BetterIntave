@@ -60,7 +60,7 @@ public abstract class Interpreter<V extends Value> {
    *            Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link
    *            Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
-  protected Interpreter(final int api) {
+  protected Interpreter(int api) {
     this.api = api;
   }
 
@@ -95,7 +95,7 @@ public abstract class Interpreter<V extends Value> {
    * @return a value that represents the given type. The size of the returned value must be equal to
    * the size of the given type.
    */
-  public V newParameterValue(final boolean isInstanceMethod, final int local, final Type type) {
+  public V newParameterValue(boolean isInstanceMethod, int local, Type type) {
     return newValue(type);
   }
 
@@ -109,7 +109,7 @@ public abstract class Interpreter<V extends Value> {
    * @return a value that represents the given type. The size of the returned value must be equal to
    * the size of the given type.
    */
-  public V newReturnTypeValue(final Type type) {
+  public V newReturnTypeValue(Type type) {
     return newValue(type);
   }
 
@@ -124,7 +124,7 @@ public abstract class Interpreter<V extends Value> {
    * @return a value representing an uninitialized value. The size of the returned value must be
    * equal to 1.
    */
-  public V newEmptyValue(final int local) {
+  public V newEmptyValue(int local) {
     return newValue(null);
   }
 
@@ -141,9 +141,9 @@ public abstract class Interpreter<V extends Value> {
    * must be equal to 1.
    */
   public V newExceptionValue(
-    final TryCatchBlockNode tryCatchBlockNode,
-    final Frame<V> handlerFrame,
-    final Type exceptionType) {
+    TryCatchBlockNode tryCatchBlockNode,
+    Frame<V> handlerFrame,
+    Type exceptionType) {
     return newValue(exceptionType);
   }
 

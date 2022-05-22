@@ -26,7 +26,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * A {@link CheckService} initializes, holds and links implementation classes of class {@link Check}.
  * Every instance of the implementation class of class {@link Check} must be singleton throughout the entire
  * lifespan of our application - ensured by the utilizing of a class-as-key-to-instance principle.
- *
+ * <p>
  * It will instantiate all known implementations of class {@link Check} with {@link CheckService#setup()}, following
  * command linkage, to find and link any subscriptions within the instantiated {@link Check}.<br>
  * For the lifespan of the application, a {@link CheckService} will hold these checks, and
@@ -36,7 +36,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * clear all check-references.
  *
  * @see CheckLinker
- *
  * @see Check
  * @see CheckPart
  * @see MetaCheck
@@ -135,10 +134,11 @@ public final class CheckService {
 
   /**
    * Lookup a {@link Check} by its intrinsically unique {@code class}.
+   *
    * @param checkClass the corresponding check class
-   * @param <T> the corresponding check type
-   * @throws IllegalStateException when the check could not be found
+   * @param <T>        the corresponding check type
    * @return the check
+   * @throws IllegalStateException when the check could not be found
    */
   public <T extends Check> T searchCheck(Class<T> checkClass) {
     Check check = classRequestCache.get(checkClass);
@@ -158,10 +158,11 @@ public final class CheckService {
 
   /**
    * Lookup a {@link Check} by its name.
+   *
    * @param checkName the corresponding check name
-   * @param <T> the corresponding check type
-   * @throws IllegalStateException when the check could not be found
+   * @param <T>       the corresponding check type
    * @return the check
+   * @throws IllegalStateException when the check could not be found
    */
   public <T extends Check> T searchCheck(String checkName) {
     Check check = nameRequestCache.get(checkName.toLowerCase());
@@ -180,6 +181,7 @@ public final class CheckService {
 
   /**
    * Checks whether a check with the given name exists in cache.
+   *
    * @param checkName the name of the check
    * @return {@code true} if it contains the check, {@code false} if it doesn't
    */
@@ -189,6 +191,7 @@ public final class CheckService {
 
   /**
    * Retrieves a {@link Collection} of the instances of all implementations of the {@link Check} class.
+   *
    * @return all checks
    */
   public Collection<Check> checks() {

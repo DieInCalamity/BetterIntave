@@ -6,9 +6,9 @@ import de.jpx3.intave.resource.Resources;
 import java.util.concurrent.TimeUnit;
 
 public final class ProtocolVersionConverter {
-  private final static Resource PROTOCOL_VERSION_RESOURCE = Resources.cacheResourceChain("https://service.intave.de/protocolversions", "protocolversions", TimeUnit.DAYS.toMillis(14));
-  private final static ProtocolVersionRangesCompiler RANGES_COMPILER = new ProtocolVersionRangesCompiler();
-  private final static ProtocolVersionRanges RANGES = RANGES_COMPILER.fromResource(PROTOCOL_VERSION_RESOURCE);
+  private static final Resource PROTOCOL_VERSION_RESOURCE = Resources.cacheResourceChain("https://service.intave.de/protocolversions", "protocolversions", TimeUnit.DAYS.toMillis(14));
+  private static final ProtocolVersionRangesCompiler RANGES_COMPILER = new ProtocolVersionRangesCompiler();
+  private static final ProtocolVersionRanges RANGES = RANGES_COMPILER.fromResource(PROTOCOL_VERSION_RESOURCE);
 
   public static String versionByProtocolVersion(int version) {
     return RANGES.byProtocolVersion(version);

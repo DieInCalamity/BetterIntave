@@ -37,9 +37,9 @@ public final class SprintOnAttackHeuristic extends MetaCheckPart<Heuristics, Spr
     SprintOnAttackHeuristicMeta meta = metaOf(user);
     PlayerAction action = PlayerActionResolver.resolveActionFromPacket(event.getPacket());
 
-    if(action == PlayerAction.START_SPRINTING) {
+    if (action == PlayerAction.START_SPRINTING) {
       meta.startSprint = true;
-    } else if(action == PlayerAction.STOP_SPRINTING) {
+    } else if (action == PlayerAction.STOP_SPRINTING) {
       meta.stopSprint = true;
     }
   }
@@ -59,7 +59,7 @@ public final class SprintOnAttackHeuristic extends MetaCheckPart<Heuristics, Spr
     if (action == null) {
       action = packet.getEnumEntityUseActions().read(0).getAction();
     }
-    if(action == EnumWrappers.EntityUseAction.ATTACK) {
+    if (action == EnumWrappers.EntityUseAction.ATTACK) {
       meta.lastAttack = 0;
     }
   }
@@ -76,28 +76,28 @@ public final class SprintOnAttackHeuristic extends MetaCheckPart<Heuristics, Spr
     SprintOnAttackHeuristicMeta meta = metaOf(user);
     MovementMetadata movementData = user.meta().movement();
 
-    if(movementData.lastTeleport == 0) {
+    if (movementData.lastTeleport == 0) {
       return;
     }
 
-    if(meta.lastAttack == 0) {
+    if (meta.lastAttack == 0) {
       meta.totalAttacks++;
-      if(meta.startSprint) {
+      if (meta.startSprint) {
         meta.attacksWithSprintChangeBefore++;
       }
     }
 
-    if(meta.totalAttacks > 10) {
+    if (meta.totalAttacks > 10) {
       double ratioBefore = (double) meta.attacksWithSprintChangeBefore / (double) meta.totalAttacks;
-        if(ratioBefore > 0.9) {
-          Anomaly anomaly = Anomaly.anomalyOf(
-            "200",
-            Confidence.NONE,
-            Anomaly.Type.KILLAURA,
-            "sprint-toggles aligned with attacks (" + MathHelper.formatDouble(ratioBefore, 2) + "%)", Anomaly.AnomalyOption.DELAY_16s
-          );
-          parentCheck().saveAnomaly(player, anomaly);
-        }
+      if (ratioBefore > 0.9) {
+        Anomaly anomaly = Anomaly.anomalyOf(
+          "200",
+          Confidence.NONE,
+          Anomaly.Type.KILLAURA,
+          "sprint-toggles aligned with attacks (" + MathHelper.formatDouble(ratioBefore, 2) + "%)", Anomaly.AnomalyOption.DELAY_16s
+        );
+        parentCheck().saveAnomaly(player, anomaly);
+      }
 
       meta.totalAttacks = 0;
       meta.attacksWithSprintChangeBefore = 0;

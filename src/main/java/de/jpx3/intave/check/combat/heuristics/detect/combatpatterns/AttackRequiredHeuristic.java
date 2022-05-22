@@ -182,7 +182,7 @@ public final class AttackRequiredHeuristic extends MetaCheckPart<Heuristics, Att
     return (creative ? 5.0F : 3.0F) - 0.005f;
   }
 
-  public final static class AttackRequiredMeta extends CheckCustomMetadata {
+  public static final class AttackRequiredMeta extends CheckCustomMetadata {
     public boolean expectedAttack;
     public boolean didAttack, didSwing;
     public long lastFlag;

@@ -63,7 +63,7 @@ public class AnnotationNode extends AnnotationVisitor {
    * @param descriptor the class descriptor of the annotation class.
    * @throws IllegalStateException If a subclass calls this constructor.
    */
-  public AnnotationNode(final String descriptor) {
+  public AnnotationNode(String descriptor) {
     this(/* latest api = */ Opcodes.ASM7, descriptor);
     if (getClass() != AnnotationNode.class) {
       throw new IllegalStateException();
@@ -77,7 +77,7 @@ public class AnnotationNode extends AnnotationVisitor {
    *                   Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    * @param descriptor the class descriptor of the annotation class.
    */
-  public AnnotationNode(final int api, final String descriptor) {
+  public AnnotationNode(int api, String descriptor) {
     super(api);
     this.desc = descriptor;
   }
@@ -87,7 +87,7 @@ public class AnnotationNode extends AnnotationVisitor {
    *
    * @param values where the visited values must be stored.
    */
-  AnnotationNode(final List<Object> values) {
+  AnnotationNode(List<Object> values) {
     super(/* latest api = */ Opcodes.ASM7);
     this.values = values;
   }
@@ -104,7 +104,7 @@ public class AnnotationNode extends AnnotationVisitor {
    * @param value             the actual value.
    */
   static void accept(
-    final AnnotationVisitor annotationVisitor, final String name, final Object value) {
+    AnnotationVisitor annotationVisitor, String name, Object value) {
     if (annotationVisitor != null) {
       if (value instanceof String[]) {
         String[] typeValue = (String[]) value;
@@ -126,7 +126,7 @@ public class AnnotationNode extends AnnotationVisitor {
   }
 
   @Override
-  public void visit(final String name, final Object value) {
+  public void visit(String name, Object value) {
     if (values == null) {
       values = new ArrayList<>(this.desc != null ? 2 : 1);
     }
@@ -155,7 +155,7 @@ public class AnnotationNode extends AnnotationVisitor {
   }
 
   @Override
-  public void visitEnum(final String name, final String descriptor, final String value) {
+  public void visitEnum(String name, String descriptor, String value) {
     if (values == null) {
       values = new ArrayList<>(this.desc != null ? 2 : 1);
     }
@@ -166,7 +166,7 @@ public class AnnotationNode extends AnnotationVisitor {
   }
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String name, final String descriptor) {
+  public AnnotationVisitor visitAnnotation(String name, String descriptor) {
     if (values == null) {
       values = new ArrayList<>(this.desc != null ? 2 : 1);
     }
@@ -179,7 +179,7 @@ public class AnnotationNode extends AnnotationVisitor {
   }
 
   @Override
-  public AnnotationVisitor visitArray(final String name) {
+  public AnnotationVisitor visitArray(String name) {
     if (values == null) {
       values = new ArrayList<>(this.desc != null ? 2 : 1);
     }
@@ -208,7 +208,7 @@ public class AnnotationNode extends AnnotationVisitor {
    * @param api an ASM API version. Must be one of {@link Opcodes#ASM4}, {@link Opcodes#ASM5},
    *            {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
-  public void check(final int api) {
+  public void check(int api) {
     // nothing to do
   }
 
@@ -217,7 +217,7 @@ public class AnnotationNode extends AnnotationVisitor {
    *
    * @param annotationVisitor an annotation visitor. Maybe {@literal null}.
    */
-  public void accept(final AnnotationVisitor annotationVisitor) {
+  public void accept(AnnotationVisitor annotationVisitor) {
     if (annotationVisitor != null) {
       if (values != null) {
         for (int i = 0, n = values.size(); i < n; i += 2) {

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class ResourceRegistry {
-  private final static Map<String, Resource> registeredResources = new HashMap<>();
+  private static final Map<String, Resource> registeredResources = new HashMap<>();
 
   public static void registerResource(String name, Resource resource) {
     registeredResources.put(name, resource);

@@ -66,7 +66,7 @@ public final class AbilityTracker extends Module {
     }
   }
 
-  private final static boolean BIT_FIELD = MinecraftVersions.VER1_16_0.atOrAbove();
+  private static final boolean BIT_FIELD = MinecraftVersions.VER1_16_0.atOrAbove();
 
   private static boolean requestedFlying(PacketContainer packet) {
     return packet.getBooleans().read(BIT_FIELD ? 0 : 1);

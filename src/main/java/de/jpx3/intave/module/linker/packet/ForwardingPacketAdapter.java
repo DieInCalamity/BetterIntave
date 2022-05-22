@@ -13,7 +13,8 @@ import java.util.Arrays;
 import java.util.Collection;
 
 public final class ForwardingPacketAdapter extends WeakReferencePacketAdapter {
-  private final static boolean TEMP_PLAYER_CHECK;
+  private static final boolean TEMP_PLAYER_CHECK;
+
   static {
     TEMP_PLAYER_CHECK = Arrays.stream(PacketEvent.class.getMethods())
       .anyMatch(method -> method.getName().equalsIgnoreCase("isPlayerTemporary"));

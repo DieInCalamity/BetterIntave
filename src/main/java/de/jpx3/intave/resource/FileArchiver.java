@@ -57,9 +57,9 @@ public final class FileArchiver {
   }
 
   private void moveFileToArchive(File file, File archiveFile) {
-    try(
+    try (
       FileInputStream in = new FileInputStream(file);
-      ZipOutputStream out = new ZipOutputStream(new FileOutputStream(archiveFile));
+      ZipOutputStream out = new ZipOutputStream(new FileOutputStream(archiveFile))
     ) {
       out.putNextEntry(new ZipEntry(file.getName()));
       out.setLevel(Deflater.BEST_COMPRESSION);

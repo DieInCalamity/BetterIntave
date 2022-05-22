@@ -104,7 +104,7 @@ final class UnsafeCopyOnWriteEnumSet<E extends Enum<E>> extends AbstractSet<E> {
       if (lastReturned == 0)
         throw new IllegalStateException();
       long[] elements = Arrays.copyOf(UnsafeCopyOnWriteEnumSet.this.elements, UnsafeCopyOnWriteEnumSet.this.elements.length);
-      final long oldElements = elements[lastReturnedIndex];
+      long oldElements = elements[lastReturnedIndex];
       elements[lastReturnedIndex] &= ~lastReturned;
       if (oldElements != elements[lastReturnedIndex]) {
         size--;
@@ -139,7 +139,7 @@ final class UnsafeCopyOnWriteEnumSet<E extends Enum<E>> extends AbstractSet<E> {
    * @return <tt>true</tt> if this set contains the specified element
    */
   public boolean contains(Object e) {
-    int eOrdinal = ((Enum<?>)e).ordinal();
+    int eOrdinal = ((Enum<?>) e).ordinal();
     return (elements[eOrdinal >>> 6] & (1L << eOrdinal)) != 0;
   }
 
@@ -150,7 +150,6 @@ final class UnsafeCopyOnWriteEnumSet<E extends Enum<E>> extends AbstractSet<E> {
    *
    * @param e element to be added to this set
    * @return <tt>true</tt> if the set changed as a result of the call
-   *
    * @throws NullPointerException if <tt>e</tt> is null
    */
   public boolean add(E e) {
@@ -174,7 +173,7 @@ final class UnsafeCopyOnWriteEnumSet<E extends Enum<E>> extends AbstractSet<E> {
    */
   public boolean remove(Object e) {
     long[] elements = Arrays.copyOf(this.elements, this.elements.length);
-    int eOrdinal = ((Enum<?>)e).ordinal();
+    int eOrdinal = ((Enum<?>) e).ordinal();
     int eWordNum = eOrdinal >>> 6;
 
     long oldElements = elements[eWordNum];
@@ -194,13 +193,13 @@ final class UnsafeCopyOnWriteEnumSet<E extends Enum<E>> extends AbstractSet<E> {
    *
    * @param c collection to be checked for containment in this set
    * @return <tt>true</tt> if this set contains all of the elements
-   *        in the specified collection
+   * in the specified collection
    * @throws NullPointerException if the specified collection is null
    */
   public boolean containsAll(@NotNull Collection<?> c) {
     if (!(c instanceof UnsafeCopyOnWriteEnumSet))
       return super.containsAll(c);
-    UnsafeCopyOnWriteEnumSet<?> es = (UnsafeCopyOnWriteEnumSet<?>)c;
+    UnsafeCopyOnWriteEnumSet<?> es = (UnsafeCopyOnWriteEnumSet<?>) c;
     if (es.elementType != elementType)
       return es.isEmpty();
     for (int i = 0; i < elements.length; i++)
@@ -215,12 +214,12 @@ final class UnsafeCopyOnWriteEnumSet<E extends Enum<E>> extends AbstractSet<E> {
    * @param c collection whose elements are to be added to this set
    * @return <tt>true</tt> if this set changed as a result of the call
    * @throws NullPointerException if the specified collection or any of
-   *     its elements are null
+   *                              its elements are null
    */
   public boolean addAll(@NotNull Collection<? extends E> c) {
     if (!(c instanceof UnsafeCopyOnWriteEnumSet))
       return super.addAll(c);
-    UnsafeCopyOnWriteEnumSet<?> es = (UnsafeCopyOnWriteEnumSet<?>)c;
+    UnsafeCopyOnWriteEnumSet<?> es = (UnsafeCopyOnWriteEnumSet<?>) c;
     long[] elements = Arrays.copyOf(this.elements, this.elements.length);
     for (int i = 0; i < elements.length; i++)
       elements[i] |= es.elements[i];
@@ -239,7 +238,7 @@ final class UnsafeCopyOnWriteEnumSet<E extends Enum<E>> extends AbstractSet<E> {
   public boolean removeAll(Collection<?> c) {
     if (!(c instanceof UnsafeCopyOnWriteEnumSet))
       return super.removeAll(c);
-    UnsafeCopyOnWriteEnumSet<?> es = (UnsafeCopyOnWriteEnumSet<?>)c;
+    UnsafeCopyOnWriteEnumSet<?> es = (UnsafeCopyOnWriteEnumSet<?>) c;
     long[] elements = Arrays.copyOf(this.elements, this.elements.length);
     for (int i = 0; i < elements.length; i++)
       elements[i] &= ~es.elements[i];
@@ -258,7 +257,7 @@ final class UnsafeCopyOnWriteEnumSet<E extends Enum<E>> extends AbstractSet<E> {
   public boolean retainAll(@NotNull Collection<?> c) {
     if (!(c instanceof UnsafeCopyOnWriteEnumSet))
       return super.retainAll(c);
-    UnsafeCopyOnWriteEnumSet<?> es = (UnsafeCopyOnWriteEnumSet<?>)c;
+    UnsafeCopyOnWriteEnumSet<?> es = (UnsafeCopyOnWriteEnumSet<?>) c;
     long[] elements = Arrays.copyOf(this.elements, this.elements.length);
     for (int i = 0; i < elements.length; i++)
       elements[i] &= es.elements[i];
@@ -286,7 +285,7 @@ final class UnsafeCopyOnWriteEnumSet<E extends Enum<E>> extends AbstractSet<E> {
   public boolean equals(Object o) {
     if (!(o instanceof UnsafeCopyOnWriteEnumSet))
       return super.equals(o);
-    UnsafeCopyOnWriteEnumSet<?> es = (UnsafeCopyOnWriteEnumSet<?>)o;
+    UnsafeCopyOnWriteEnumSet<?> es = (UnsafeCopyOnWriteEnumSet<?>) o;
     if (es.elementType != elementType)
       return size == 0 && es.size == 0;
     return Arrays.equals(es.elements, elements);

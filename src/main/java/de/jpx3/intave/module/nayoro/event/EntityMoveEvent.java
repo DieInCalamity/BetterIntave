@@ -17,7 +17,8 @@ public final class EntityMoveEvent extends Event {
   private float pitch;
   private boolean inSight;
 
-  public EntityMoveEvent() {}
+  public EntityMoveEvent() {
+  }
 
   public EntityMoveEvent(int entityId, double x, double y, double z, float yaw, float pitch) {
     this.entityId = entityId;

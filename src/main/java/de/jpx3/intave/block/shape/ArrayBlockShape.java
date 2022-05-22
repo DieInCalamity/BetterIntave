@@ -83,7 +83,7 @@ final class ArrayBlockShape extends MemoryTraced implements BlockShape {
     return raytrace;
   }
 
-  private final static Reference<List<BoundingBox>> EMPTY_REFERENCE = new WeakReference<>(null);
+  private static final Reference<List<BoundingBox>> EMPTY_REFERENCE = new WeakReference<>(null);
   private Reference<List<BoundingBox>> boundingBoxCache = EMPTY_REFERENCE;
 
   @Override

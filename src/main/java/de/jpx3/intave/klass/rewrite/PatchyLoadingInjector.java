@@ -29,7 +29,7 @@ public final class PatchyLoadingInjector {
       if (classBytes.length > 0) {
         File dumpFile = null;
         try {
-          dumpFile = File.createTempFile("intave-patchy-"+className, ".class");
+          dumpFile = File.createTempFile("intave-patchy-" + className, ".class");
           FileOutputStream fileOutputStream = new FileOutputStream(dumpFile);
           fileOutputStream.write(classBytes);
           fileOutputStream.close();
@@ -104,7 +104,7 @@ public final class PatchyLoadingInjector {
 
   private static int copy(InputStream var0, OutputStream var1) throws IOException {
     long var2 = copyLarge(var0, var1);
-    return var2 > 2147483647L ? -1 : (int)var2;
+    return var2 > 2147483647L ? -1 : (int) var2;
   }
 
   private static long copyLarge(InputStream var0, OutputStream var1) throws IOException {
@@ -114,7 +114,7 @@ public final class PatchyLoadingInjector {
   private static long copyLarge(InputStream var0, OutputStream var1, byte[] var2) throws IOException {
     long var3 = 0L;
     int var6;
-    for(; -1 != (var6 = var0.read(var2)); var3 += (long)var6) {
+    for (; (var6 = var0.read(var2)) != -1; var3 += var6) {
       var1.write(var2, 0, var6);
     }
     return var3;

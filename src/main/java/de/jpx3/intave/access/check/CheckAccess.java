@@ -15,24 +15,28 @@ import java.util.Map;
 public interface CheckAccess {
   /**
    * Returns the name of the underlying check
+   *
    * @return the name of the underlying check
    */
   String name();
 
   /**
    * Returns the corresponding {@link Check} enum setting for this check
+   *
    * @return the corresponding {@link Check} enum setting for this check
    */
   Check enumCheck();
 
   /**
    * Return wheter this check is enabled
+   *
    * @return true when this check is enabled, false if not
    */
   boolean enabled();
 
   /**
    * Retrieves a players violation level for this check for the "thresholds" threshold
+   *
    * @param player the player
    * @return the players violation level
    * @throws UnknownPlayerException when the player couldn't be found
@@ -43,7 +47,8 @@ public interface CheckAccess {
 
   /**
    * Retrieves a players violation level for this check for a custom threshold
-   * @param player the player
+   *
+   * @param player    the player
    * @param threshold the requested threshold slot
    * @return the players violation level
    * @throws UnknownPlayerException when the player couldn't be found
@@ -52,6 +57,7 @@ public interface CheckAccess {
 
   /**
    * Increments a players violation level for this check for the "thresholds" threshold
+   *
    * @param player the player
    * @param amount the amount to increment the violation level by
    * @throws UnknownPlayerException when the player couldn't be found
@@ -62,15 +68,17 @@ public interface CheckAccess {
 
   /**
    * Increments a players violation level for this check for a custom threshold
-   * @param player the player
+   *
+   * @param player    the player
    * @param threshold the requested threshold slot
-   * @param amount the amount to increment the violation level by
+   * @param amount    the amount to increment the violation level by
    * @throws UnknownPlayerException when the player couldn't be found
    */
   void addViolationPoints(Player player, String threshold, double amount) throws UnknownPlayerException;
 
   /**
    * Resets a players violation level for this check for the "thresholds" threshold
+   *
    * @param player the player
    * @throws UnknownPlayerException when the player couldn't be found
    */
@@ -80,7 +88,8 @@ public interface CheckAccess {
 
   /**
    * Resets a players violation level for this check for the "thresholds" threshold
-   * @param player the player
+   *
+   * @param player    the player
    * @param threshold the requested threshold slot
    * @throws UnknownPlayerException when the player couldn't be found
    */
@@ -89,6 +98,7 @@ public interface CheckAccess {
   /**
    * Retrieves the set mitigation strategy for this check.
    * If a check does not support mitigation strategies, this method will return {@link MitigationStrategy#NOT_SUPPORTED}
+   *
    * @return the set mitigation strategy for this check, otherwise {@link MitigationStrategy#NOT_SUPPORTED}
    */
   default MitigationStrategy mitigationStrategy() {
@@ -97,6 +107,7 @@ public interface CheckAccess {
 
   /**
    * Overrides set mitigation strategy for this check.
+   *
    * @throws UnsupportedOperationException when the check does not support mitigation strategies
    */
   default void setMitigationStrategy(MitigationStrategy mitigationStrategy) {
@@ -105,6 +116,7 @@ public interface CheckAccess {
 
   /**
    * Retrieves this checks threshold-commands by threshold
+   *
    * @param threshold the selected theshold slot
    * @return a map of thresholds to commands
    */
@@ -112,6 +124,7 @@ public interface CheckAccess {
 
   /**
    * Retrieves this checks statistics
+   *
    * @return this checks statistics
    */
   CheckStatisticsAccess statistics();

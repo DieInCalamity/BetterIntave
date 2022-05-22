@@ -67,7 +67,7 @@ public final class RotationAccuracyPitchHeuristic extends MetaCheckPart<Heuristi
     }
   }
 
-  public final static class RotationAccuracyHeuristicMeta extends CheckCustomMetadata {
+  public static final class RotationAccuracyHeuristicMeta extends CheckCustomMetadata {
     public int threshold;
   }
 }

@@ -68,10 +68,9 @@ public final class NayoroEventSubscriptionLinker extends Module {
         continue;
       }
       Class<?> checkClass;
-      if (
-        method.getParameterTypes().length == 2 &&
+      if (method.getParameterTypes().length == 2 &&
         method.getParameterTypes()[0].equals(PlayerContainer.class) &&
-          Event.class.isAssignableFrom(checkClass = method.getParameterTypes()[1])
+        Event.class.isAssignableFrom(checkClass = method.getParameterTypes()[1])
       ) {
         if (Modifier.isPrivate(method.getModifiers()) || Modifier.isStatic(method.getModifiers())) {
           throw new IntaveInternalException("Invalid linking for method " + method);
@@ -89,8 +88,8 @@ public final class NayoroEventSubscriptionLinker extends Module {
           NayoroEventExecutor.class,
           "<generated>",
           "execute",
-          "(L"+eventListenerClassPath+";L"+playerClassPath+";L"+eventClassPath+";)V",
-          "(L"+specifiedListenerClassPath+";L"+specifiedPlayerClassPath+";L"+ specifiedEventClassPath +";)V",
+          "(L" + eventListenerClassPath + ";L" + playerClassPath + ";L" + eventClassPath + ";)V",
+          "(L" + specifiedListenerClassPath + ";L" + specifiedPlayerClassPath + ";L" + specifiedEventClassPath + ";)V",
           specifiedListenerClassPath,
           method.getName(),
           Type.getMethodDescriptor(method),

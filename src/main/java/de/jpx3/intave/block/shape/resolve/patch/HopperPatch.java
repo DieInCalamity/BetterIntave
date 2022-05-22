@@ -23,22 +23,22 @@ import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_13;
 final class HopperPatch extends BoundingBoxPatch {
   private static final float WALL_WIDTH = 2.0f;
   private static final float BOX_HEIGHT = 5.0f;
-  private final static BlockShape SHAPE_A = BoundingBox.originFromX16(0, 16 - BOX_HEIGHT, 0, WALL_WIDTH, 16, 16);
-  private final static BlockShape SHAPE_B = BoundingBox.originFromX16(WALL_WIDTH, 16 - BOX_HEIGHT, 0, 16, 16, WALL_WIDTH);
-  private final static BlockShape SHAPE_C = BoundingBox.originFromX16(WALL_WIDTH, 16 - BOX_HEIGHT, 16.0 - WALL_WIDTH, 16, 16, 16);
-  private final static BlockShape SHAPE_D = BoundingBox.originFromX16(16.0 - WALL_WIDTH, 16 - BOX_HEIGHT, WALL_WIDTH, 16, 16, 16 - WALL_WIDTH);
-  private final static BlockShape SHAPE_WALLS = BlockShapes.merge(SHAPE_A, SHAPE_B, SHAPE_C, SHAPE_D);
-  private final static BlockShape SHAPE_CLOSURE = BoundingBox.originFromX16(0, 10.0, 0, 16, 16 - BOX_HEIGHT, 16);
-  private final static BlockShape SHAPE_BASE = BoundingBox.originFromX16(4, 4, 4, 12, 10.0, 12);
-  private final static BlockShape MAIN_SHAPE = BlockShapes.merge(SHAPE_WALLS, SHAPE_CLOSURE, SHAPE_BASE);
+  private static final BlockShape SHAPE_A = BoundingBox.originFromX16(0, 16 - BOX_HEIGHT, 0, WALL_WIDTH, 16, 16);
+  private static final BlockShape SHAPE_B = BoundingBox.originFromX16(WALL_WIDTH, 16 - BOX_HEIGHT, 0, 16, 16, WALL_WIDTH);
+  private static final BlockShape SHAPE_C = BoundingBox.originFromX16(WALL_WIDTH, 16 - BOX_HEIGHT, 16.0 - WALL_WIDTH, 16, 16, 16);
+  private static final BlockShape SHAPE_D = BoundingBox.originFromX16(16.0 - WALL_WIDTH, 16 - BOX_HEIGHT, WALL_WIDTH, 16, 16, 16 - WALL_WIDTH);
+  private static final BlockShape SHAPE_WALLS = BlockShapes.merge(SHAPE_A, SHAPE_B, SHAPE_C, SHAPE_D);
+  private static final BlockShape SHAPE_CLOSURE = BoundingBox.originFromX16(0, 10.0, 0, 16, 16 - BOX_HEIGHT, 16);
+  private static final BlockShape SHAPE_BASE = BoundingBox.originFromX16(4, 4, 4, 12, 10.0, 12);
+  private static final BlockShape MAIN_SHAPE = BlockShapes.merge(SHAPE_WALLS, SHAPE_CLOSURE, SHAPE_BASE);
 
-  private final static BlockShape LEGACY_HOPPER_BOX_SHAPE = BlockShapes.merge(SHAPE_WALLS, BoundingBox.originFromX16(0, 0, 0, 16, 10.0f, 16));
+  private static final BlockShape LEGACY_HOPPER_BOX_SHAPE = BlockShapes.merge(SHAPE_WALLS, BoundingBox.originFromX16(0, 0, 0, 16, 10.0f, 16));
 
-  private final static BlockShape SHAPE_DOWN = BlockShapes.merge(MAIN_SHAPE, BoundingBox.originFromX16(6.0D, 0.0D, 6.0D, 10.0D, 4.0D, 10.0D));
-  private final static BlockShape SHAPE_NORTH = BlockShapes.merge(MAIN_SHAPE, BoundingBox.originFromX16(12.0D, 4.0D, 6.0D, 16.0D, 8.0D, 10.0D));
-  private final static BlockShape SHAPE_EAST = BlockShapes.merge(MAIN_SHAPE, BoundingBox.originFromX16(6.0D, 4.0D, 0.0D, 10.0D, 8.0D, 4.0D));
-  private final static BlockShape SHAPE_SOUTH = BlockShapes.merge(MAIN_SHAPE, BoundingBox.originFromX16(6.0D, 4.0D, 12.0D, 10.0D, 8.0D, 16.0D));
-  private final static BlockShape SHAPE_WEST = BlockShapes.merge(MAIN_SHAPE, BoundingBox.originFromX16(0.0D, 4.0D, 6.0D, 4.0D, 8.0D, 10.0D));
+  private static final BlockShape SHAPE_DOWN = BlockShapes.merge(MAIN_SHAPE, BoundingBox.originFromX16(6.0D, 0.0D, 6.0D, 10.0D, 4.0D, 10.0D));
+  private static final BlockShape SHAPE_NORTH = BlockShapes.merge(MAIN_SHAPE, BoundingBox.originFromX16(12.0D, 4.0D, 6.0D, 16.0D, 8.0D, 10.0D));
+  private static final BlockShape SHAPE_EAST = BlockShapes.merge(MAIN_SHAPE, BoundingBox.originFromX16(6.0D, 4.0D, 0.0D, 10.0D, 8.0D, 4.0D));
+  private static final BlockShape SHAPE_SOUTH = BlockShapes.merge(MAIN_SHAPE, BoundingBox.originFromX16(6.0D, 4.0D, 12.0D, 10.0D, 8.0D, 16.0D));
+  private static final BlockShape SHAPE_WEST = BlockShapes.merge(MAIN_SHAPE, BoundingBox.originFromX16(0.0D, 4.0D, 6.0D, 4.0D, 8.0D, 10.0D));
 
   @Override
   public List<BoundingBox> patch(World world, Player player, Block block, List<BoundingBox> bbs) {

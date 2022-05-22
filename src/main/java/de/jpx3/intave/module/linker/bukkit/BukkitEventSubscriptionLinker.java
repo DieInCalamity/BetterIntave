@@ -77,7 +77,7 @@ public final class BukkitEventSubscriptionLinker extends Module {
       Class<?> checkClass;
       if (
         method.getParameterTypes().length == 1 &&
-        Event.class.isAssignableFrom(checkClass = method.getParameterTypes()[0])
+          Event.class.isAssignableFrom(checkClass = method.getParameterTypes()[0])
       ) {
         if (Modifier.isPrivate(method.getModifiers()) || Modifier.isStatic(method.getModifiers())) {
           throw new IntaveInternalException("Invalid linking for method " + method);
@@ -92,7 +92,7 @@ public final class BukkitEventSubscriptionLinker extends Module {
           "<generated>",
           "execute",
           "(Lorg/bukkit/event/Listener;Lorg/bukkit/event/Event;)V",
-          "(L"+listenerClassPath+";L"+ eventClassPath +";)V",
+          "(L" + listenerClassPath + ";L" + eventClassPath + ";)V",
           listenerClassPath,
           method.getName(),
           Type.getMethodDescriptor(method),

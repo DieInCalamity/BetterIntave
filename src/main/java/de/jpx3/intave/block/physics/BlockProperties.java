@@ -9,8 +9,8 @@ import java.util.function.BiConsumer;
 import static org.bukkit.Material.*;
 
 public final class BlockProperties {
-  private final static Property DEFAULT_PROPERTY = Property.builderFor(AIR).build();
-  private final static Map<Material, Property> registry = new HashMap<>();
+  private static final Property DEFAULT_PROPERTY = Property.builderFor(AIR).build();
+  private static final Map<Material, Property> registry = new HashMap<>();
 
   public static void setup() {
     Property.builderFor(ICE).slipperiness(0.98f).build().trySave();

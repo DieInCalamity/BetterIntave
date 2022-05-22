@@ -32,11 +32,11 @@ public final class SinusCache {
     }
     // 1.8.9 optifine H5
     for (int i = 0; i < 4096; ++i) {
-      SIN_TABLE_FAST[i] = roundToFloat(Math.sin((double)i * Math.PI * 2d / 4096d));
+      SIN_TABLE_FAST[i] = roundToFloat(Math.sin((double) i * Math.PI * 2d / 4096d));
     }
   }
 
   public static float roundToFloat(double d) {
-    return (float)((double)Math.round(d * 100000000) / 100000000);
+    return (float) ((double) Math.round(d * 100000000) / 100000000);
   }
 }

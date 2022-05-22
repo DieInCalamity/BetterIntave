@@ -77,7 +77,7 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
       return;
     } else {
       PacketContainer packet = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Client.BLOCK_DIG);
-      packet.getBlockPositionModifier().write(0, new BlockPosition(0,0,0));
+      packet.getBlockPositionModifier().write(0, new BlockPosition(0, 0, 0));
       packet.getDirections().write(0, EnumWrappers.Direction.DOWN);
       packet.getPlayerDigTypes().write(0, EnumWrappers.PlayerDigType.RELEASE_USE_ITEM);
 
