@@ -1,19 +1,25 @@
 package de.jpx3.intave.module.nayoro;
 
+import de.jpx3.intave.check.combat.heuristics.Confidence;
+import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
+import de.jpx3.intave.module.nayoro.detection.DetectionSubscription;
 import de.jpx3.intave.module.nayoro.event.AttackEvent;
 import de.jpx3.intave.module.nayoro.event.PlayerInitEvent;
 import de.jpx3.intave.module.nayoro.event.PlayerMoveEvent;
 import de.jpx3.intave.shade.Position;
 import de.jpx3.intave.shade.Rotation;
+import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import org.bukkit.GameMode;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
-public final class PlaybackPlayerContainer extends SinkPlayerContainer {
+final class PlaybackPlayerContainer extends SinkPlayerContainer {
   private Environment environment;
   private final Map<Class<?>, CheckCustomMetadata> metadata = new HashMap<>();
+  private final DetectionSubscription detectionSubscription;
   private int id;
   private int version;
   private boolean outdated;
@@ -26,6 +32,10 @@ public final class PlaybackPlayerContainer extends SinkPlayerContainer {
   private float lastPitch;
 
   private long lastAttack;
+
+  public PlaybackPlayerContainer(DetectionSubscription... detectionSubscription) {
+    this.detectionSubscription = DetectionSubscription.merge(detectionSubscription);
+  }
 
   @Override
   public int id() {
@@ -126,7 +136,22 @@ public final class PlaybackPlayerContainer extends SinkPlayerContainer {
 
   @Override
   public void debug(String message) {
-    System.out.println("[nayoro/debug] " + message);
+    detectionSubscription.onDebug(message);
+  }
+
+  @Override
+  public void nerf(AttackNerfStrategy strategy, String originCode) {
+    detectionSubscription.onNerf(strategy, originCode);
+  }
+
+  @Override
+  public void noteAnomaly(String key, Confidence confidence, String description) {
+    detectionSubscription.onAnomaly(key, confidence, description);
+  }
+
+  @Override
+  public void applyIfUserPresent(Consumer<User> action) {
+    // ignore
   }
 
   @Override

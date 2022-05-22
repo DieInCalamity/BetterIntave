@@ -7,6 +7,7 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.trust.TrustFactor;
+import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.check.CheckStatistics;
 import de.jpx3.intave.check.CheckViolationLevelDecrementer;
 import de.jpx3.intave.check.MetaCheck;
@@ -22,7 +23,6 @@ import de.jpx3.intave.module.tracker.entity.EntityShade;
 import de.jpx3.intave.module.violation.Violation;
 import de.jpx3.intave.module.violation.ViolationContext;
 import de.jpx3.intave.packet.PacketSender;
-import de.jpx3.intave.security.LicenseAccess;
 import de.jpx3.intave.shade.Position;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.*;
@@ -40,11 +40,10 @@ import static de.jpx3.intave.module.tracker.entity.EntityTracker.entityByIdentif
 import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DONT_PROCESS_VIOSTAT;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_9;
 
+@Relocate
 public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytraceMeta> {
   private final IntavePlugin plugin;
   private final CheckViolationLevelDecrementer hitboxDecrementer, reachDecrementer;
-  private final boolean spamDebugsToConsole;
-
   private final double VL_DECREMENT_PER_ATTACK = 0.125;
 
   public AttackRaytrace(IntavePlugin plugin) {
@@ -52,9 +51,6 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     this.plugin = plugin;
     this.hitboxDecrementer = new CheckViolationLevelDecrementer(this, "applicable-thresholds.hitbox", VL_DECREMENT_PER_ATTACK * 0.5);
     this.reachDecrementer = new CheckViolationLevelDecrementer(this, "applicable-thresholds.reach", VL_DECREMENT_PER_ATTACK * 2);
-
-    String network = LicenseAccess.network();
-    this.spamDebugsToConsole = network != null && network.equals("Toshka");
   }
 
   @PacketSubscription(
@@ -103,23 +99,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
         if (event.isReadOnly()) {
           event.setReadOnly(false);
         }
-
         event.setCancelled(true);
-
-        if (spamDebugsToConsole) {
-          IntaveLogger logger = IntavePlugin.singletonInstance().logger();
-          if (entity == null) {
-            logger.info("[DEB] Entity is null");
-          } else {
-            logger.info(
-              "[DEB] false, "
-                + (entity instanceof EntityShade.Destroyed) + ", "
-                + (unsynchronizedHealth <= 0) + " - " + unsynchronizedHealth + ", "
-                + entity.typeData().isLivingEntity() + ", "
-                + (entity.mountedEntity() == null)
-            );
-          }
-        }
       }
       Attack attack = new Attack(packetClone, entityId, checkAgain);
       List<Attack> pendingAttacks = attackRaytraceMeta.pendingAttacks;

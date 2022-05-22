@@ -3,7 +3,7 @@ package de.jpx3.intave.module.nayoro;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public final class MultiplexOutputStream extends OutputStream {
+final class MultiplexOutputStream extends OutputStream {
   private final OutputStream[] outputStreams;
 
   public MultiplexOutputStream(OutputStream... outputStreams) {

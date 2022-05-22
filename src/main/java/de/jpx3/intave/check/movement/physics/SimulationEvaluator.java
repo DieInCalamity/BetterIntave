@@ -1,5 +1,6 @@
 package de.jpx3.intave.check.movement.physics;
 
+import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.annotate.refactoring.SplitMeUp;
 import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.math.Hypot;
@@ -14,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 @SplitMeUp
+@Relocate
 public final class SimulationEvaluator {
   private final static double LADDER_UPWARDS_MOTION = (0.2 - 0.08) * 0.98005f;
 

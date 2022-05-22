@@ -11,6 +11,7 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.DispatchTarget;
+import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.block.access.BlockInteractionAccess;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.collision.Collision;
@@ -58,6 +59,7 @@ import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType.*;
 import static de.jpx3.intave.check.world.interaction.InteractionEmulator.EmulationResult.FAILED;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
+@Relocate
 public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.InteractionMeta> {
   private final IntavePlugin plugin;
   private final CheckViolationLevelDecrementer decrementer;

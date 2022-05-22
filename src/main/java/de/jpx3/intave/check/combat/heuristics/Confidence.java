@@ -1,6 +1,7 @@
 package de.jpx3.intave.check.combat.heuristics;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 public enum Confidence implements Comparable<Confidence> {
   CERTAIN("certain", "!!", 960),
@@ -40,7 +41,11 @@ public enum Confidence implements Comparable<Confidence> {
   }
 
   public static int levelFrom(Confidence... confidences) {
-    return Arrays.stream(confidences).mapToInt(Confidence::level).sum();
+    int sum = 0;
+    for (Confidence confidence : confidences) {
+      sum += confidence.level();
+    }
+    return sum;
   }
 
   public static Confidence confidenceFrom(int level) {
@@ -51,5 +56,15 @@ public enum Confidence implements Comparable<Confidence> {
       }
     }
     return highest;
+  }
+
+  public static List<Confidence> confidencesStackingTo(int level) {
+    List<Confidence> result = new ArrayList<>();
+    while (level > MAYBE.level()) {
+      Confidence confidence = confidenceFrom(level);
+      result.add(confidence);
+      level -= confidence.level();
+    }
+    return result;
   }
 }

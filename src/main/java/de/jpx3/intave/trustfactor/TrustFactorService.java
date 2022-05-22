@@ -19,6 +19,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 @HighOrderService
 public final class TrustFactorService implements BukkitEventSubscriber {
+  private final static TrustFactorResolver DEFAULT_RESOLVER = new DefaultForwardingPermissionTrustFactorResolver(new EmptyTrustFactorResolver());
   private final IntavePlugin plugin;
   private TrustFactorResolver trustFactorResolver;
   private TrustFactorConfiguration trustFactorConfiguration;
@@ -31,7 +32,7 @@ public final class TrustFactorService implements BukkitEventSubscriber {
   public void setup() {
     TrustFactorLoader trustFactorLoader = IntaveControl.USE_DEBUG_RESOURCES ? new DebugYamlTrustFactorLoader() : new InternetYamlTrustFactorLoader();
     trustFactorConfiguration = trustFactorLoader.fetch();
-    trustFactorResolver = new DefaultForwardingPermissionTrustFactorResolver(new EmptyTrustFactorResolver());
+    trustFactorResolver = DEFAULT_RESOLVER;
 
     plugin.eventLinker().registerEventsIn(this);
     Synchronizer.synchronize(() -> BackgroundExecutor.execute(this::resolveTrustFactorForAll));
@@ -52,15 +53,15 @@ public final class TrustFactorService implements BukkitEventSubscriber {
   private void resolveTrustFactorFor(Player player) {
     User user = UserRepository.userOf(player);
     user.setTrustFactor(defaultTrustFactor);
-
     if (IntaveControl.APPLY_GLOBAL_LOW_TRUSTFACTOR) {
       user.setTrustFactor(TrustFactor.RED);
       return;
     }
     if (trustFactorResolver == null) {
-      trustFactorResolver = new DefaultForwardingPermissionTrustFactorResolver(new EmptyTrustFactorResolver());
+      trustFactorResolver = DEFAULT_RESOLVER;
     }
-    trustFactorResolver.resolve(player,
+    trustFactorResolver.resolve(
+      player,
       trustFactor -> {
         String trustFactorOutput = trustFactor.chatColor() + "" + trustFactor + IntavePlugin.defaultColor();
         IntavePlugin.singletonInstance().logger().info("Assigned trust factor " + trustFactorOutput + " to " + (user.hasPlayer() ? user.player().getName() : "null"));

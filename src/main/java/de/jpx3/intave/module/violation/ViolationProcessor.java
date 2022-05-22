@@ -198,7 +198,7 @@ public final class ViolationProcessor extends Module {
     recorder.recordViolation(violation.check().name());
     Player player = violation.findPlayer().orElseThrow(IllegalStateException::new);
     User user = UserRepository.userOf(player);
-    ViolationStorage violationStorage = (ViolationStorage) user.storageOf(ViolationStorage.class);
+    ViolationStorage violationStorage = user.storageOf(ViolationStorage.class);
     violationStorage.noteViolation(violationContext);
   }
 

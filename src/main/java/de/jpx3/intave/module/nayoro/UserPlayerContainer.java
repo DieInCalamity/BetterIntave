@@ -1,6 +1,8 @@
 package de.jpx3.intave.module.nayoro;
 
 import de.jpx3.intave.IntaveControl;
+import de.jpx3.intave.check.combat.heuristics.Confidence;
+import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.module.tracker.entity.EntityShade;
 import de.jpx3.intave.module.tracker.player.AbilityTracker;
 import de.jpx3.intave.shade.Position;
@@ -14,6 +16,8 @@ import de.jpx3.intave.world.raytrace.Raytrace;
 import de.jpx3.intave.world.raytrace.Raytracing;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
+
+import java.util.function.Consumer;
 
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_8;
 
@@ -30,6 +34,21 @@ public final class UserPlayerContainer implements PlayerContainer {
     if (IntaveControl.DISABLE_LICENSE_CHECK) {
       user.player().sendMessage("[debug] " + message);
     }
+  }
+
+  @Override
+  public void nerf(AttackNerfStrategy strategy, String originCode) {
+    user.applyAttackNerfer(strategy, originCode);
+  }
+
+  @Override
+  public void noteAnomaly(String key, Confidence confidence, String description) {
+    // ignore
+  }
+
+  @Override
+  public void applyIfUserPresent(Consumer<User> action) {
+    action.accept(user);
   }
 
   @Override

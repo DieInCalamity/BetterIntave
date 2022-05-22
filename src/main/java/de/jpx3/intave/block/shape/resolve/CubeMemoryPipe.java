@@ -1,16 +1,13 @@
 package de.jpx3.intave.block.shape.resolve;
 
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.block.shape.BlockShapes;
 import de.jpx3.intave.block.shape.ShapeResolverPipeline;
 import de.jpx3.intave.diagnostic.ShapeAccessFlowStudy;
-import de.jpx3.intave.shade.BoundingBox;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import java.util.List;
 import java.util.Set;
 
 final class CubeMemoryPipe implements ShapeResolverPipeline {
@@ -42,17 +39,10 @@ final class CubeMemoryPipe implements ShapeResolverPipeline {
     }
     BlockShape shape = forward.resolve(world, player, type, variantIndex, posX, posY, posZ);
     if (isInLoadedChunk(world, posX, posZ)) {
-      boolean solid = shape.isCubic();//shape instanceof CubeShape || isCubic(shape.boundingBoxes(), posX, posY, posZ);
-      if (solid) {
-        if (IntaveControl.DISABLE_LICENSE_CHECK) {
-          System.out.println("[debug] solid added: " + type.name());
-        }
+      if (shape.isCubic()) {
         downstreamTypeReset(type); // flush downstream type
         solidMaterials.add(type);
       } else {
-        if (IntaveControl.DISABLE_LICENSE_CHECK) {
-          System.out.println("[debug] non-solid added: " + type.name());
-        }
         otherMaterials.add(type);
       }
     }
@@ -76,14 +66,5 @@ final class CubeMemoryPipe implements ShapeResolverPipeline {
 
   public static boolean isInLoadedChunk(World world, int x, int z) {
     return world.isChunkLoaded(x >> 4, z >> 4);
-  }
-
-  private boolean isCubic(List<BoundingBox> resolve, int posX, int posY, int posZ) {
-    if (resolve.size() != 1) {
-      return false;
-    }
-    BoundingBox theBox = resolve.get(0).offset(-posX, -posY, -posZ);
-    return theBox.minX == 0 && theBox.minY == 0 && theBox.minZ == 0 &&
-      theBox.maxX == 1 && theBox.maxY == 1 && theBox.maxZ == 1;
   }
 }

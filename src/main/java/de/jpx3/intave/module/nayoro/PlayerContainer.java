@@ -1,9 +1,14 @@
 package de.jpx3.intave.module.nayoro;
 
+import de.jpx3.intave.check.combat.heuristics.Confidence;
+import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.shade.Position;
 import de.jpx3.intave.shade.Rotation;
+import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import org.bukkit.GameMode;
+
+import java.util.function.Consumer;
 
 /**
  * Class generated using IntelliJ IDEA
@@ -35,4 +40,7 @@ public interface PlayerContainer {
   boolean recentlySwitchedEntity(long millis);
 
   void debug(String message);
+  void nerf(AttackNerfStrategy strategy, String originCode);
+  void noteAnomaly(String key, Confidence confidence, String description);
+  void applyIfUserPresent(Consumer<User> action);
 }

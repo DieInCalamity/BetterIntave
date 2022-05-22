@@ -10,7 +10,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class PlayerStorage implements Storage {
-  private final static int STORAGE_VERSION = 1;
+  private final static int STORAGE_VERSION = 2;
 
   private final Map<Class<? extends Storage>, Storage> subStorages = new ConcurrentHashMap<>();
   private final List<Storage> storageList = new ArrayList<>();

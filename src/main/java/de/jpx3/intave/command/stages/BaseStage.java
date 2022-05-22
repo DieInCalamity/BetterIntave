@@ -15,9 +15,9 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.user.permission.BukkitPermissionCheck;
+import de.jpx3.intave.user.storage.StorageViolationEvent;
+import de.jpx3.intave.user.storage.StorageViolationEvents;
 import de.jpx3.intave.user.storage.ViolationStorage;
-import de.jpx3.intave.user.storage.ViolationStorage.ViolationEvent;
-import de.jpx3.intave.user.storage.ViolationStorage.ViolationEvents;
 import de.jpx3.intave.version.DurationTranslator;
 import de.jpx3.intave.version.IntaveVersion;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -178,7 +178,7 @@ public final class BaseStage extends CommandStage {
       User targetUser = UserRepository.userOf(player);
       String name = player.getName();
       UUID id = player.getUniqueId();
-      ViolationStorage violationStorage = (ViolationStorage) targetUser.storageOf(ViolationStorage.class);
+      ViolationStorage violationStorage = targetUser.storageOf(ViolationStorage.class);
       outputHistory(sender, name, id, violationStorage);
     } else {
       sender.sendMessage(IntavePlugin.prefix() + ChatColor.YELLOW + "Loading history..");
@@ -199,7 +199,7 @@ public final class BaseStage extends CommandStage {
   }
 
   private void outputHistory(CommandSender sender, String name, UUID id, ViolationStorage violationStorage) {
-    ViolationEvents violations = violationStorage.violations();
+    StorageViolationEvents violations = violationStorage.violations();
     sender.sendMessage(String.format("%sHistory of "+ChatColor.RED+"%s%s:", IntavePlugin.prefix(), name, IntavePlugin.defaultColor()));
     if (violations.isEmpty()) {
       sender.sendMessage(IntavePlugin.prefix() + ChatColor.GREEN + "No violations found");
@@ -213,12 +213,12 @@ public final class BaseStage extends CommandStage {
     printHistory(sender, "ChestStealer", filterByCheck("inventoryAnalysis", violations));
   }
 
-  private void printHistory(CommandSender sender, String cheat, ViolationEvents violations) {
+  private void printHistory(CommandSender sender, String cheat, StorageViolationEvents violations) {
     if (violations.isEmpty()) {
       return;
     }
     if (violations.size() == 1) {
-      ViolationEvent firstViolation = violations.first();
+      StorageViolationEvent firstViolation = violations.first();
       String baseMessage = MessageFormat.format("{0}- detected for using {1}{2}{0} {3}", IntavePlugin.defaultColor(), ChatColor.RED, cheat, durationToString(firstViolation.timePassedSince()));
       String defaultColor = IntavePlugin.defaultColor();
       TextComponent textComponent = new TextComponent(baseMessage);
@@ -240,7 +240,7 @@ public final class BaseStage extends CommandStage {
     TextComponent newLine = new TextComponent(ComponentSerializer.parse("{text: \"\n\"}"));
     TextComponent[] textComponents = new TextComponent[violations.size()];
     int i = 0;
-    for (ViolationEvent violation : violations) {
+    for (StorageViolationEvent violation : violations) {
       TextComponent textComponent = new TextComponent(
         new TextComponent(defaultColor + "Check " + ChatColor.RED + correctlyFormattedCheckName(violation.checkName())),
         new TextComponent(defaultColor + " reached " + ChatColor.RED + violation.violationLevel() + defaultColor + "VL"),
@@ -293,7 +293,7 @@ public final class BaseStage extends CommandStage {
     return "a few seconds ago";
   }
 
-  private ViolationEvents filterByCheck(String check, ViolationEvents allViolations) {
+  private StorageViolationEvents filterByCheck(String check, StorageViolationEvents allViolations) {
     return allViolations.filter(event -> event.checkName().equalsIgnoreCase(check));
   }
 

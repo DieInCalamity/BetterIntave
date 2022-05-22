@@ -2,6 +2,7 @@ package de.jpx3.intave.check.combat;
 
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntaveControl;
+import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.check.Check;
 import de.jpx3.intave.check.CheckViolationLevelDecrementer;
 import de.jpx3.intave.check.combat.clickpatterns.Kurtosis;
@@ -16,6 +17,7 @@ import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.ARM_ANIMATION;
 
+@Relocate
 public final class ClickPatterns extends Check {
   private final static double MAX_VL_DEDUCTION_PER_MINUTE = 16;
   private final CheckViolationLevelDecrementer decrementer;

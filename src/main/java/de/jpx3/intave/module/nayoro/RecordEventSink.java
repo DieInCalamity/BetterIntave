@@ -10,7 +10,7 @@ import java.io.Closeable;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class RecordEventSink extends EventSink {
+class RecordEventSink extends EventSink {
   private long last = System.currentTimeMillis();
   private final Environment environment;
   private final DataOutput dataOutput;

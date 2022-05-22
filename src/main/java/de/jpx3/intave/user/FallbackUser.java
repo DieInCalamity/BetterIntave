@@ -155,7 +155,7 @@ public final class FallbackUser implements User {
   }
 
   @Override
-  public Storage storageOf(Class<? extends Storage> storageClass) {
+  public <T extends Storage> T storageOf(Class<T> storageClass) {
     return storage.storageOf(storageClass);
   }
 

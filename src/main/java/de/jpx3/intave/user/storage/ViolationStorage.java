@@ -5,14 +5,11 @@ import com.google.common.io.ByteArrayDataOutput;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.module.violation.Violation;
 import de.jpx3.intave.module.violation.ViolationContext;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public final class ViolationStorage implements Storage {
   private final static long VIOLATION_UPDATE_CHECK_TIMEOUT = TimeUnit.MINUTES.toMillis(3);
@@ -20,7 +17,7 @@ public final class ViolationStorage implements Storage {
   private final static long VIOLATION_ALLOWED_LIFETIME = TimeUnit.DAYS.toMillis(7);
   private final static long VIOLATION_OVERALL_LIMIT = 256;
 
-  private ViolationEvents interestingViolations = new ViolationEvents();
+  private StorageViolationEvents interestingViolations = new StorageViolationEvents();
 
   public void noteViolation(ViolationContext violationContext) {
     Violation violation = violationContext.violation();
@@ -28,11 +25,11 @@ public final class ViolationStorage implements Storage {
     String details = violation.details();
     int violationLevelAfter = (int) violationContext.violationLevelAfter();
     if (interestingViolation(checkName, details, violationLevelAfter)) {
-      Optional<ViolationEvent> lastViolationEvent = lastViolationOfCheck(checkName);
-      long lastViolationOfCheck = lastViolationEvent.map(ViolationEvent::timePassedSince).orElseGet(System::currentTimeMillis);
+      Optional<StorageViolationEvent> lastViolationEvent = lastViolationOfCheck(checkName);
+      long lastViolationOfCheck = lastViolationEvent.map(StorageViolationEvent::timePassedSince).orElseGet(System::currentTimeMillis);
       if (lastViolationOfCheck > VIOLATION_INSERT_CHECK_COOLDOWN) {
         if (interestingViolations.size() < VIOLATION_OVERALL_LIMIT) {
-          ViolationEvent event = new ViolationEvent(
+          StorageViolationEvent event = new StorageViolationEvent(
             checkName.toLowerCase(Locale.ROOT),
             details.toLowerCase(Locale.ROOT),
             IntavePlugin.version().toLowerCase(Locale.ROOT),
@@ -42,10 +39,10 @@ public final class ViolationStorage implements Storage {
           addViolationEvent(event);
         }
       } else if (lastViolationOfCheck < VIOLATION_UPDATE_CHECK_TIMEOUT && lastViolationEvent.isPresent()) {
-        ViolationEvent violationEvent = lastViolationEvent.get();
-        if (violationLevelAfter > violationEvent.violationLevel()) {
-          violationEvent.setViolationLevel(violationLevelAfter);
-          violationEvent.setTimestamp(System.currentTimeMillis());
+        StorageViolationEvent storageViolationEvent = lastViolationEvent.get();
+        if (violationLevelAfter > storageViolationEvent.violationLevel()) {
+          storageViolationEvent.setViolationLevel(violationLevelAfter);
+          storageViolationEvent.setTimestamp(System.currentTimeMillis());
         }
       }
     }
@@ -65,13 +62,13 @@ public final class ViolationStorage implements Storage {
     }
   }
 
-  private Optional<ViolationEvent> lastViolationOfCheck(String check) {
+  private Optional<StorageViolationEvent> lastViolationOfCheck(String check) {
     return interestingViolations.stream()
       .filter(event -> event.checkName().equalsIgnoreCase(check))
-      .max(Comparator.comparingLong(ViolationEvent::timestamp));
+      .max(Comparator.comparingLong(StorageViolationEvent::timestamp));
   }
 
-  private void addViolationEvent(ViolationEvent event) {
+  private void addViolationEvent(StorageViolationEvent event) {
     interestingViolations.add(event);
   }
 
@@ -93,192 +90,7 @@ public final class ViolationStorage implements Storage {
     );
   }
 
-  public ViolationEvents violations() {
+  public StorageViolationEvents violations() {
     return interestingViolations;
-  }
-
-  public static class ViolationEvents implements Storage, Iterable<ViolationEvent> {
-    private final Collection<ViolationEvent> parent;
-
-    public ViolationEvents() {
-      this(new ArrayList<>());
-    }
-
-    public ViolationEvents(Collection<ViolationEvent> parent) {
-      this.parent = new ArrayList<>(parent);
-    }
-
-    public int size() {
-      return parent.size();
-    }
-
-    public boolean isEmpty() {
-      return size() == 0;
-    }
-
-    public ViolationEvent first() {
-      Iterator<ViolationEvent> iterator = parent.iterator();
-      return iterator.hasNext() ? iterator.next() : null;
-    }
-
-    public ViolationEvent newest() {
-      return stream()
-        .max(Comparator.comparing(ViolationEvent::timestamp))
-        .orElse(null);
-    }
-
-    public ViolationEvents sortedByAge() {
-      return new ViolationEvents(
-        stream()
-        .sorted(Comparator.comparing(ViolationEvent::timePassedSince))
-        .collect(Collectors.toList())
-      );
-    }
-
-    public ViolationEvents withoutViolationsOlderThan(
-      long value, TimeUnit unit
-    ) {
-      return filter(
-        event -> event.timePassedSince() < unit.toMillis(value)
-      );
-    }
-
-    public double matchFactor(
-      Predicate<ViolationEvent> predicate
-    ) {
-      return (double) numMatching(predicate) / size();
-    }
-
-    public long numMatching(
-      Predicate<ViolationEvent> predicate
-    ) {
-      return stream().filter(predicate).count();
-    }
-
-    public ViolationEvents filter(
-      Predicate<ViolationEvent> predicate
-    ) {
-      List<ViolationEvent> filtered = stream()
-        .filter(predicate)
-        .collect(Collectors.toList());
-      return new ViolationEvents(filtered);
-    }
-
-    public Stream<ViolationEvent> stream() {
-      return parent.stream();
-    }
-
-    @NotNull
-    @Override
-    public Iterator<ViolationEvent> iterator() {
-      return parent.iterator();
-    }
-
-    @Override
-    public void forEach(Consumer<? super ViolationEvent> action) {
-      parent.forEach(action);
-    }
-
-    @Override
-    public Spliterator<ViolationEvent> spliterator() {
-      return parent.spliterator();
-    }
-
-    @Override
-    public void writeTo(ByteArrayDataOutput output) {
-      output.writeInt(size());
-      for (ViolationEvent violation : this) {
-        violation.writeTo(output);
-      }
-    }
-
-    @Override
-    public void readFrom(ByteArrayDataInput input) {
-      int violations = input.readInt();
-      for (int i = 0; i < violations; i++) {
-        ViolationEvent violation = new ViolationEvent();
-        violation.readFrom(input);
-        add(violation);
-      }
-    }
-
-    public void add(ViolationEvent event) {
-      parent.add(event);
-    }
-  }
-
-  public static class ViolationEvent implements Storage {
-    private String checkName;
-    private String details;
-    private String intaveVersion;
-    private int violationLevel;
-    private long timestamp;
-
-    public ViolationEvent() {
-    }
-
-    public ViolationEvent(
-      String checkName,
-      String details,
-      String intaveVersion,
-      int violationLevel,
-      long timestamp
-    ) {
-      this.checkName = checkName;
-      this.details = details;
-      this.intaveVersion = intaveVersion;
-      this.violationLevel = violationLevel;
-      this.timestamp = timestamp;
-    }
-
-    @Override
-    public void writeTo(ByteArrayDataOutput output) {
-      output.writeUTF(checkName);
-      output.writeUTF(details);
-      output.writeUTF(intaveVersion);
-      output.writeInt(violationLevel);
-      output.writeLong(timestamp);
-    }
-
-    @Override
-    public void readFrom(ByteArrayDataInput input) {
-      checkName = input.readUTF();
-      details = input.readUTF();
-      intaveVersion = input.readUTF();
-      violationLevel = input.readInt();
-      timestamp = input.readLong();
-    }
-
-    public String checkName() {
-      return checkName;
-    }
-
-    public String details() {
-      return details;
-    }
-
-    public String intaveVersion() {
-      return intaveVersion;
-    }
-
-    public int violationLevel() {
-      return violationLevel;
-    }
-
-    public void setViolationLevel(int violationLevel) {
-      this.violationLevel = violationLevel;
-    }
-
-    public void setTimestamp(long timestamp) {
-      this.timestamp = timestamp;
-    }
-
-    public long timePassedSince() {
-      return System.currentTimeMillis() - timestamp;
-    }
-
-    public long timestamp() {
-      return timestamp;
-    }
   }
 }

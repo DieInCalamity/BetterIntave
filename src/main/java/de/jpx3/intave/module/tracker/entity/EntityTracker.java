@@ -431,12 +431,12 @@ public final class EntityTracker extends Module {
   private final BiConsumer<User, Consumer<EventSink>> sinkCallback = Modules.nayoro().sinkCallback();
 
   private void nayoroEntityPositionUpdate(Player player, EntityShade entity)  {
-    EntityShade.EntityPositionContext position = entity.position;
-    EntityShade.EntityPositionContext lastPosition = entity.lastPosition;
     Nayoro nayoro = Modules.nayoro();
     if (!nayoro.recordingActiveFor(UserRepository.userOf(player))) {
       return;
     }
+    EntityShade.EntityPositionContext position = entity.position;
+    EntityShade.EntityPositionContext lastPosition = entity.lastPosition;
     EntityMoveEvent event = new EntityMoveEvent(
       entity.entityId(),
       position.posX,

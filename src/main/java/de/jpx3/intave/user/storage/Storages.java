@@ -7,6 +7,7 @@ public final class Storages {
     PlayerStorage storage = new PlayerStorage(id);
     storage.append(PlaytimeStorage.class);
     storage.append(ViolationStorage.class);
+    storage.append(HeuristicsStorage.class);
     return storage;
   }
 }

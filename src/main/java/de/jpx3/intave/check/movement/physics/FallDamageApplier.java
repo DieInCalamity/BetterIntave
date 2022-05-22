@@ -2,6 +2,7 @@ package de.jpx3.intave.check.movement.physics;
 
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.MinecraftVersions;
+import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.klass.Lookup;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
@@ -11,6 +12,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 
+@Relocate
 public final class FallDamageApplier {
   private final MethodHandle fallDamageInvokeMethod;
   private final Object fallDamageSource;

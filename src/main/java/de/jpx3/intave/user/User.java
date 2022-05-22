@@ -161,7 +161,7 @@ public interface User {
 
   Storage mainStorage();
 
-  Storage storageOf(Class<? extends Storage> storageClass);
+  <T extends Storage> T storageOf(Class<T> storageClass);
 
   @Deprecated
   boolean hasShadow();

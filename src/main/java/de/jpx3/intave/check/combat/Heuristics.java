@@ -38,6 +38,7 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.AttackMetadata;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.ProtocolMetadata;
+import de.jpx3.intave.user.storage.HeuristicsStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
@@ -173,11 +174,9 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     if (IntaveControl.DEBUG_HEURISTICS && !plugin.sibylIntegrationService().isAuthenticated(player)) {
       player.sendMessage(message);
     }
-
     if (IntaveControl.GOMME_MODE) {
       IntaveLogger.logger().printLine(message);
     }
-
     for (Player authenticatedPlayer : MessageChannelSubscriptions.sibylReceiver()/*Bukkit.getOnlinePlayers()*/) {
       if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
         authenticatedPlayer.sendMessage(message);
@@ -193,6 +192,8 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     }
   }
 
+  private final static long MAXIMUM_STORAGE_SAVE = 1000 * 60 * 30; // 30 minutes
+
   @Native
   public void evaluate(Player player, boolean enforceDecision) {
     if (NativeCheck.checkActive()) {
@@ -200,28 +201,49 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     }
     User user = userOf(player);
     AttackMetadata attackData = user.meta().attack();
+    HeuristicsStorage storage = user.storageOf(HeuristicsStorage.class);
+
+    if (!storage.isRead()) {
+      storage.markRead();
+      int confidenceLevel = storage.confidence();
+      long timeOfSave = storage.timeOfSave();
+      if (confidenceLevel > 0 && System.currentTimeMillis() - timeOfSave < MAXIMUM_STORAGE_SAVE) {
+        String key = "11";
+        List<Confidence> confidences = confidencesStackingTo(confidenceLevel);
+        Anomaly.Type type = Anomaly.Type.KILLAURA;
+        String description = "storage anomaly #";
+        int i = 0;
+        for (Confidence confidence : confidences) {
+          Anomaly anomaly = Anomaly.anomalyOf(key, confidence, type, description + i, Anomaly.AnomalyOption.LIMIT_8);
+          saveAnomaly(player, anomaly);
+          i++;
+        }
+      }
+      storage.eraseConfidence();
+    }
 
     // External confidence
-    List<Anomaly> anomalies = catchAnomaliesOf(user, true);
-    List<Confidence> allConfidences = resolveConfidencesOf(anomalies);
-    Confidence overallConfidence = computeOverallConfidence(allConfidences);
+    List<Anomaly> activeAnomalies = catchAnomaliesOf(user, true);
+    List<Confidence> activeConfidence = resolveConfidencesOf(activeAnomalies);
+    int overallActiveConfidenceLevel = levelFrom(activeConfidence.toArray(new Confidence[0]));
+    Confidence overallActiveConfidence = computeOverallConfidence(activeConfidence);
 
     // Internal confidence
-    List<Anomaly> anomaliesWithoutDelay = catchAnomaliesOf(user, false);
-    List<Confidence> allConfidencesWithoutDelay = resolveConfidencesOf(anomaliesWithoutDelay);
-    Confidence overallConfidenceWithoutDelay = computeOverallConfidence(allConfidencesWithoutDelay);
+    List<Anomaly> allAnomalies = catchAnomaliesOf(user, false);
+    List<Confidence> allConfidencesWithoutDelay = resolveConfidencesOf(allAnomalies);
+    Confidence overallAllConfidence = computeOverallConfidence(allConfidencesWithoutDelay);
 
     if (attackData.activeMiningStrategy != null) {
       this.tryRemoveMiningStrategy(attackData.activeMiningStrategy);
     }
 
-    boolean suitableConfidenceForMining = overallConfidenceWithoutDelay.atLeast(MAYBE) && !overallConfidenceWithoutDelay.atLeast(CERTAIN);
+    boolean suitableConfidenceForMining = overallAllConfidence.atLeast(MAYBE) && !overallAllConfidence.atLeast(CERTAIN);
     if (IntaveControl.USE_MINING_STRATEGIES && suitableConfidenceForMining && !enforceDecision) {
       // perform mining strategies
       if (attackData.activeMiningStrategy == null) {
         MiningStrategy strategy = findSuitableMiningStrategy(
-          anomaliesWithoutDelay,
-          overallConfidenceWithoutDelay,
+          allAnomalies,
+          overallAllConfidence,
           attackData.lastMiningStrategy
         );
         if (strategy != null) {
@@ -230,19 +252,29 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
       }
     }
 
-    if (overallConfidence.atLeast(VERY_LIKELY)) {
-      Anomaly.Type type = findDominantType(anomalies);
+    /*
+     * Only add confidence note when it is not already "critical",
+     *  - this ensures we don't stack confidences
+     */
+    if (overallActiveConfidence.atLeast(ALMOST_CERTAIN)) {
+      storage.eraseConfidence();
+    } else {
+      storage.confidenceNote(overallActiveConfidenceLevel);
+    }
+
+    if (overallActiveConfidence.atLeast(VERY_LIKELY)) {
+      Anomaly.Type type = findDominantTypeIn(activeAnomalies);
       String identifier;
       if (IntaveControl.DEBUG_HEURISTICS) {
-        identifier = restructureForOutput(anomalies).stream().map(anomaly -> "p[" + anomaly.key() + "]").collect(Collectors.joining(","));
+        identifier = restructureForOutput(activeAnomalies).stream().map(anomaly -> "p[" + anomaly.key() + "]").collect(Collectors.joining(","));
       } else {
-        identifier = resolveIdentifier(anomalies);
+        identifier = resolveIdentifier(activeAnomalies);
       }
-      String threshold = "confidence-thresholds." + overallConfidence.output();
+      String threshold = "confidence-thresholds." + overallActiveConfidence.output();
       String message = "is fighting suspiciously";
-      String confidence = define(overallConfidence);
-      String confidenceName = overallConfidence.confidenceName();
-      String confidenceSymbol = overallConfidence.output();
+      String confidenceName = overallActiveConfidence.confidenceName();
+      String confidenceSymbol = overallActiveConfidence.output();
+      String confidence = confidenceName + " (" + confidenceSymbol + ")";
       String typeName = type.typeName();
       String details = typeName + ": " + confidence + " / " + identifier;
       Violation violation = Violation.builderFor(Heuristics.class)
@@ -257,28 +289,9 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     }
   }
 
-//  @Native
-  private String define(Confidence confidence) {
-//    switch (confidence) {
-//      case CERTAIN:
-//        return "certain (!!)";
-//      case ALMOST_CERTAIN:
-//        return "almost certain (!)";
-//      case VERY_LIKELY:
-//        return "very likely (?!)";
-//      case LIKELY:
-//        return "likely (?)";
-//      case MAYBE:
-//        return "maybe (??)";
-//      default:
-//        return "none";
-//    }
-    return confidence.confidenceName() + " (" + confidence.output() + ")";
-  }
-
-  @SuppressWarnings("UnusedAssignment")
   @Native
   @NotNull
+  @SuppressWarnings("UnusedAssignment")
   public List<Anomaly> catchAnomaliesOf(User user, boolean delay) {
     if (NativeCheck.checkActive()) {
       return null;
@@ -323,7 +336,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     return allConfidences;
   }
 
-  private Anomaly.Type findDominantType(List<Anomaly> anomalies) {
+  private Anomaly.Type findDominantTypeIn(List<Anomaly> anomalies) {
     return anomalies.stream()
       .collect(Collectors.groupingBy(Anomaly::type, Collectors.counting()))
       .entrySet()
@@ -334,6 +347,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
   }
 
   @Nullable
+  @Deprecated
   private MiningStrategy findSuitableMiningStrategy(
     List<Anomaly> anomalies,
     Confidence overallConfidence,
@@ -360,10 +374,12 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     return strategy;
   }
 
+  @Deprecated
   private boolean random() {
     return ThreadLocalRandom.current().nextBoolean();
   }
 
+  @Deprecated
   private void performMiningStrategy(User user, MiningStrategy miningStrategy) {
     miningStrategy.apply(user);
   }
@@ -399,6 +415,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
   }
 
   @BukkitEventSubscription
+  @Deprecated
   public void receiveAttack(EntityDamageByEntityEvent event) {
     Entity damager = event.getDamager();
     if (!(damager instanceof Player)) {
@@ -413,6 +430,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     }
   }
 
+  @Deprecated
   private void tryRemoveMiningStrategy(
     MiningStrategyContainer miningStrategyContainer
   ) {
@@ -428,6 +446,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
       POSITION, POSITION_LOOK, LOOK, FLYING, VEHICLE_MOVE
     }
   )
+  @Deprecated
   public void receiveMovement(PacketEvent event) {
     if (event.isCancelled()) {
       return;
@@ -446,8 +465,8 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
   }
 
   @BukkitEventSubscription
-  public void receiveQuit(PlayerQuitEvent event) {
-    Player player = event.getPlayer();
+  public void receiveQuit(PlayerQuitEvent quit) {
+    Player player = quit.getPlayer();
     evaluate(player, true);
   }
 
@@ -489,11 +508,6 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
       anomalies = reducedAnomalies;
     }
     return anomalies;
-  }
-
-  @Native
-  public void nativeCheckEncryptAnomalies() {
-    encryptAnomalies(null);
   }
 
   @Native

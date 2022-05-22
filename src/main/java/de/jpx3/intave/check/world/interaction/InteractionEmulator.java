@@ -5,6 +5,7 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.event.BucketAction;
 import de.jpx3.intave.analytics.GlobalStatisticsRecorder;
+import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.block.access.BlockInteractionAccess;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.collision.Collision;
@@ -34,6 +35,7 @@ import org.bukkit.util.NumberConversions;
 
 import static de.jpx3.intave.IntaveControl.DUMP_BLOCK_HITBOX_ON_RIGHT_CLICK;
 
+@Relocate
 public final class InteractionEmulator implements EventProcessor {
   private final IntavePlugin plugin;
 

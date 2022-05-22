@@ -44,6 +44,7 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,9 +59,9 @@ import static de.jpx3.intave.module.feedback.FeedbackOptions.SELF_SYNCHRONIZATIO
 final class PlayerUser implements User {
   private final Map<Class<? extends CheckCustomMetadata>, CheckCustomMetadata> customMetaPool = new ConcurrentHashMap<>();
 
-  private final WeakReference<Player> player;
-  private final WeakReference<Object> playerHandle;
-  private final WeakReference<Object> playerConnection;
+  private final Reference<Player> player;
+  private final Reference<Object> playerHandle;
+  private final Reference<Object> playerConnection;
   private final MetadataBundle metadata;
   private final PermissionCache permissionCache;
   private ColliderProcessor colliderProcessor;
@@ -114,7 +115,6 @@ final class PlayerUser implements User {
     clientData.refresh(player);
     applyNewProtocolVersion();
     outputVersionJoinInfo();
-    BlockTypeAccess.setupTranslationsFor(this);
   }
 
   @Override
@@ -122,6 +122,7 @@ final class PlayerUser implements User {
     this.colliderProcessor = Collider.suitableComplexColliderProcessorFor(this);
     this.simpleColliderProcessor = Collider.suitableSimpleColliderProcessorFor(this);
     this.poseSizes = Pose.poseSizesByVersion(metadata.protocol().protocolVersion());
+    BlockTypeAccess.setupTranslationsFor(this);
     meta().movement().setupDefaults();
   }
 
@@ -241,7 +242,7 @@ final class PlayerUser implements User {
   }
 
   @Override
-  public Storage storageOf(Class<? extends Storage> storageClass) {
+  public <T extends Storage> T storageOf(Class<T> storageClass) {
     return storage.storageOf(storageClass);
   }
 

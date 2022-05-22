@@ -1,5 +1,6 @@
 package de.jpx3.intave.check.movement.physics;
 
+import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.player.collider.complex.ColliderSimulationResult;
 import de.jpx3.intave.shade.Motion;
 import de.jpx3.intave.user.User;
@@ -7,6 +8,7 @@ import de.jpx3.intave.user.UserLocal;
 
 import static de.jpx3.intave.math.MathHelper.distanceOf;
 
+@Relocate
 public final class Simulation {
   private final static Simulation INVALID_SIMULATION = new Simulation(MovementConfiguration.empty(), ColliderSimulationResult.invalid());
 

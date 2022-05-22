@@ -19,7 +19,7 @@ public final class PlaytimeUpdater extends Module {
         User user = UserRepository.userOf(player);
         PlaytimeRecorder recorder = plugin.analytics().recorderOf(PlaytimeRecorder.class);
 
-        PlaytimeStorage playtimeStorage = (PlaytimeStorage) user.storageOf(PlaytimeStorage.class);
+        PlaytimeStorage playtimeStorage = user.storageOf(PlaytimeStorage.class);
         if (System.currentTimeMillis() - user.meta().movement().lastMovement > 1000 * 60 * 2) {
           playtimeStorage.incrementMinutesAfkBy(3);
           recorder.incrementAfkMinutesBy(3);
@@ -37,7 +37,7 @@ public final class PlaytimeUpdater extends Module {
     Player player = quit.getPlayer();
     User user = UserRepository.userOf(player);
     PlaytimeStorage playtimeStorage =
-      (PlaytimeStorage) user.storageOf(PlaytimeStorage.class);
+      user.storageOf(PlaytimeStorage.class);
     playtimeStorage.incrementJoins();
   }
 }

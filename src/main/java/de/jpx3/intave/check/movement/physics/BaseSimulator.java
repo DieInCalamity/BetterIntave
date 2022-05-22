@@ -1,6 +1,7 @@
 package de.jpx3.intave.check.movement.physics;
 
 import de.jpx3.intave.adapter.MinecraftVersions;
+import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.fluid.Fluids;
@@ -35,6 +36,7 @@ import java.util.Collection;
 import static de.jpx3.intave.shade.ClientMathHelper.floor;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_14;
 
+@Relocate
 class BaseSimulator extends Simulator {
   @Override
   public Simulation simulate(

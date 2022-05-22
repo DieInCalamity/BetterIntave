@@ -1,6 +1,7 @@
 package de.jpx3.intave.module.nayoro;
 
 import de.jpx3.intave.module.Modules;
+import de.jpx3.intave.module.nayoro.detection.PrintStreamDetectionSubscription;
 import de.jpx3.intave.module.nayoro.event.EntityMoveEvent;
 import de.jpx3.intave.module.nayoro.event.Event;
 import de.jpx3.intave.module.nayoro.event.EventRegistry;
@@ -14,11 +15,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class Playback extends SinkEnvironment {
+abstract class Playback extends SinkEnvironment {
   private final DataInputStream dataInputStream;
   private final Environment environment;
   private final Map<String, Boolean> properties = new HashMap<>();
-  private final PlaybackPlayerContainer playbackPlayer = new PlaybackPlayerContainer();
+  private final PlaybackPlayerContainer playbackPlayer = new PlaybackPlayerContainer(new PrintStreamDetectionSubscription(System.out));
   private final Map<Integer, Position> entities = new HashMap<>();
   private final Map<Integer, Boolean> inSight = new HashMap<>();
   private final Set<Integer> entityIds = new HashSet<>();
@@ -32,13 +33,17 @@ public abstract class Playback extends SinkEnvironment {
   public abstract void start();
   public abstract void stop();
 
-  protected Event nextEvent() throws IOException {
-    long offset = dataInputStream.readInt();
-    int packetId = dataInputStream.readByte();
-    Event event = EventRegistry.eventOf(packetId);
-    event.deserialize(environment, dataInputStream);
-    event.withOffset(offset);
-    return event;
+  protected Event nextEvent() {
+    try {
+      long offset = dataInputStream.readInt();
+      int packetId = dataInputStream.readByte();
+      Event event = EventRegistry.eventOf(packetId);
+      event.deserialize(environment, dataInputStream);
+      event.withOffset(offset);
+      return event;
+    } catch (IOException e) {
+      return null;
+    }
   }
 
   @Override
