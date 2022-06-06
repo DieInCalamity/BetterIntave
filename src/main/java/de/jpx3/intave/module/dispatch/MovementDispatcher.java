@@ -124,7 +124,7 @@ public final class MovementDispatcher extends Module {
     User user = UserRepository.userOf(player);
     MetadataBundle meta = user.meta();
     MovementMetadata movementData = meta.movement();
-    movementData.dismountRidingEntityWithForce();
+    movementData.dismountRidingEntity();
   }
 
   @BukkitEventSubscription
@@ -134,7 +134,7 @@ public final class MovementDispatcher extends Module {
     MetadataBundle meta = user.meta();
     MovementMetadata movementData = meta.movement();
     movementData.artificialFallDistance = 0;
-    movementData.dismountRidingEntityWithForce();
+    movementData.dismountRidingEntity();
     FakePlayer fakePlayer = meta.attack().fakePlayer();
     if (fakePlayer != null) {
       fakePlayer.respawn();
@@ -989,7 +989,7 @@ public final class MovementDispatcher extends Module {
           event.setCancelled(true);
         }
         if (movementData.isInVehicle()) {
-          movementData.dismountRidingEntityWithForce();
+          movementData.dismountRidingEntity();
           movementData.sneaking = false;
         } else {
           movementData.sneaking = true;

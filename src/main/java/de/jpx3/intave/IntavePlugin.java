@@ -698,10 +698,6 @@ public final class IntavePlugin extends JavaPlugin {
     }
   }
 
-  public double circ(double r) {
-    return 6.283185307179586 * r;
-  }
-
   public File dataFolder() {
     return new File(getServer().getUpdateFolderFile().getParentFile(), "Intave");
   }

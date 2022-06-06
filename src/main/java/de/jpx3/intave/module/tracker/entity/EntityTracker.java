@@ -183,13 +183,13 @@ public final class EntityTracker extends Module {
       tryCreateVehicleEntity(user, vehicleEntityID);
       Modules.feedback().synchronize(player, connection.entityBy(vehicleEntityID), (a, ridingEntity) -> {
         if (movementData.isInVehicle()) {
-          movementData.dismountRidingEntityWithForce();
+          movementData.dismountRidingEntity();
         }
         if (ridingEntity != null && !(ridingEntity instanceof EntityShade.Destroyed)) {
           movementData.setVehicle(ridingEntity);
-          if (IntaveControl.DISABLE_LICENSE_CHECK) {
-            player.sendMessage("You are now riding on " + ridingEntity.entityName());
-          }
+//          if (IntaveControl.DISABLE_LICENSE_CHECK) {
+//            player.sendMessage("You are now riding on " + ridingEntity.entityName());
+//          }
         }
       });
     }
@@ -296,7 +296,7 @@ public final class EntityTracker extends Module {
 
     EntityShade entity = synchronizeData.entityBy(entityId);//synchronizedEntityMap.get(entityId);
     if (entity != null && movementData.ridingEntity() == entity) {
-      movementData.dismountRidingEntityWithForce();
+      movementData.dismountRidingEntity();
     }
     synchronizeData.destroyEntity(entityId);
     if (attackData.lastAttackedEntity() != null && attackData.lastAttackedEntityID() == entityId) {

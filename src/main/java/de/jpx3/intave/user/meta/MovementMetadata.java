@@ -736,14 +736,6 @@ public final class MovementMetadata implements SimulationEnvironment {
   }
 
   public void dismountRidingEntity() {
-    dismountRidingEntity(false);
-  }
-
-  public void dismountRidingEntityWithForce() {
-    dismountRidingEntity(true);
-  }
-
-  private void dismountRidingEntity(boolean force) {
     if (!isInVehicle()) {
       return;
     }
