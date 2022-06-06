@@ -20,6 +20,7 @@ import de.jpx3.intave.block.physics.BlockProperties;
 import de.jpx3.intave.block.tick.ShulkerBox;
 import de.jpx3.intave.block.type.BlockTypeAccess;
 import de.jpx3.intave.check.movement.physics.*;
+import de.jpx3.intave.cleanup.GarbageCollector;
 import de.jpx3.intave.entity.datawatcher.DataWatcherAccess;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.dispatch.MovementDispatcher;
@@ -41,7 +42,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.comphenix.protocol.wrappers.WrappedAttributeModifier.Operation.ADD_PERCENTAGE;
-import static de.jpx3.intave.check.movement.physics.MovementHelper.resolveFriction;
+import static de.jpx3.intave.check.movement.physics.MovementCharacteristics.resolveFriction;
 import static de.jpx3.intave.reflect.access.ReflectiveHandleAccess.handleOf;
 import static de.jpx3.intave.shade.ClientMathHelper.*;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_14;
@@ -187,6 +188,14 @@ public final class MovementMetadata implements SimulationEnvironment {
   private volatile Location verifiedLocation;
   public int teleportResendCountdown = 10;
 
+  public int speculativeTicks = 0;
+  public Map<UUID, Integer> pendingSpeculativeMovementTicks = GarbageCollector.watch(new HashMap<>());
+  public boolean inReceiveSpeculativePacketRoutine = false;
+  public double speculativeMotionX, speculativeMotionY, speculativeMotionZ;
+  public double speculativePositionX, speculativePositionY, speculativePositionZ;
+  public boolean speculationEnded = false;
+  public boolean inSpeculation = false;
+
   // States if an external entity push onto the player is estimated
   public boolean pushedByEntity;
 
@@ -282,7 +291,7 @@ public final class MovementMetadata implements SimulationEnvironment {
     if (!boundingBoxSetup) {
       setupDefaults();
     }
-    jumpMotion = MovementHelper.jumpMotionFor(player, jumpUpwardsMotion());
+    jumpMotion = MovementCharacteristics.jumpMotionFor(player, jumpUpwardsMotion());
     lastPositionX = positionX;
     lastPositionY = positionY;
     lastPositionZ = positionZ;
@@ -642,7 +651,7 @@ public final class MovementMetadata implements SimulationEnvironment {
         -0.4000000059604645D,
         -0.1f
       );
-      return MovementHelper.isLavaInBB(user, player.getWorld(), lavaBoundingBox);
+      return MovementCharacteristics.isLavaInBB(user, player.getWorld(), lavaBoundingBox);
     }
   }
 

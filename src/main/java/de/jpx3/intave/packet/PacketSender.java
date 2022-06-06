@@ -49,7 +49,7 @@ public final class PacketSender {
     RECEIVE_PACKET_METHOD = method;
   }
 
-  public static void receiveClientPacket(Player receiver, PacketContainer packet) {
+  public static void receiveClientPacketFrom(Player receiver, PacketContainer packet) {
     try {
       RECEIVE_PACKET_METHOD.invoke(protocolManager, receiver, packet);
     } catch (UnsupportedOperationException exception) {

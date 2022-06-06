@@ -24,7 +24,7 @@ import static de.jpx3.intave.shade.ClientMathHelper.floor;
 
 @Deprecated
 @WhyMustIExist
-public final class MovementHelper {
+public final class MovementCharacteristics {
   @Deprecated
   @IdoNotBelongHere
   @WhyMustIExist
@@ -46,12 +46,6 @@ public final class MovementHelper {
     World world = user.player().getWorld();
     float speed;
     if (movementData.lastOnGround) {
-      Location location = new Location(
-        world,
-        floor(positionX),
-        floor(positionY - movementData.frictionPosSubtraction()),
-        floor(positionZ)
-      );
       float slipperiness = currentSlipperiness(
         user,
         world,

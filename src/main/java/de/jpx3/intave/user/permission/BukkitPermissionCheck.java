@@ -11,13 +11,13 @@ public final class BukkitPermissionCheck {
   @Native
   public static boolean permissionCheck(Permissible permissible, String permission) {
     if (permissible instanceof Player) {
-      if (permission.equalsIgnoreCase("sibyl") && IntavePlugin.singletonInstance().sibylIntegrationService().isAuthenticated((Player) permissible)) {
+      if ("sibyl".equalsIgnoreCase(permission) && IntavePlugin.singletonInstance().sibylIntegrationService().isAuthenticated((Player) permissible)) {
         return true;
       }
       return playerPermissionCheck((Player) permissible, permission);
     } else {
       // non-player can not and will never inherit sibyl permissions
-      if (permission.equalsIgnoreCase("sibyl")) {
+      if ("sibyl".equalsIgnoreCase(permission)) {
         return false;
       }
       return nativePermissionCheck(permissible, permission);

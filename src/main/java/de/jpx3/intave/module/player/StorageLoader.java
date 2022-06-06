@@ -55,7 +55,7 @@ public final class StorageLoader extends Module {
     saveStorageFor(quit.getPlayer());
   }
 
-  public void nullableManualStorageRequest(UUID id, Consumer<PlayerStorage> storage) {
+  public void nullableManualStorageRequest(UUID id, Consumer<? super PlayerStorage> storage) {
     // because it is very likely that this id was already fetched by our background executor, we need to
     // resynchronize this call to the main thread - no biggi, just default threading bullshit
     Synchronizer.synchronize(() ->

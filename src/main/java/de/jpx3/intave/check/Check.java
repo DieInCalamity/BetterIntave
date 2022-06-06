@@ -54,7 +54,7 @@ public abstract class Check implements EventProcessor {
   private MitigationStrategy mitigationStrategy;
   private MitigationStrategy defaultMitigationStrategy = MitigationStrategy.NOT_SUPPORTED;
 
-  public Check(String checkName, String configurationKey) {
+  protected Check(String checkName, String configurationKey) {
     this.plugin = IntavePlugin.singletonInstance();
     this.checkName = checkName;
     this.configurationKey = configurationKey;
@@ -85,7 +85,7 @@ public abstract class Check implements EventProcessor {
    * @param player the player search
    * @return a blank or corresponding user
    */
-  protected User userOf(Player player) {
+  protected final User userOf(Player player) {
     return UserRepository.userOf(player);
   }
 
@@ -97,20 +97,20 @@ public abstract class Check implements EventProcessor {
    *
    * @param checkPart the checkpart to append
    */
-  protected void appendCheckPart(CheckPart<?> checkPart) {
+  protected final void appendCheckPart(CheckPart<?> checkPart) {
     if (checkPart.parentCheck() != this) {
       throw new IntaveInternalException("Partial check lacks valid reference to parent check");
     }
     checkParts.add(checkPart);
   }
 
-  protected void appendCheckParts(CheckPart<?>... checkParts) {
+  protected final void appendCheckParts(CheckPart<?>... checkParts) {
     for (CheckPart<?> checkPart : checkParts) {
       appendCheckPart(checkPart);
     }
   }
 
-  protected void appendCheckParts(Iterable<? extends CheckPart<?>> checkParts) {
+  protected final void appendCheckParts(Iterable<? extends CheckPart<?>> checkParts) {
     for (CheckPart<?> checkPart : checkParts) {
       appendCheckParts(checkPart);
     }
@@ -123,7 +123,7 @@ public abstract class Check implements EventProcessor {
    * @param player the affected player
    * @return trustfactor setting
    */
-  protected int trustFactorSetting(String key, Player player) {
+  protected final int trustFactorSetting(String key, Player player) {
     String checkKey = configurationKey + "." + key;
     return plugin.trustFactorService().trustFactorSetting(checkKey, player);
   }
@@ -134,17 +134,17 @@ public abstract class Check implements EventProcessor {
    * @param user    the affected user
    * @param applier the player statistic applier
    */
-  public void statisticApply(User user, Consumer<? super CheckStatistics> applier) {
+  public final void statisticApply(User user, Consumer<? super CheckStatistics> applier) {
     applier.accept(baseStatistics());
     applier.accept(statisticsFor(user.trustFactor()));
   }
 
   @Deprecated
-  public CheckStatistics baseStatistics() {
+  public final CheckStatistics baseStatistics() {
     return statistics;
   }
 
-  private CheckStatistics statisticsFor(TrustFactor trustFactor) {
+  private final CheckStatistics statisticsFor(TrustFactor trustFactor) {
     return perTrustFactorStatistics.computeIfAbsent(trustFactor, x -> new CheckStatistics());
   }
 
@@ -153,7 +153,7 @@ public abstract class Check implements EventProcessor {
    *
    * @return the check's name
    */
-  public String name() {
+  public final String name() {
     return checkName;
   }
 
@@ -162,7 +162,7 @@ public abstract class Check implements EventProcessor {
    *
    * @return the check's configuration key
    */
-  protected String configurationKey() {
+  protected final String configurationKey() {
     return configurationKey;
   }
 
@@ -171,7 +171,7 @@ public abstract class Check implements EventProcessor {
    *
    * @return the check's configuraiton
    */
-  public CheckConfiguration configuration() {
+  public final CheckConfiguration configuration() {
     return checkConfiguration;
   }
 
@@ -182,7 +182,7 @@ public abstract class Check implements EventProcessor {
    *
    * @return the check's mitigation strategy
    */
-  public MitigationStrategy mitigationStrategy() {
+  public final MitigationStrategy mitigationStrategy() {
     if (mitigationStrategy == MitigationStrategy.NOT_SUPPORTED) {
       return mitigationStrategy = defaultMitigationStrategy;
     }
@@ -194,12 +194,12 @@ public abstract class Check implements EventProcessor {
    *
    * @param mitigationStrategy the new mitigation strategy
    */
-  public void setMitigationStrategy(MitigationStrategy mitigationStrategy) {
+  public final void setMitigationStrategy(MitigationStrategy mitigationStrategy) {
     this.mitigationStrategy = mitigationStrategy;
   }
 
   @Deprecated
-  public void setDefaultMitigationStrategy(MitigationStrategy defaultMitigationStrategy) {
+  public final void setDefaultMitigationStrategy(MitigationStrategy defaultMitigationStrategy) {
     this.defaultMitigationStrategy = defaultMitigationStrategy;
   }
 

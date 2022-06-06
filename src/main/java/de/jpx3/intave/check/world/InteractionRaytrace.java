@@ -633,7 +633,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
 
   private void receiveExcludedPacket(Player player, PacketContainer packet) {
     userOf(player).ignoreNextInboundPacket();
-    PacketSender.receiveClientPacket(player, packet);
+    PacketSender.receiveClientPacketFrom(player, packet);
   }
 
   @Override

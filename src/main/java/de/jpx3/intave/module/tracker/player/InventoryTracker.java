@@ -455,7 +455,7 @@ public final class InventoryTracker extends Module {
       PacketContainer unblockPacket = packet.deepClone();
       unblockPacket.getPlayerDigTypes().write(0, EnumWrappers.PlayerDigType.RELEASE_USE_ITEM);
       user.ignoreNextInboundPacket();
-      PacketSender.receiveClientPacket(player, packet);
+      PacketSender.receiveClientPacketFrom(player, packet);
     }
   }
 }

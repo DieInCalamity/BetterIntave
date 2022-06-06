@@ -482,7 +482,7 @@ public final class MovementDispatcher extends Module {
     packet.getPlayerDigTypes().write(0, EnumWrappers.PlayerDigType.RELEASE_USE_ITEM);
     user.ignoreNextInboundPacket();
 
-    PacketSender.receiveClientPacket(player, packet);
+    PacketSender.receiveClientPacketFrom(player, packet);
     updatePlayerHandItem(player);
 
     Synchronizer.synchronize(player::updateInventory);

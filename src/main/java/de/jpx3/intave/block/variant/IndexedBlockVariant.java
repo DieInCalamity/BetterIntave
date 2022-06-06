@@ -8,11 +8,11 @@ import java.util.Map;
 
 final class IndexedBlockVariant implements BlockVariant {
   private final Material type;
-  private final Map<Setting<?>, Comparable<?>> nativeConfig;
+  private final Map<? extends Setting<?>, Comparable<?>> nativeConfig;
   private final Map<String, Comparable<?>> namedConfig = new HashMap<>();
   private final Map<String, Setting<?>> namedSettings = new HashMap<>();
 
-  IndexedBlockVariant(Material type, Map<Setting<?>, Comparable<?>> nativeConfig) {
+  IndexedBlockVariant(Material type, Map<? extends Setting<?>, Comparable<?>> nativeConfig) {
     this.type = type;
     this.nativeConfig = nativeConfig;
     nativeConfig.keySet().forEach(setting -> namedSettings.put(setting.name().toLowerCase(Locale.ROOT), setting));

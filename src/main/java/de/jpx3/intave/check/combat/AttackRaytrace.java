@@ -238,7 +238,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
 
   private void receiveExcludedPacket(Player player, PacketContainer packet) {
     userOf(player).ignoreNextInboundPacket();
-    PacketSender.receiveClientPacket(player, packet);
+    PacketSender.receiveClientPacketFrom(player, packet);
   }
 
   private boolean invalidReachStanding(User user, EntityShade entity) {

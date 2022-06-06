@@ -83,7 +83,7 @@ public abstract class CheckPart<P extends Check> implements EventProcessor {
 
   /**
    * States whether the {@link CheckPart} is enabled and therefore subject to linkage.
-   * By default, the method just follows the the parent check.
+   * By default, the method just follows the parent check.
    *
    * @return whether the check part is enabled and therefore subject to linkage
    */

@@ -48,7 +48,7 @@ public final class ModuleLoader {
 
     // mitigate
     prepareModule("de.jpx3.intave.module.mitigate.CombatMitigator", defaultBoot);
-    prepareModule("de.jpx3.intave.module.mitigate.MovementEmulator", lateBoot);
+    prepareModule("de.jpx3.intave.module.mitigate.SetbackSimulator", lateBoot);
     prepareModule("de.jpx3.intave.module.mitigate.ReconDelayLimiter", lateBoot);
 
     // dispatch

@@ -65,7 +65,7 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
 
   private void receiveExcludedPacket(Player player, PacketContainer packet) {
     userOf(player).ignoreNextInboundPacket();
-    PacketSender.receiveClientPacket(player, packet);
+    PacketSender.receiveClientPacketFrom(player, packet);
   }
 
   @PacketSubscription(

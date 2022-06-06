@@ -17,19 +17,21 @@ abstract class BoundingBoxPatch {
     this.material = materials;
   }
 
-  @Deprecated
-  protected List<BoundingBox> patch(World world, Player player, int posX, int posY, int posZ, Material type, int blockState, List<BoundingBox> bbs) {
-    return bbs;
-  }
-
   protected BlockShape patch(World world, Player player, int posX, int posY, int posZ, Material type, int blockState, BlockShape shape) {
+    // should be overriden
     List<BoundingBox> input = shape.boundingBoxes();
     List<BoundingBox> output = patch(world, player, posX, posY, posZ, type, blockState, input);
-    if (input == output) {
+
+    if (input.equals(output)) {
       return shape;
     } else {
       return BlockShapes.shapeOf(output);
     }
+  }
+
+  @Deprecated
+  protected List<BoundingBox> patch(World world, Player player, int posX, int posY, int posZ, Material type, int blockState, List<BoundingBox> bbs) {
+    return bbs;
   }
 
   protected boolean requireNormalization() {

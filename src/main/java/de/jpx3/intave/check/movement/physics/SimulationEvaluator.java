@@ -159,7 +159,7 @@ public final class SimulationEvaluator {
       } else {
         liquidPositionY = receivedMotionY + 0.3f;
       }
-      boolean offsetPositionInLiquid = MovementHelper.isOffsetPositionInLiquid(
+      boolean offsetPositionInLiquid = MovementCharacteristics.isOffsetPositionInLiquid(
         player, movement.boundingBox(), receivedMotionX, liquidPositionY, receivedMotionZ
       );
       boolean maybeCollidedHorizontally = Collision.nearSolidBlock(player.getWorld(), movement.boundingBox().grow(0.2));

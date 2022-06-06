@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.function.Consumer;
 
 /**
- * A {@link CheckLinker} is a utility class for the {@link CheckService}.
+ * The {@link CheckLinker} links checks to packet and event bindings, used by the {@link CheckService}.
  * The methods {@link CheckLinker#linkBukkitEventSubscriptions(Collection)} and {@link CheckLinker#linkPacketEventSubscriptions(Collection)}
  * take {@link Collection}s of {@link Check}s and forward them to the {@link PacketSubscriptionLinker} and the {@link BukkitEventSubscriptionLinker}.
  * The {@link CheckLinker#removeBukkitEventSubscriptions(Collection)} and {@link CheckLinker#removePacketEventSubscriptions(Collection)} undo this procedure again.
@@ -27,7 +27,7 @@ import java.util.function.Consumer;
  * @see PacketSubscriptionLinker
  * @see BukkitEventSubscriptionLinker
  */
-public final class CheckLinker {
+final class CheckLinker {
   public void linkNayoroEventSubscriptions(Collection<? extends Check> checks) {
     NayoroEventSubscriptionLinker nayoro = Modules.linker().nayoroEvents();
     iterativeApply(checks, nayoro::registerEventsIn);

@@ -7,7 +7,7 @@ import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.check.movement.Physics;
-import de.jpx3.intave.check.movement.physics.MovementHelper;
+import de.jpx3.intave.check.movement.physics.MovementCharacteristics;
 import de.jpx3.intave.check.movement.physics.Pose;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.klass.Lookup;
@@ -45,7 +45,7 @@ import static de.jpx3.intave.shade.Direction.Axis.*;
 import static org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.NETHER_PORTAL;
 import static org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.UNKNOWN;
 
-public final class MovementEmulator extends Module {
+public final class SetbackSimulator extends Module {
   private Physics physicsCheck;
   private InternalTeleportApplier teleportMethodContainer;
   private boolean closeInventoryOnDetection;
@@ -432,7 +432,7 @@ public final class MovementEmulator extends Module {
     Player player = user.player();
     World world = player.getWorld();
     MovementMetadata movementData = user.meta().movement();
-    movementData.inWater = MovementHelper.isAnyLiquid(world, user, movementData.boundingBox());
+    movementData.inWater = MovementCharacteristics.isAnyLiquid(world, user, movementData.boundingBox());
   }
 
   private synchronized void rotationlessTeleport(Player player, Location to, float nativeYaw, float nativePitch) {

@@ -27,6 +27,7 @@ public final class ConnectionMetadata {
   public long lastCCCInfoMessageSent = 0;
   public boolean sendAsyncMessage = false;
   public boolean eligibleForTransactionTimeout = false;
+  public int speculativeMovementTicks = 0;
 
   private final Deque<Object> bufferEnqueue = new ArrayDeque<>(8500);
   private final DelayQueue<DelayedPacket> delayQueue = new DelayQueue<>();

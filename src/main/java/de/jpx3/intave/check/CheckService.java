@@ -25,7 +25,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * A {@link CheckService} initializes, holds and links implementation classes of class {@link Check}.
  * Every instance of the implementation class of class {@link Check} must be singleton throughout the entire
- * lifespan of our application - ensured by the utilizing of a class-as-key-to-instance principle.
+ * lifespan of our application - ensured with the use of class-keys.
  * <p>
  * It will instantiate all known implementations of class {@link Check} with {@link CheckService#setup()}, following
  * command linkage, to find and link any subscriptions within the instantiated {@link Check}.<br>

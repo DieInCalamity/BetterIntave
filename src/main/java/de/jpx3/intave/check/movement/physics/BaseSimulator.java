@@ -185,7 +185,7 @@ class BaseSimulator extends Simulator {
     float yawSine, float yawCosine
   ) {
     performRelativeMoveSimulationOfState(context, environment.friction(), yawSine, yawCosine, moveForward, moveStrafe);
-    if (MovementHelper.isOnLadder(user, environment.verifiedPositionX(), environment.verifiedPositionY(), environment.verifiedPositionZ())) {
+    if (MovementCharacteristics.isOnLadder(user, environment.verifiedPositionX(), environment.verifiedPositionY(), environment.verifiedPositionZ())) {
       float f6 = 0.15F;
       context.motionX = ClientMathHelper.clamp_double(context.motionX, -f6, f6);
       context.motionZ = ClientMathHelper.clamp_double(context.motionZ, -f6, f6);
@@ -224,7 +224,7 @@ class BaseSimulator extends Simulator {
     double positionZ = environment.verifiedPositionZ();
 
     boolean onGround;
-    double slipperiness = environment.lastOnGround() ? MovementHelper.currentSlipperiness(user, player.getWorld(), positionX, positionY, positionZ) : 0.91f;
+    double slipperiness = environment.lastOnGround() ? MovementCharacteristics.currentSlipperiness(user, player.getWorld(), positionX, positionY, positionZ) : 0.91f;
     double resetMotion = environment.resetMotion();
     double jumpUpwardsMotion = environment.jumpMotion();
 
@@ -352,7 +352,7 @@ class BaseSimulator extends Simulator {
       double blockPositionX = floor(movementData.verifiedPositionX);
       double blockPositionY = floor(movementData.verifiedPositionY - movementData.frictionPosSubtraction());
       double blockPositionZ = floor(movementData.verifiedPositionZ);
-      slipperiness = MovementHelper.currentSlipperiness(user, world, blockPositionX, blockPositionY, blockPositionZ);
+      slipperiness = MovementCharacteristics.currentSlipperiness(user, world, blockPositionX, blockPositionY, blockPositionZ);
     } else {
       slipperiness = 0.91f;
     }
@@ -570,7 +570,7 @@ class BaseSimulator extends Simulator {
     context.motionY *= 0.5D;
     context.motionZ *= 0.5D;
     context.motionY -= 0.02D;
-    boolean offsetPositionInLiquid = MovementHelper.isOffsetPositionInLiquid(
+    boolean offsetPositionInLiquid = MovementCharacteristics.isOffsetPositionInLiquid(
       player, boundingBox,
       context.motionX,
       context.motionY + 0.6f - positionY + movementData.verifiedPositionY,

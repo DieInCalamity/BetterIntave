@@ -82,7 +82,7 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
       packet.getPlayerDigTypes().write(0, EnumWrappers.PlayerDigType.RELEASE_USE_ITEM);
 
       userOf(player).ignoreNextInboundPacket();
-      PacketSender.receiveClientPacket(player, packet);
+      PacketSender.receiveClientPacketFrom(player, packet);
 //        ProtocolLibrary.getProtocolManager().recieveClientPacket(player, packet, true);
 
       updatePlayerHandItem(player);
