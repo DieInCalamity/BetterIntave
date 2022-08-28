@@ -33,6 +33,10 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.10")
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
 
+    // Intave Access
+    // TODO: uncomment this once public access is updated
+    // implementation("de.jpx3.intave.access:intave-access:14.4.2")
+
     // Spigot
     compileOnly("org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT")
     compileOnly(fileTree(mapOf("dir" to "libs/", "include" to listOf("*.jar"))))
