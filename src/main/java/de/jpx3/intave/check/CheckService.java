@@ -6,7 +6,6 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.annotate.HighOrderService;
 import de.jpx3.intave.annotate.Native;
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.check.combat.AttackRaytrace;
 import de.jpx3.intave.check.combat.ClickPatterns;
 import de.jpx3.intave.check.combat.ClickSpeedLimiter;
@@ -15,6 +14,7 @@ import de.jpx3.intave.check.movement.Physics;
 import de.jpx3.intave.check.movement.Timer;
 import de.jpx3.intave.check.other.InventoryClickAnalysis;
 import de.jpx3.intave.check.other.ProtocolScanner;
+import de.jpx3.intave.check.physics2.Simulator;
 import de.jpx3.intave.check.world.BreakSpeedLimiter;
 import de.jpx3.intave.check.world.InteractionRaytrace;
 import de.jpx3.intave.check.world.PlacementAnalysis;
@@ -45,11 +45,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @HighOrderService
 public final class CheckService {
   private final IntavePlugin plugin;
+  private final CheckLinker checkLinker = new CheckLinker();
   private List<Check> checks = new ArrayList<>();
   private List<String> checkNames = new ArrayList<>();
   private Map<Class<?>, Check> classRequestCache = new HashMap<>();
   private Map<String, Check> nameRequestCache = new HashMap<>();
-  private final CheckLinker checkLinker = new CheckLinker();
 
   public CheckService(IntavePlugin plugin) {
     this.plugin = plugin;
@@ -70,6 +70,7 @@ public final class CheckService {
     addCheck(BreakSpeedLimiter.class);
     addCheck(ProtocolScanner.class);
     addCheck(PlacementAnalysis.class);
+    addCheck(Simulator.class);
     addCheck(InventoryClickAnalysis.class);
 
     bakeQuickAccess();

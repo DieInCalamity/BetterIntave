@@ -28,6 +28,32 @@ check:
         - "intave internals collectivekick {player} &cYou have been kicked, as an account with your ip address was removed from the game"
         - "kick {player} &cYou have been removed from the game based on data that was collected by the anti-cheat"
 
+  physics2:
+    high-tolerance: false
+
+    # Mitigation mode
+    # Choose between AGGRESSIVE, CAREFUL, LENIENT and SILENT
+    # Trustfactor mappings and high-tolerance modes are supported throughout all of them
+    mitigation: CAREFUL
+
+    speculative-forward-emulation:
+      enabled: false
+      activation-threshold: 0
+      ticks: 3
+      ticks-for-hard-sync: -1
+
+    on-detection:
+      reset-item-usage: true
+      close-inventory: true
+      refresh-nearby-blocks: true
+
+    thresholds:
+      100: "intave internals sendnotify &c{player}&7/{trust-color}&7 is moving incorrectly"
+      400: "intave internals sendnotify &c{player}&7/{trust-color}&7 is moving incorrectly #2"
+      999:
+        - "intave internals collectivekick {player} &cYou have been kicked, as an account with your ip address was removed from the game"
+        - "kick {player} &cYou have been removed from the game based on data that was collected by the anti-cheat"
+        -
   timer:
     high-tolerance: true
     reverse-blink: true

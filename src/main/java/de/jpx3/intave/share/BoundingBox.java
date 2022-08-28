@@ -2,6 +2,7 @@ package de.jpx3.intave.share;
 
 import de.jpx3.intave.block.shape.BlockRaytrace;
 import de.jpx3.intave.block.shape.BlockShape;
+import de.jpx3.intave.check.physics2.Vec;
 import de.jpx3.intave.diagnostic.MemoryTraced;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.share.link.WrapperConverter;
@@ -9,6 +10,7 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.Location;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -17,10 +19,15 @@ import java.util.List;
 import static de.jpx3.intave.share.Direction.Axis.*;
 
 public final class BoundingBox extends MemoryTraced implements BlockShape {
+  private static final double EPSILON = 0.00001;
+  private static final double TOLERANCE = 0.0000001;
+  // just assuming defaults - please remove
+  private static final float PLAYER_HEIGHT = 1.8f;
+  private static final double HALF_WIDTH = 0.3;
   public final double minX, minY, minZ;
   public final double maxX, maxY, maxZ;
-
   private boolean originBox;
+  private List<BoundingBox> selfListReference;
 
   public BoundingBox(
     double x1, double y1, double z1,
@@ -32,6 +39,126 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
     this.maxX = Math.max(x1, x2);
     this.maxY = Math.max(y1, y2);
     this.maxZ = Math.max(z1, z2);
+  }
+
+  @Nullable
+  private static Direction directionRaytrace(
+    double[] distanceStorage,
+    @Nullable Direction inheritDirection,
+    double differenceMain, double differenceUp, double differenceRight,
+    double minMain,
+    double minUp, double maxUp,
+    double minRight, double maxRight,
+    Direction selectedDirection,
+    double targetMain, double targetUp, double targetRight
+  ) {
+    double normalizedStepMain = (minMain - targetMain) / differenceMain;
+    if (0.0 < normalizedStepMain && normalizedStepMain < distanceStorage[0]) {
+      double normalizedStepUp = targetUp + normalizedStepMain * differenceUp;
+      double normalizedStepRight = targetRight + normalizedStepMain * differenceRight;
+      if (
+        minUp - TOLERANCE < normalizedStepUp && normalizedStepUp < maxUp + TOLERANCE &&
+          minRight - TOLERANCE < normalizedStepRight && normalizedStepRight < maxRight + TOLERANCE
+      ) {
+        distanceStorage[0] = normalizedStepMain;
+        return selectedDirection;
+      }
+    }
+    return inheritDirection;
+  }
+
+  public static BoundingBox fromBounds(
+    double x1, double y1, double z1,
+    double x2, double y2, double z2
+  ) {
+    double d0 = Math.min(x1, x2);
+    double d1 = Math.min(y1, y2);
+    double d2 = Math.min(z1, z2);
+    double d3 = Math.max(x1, x2);
+    double d4 = Math.max(y1, y2);
+    double d5 = Math.max(z1, z2);
+    return new BoundingBox(d0, d1, d2, d3, d4, d5);
+  }
+
+  public static BoundingBox originFrom(
+    double x1, double y1, double z1,
+    double x2, double y2, double z2
+  ) {
+    double d0 = Math.min(x1, x2);
+    double d1 = Math.min(y1, y2);
+    double d2 = Math.min(z1, z2);
+    double d3 = Math.max(x1, x2);
+    double d4 = Math.max(y1, y2);
+    double d5 = Math.max(z1, z2);
+    BoundingBox boundingBox = new BoundingBox(d0, d1, d2, d3, d4, d5);
+    boundingBox.makeOriginBox();
+    return boundingBox;
+  }
+
+  public static BoundingBox originFromX16(
+    double x1, double y1, double z1,
+    double x2, double y2, double z2
+  ) {
+    double fromX = Math.min(x1, x2);
+    double fromY = Math.min(y1, y2);
+    double fromZ = Math.min(z1, z2);
+    double toX = Math.max(x1, x2);
+    double toY = Math.max(y1, y2);
+    double toZ = Math.max(z1, z2);
+    BoundingBox boundingBox = new BoundingBox(
+      fromX / 16D, fromY / 16D, fromZ / 16D,
+      toX / 16D, toY / 16D, toZ / 16D
+    );
+    boundingBox.makeOriginBox();
+    return boundingBox;
+  }
+
+  public static BoundingBox fromPosition(User user, Location location) {
+    return fromPosition(user, location.getX(), location.getY(), location.getZ());
+  }
+
+  public static BoundingBox fromPosition(User user, Position position) {
+    return fromPosition(user, position.getX(), position.getY(), position.getZ());
+  }
+
+  public static BoundingBox fromPosition(User user, BlockPosition position) {
+    return fromPosition(user, position.xCoord, position.yCoord, position.zCoord);
+  }
+
+  public static BoundingBox fromPosition(
+    User user,
+    double positionX, double positionY, double positionZ
+  ) {
+    MovementMetadata movementData = user.meta().movement();
+    ProtocolMetadata clientData = user.meta().protocol();
+    double width = movementData.isInVehicle() ? movementData.width / 2.0f : movementData.widthRounded;
+    float height = movementData.height;
+
+    double newYMax;
+    if (clientData.roundEnvironmentNumbers()) {
+      newYMax = Math.round((positionY + height) * 10000000d) / 10000000d;
+    } else {
+      newYMax = Math.round((positionY + height) * 10000000000d) / 10000000000d;
+    }
+    return new BoundingBox(
+      positionX - width, positionY, positionZ - width,
+      positionX + width, newYMax, positionZ + width
+    );
+  }
+
+  public static BoundingBox fromNative(Object nativeBB) {
+    return WrapperConverter.boundingBoxFromAABB(nativeBB);
+  }
+
+  @Deprecated
+  // doomed to be inaccurate, just guesses default BB size - please remove ~richy
+  public static BoundingBox fromPosition(
+    double positionX, double positionY, double positionZ
+  ) {
+    return new BoundingBox(
+      positionX - HALF_WIDTH, positionY, positionZ - HALF_WIDTH,
+      positionX + HALF_WIDTH, positionY + PLAYER_HEIGHT, positionZ + HALF_WIDTH
+    );
   }
 
   public double min(Direction.Axis axis) {
@@ -56,6 +183,10 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
         return maxZ;
     }
     return axis.select(this.maxX, this.maxY, this.maxZ);
+  }
+
+  public BoundingBox expand(Vector vec) {
+    return expand(vec.getX(), vec.getY(), vec.getZ());
   }
 
   /**
@@ -178,8 +309,6 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
     return normalized;
   }
 
-  private List<BoundingBox> selfListReference;
-
   @Override
   @Deprecated
   public List<BoundingBox> boundingBoxes() {
@@ -193,8 +322,6 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
   public boolean isEmpty() {
     return false;
   }
-
-  private static final double EPSILON = 0.00001;
 
   @Override
   public boolean isCubic() {
@@ -222,6 +349,22 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
     return vec.xCoord > this.minX && vec.xCoord < this.maxX && (vec.yCoord > this.minY && vec.yCoord < this.maxY && vec.zCoord > this.minZ && vec.zCoord < this.maxZ);
   }
 
+  public double centerX() {
+    return (minX + maxX) / 2.0;
+  }
+
+  public double centerY() {
+    return (minY + maxY) / 2.0;
+  }
+
+  public double centerZ() {
+    return (minZ + maxZ) / 2.0;
+  }
+
+  public Vec centerToVec() {
+    return new Vec(centerX(), centerY(), centerZ());
+  }
+
   /**
    * Returns the average length of the edges of the bounding box.
    */
@@ -231,6 +374,16 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
     double d2 = this.maxZ - this.minZ;
     return (d0 + d1 + d2) / 3.0D;
   }
+
+  // position
+//  public String toString() {
+//    return "" + (minX + (maxX - minX) / 2d) + "," + (minY + (maxY - minY) / 2d) + "," + (minZ + (maxZ - minZ) / 2d);
+//  }
+
+  // width and height
+//  public String toString() {
+//    return "" + (maxX - minX) + "," + (maxY - minY) + "," + (maxZ - minZ);
+//  }
 
   /**
    * Returns a bounding box that is inset by the specified amounts
@@ -254,8 +407,6 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
     Direction direction = xyzDirectionRaytrace(target, distanceStorage, differenceX, differenceY, differenceZ);
     return direction == null ? null : BlockRaytrace.from(direction, distanceStorage[0]);
   }
-
-  private static final double TOLERANCE = 0.0000001;
 
   @SuppressWarnings({"SuspiciousNameCombination", "ConstantConditions"})
   @Nullable
@@ -286,32 +437,6 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
       direction = directionRaytrace(distanceStorage, direction, differenceZ, differenceX, differenceY, maxZ, minX, maxX, minY, maxY, Direction.SOUTH, targetPositionZ, targetPositionX, targetPositionY);
     }
     return direction;
-  }
-
-  @Nullable
-  private static Direction directionRaytrace(
-    double[] distanceStorage,
-    @Nullable Direction inheritDirection,
-    double differenceMain, double differenceUp, double differenceRight,
-    double minMain,
-    double minUp, double maxUp,
-    double minRight, double maxRight,
-    Direction selectedDirection,
-    double targetMain, double targetUp, double targetRight
-  ) {
-    double normalizedStepMain = (minMain - targetMain) / differenceMain;
-    if (0.0 < normalizedStepMain && normalizedStepMain < distanceStorage[0]) {
-      double normalizedStepUp = targetUp + normalizedStepMain * differenceUp;
-      double normalizedStepRight = targetRight + normalizedStepMain * differenceRight;
-      if (
-        minUp - TOLERANCE < normalizedStepUp && normalizedStepUp < maxUp + TOLERANCE &&
-          minRight - TOLERANCE < normalizedStepRight && normalizedStepRight < maxRight + TOLERANCE
-      ) {
-        distanceStorage[0] = normalizedStepMain;
-        return selectedDirection;
-      }
-    }
-    return inheritDirection;
   }
 
   public MovingObjectPosition calculateIntercept(NativeVector vecA, NativeVector vecB) {
@@ -424,16 +549,6 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
     return "Box{" + this.minX + ", " + this.minY + ", " + this.minZ + " -> " + this.maxX + ", " + this.maxY + ", " + this.maxZ + "}";
   }
 
-  // position
-//  public String toString() {
-//    return "" + (minX + (maxX - minX) / 2d) + "," + (minY + (maxY - minY) / 2d) + "," + (minZ + (maxZ - minZ) / 2d);
-//  }
-
-  // width and height
-//  public String toString() {
-//    return "" + (maxX - minX) + "," + (maxY - minY) + "," + (maxZ - minZ);
-//  }
-
   public String toCompactString() {
     return "" + MathHelper.formatDouble(this.minX, 3) + ", " + MathHelper.formatDouble(this.minY, 3) + ", " + MathHelper.formatDouble(this.minZ, 3) + " -> " + MathHelper.formatDouble(this.maxX, 3) + ", " + MathHelper.formatDouble(this.maxY, 3) + ", " + MathHelper.formatDouble(this.maxZ, 3);
   }
@@ -486,103 +601,5 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
     temp = Double.doubleToLongBits(maxZ);
     result = 31 * result + (int) (temp ^ (temp >>> 32));
     return result;
-  }
-
-  public static BoundingBox fromBounds(
-    double x1, double y1, double z1,
-    double x2, double y2, double z2
-  ) {
-    double d0 = Math.min(x1, x2);
-    double d1 = Math.min(y1, y2);
-    double d2 = Math.min(z1, z2);
-    double d3 = Math.max(x1, x2);
-    double d4 = Math.max(y1, y2);
-    double d5 = Math.max(z1, z2);
-    return new BoundingBox(d0, d1, d2, d3, d4, d5);
-  }
-
-  public static BoundingBox originFrom(
-    double x1, double y1, double z1,
-    double x2, double y2, double z2
-  ) {
-    double d0 = Math.min(x1, x2);
-    double d1 = Math.min(y1, y2);
-    double d2 = Math.min(z1, z2);
-    double d3 = Math.max(x1, x2);
-    double d4 = Math.max(y1, y2);
-    double d5 = Math.max(z1, z2);
-    BoundingBox boundingBox = new BoundingBox(d0, d1, d2, d3, d4, d5);
-    boundingBox.makeOriginBox();
-    return boundingBox;
-  }
-
-  public static BoundingBox originFromX16(
-    double x1, double y1, double z1,
-    double x2, double y2, double z2
-  ) {
-    double fromX = Math.min(x1, x2);
-    double fromY = Math.min(y1, y2);
-    double fromZ = Math.min(z1, z2);
-    double toX = Math.max(x1, x2);
-    double toY = Math.max(y1, y2);
-    double toZ = Math.max(z1, z2);
-    BoundingBox boundingBox = new BoundingBox(
-      fromX / 16D, fromY / 16D, fromZ / 16D,
-      toX / 16D, toY / 16D, toZ / 16D
-    );
-    boundingBox.makeOriginBox();
-    return boundingBox;
-  }
-
-  public static BoundingBox fromPosition(User user, Location location) {
-    return fromPosition(user, location.getX(), location.getY(), location.getZ());
-  }
-
-  public static BoundingBox fromPosition(User user, Position position) {
-    return fromPosition(user, position.getX(), position.getY(), position.getZ());
-  }
-
-  public static BoundingBox fromPosition(User user, BlockPosition position) {
-    return fromPosition(user, position.xCoord, position.yCoord, position.zCoord);
-  }
-
-  public static BoundingBox fromPosition(
-    User user,
-    double positionX, double positionY, double positionZ
-  ) {
-    MovementMetadata movementData = user.meta().movement();
-    ProtocolMetadata clientData = user.meta().protocol();
-    double width = movementData.isInVehicle() ? movementData.width / 2.0f : movementData.widthRounded;
-    float height = movementData.height;
-
-    double newYMax;
-    if (clientData.roundEnvironmentNumbers()) {
-      newYMax = Math.round((positionY + height) * 10000000d) / 10000000d;
-    } else {
-      newYMax = Math.round((positionY + height) * 10000000000d) / 10000000000d;
-    }
-    return new BoundingBox(
-      positionX - width, positionY, positionZ - width,
-      positionX + width, newYMax, positionZ + width
-    );
-  }
-
-  public static BoundingBox fromNative(Object nativeBB) {
-    return WrapperConverter.boundingBoxFromAABB(nativeBB);
-  }
-
-  // just assuming defaults - please remove
-  private static final float PLAYER_HEIGHT = 1.8f;
-  private static final double HALF_WIDTH = 0.3;
-
-  @Deprecated
-  // doomed to be inaccurate, just guesses default BB size - please remove ~richy
-  public static BoundingBox fromPosition(
-    double positionX, double positionY, double positionZ
-  ) {
-    return new BoundingBox(
-      positionX - HALF_WIDTH, positionY, positionZ - HALF_WIDTH,
-      positionX + HALF_WIDTH, positionY + PLAYER_HEIGHT, positionZ + HALF_WIDTH
-    );
   }
 }
