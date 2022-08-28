@@ -175,9 +175,14 @@ fun registerServerTask(serverVersion: String, javaVersion: Int) {
     tasks.register<RunServerTask>("iacServer_${serverVersion}-j$javaVersion") {
         group = simpleName
         dependsOn("iacBuild")
+        pluginJars.from("build/libs/$simpleName.jar")
         minecraftVersion(serverVersion)
         runDirectory(File("paper_${serverVersion}-j$javaVersion"))
-        doFirst { java.toolchain.languageVersion.set(JavaLanguageVersion.of(javaVersion)) }
+        javaLauncher.set(
+            project.javaToolchains.launcherFor {
+                languageVersion.set(JavaLanguageVersion.of(javaVersion))
+            }
+        )
     }
 }
 
