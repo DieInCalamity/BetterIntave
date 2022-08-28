@@ -62,7 +62,7 @@ tasks.register("iacDeploy") {
     doLast {
         copy {
             from("build/libs/$simpleName.jar")
-            into("C:\\Users\\tratt\\Development\\e\\plugins")
+            into(TODO("enter custom deployment path, e.g. plugin directory"))
         }
     }
 }
