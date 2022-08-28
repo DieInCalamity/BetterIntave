@@ -1,10 +1,12 @@
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
+import xyz.jpenilla.runpaper.task.RunServerTask
 
 plugins {
     java
     kotlin("jvm") version "1.7.10"
     id("net.minecrell.plugin-yml.bukkit") version "0.5.2"
     id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("xyz.jpenilla.run-paper") version "1.0.6"
 }
 
 val simpleName = "Intave"
@@ -18,7 +20,6 @@ description = "$simpleName is a cheat detection software, providing fair play"
 /*
  * Dependencies
  */
-
 repositories {
     mavenCentral()
 
@@ -39,62 +40,6 @@ dependencies {
     // random shit
     compileOnly("org.jetbrains:annotations:23.0.0")
     compileOnly("it.unimi.dsi:fastutil:8.5.8")
-}
-
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(8))
-
-/*
- * Intave Gradle Tasks
- */
-tasks.register("iacClean") {
-    group = simpleName
-    dependsOn(tasks.clean)
-}
-
-tasks.register("iacBuild") {
-    group = simpleName
-    dependsOn(tasks.build)
-}
-
-tasks.register("iacDeploy") {
-    group = simpleName
-    dependsOn("iacBuild")
-    doLast {
-        copy {
-            from("build/libs/$simpleName.jar")
-            into(TODO("enter custom deployment path, e.g. plugin directory"))
-        }
-    }
-}
-
-/*
- * Gradle Task Configuration
- */
-tasks {
-    build { dependsOn(shadowJar) }
-
-    jar {
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE
-        archiveFileName.set("$simpleName.jar")
-        manifest {
-            attributes("Implementation-Title" to simpleName)
-            attributes("Implementation-Version" to project.version)
-            attributes("Implementation-Vendor" to "Jpx3")
-            attributes("Main-Class" to "de.jpx3.intave.IntaveApplication")
-        }
-        // TODO: remove kotlin module files in META-INF...
-    }
-
-    shadowJar {
-        val classifier = "file"
-        archiveFileName.set("$simpleName.jar")
-        archiveClassifier.set(classifier)
-        // TODO: since kotlin stdlib is shaded into the jar, jetbrains annotations is also present
-        // despite not being needed...
-    }
-
-    compileKotlin { kotlinOptions.jvmTarget = "1.8" }
-    compileTestKotlin { kotlinOptions.jvmTarget = "1.8" }
 }
 
 /*
@@ -180,5 +125,86 @@ bukkit {
         register("intave.command.internals.bot") {
             default = BukkitPluginDescription.Permission.Default.FALSE
         }
+    }
+}
+
+/*
+ * Intave Gradle Tasks
+ */
+tasks.register("iacClean") {
+    group = simpleName
+    dependsOn(tasks.clean)
+}
+
+tasks.register("iacBuild") {
+    group = simpleName
+    dependsOn(tasks.build)
+}
+
+tasks.register("iacDeploy") {
+    group = simpleName
+    dependsOn("iacBuild")
+    doLast {
+        copy {
+            from("build/libs/$simpleName.jar")
+            into(TODO("enter custom deployment path, e.g. plugin directory"))
+        }
+    }
+}
+
+run {
+    registerServerTask("1.8.8", 8)
+    registerServerTask("1.9.4", 8)
+    registerServerTask("1.10.2", 8)
+    registerServerTask("1.11.2", 8)
+    registerServerTask("1.12.2", 8)
+    registerServerTask("1.13.2", 8)
+    registerServerTask("1.14.4", 8)
+    registerServerTask("1.15.2", 8)
+    registerServerTask("1.16.5", 8)
+    registerServerTask("1.17.1", 16)
+    registerServerTask("1.18.2", 17)
+    registerServerTask("1.19.2", 17)
+}
+
+fun registerServerTask(serverVersion: String, javaVersion: Int) {
+    tasks.register<RunServerTask>("iacServer_${serverVersion}-j$javaVersion") {
+        group = simpleName
+        dependsOn("iacBuild")
+        minecraftVersion(serverVersion)
+        runDirectory(File("paper_${serverVersion}-j$javaVersion"))
+        doFirst { java.toolchain.languageVersion.set(JavaLanguageVersion.of(javaVersion)) }
+    }
+}
+
+/*
+ * Gradle Task Configuration
+ */
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(8))
+
+tasks {
+    compileKotlin { kotlinOptions.jvmTarget = "1.8" }
+    compileTestKotlin { kotlinOptions.jvmTarget = "1.8" }
+
+    build { dependsOn(shadowJar) }
+
+    jar {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        archiveFileName.set("$simpleName.jar")
+        manifest {
+            attributes("Implementation-Title" to simpleName)
+            attributes("Implementation-Version" to project.version)
+            attributes("Implementation-Vendor" to "Jpx3")
+            attributes("Main-Class" to "de.jpx3.intave.IntaveApplication")
+        }
+        // TODO: remove kotlin module files in META-INF...
+    }
+
+    shadowJar {
+        val classifier = "file"
+        archiveFileName.set("$simpleName.jar")
+        archiveClassifier.set(classifier)
+        // TODO: since kotlin stdlib is shaded into the jar, jetbrains annotations is also present
+        // despite not being needed...
     }
 }
