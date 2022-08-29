@@ -1,4 +1,4 @@
-package de.jpx3.intave.check.physics2
+package de.jpx3.intave.check.movement.physics
 
 import org.bukkit.Location
 import org.bukkit.util.Vector
@@ -8,6 +8,10 @@ typealias BukkitVec = Vector
 
 fun Location.toVec(): Vec {
     return Vec(x, y, z)
+}
+
+fun Double.format(digits: Int = 3): String {
+    return String.format("%.${digits}f", this)
 }
 
 class Vec(x: Double, y: Double, z: Double) : BukkitVec(x, y, z) {

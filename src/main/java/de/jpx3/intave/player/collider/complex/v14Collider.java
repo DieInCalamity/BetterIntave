@@ -13,7 +13,13 @@ import static de.jpx3.intave.share.Direction.Axis.*;
 
 public final class v14Collider implements Collider {
   @Override
-  public ColliderResult collide(User user, Motion motion, double positionX, double positionY, double positionZ, boolean inWeb) {
+  public ColliderResult collide(
+      User user,
+      Motion motion,
+      double positionX,
+      double positionY,
+      double positionZ,
+      boolean inWeb) {
     Player player = user.player();
     MetadataBundle meta = user.meta();
     MovementMetadata movement = meta.movement();
@@ -29,9 +35,9 @@ public final class v14Collider implements Collider {
     double startMotionY = motion.motionY();
     double startMotionZ = motion.motionZ();
     boolean step = false;
-    BlockShape collisionShape = Collision.collisionShape(
-      player, movement.boundingBox().expand(motion.motionX, motion.motionY, motion.motionZ)
-    );
+    BlockShape collisionShape =
+        Collision.collisionShape(
+            player, movement.boundingBox().expand(motion.motionX, motion.motionY, motion.motionZ));
     BoundingBox startBoundingBox = movement.boundingBox();
     BoundingBox shiftedBoundingBox = movement.boundingBox();
     if (motion.motionY != 0.0) {
@@ -67,10 +73,9 @@ public final class v14Collider implements Collider {
       BoundingBox boundingBox3 = shiftedBoundingBox;
       shiftedBoundingBox = startBoundingBox;
       motion.motionY = movement.stepHeight;
-      BlockShape stepCollisionShape = Collision.collisionShape(
-        player,
-        shiftedBoundingBox.expand(startMotionX, motion.motionY, startMotionZ)
-      );
+      BlockShape stepCollisionShape =
+          Collision.collisionShape(
+              player, shiftedBoundingBox.expand(startMotionX, motion.motionY, startMotionZ));
       BoundingBox boundingBox4 = shiftedBoundingBox;
       BoundingBox boundingBox5 = boundingBox4.expand(startMotionX, 0.0D, startMotionZ);
       double d9 = motion.motionY;
@@ -107,7 +112,8 @@ public final class v14Collider implements Collider {
       }
       motion.motionY = stepCollisionShape.allowedOffset(Y_AXIS, shiftedBoundingBox, motion.motionY);
       shiftedBoundingBox = shiftedBoundingBox.offset(0.0, motion.motionY, 0.0);
-      if (copyX * copyX + copyZ * copyZ >= motion.motionX * motion.motionX + motion.motionZ * motion.motionZ) {
+      if (copyX * copyX + copyZ * copyZ
+          >= motion.motionX * motion.motionX + motion.motionZ * motion.motionZ) {
         motion.motionX = copyX;
         motion.motionY = copyY;
         motion.motionZ = copyZ;
@@ -128,10 +134,13 @@ public final class v14Collider implements Collider {
     motion.motionY = newPositionY - positionY;
     motion.motionZ = newPositionZ - positionZ;
     return new ColliderResult(
-      Motion.copyFrom(motion), onGround,
-      collidedHorizontally, collidedVertically,
-      moveResetX, moveResetZ, step
-    );
+        Motion.copyFrom(motion),
+        onGround,
+        collidedHorizontally,
+        collidedVertically,
+        moveResetX,
+        moveResetZ,
+        step);
   }
 
   private void calculateBackOffFromEdge(User user, double length, Motion context) {
@@ -140,7 +149,8 @@ public final class v14Collider implements Collider {
     BoundingBox boundingBox = movementData.boundingBox();
     double motionX = context.motionX;
     double motionZ = context.motionZ;
-    while (motionX != 0.0D && Collision.nonePresent(player, boundingBox.offset(motionX, -length, 0.0D))) {
+    while (motionX != 0.0D
+        && Collision.nonePresent(player, boundingBox.offset(motionX, -length, 0.0D))) {
       if (motionX < 0.05D && motionX >= -0.05D) {
         motionX = 0.0D;
       } else if (motionX > 0.0D) {
@@ -149,7 +159,8 @@ public final class v14Collider implements Collider {
         motionX += 0.05D;
       }
     }
-    while (motionZ != 0.0D && Collision.nonePresent(player, boundingBox.offset(0.0D, -length, motionZ))) {
+    while (motionZ != 0.0D
+        && Collision.nonePresent(player, boundingBox.offset(0.0D, -length, motionZ))) {
       if (motionZ < 0.05D && motionZ >= -0.05D) {
         motionZ = 0.0D;
       } else if (motionZ > 0.0D) {
@@ -158,7 +169,9 @@ public final class v14Collider implements Collider {
         motionZ += 0.05D;
       }
     }
-    while (motionX != 0.0D && motionZ != 0.0D && Collision.nonePresent(player, boundingBox.offset(motionX, -length, motionZ))) {
+    while (motionX != 0.0D
+        && motionZ != 0.0D
+        && Collision.nonePresent(player, boundingBox.offset(motionX, -length, motionZ))) {
       if (motionX < 0.05D && motionX >= -0.05D) {
         motionX = 0.0D;
       } else if (motionX > 0.0D) {

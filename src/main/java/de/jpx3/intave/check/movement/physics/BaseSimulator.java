@@ -9,6 +9,7 @@ import de.jpx3.intave.block.fluid.LegacyWaterflow;
 import de.jpx3.intave.block.physics.BlockPhysics;
 import de.jpx3.intave.block.physics.BlockProperties;
 import de.jpx3.intave.block.physics.MaterialMagic;
+import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.tracker.entity.EntityShade;
 import de.jpx3.intave.player.Effects;
@@ -33,6 +34,7 @@ import org.bukkit.util.Vector;
 
 import java.util.Collection;
 
+import static de.jpx3.intave.share.ClientMathHelper.clamp_double;
 import static de.jpx3.intave.share.ClientMathHelper.floor;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_14;
 
@@ -40,10 +42,10 @@ import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_14;
 class BaseSimulator extends Simulator {
   @Override
   public Simulation simulate(
-    User user, Motion motion,
-    SimulationEnvironment environment,
-    MovementConfiguration configuration
-  ) {
+      User user,
+      Motion motion,
+      SimulationEnvironment environment,
+      MovementConfiguration configuration) {
     // guessed movement configuration
     float forward = configuration.forward();
     float strafe = configuration.strafe();
@@ -72,8 +74,11 @@ class BaseSimulator extends Simulator {
     forward = ((int) forward) * 0.98f;
     strafe = ((int) strafe) * 0.98f;
     if ((pose == Pose.CROUCHING) || (!clientData.beeUpdate() && environment.isSneaking())) {
-      forward = (float) ((double) forward * 0.3);
-      strafe = (float) ((double) strafe * 0.3);
+      double sneakingModifier =
+          clamp_double(
+              0.3 + Enchantments.resolveSwiftSpeedModifier(user.player()) * 0.15f, 0.0f, 1.0f);
+      forward = (float) ((double) forward * sneakingModifier);
+      strafe = (float) ((double) strafe * sneakingModifier);
     }
     if (handActive) {
       forward *= 0.2f;
@@ -88,7 +93,8 @@ class BaseSimulator extends Simulator {
       if (clientData.waterUpdate() && inWater) {
         Position lastPosition = environment.lastPosition();
         // Geht nicht anders
-        Material material = VolatileBlockAccess.typeAccess(user, user.player().getWorld(), lastPosition);
+        Material material =
+            VolatileBlockAccess.typeAccess(user, user.player().getWorld(), lastPosition);
         int blockData = VolatileBlockAccess.variantIndexAccess(user, lastPosition);
         float heightPercentage = LegacyWaterflow.resolveLiquidHeightPercentage(blockData);
         if (environment.onGround()) {
@@ -103,7 +109,8 @@ class BaseSimulator extends Simulator {
         motion.motionY += 0.03999999910593033D;
       } else {
         motion.motionY = environment.jumpMotion();
-        if (/*movementData.sprintingAllowed()*/sprinting) {
+        if (
+        /*movementData.sprintingAllowed()*/ sprinting) {
           motion.motionX -= yawSine * 0.2F;
           motion.motionZ += yawCosine * 0.2F;
         }
@@ -112,17 +119,20 @@ class BaseSimulator extends Simulator {
     if (waterUpdate && swimming) {
       double d3 = environment.lookVector().getY();
       double d4 = d3 < -0.2D ? 0.085D : 0.06D;
-      boolean fluidStateEmpty = Fluids.fluidStateEmpty(user, positionX, positionY + 1.0 - 0.1, positionZ);
+      boolean fluidStateEmpty =
+          Fluids.fluidStateEmpty(user, positionX, positionY + 1.0 - 0.1, positionZ);
       if (d3 <= 0.0D || jumped || !fluidStateEmpty) {
         motion.motionY += (d3 - motion.motionY) * d4;
       }
     }
     if (inWater) {
-      performSimulationInWaterOfState(user, motion, environment, sprinting, forward, strafe, yawSine, yawCosine);
+      performSimulationInWaterOfState(
+          user, motion, environment, sprinting, forward, strafe, yawSine, yawCosine);
     } else if (inLava) {
       performLavaSimulationOfState(user, motion, forward, strafe, yawSine, yawCosine);
     } else {
-      performDefaultMoveSimulationOfState(user, motion, environment, forward, strafe, yawSine, yawCosine);
+      performDefaultMoveSimulationOfState(
+          user, motion, environment, forward, strafe, yawSine, yawCosine);
     }
 
     if (!inWater && !elytraFlying && !inLava) {
@@ -138,21 +148,21 @@ class BaseSimulator extends Simulator {
       movementData.physicsMotionY = 0;
       movementData.physicsMotionZ = 0;
     }
-    ColliderResult collisionResult = Colliders.collision(
-      user, motion, environment.inWeb(),
-      positionX, positionY, positionZ
-    );
+    ColliderResult collisionResult =
+        Colliders.collision(user, motion, environment.inWeb(), positionX, positionY, positionZ);
     notePossibleFlyingPacket(user, collisionResult);
     return Simulation.of(user, configuration, collisionResult);
   }
 
   private void performSimulationInWaterOfState(
-    User user, Motion context,
-    SimulationEnvironment environment,
-    boolean sprinting,
-    float moveForward, float moveStrafe,
-    float yawSine, float yawCosine
-  ) {
+      User user,
+      Motion context,
+      SimulationEnvironment environment,
+      boolean sprinting,
+      float moveForward,
+      float moveStrafe,
+      float yawSine,
+      float yawCosine) {
     Player player = user.player();
     float friction = 0.02F;
     float depthStrider = Enchantments.resolveDepthStriderModifier(player);
@@ -165,27 +175,37 @@ class BaseSimulator extends Simulator {
     if (depthStrider > 0.0F) {
       friction += (environment.aiMoveSpeed(sprinting) - friction) * depthStrider / 3.0F;
     }
-    performRelativeMoveSimulationOfState(context, friction, yawSine, yawCosine, moveForward, moveStrafe);
+    performRelativeMoveSimulationOfState(
+        context, friction, yawSine, yawCosine, moveForward, moveStrafe);
   }
 
   private void performLavaSimulationOfState(
-    User user,
-    Motion context,
-    float moveForward, float moveStrafe,
-    float yawSine, float yawCosine
-  ) {
+      User user,
+      Motion context,
+      float moveForward,
+      float moveStrafe,
+      float yawSine,
+      float yawCosine) {
     float friction = 0.02f;
-    performRelativeMoveSimulationOfState(context, friction, yawSine, yawCosine, moveForward, moveStrafe);
+    performRelativeMoveSimulationOfState(
+        context, friction, yawSine, yawCosine, moveForward, moveStrafe);
   }
 
   private void performDefaultMoveSimulationOfState(
-    User user, Motion context,
-    SimulationEnvironment environment,
-    float moveForward, float moveStrafe,
-    float yawSine, float yawCosine
-  ) {
-    performRelativeMoveSimulationOfState(context, environment.friction(), yawSine, yawCosine, moveForward, moveStrafe);
-    if (MovementCharacteristics.isOnLadder(user, environment.verifiedPositionX(), environment.verifiedPositionY(), environment.verifiedPositionZ())) {
+      User user,
+      Motion context,
+      SimulationEnvironment environment,
+      float moveForward,
+      float moveStrafe,
+      float yawSine,
+      float yawCosine) {
+    performRelativeMoveSimulationOfState(
+        context, environment.friction(), yawSine, yawCosine, moveForward, moveStrafe);
+    if (MovementCharacteristics.isOnLadder(
+        user,
+        environment.verifiedPositionX(),
+        environment.verifiedPositionY(),
+        environment.verifiedPositionZ())) {
       float f6 = 0.15F;
       context.motionX = ClientMathHelper.clamp_double(context.motionX, -f6, f6);
       context.motionZ = ClientMathHelper.clamp_double(context.motionZ, -f6, f6);
@@ -199,10 +219,12 @@ class BaseSimulator extends Simulator {
   }
 
   private void performRelativeMoveSimulationOfState(
-    Motion motion, float friction,
-    float yawSine, float yawCosine,
-    float moveForward, float moveStrafe
-  ) {
+      Motion motion,
+      float friction,
+      float yawSine,
+      float yawCosine,
+      float moveForward,
+      float moveStrafe) {
     float f = moveStrafe * moveStrafe + moveForward * moveForward;
     if (f >= 0.0001f) {
       f = (float) Math.sqrt(f);
@@ -215,7 +237,8 @@ class BaseSimulator extends Simulator {
   }
 
   @IdoNotBelongHere
-  private void tryRelinkFlyingPosition(User user, Motion context, SimulationEnvironment environment) {
+  private void tryRelinkFlyingPosition(
+      User user, Motion context, SimulationEnvironment environment) {
     Player player = user.player();
     MovementMetadata movementData = user.meta().movement();
 
@@ -224,7 +247,11 @@ class BaseSimulator extends Simulator {
     double positionZ = environment.verifiedPositionZ();
 
     boolean onGround;
-    double slipperiness = environment.lastOnGround() ? MovementCharacteristics.currentSlipperiness(user, player.getWorld(), positionX, positionY, positionZ) : 0.91f;
+    double slipperiness =
+        environment.lastOnGround()
+            ? MovementCharacteristics.currentSlipperiness(
+                user, player.getWorld(), positionX, positionY, positionZ)
+            : 0.91f;
     double resetMotion = environment.resetMotion();
     double jumpUpwardsMotion = environment.jumpMotion();
 
@@ -234,10 +261,9 @@ class BaseSimulator extends Simulator {
     double interpolateZ = context.motionZ;
 
     for (; interpolations <= 2; interpolations++) {
-      SimpleColliderResult colliderResult = Colliders.simplifiedCollision(
-        player, positionX, positionY, positionZ,
-        interpolateX, interpolateY, interpolateZ
-      );
+      SimpleColliderResult colliderResult =
+          Colliders.simplifiedCollision(
+              player, positionX, positionY, positionZ, interpolateX, interpolateY, interpolateZ);
 
       positionX += colliderResult.motionX();
       positionY += colliderResult.motionZ();
@@ -249,11 +275,17 @@ class BaseSimulator extends Simulator {
       onGround = colliderResult.onGround();
 
       boolean jumpLessThanExpected = colliderResult.motionY() < jumpUpwardsMotion;
-      boolean jump = onGround && Math.abs(((colliderResult.motionY()) + jumpUpwardsMotion) - environment.motionY()) < 1e-5 && jumpLessThanExpected;
+      boolean jump =
+          onGround
+              && Math.abs(((colliderResult.motionY()) + jumpUpwardsMotion) - environment.motionY())
+                  < 1e-5
+              && jumpLessThanExpected;
 
       if (!flyingPacket(diffX, diffY, diffZ) && !jump) {
         break;
-      } else if (jump && flyingPacket(diffX * 0.05, 0.0, diffZ * 0.05) && !movementData.denyJump()) {
+      } else if (jump
+          && flyingPacket(diffX * 0.05, 0.0, diffZ * 0.05)
+          && !movementData.denyJump()) {
         context.motionY = jumpUpwardsMotion;
         movementData.artificialFallDistance = 0f;
         movementData.physicsPacketRelinkFlyVL = 0;
@@ -274,10 +306,14 @@ class BaseSimulator extends Simulator {
         }
 
         applyCollidedMotionsToContext(
-          player, context,
-          positionX, positionY, positionZ,
-          nextPredictedX, nextPredictedY, nextPredictedZ
-        );
+            player,
+            context,
+            positionX,
+            positionY,
+            positionZ,
+            nextPredictedX,
+            nextPredictedY,
+            nextPredictedZ);
       }
 
       interpolateX *= slipperiness;
@@ -300,11 +336,17 @@ class BaseSimulator extends Simulator {
   }
 
   void applyCollidedMotionsToContext(
-    Player player, Motion motion,
-    double positionX, double positionY, double positionZ,
-    double motionX, double motionY, double motionZ
-  ) {
-    SimpleColliderResult colliderResult = Colliders.simplifiedCollision(player, positionX, positionY, positionZ, motionX, motionY, motionZ);
+      Player player,
+      Motion motion,
+      double positionX,
+      double positionY,
+      double positionZ,
+      double motionX,
+      double motionY,
+      double motionZ) {
+    SimpleColliderResult colliderResult =
+        Colliders.simplifiedCollision(
+            player, positionX, positionY, positionZ, motionX, motionY, motionZ);
     motion.motionX = colliderResult.motionX();
     motion.motionY = colliderResult.motionY();
     motion.motionZ = colliderResult.motionZ();
@@ -328,10 +370,13 @@ class BaseSimulator extends Simulator {
 
   @Override
   public void prepareNextTick(
-    User user,
-    double positionX, double positionY, double positionZ,
-    double motionX, double motionY, double motionZ
-  ) {
+      User user,
+      double positionX,
+      double positionY,
+      double positionZ,
+      double motionX,
+      double motionY,
+      double motionZ) {
     Player player = user.player();
     World world = player.getWorld();
     MetadataBundle meta = user.meta();
@@ -350,9 +395,12 @@ class BaseSimulator extends Simulator {
     double slipperiness;
     if (movementData.lastOnGround()) {
       double blockPositionX = floor(movementData.verifiedPositionX);
-      double blockPositionY = floor(movementData.verifiedPositionY - movementData.frictionPosSubtraction());
+      double blockPositionY =
+          floor(movementData.verifiedPositionY - movementData.frictionPosSubtraction());
       double blockPositionZ = floor(movementData.verifiedPositionZ);
-      slipperiness = MovementCharacteristics.currentSlipperiness(user, world, blockPositionX, blockPositionY, blockPositionZ);
+      slipperiness =
+          MovementCharacteristics.currentSlipperiness(
+              user, world, blockPositionX, blockPositionY, blockPositionZ);
     } else {
       slipperiness = 0.91f;
     }
@@ -386,19 +434,21 @@ class BaseSimulator extends Simulator {
       simulateNormalAfter(user, motionVector, gravity, slipperiness);
     }
 
-    if (clientData.combatUpdate() && MinecraftVersions.VER1_9_0.atOrAbove() /* todo: add scoreboard check */) {
+    if (clientData.combatUpdate()
+        && MinecraftVersions.VER1_9_0.atOrAbove() /* todo: add scoreboard check */) {
       performGlobalEntityPush(user, motionVector, boundingBox);
     }
 
     if (!violationLevelData.isInActiveTeleportBundle) {
       if (violationLevelData.ignorePostTickMotionReset) {
         violationLevelData.ignorePostTickMotionReset = false;
-//        player.sendMessage("Ignore physics motion reset " + motionVector);
+        //        player.sendMessage("Ignore physics motion reset " + motionVector);
       } else {
         movementData.physicsMotionX = motionVector.motionX;
         movementData.physicsMotionY = motionVector.motionY;
         movementData.physicsMotionZ = motionVector.motionZ;
-//        player.sendMessage(ChatColor.DARK_GRAY + "Reset physics motion to " + motionVector);
+        //        player.sendMessage(ChatColor.DARK_GRAY + "Reset physics motion to " +
+        // motionVector);
       }
     }
     movementData.increaseFlyingPacket();
@@ -424,9 +474,7 @@ class BaseSimulator extends Simulator {
   }
 
   private void simulateMovementOfCollidedBlocks(
-    User user, Motion motion,
-    BoundingBox entityBoundingBox
-  ) {
+      User user, Motion motion, BoundingBox entityBoundingBox) {
     Player player = user.player();
     World world = player.getWorld();
     MetadataBundle meta = user.meta();
@@ -440,10 +488,14 @@ class BaseSimulator extends Simulator {
     int blockCollisionPosX = floor(positionX);
     int blockCollisionPosY = floor(positionY - 0.2f);
     int blockCollisionPosZ = floor(positionZ);
-    Material block = VolatileBlockAccess.typeAccess(user, world, blockCollisionPosX, blockCollisionPosY, blockCollisionPosZ);
+    Material block =
+        VolatileBlockAccess.typeAccess(
+            user, world, blockCollisionPosX, blockCollisionPosY, blockCollisionPosZ);
 
     if (block == Material.AIR) {
-      Material blockBelow = VolatileBlockAccess.typeAccess(user, world, blockCollisionPosX, blockCollisionPosY, blockCollisionPosZ);
+      Material blockBelow =
+          VolatileBlockAccess.typeAccess(
+              user, world, blockCollisionPosX, blockCollisionPosY, blockCollisionPosZ);
       if (blockBelow.name().contains("FENCE") || blockBelow.name().contains("WALL")) {
         block = blockBelow;
       }
@@ -453,10 +505,9 @@ class BaseSimulator extends Simulator {
 
     // onLanded
     if (movementData.collidedVertically) {
-      Motion collisionVector = BlockPhysics.blockLanded(
-        user, block,
-        motion.motionX, movementData.physicsMotionY, motion.motionZ
-      );
+      Motion collisionVector =
+          BlockPhysics.blockLanded(
+              user, block, motion.motionX, movementData.physicsMotionY, motion.motionZ);
       if (collisionVector != null) {
         motion.resetTo(collisionVector);
       } else {
@@ -466,10 +517,8 @@ class BaseSimulator extends Simulator {
 
     // EntityCollidedWithBlock
     if (movementData.onGround && !movementData.sneaking) {
-      Motion collisionVector = BlockPhysics.entityCollision(
-        user, block,
-        motion.motionX, motion.motionY, motion.motionZ
-      );
+      Motion collisionVector =
+          BlockPhysics.entityCollision(user, block, motion.motionX, motion.motionY, motion.motionZ);
       if (collisionVector != null) {
         motion.resetTo(collisionVector);
       }
@@ -492,12 +541,15 @@ class BaseSimulator extends Simulator {
         for (int z = blockPositionStartZ; z <= blockPositionEndZ; z++) {
           Location location = new Location(world, x, y, z);
           Material material = VolatileBlockAccess.typeAccess(user, world, x, y, z);
-          Motion collisionMotion = BlockPhysics.entityCollision(
-            user, material,
-            location,
-            blockCollisionFrom,
-            motion.motionX, motion.motionY, motion.motionZ
-          );
+          Motion collisionMotion =
+              BlockPhysics.entityCollision(
+                  user,
+                  material,
+                  location,
+                  blockCollisionFrom,
+                  motion.motionX,
+                  motion.motionY,
+                  motion.motionZ);
           if (collisionMotion != null) {
             motion.resetTo(collisionMotion);
           }
@@ -508,7 +560,9 @@ class BaseSimulator extends Simulator {
     if (clientData.protocolVersion() >= VER_1_14 && movementData.pose() != Pose.FALL_FLYING) {
       int soulSandModifier = Enchantments.resolveSoulSpeedModifier(player);
       if (soulSandModifier == 0 || !movementData.blockOnPositionSoulSpeedAffected()) {
-        Material type = VolatileBlockAccess.typeAccess(user, world, positionX, positionY - 0.5000001, positionZ);
+        Material type =
+            VolatileBlockAccess.typeAccess(
+                user, world, positionX, positionY - 0.5000001, positionZ);
         float speedFactor = BlockProperties.of(type).speedFactor();
         motion.motionX *= speedFactor;
         motion.motionZ *= speedFactor;
@@ -517,9 +571,11 @@ class BaseSimulator extends Simulator {
   }
 
   private void simulateWaterAfter(
-    User user, Motion motionVector, BoundingBox entityBoundingBox,
-    boolean collidedHorizontally, double gravity
-  ) {
+      User user,
+      Motion motionVector,
+      BoundingBox entityBoundingBox,
+      boolean collidedHorizontally,
+      double gravity) {
     Player player = user.player();
     MetadataBundle meta = user.meta();
     MovementMetadata movementData = meta.movement();
@@ -548,34 +604,39 @@ class BaseSimulator extends Simulator {
       motionVector.motionY -= 0.02D;
     }
     if (clientData.waterUpdate() && !movementData.sprinting) {
-      if (motionVector.motionY <= 0.0D && Math.abs(motionVector.motionY - 0.005D) >= 0.003D && Math.abs(motionVector.motionY - gravity / 16.0D) < 0.003D) {
+      if (motionVector.motionY <= 0.0D
+          && Math.abs(motionVector.motionY - 0.005D) >= 0.003D
+          && Math.abs(motionVector.motionY - gravity / 16.0D) < 0.003D) {
         motionVector.motionY = -0.003D;
       } else {
         motionVector.motionY -= gravity / 16.0D;
       }
     }
-//    if (movementData.collidedHorizontally && MovementContextHelper.isOffsetPositionInLiquid(player, entityBoundingBox, x, y, z)) {
-//      motionVector.motionY = 0.3;
-//    }
+    //    if (movementData.collidedHorizontally &&
+    // MovementContextHelper.isOffsetPositionInLiquid(player, entityBoundingBox, x, y, z)) {
+    //      motionVector.motionY = 0.3;
+    //    }
   }
 
   private void simulateLavaAfter(
-    Player player, User user,
-    Motion context, BoundingBox boundingBox,
-    boolean collidedHorizontally
-  ) {
+      Player player,
+      User user,
+      Motion context,
+      BoundingBox boundingBox,
+      boolean collidedHorizontally) {
     MovementMetadata movementData = user.meta().movement();
     double positionY = movementData.positionY;
     context.motionX *= 0.5D;
     context.motionY *= 0.5D;
     context.motionZ *= 0.5D;
     context.motionY -= 0.02D;
-    boolean offsetPositionInLiquid = MovementCharacteristics.isOffsetPositionInLiquid(
-      player, boundingBox,
-      context.motionX,
-      context.motionY + 0.6f - positionY + movementData.verifiedPositionY,
-      context.motionZ
-    );
+    boolean offsetPositionInLiquid =
+        MovementCharacteristics.isOffsetPositionInLiquid(
+            player,
+            boundingBox,
+            context.motionX,
+            context.motionY + 0.6f - positionY + movementData.verifiedPositionY,
+            context.motionZ);
     if (collidedHorizontally && offsetPositionInLiquid) {
       context.motionY = 0.30000001192092896D;
     }
@@ -596,7 +657,7 @@ class BaseSimulator extends Simulator {
   }
 
   private void performGlobalEntityPush(User user, Motion context, BoundingBox boundingBox) {
-    Collection<EntityShade> entities = user.meta().connection().tracedEntities();//.values();
+    Collection<EntityShade> entities = user.meta().connection().tracedEntities(); // .values();
     MovementMetadata movementData = user.meta().movement();
     movementData.pushedByEntity = false;
     for (EntityShade entity : entities) {
@@ -638,9 +699,13 @@ class BaseSimulator extends Simulator {
   public void setback(User user, double predictedX, double predictedY, double predictedZ) {
     MovementMetadata movement = user.meta().movement();
     ViolationMetadata violationMetadata = user.meta().violationLevel();
-//    System.out.println("Past external velocity: " + movement.pastExternalVelocity);
+    //    System.out.println("Past external velocity: " + movement.pastExternalVelocity);
     Vector emulationMotion = new Vector(predictedX, predictedY, predictedZ);
-    int setbackTicks = (movement.pastExternalVelocity <= 8) ? 8 : ((violationMetadata.physicsVL > 50) ? 3 : 2);
-    Modules.mitigate().movement().emulationSetBack(user.player(), emulationMotion, setbackTicks, (movement.pastExternalVelocity > 16));
+    int setbackTicks =
+        (movement.pastExternalVelocity <= 8) ? 8 : ((violationMetadata.physicsVL > 50) ? 3 : 2);
+    Modules.mitigate()
+        .movement()
+        .emulationSetBack(
+            user.player(), emulationMotion, setbackTicks, (movement.pastExternalVelocity > 16));
   }
 }
