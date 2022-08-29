@@ -4,11 +4,13 @@ import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
+import de.jpx3.intave.block.collision.PowderSnowCollisionModifier;
 import de.jpx3.intave.block.fluid.Fluids;
 import de.jpx3.intave.block.fluid.LegacyWaterflow;
 import de.jpx3.intave.block.physics.BlockPhysics;
 import de.jpx3.intave.block.physics.BlockProperties;
 import de.jpx3.intave.block.physics.MaterialMagic;
+import de.jpx3.intave.block.type.MaterialSearch;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.tracker.entity.EntityShade;
 import de.jpx3.intave.player.Effects;
@@ -358,6 +360,8 @@ class BaseSimulator extends Simulator {
     return distance <= FLYING_DISTANCE;
   }
 
+  private final static Material POWDER_SNOW = MaterialSearch.findBy(material -> material.name().equals("POWDER_SNOW"));
+
   @Override
   public void prepareNextTick(
       User user,
@@ -451,6 +455,14 @@ class BaseSimulator extends Simulator {
 
     if (movementData.onGround) {
       movementData.physicsPacketRelinkFlyVL = 0;
+    }
+
+    Material type = VolatileBlockAccess.typeAccess(user, player.getWorld(), positionX, positionY, positionZ);
+    boolean climbingInPowderSnow = POWDER_SNOW != null && type == POWDER_SNOW && PowderSnowCollisionModifier.canWalkOnPowderSnow(player);
+    if (climbingInPowderSnow) {
+      movementData.pastInPowderSnow = 0;
+    } else {
+      movementData.pastInPowderSnow++;
     }
   }
 

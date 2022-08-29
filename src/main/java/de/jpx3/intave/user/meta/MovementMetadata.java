@@ -113,6 +113,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   public double physicsMotionXBeforeVelocityResetCache, physicsMotionYBeforeVelocityResetCache, physicsMotionZBeforeVelocityResetCache;
   public int pastRiptideSpin = 100;
   public int pastPlayerAttackPhysics = 100;
+  public int pastInPowderSnow = 100;
   public boolean physicsResetMotionX, physicsResetMotionZ;
   public int keyForward, keyStrafe;
   public int lastKeyForward, lastKeyStrafe;
@@ -326,10 +327,6 @@ public final class MovementMetadata implements SimulationEnvironment {
     recheckWebStateFromLastTick();
     updateEntityMovement();
 
-    // completely useless
-//    if (protocol.canUseElytra() && protocol.serversideElytra()) {
-//      updateElytra();
-//    }
     updatePose();
     updateSlotSwitch();
   }

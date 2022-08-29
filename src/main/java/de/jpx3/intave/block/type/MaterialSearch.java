@@ -7,7 +7,16 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 public final class MaterialSearch {
-  public static Set<Material> findBy(Predicate<? super Material> predicate) {
+  public static Material findBy(Predicate<? super Material> predicate) {
+    for (Material material : Material.values()) {
+      if (predicate.test(material)) {
+        return material;
+      }
+    }
+    return null;
+  }
+
+  public static Set<Material> filterBy(Predicate<? super Material> predicate) {
     Set<Material> materials = EnumSet.noneOf(Material.class);
     for (Material material : Material.values()) {
       if (predicate.test(material)) {
@@ -18,6 +27,6 @@ public final class MaterialSearch {
   }
 
   public static Set<Material> materialsThatContain(String search) {
-    return findBy(material -> material.name().toLowerCase().contains(search.toLowerCase()));
+    return filterBy(material -> material.name().toLowerCase().contains(search.toLowerCase()));
   }
 }
