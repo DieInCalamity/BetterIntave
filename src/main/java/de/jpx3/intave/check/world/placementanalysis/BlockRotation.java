@@ -31,10 +31,10 @@ import static de.jpx3.intave.check.world.PlacementAnalysis.COMMON_FLAG_MESSAGE;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.BLOCK_PLACE;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.USE_ITEM;
 
-public final class BlockRotationAnalyzer extends MetaCheckPart<PlacementAnalysis, BlockRotationAnalyzer.BlockRotationMeta> {
+public final class BlockRotation extends MetaCheckPart<PlacementAnalysis, BlockRotation.BlockRotationMeta> {
   private final IntavePlugin plugin;
 
-  public BlockRotationAnalyzer(PlacementAnalysis parentCheck) {
+  public BlockRotation(PlacementAnalysis parentCheck) {
     super(parentCheck, BlockRotationMeta.class);
     plugin = IntavePlugin.singletonInstance();
   }

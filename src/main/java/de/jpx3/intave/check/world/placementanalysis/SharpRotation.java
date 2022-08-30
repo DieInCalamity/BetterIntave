@@ -25,10 +25,10 @@ import static de.jpx3.intave.check.world.PlacementAnalysis.COMMON_FLAG_MESSAGE;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.LOOK;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION_LOOK;
 
-public final class SharpRotationAnalyzer extends MetaCheckPart<PlacementAnalysis, SharpRotationAnalyzer.SharpRotationMeta> {
+public final class SharpRotation extends MetaCheckPart<PlacementAnalysis, SharpRotation.SharpRotationMeta> {
   private final IntavePlugin plugin;
 
-  public SharpRotationAnalyzer(PlacementAnalysis parentCheck) {
+  public SharpRotation(PlacementAnalysis parentCheck) {
     super(parentCheck, SharpRotationMeta.class);
     plugin = IntavePlugin.singletonInstance();
   }

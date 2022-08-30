@@ -9,6 +9,17 @@ import java.math.RoundingMode;
 import java.util.List;
 
 public final class MathHelper {
+  public static double averageOf(List<? extends Number> data) {
+    double sum = 0;
+    for (Number element : data) {
+      sum += element.doubleValue();
+    }
+    if (sum == 0) {
+      return 0;
+    }
+    return sum / data.size();
+  }
+
   public static String formatDouble(double value, int digits) {
     if (Double.isNaN(value)) {
       return "NaN";

@@ -26,15 +26,16 @@ public final class PlacementAnalysis extends Check {
     boolean partner = (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
     if (enterprise || partner) {
       if (useTimings) {
-        appendCheckPart(new SpeedAnalyzer(this));
-        appendCheckPart(new SneakAnalyzer(this));
+        appendCheckPart(new Speed(this));
+        appendCheckPart(new Sneak(this));
       }
-      appendCheckPart(new SharpRotationAnalyzer(this));
-      appendCheckPart(new BlockRotationAnalyzer(this));
+      appendCheckPart(new SharpRotation(this));
+      appendCheckPart(new BlockRotation(this));
     }
-    appendCheckPart(new RotationSpeedAnalyzer(this));
-    appendCheckPart(new PacketOrderAnalyzer(this));
-    appendCheckPart(new FacingAnalyzer(this));
+    appendCheckPart(new RotationSpeed(this));
+    appendCheckPart(new PacketOrder(this));
+    appendCheckPart(new Facing(this));
+    appendCheckPart(new RoundedRotation(this));
   }
 
   public void applyPlacementAnalysisDamageCancel(User user, String checkId) {

@@ -17,12 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static de.jpx3.intave.check.world.PlacementAnalysis.COMMON_FLAG_MESSAGE;
+import static de.jpx3.intave.math.MathHelper.averageOf;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
-public final class PacketOrderAnalyzer extends MetaCheckPart<PlacementAnalysis, PacketOrderAnalyzer.PlacementOrderMeta> {
+public final class PacketOrder extends MetaCheckPart<PlacementAnalysis, PacketOrder.PlacementOrderMeta> {
   private final IntavePlugin plugin;
 
-  public PacketOrderAnalyzer(PlacementAnalysis parentCheck) {
+  public PacketOrder(PlacementAnalysis parentCheck) {
     super(parentCheck, PlacementOrderMeta.class);
     plugin = IntavePlugin.singletonInstance();
   }
@@ -84,17 +85,6 @@ public final class PacketOrderAnalyzer extends MetaCheckPart<PlacementAnalysis, 
 
       meta.placementDifferences.clear();
     }
-  }
-
-  private double averageOf(List<? extends Number> data) {
-    double sum = 0;
-    for (Number element : data) {
-      sum += element.doubleValue();
-    }
-    if (sum == 0) {
-      return 0;
-    }
-    return sum / data.size();
   }
 
   private boolean blockingPlacementPacket(PacketContainer packet) {

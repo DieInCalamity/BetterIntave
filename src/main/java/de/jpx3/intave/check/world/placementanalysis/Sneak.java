@@ -25,12 +25,12 @@ import java.util.List;
 
 import static de.jpx3.intave.check.world.PlacementAnalysis.COMMON_FLAG_MESSAGE;
 
-public final class SneakAnalyzer extends MetaCheckPart<PlacementAnalysis, SneakAnalyzer.SneakMeta> {
+public final class Sneak extends MetaCheckPart<PlacementAnalysis, Sneak.SneakMeta> {
   private static final int CHECK_LENGTH = 24;
 
   private final IntavePlugin plugin;
 
-  public SneakAnalyzer(PlacementAnalysis parentCheck) {
+  public Sneak(PlacementAnalysis parentCheck) {
     super(parentCheck, SneakMeta.class);
     plugin = IntavePlugin.singletonInstance();
   }
