@@ -1,13 +1,14 @@
 /*
 
 # Whitelist source
-/gradle/
-/libs/
-/src/
-/.gitignore
-/build.gradle.kts
-/gradle.properties
-/gradlew
-/gradlew.bat
-/README.md
-/settings.gradle.kts
+!docs/
+!gradle/
+!libs/
+!src/
+!.gitignore
+!build.gradle.kts
+!gradle.properties
+!gradlew
+!gradlew.bat
+!README.md
+!settings.gradle.kts
