@@ -3,7 +3,7 @@ import xyz.jpenilla.runpaper.task.RunServerTask
 
 plugins {
     java
-    // TODO: uncomment if we actually use Kotlin
+    // TODO: uncomment if we actually use Kotlin (requires some thinking before)
     // kotlin("jvm") version "1.7.10"
     id("net.minecrell.plugin-yml.bukkit") version "0.5.2"
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -177,6 +177,8 @@ fun registerServerTask(serverVersion: String, javaVersion: Int) {
         jvmArgs("-Dcom.mojang.eula.agree=true") // speak with our lawyer about this!!
         javaLauncher.set(
             project.javaToolchains.launcherFor {
+                // Sets the JDK version for the Minecraft server, Intave is still built using Java
+                // 1.8
                 languageVersion.set(JavaLanguageVersion.of(javaVersion))
             }
         )
