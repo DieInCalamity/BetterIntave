@@ -27,6 +27,15 @@ public class StorageViolationEvent implements Storage {
     this.timestamp = timestamp;
   }
 
+  StorageViolationEvent(
+    String checkName,
+    String version,
+    int violationLevel,
+    long timestamp
+  ) {
+    this(checkName, "", version, violationLevel, timestamp);
+  }
+
   @Override
   public void writeTo(ByteArrayDataOutput output) {
     output.writeUTF(checkName);

@@ -24,6 +24,7 @@ check:
     thresholds:
       100: "intave internals sendnotify &c{player}&7/{trust-color}&7 is moving incorrectly"
       400: "intave internals sendnotify &c{player}&7/{trust-color}&7 is moving incorrectly #2"
+      500: "intave internals storelog {player} {check} {vl}"
       999:
         - "intave internals collectivekick {player} &cYou have been kicked, as an account with your ip address was removed from the game"
         - "kick {player} &cYou have been removed from the game based on data that was collected by the anti-cheat"
@@ -43,11 +44,14 @@ check:
     confidence-thresholds:
       "!!":
         25:
+          - "intave internals storelog {player} {check} {vl}"
           - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been removed for attacking suspiciously (!!) (heuristics)"
           - "intave internals collectivekick {player} &cYou have been kicked, as an account with your ip address was removed from the game"
           - "kick {player} &cYou have been removed from the game based on data that was collected by the anti-cheat"
       "!":
-        25: "intave internals sendnotify &c{player}&7/{trust-color}&7 is attacking suspiciously (!) (heuristics)"
+        25:
+          - "intave internals storelog {player} {check} {vl}"
+          - "intave internals sendnotify &c{player}&7/{trust-color}&7 is attacking suspiciously (!) (heuristics)"
         50:
           - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been removed for attacking suspiciously (!) (heuristics)"
           - "intave internals collectivekick {player} &cYou have been kicked, as an account with your ip address was removed from the game"
@@ -62,6 +66,7 @@ check:
       reach:
         50: "intave internals sendnotify &c{player}&7/{trust-color}&7 is attacking suspiciously (reach)"
         100:
+          - "intave internals storelog {player} {check} {vl}"
           - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been removed for attacking suspiciously (reach)"
           - "intave internals collectivekick {player} &cYou have been kicked, as an account with your ip address was removed from the game"
           - "kick {player} &cYou have been removed from the game based on data that was collected by the anti-cheat"
@@ -117,6 +122,7 @@ check:
     thresholds:
       50: "intave internals sendnotify &c{player}&7/{trust-color}&7 is placing blocks incorrectly"
       100:
+        - "intave internals storelog {player} {check} {vl}"
         - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been removed for placing blocks incorrectly"
         - "intave internals collectivekick {player} &cYou have been kicked, as an account with your ip address was removed from the game"
         - "kick {player} &cYou have been removed from the game based on data that was collected by the anti-cheat"
@@ -131,6 +137,9 @@ check:
         - "intave internals collectivekick {player} &cYou have been kicked, as an account with your ip address was removed from the game"
         - "kick {player} &cYou have been removed from the game based on data that was collected by the anti-cheat"
 
+storage:
+  # Do you want Intave to ignore the "storelog" command and auto-store suggested violations instead?
+  auto-logs: false
 
 blacklist:
   apply: true

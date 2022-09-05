@@ -5,6 +5,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.module.violation.Violation;
 import de.jpx3.intave.module.violation.ViolationContext;
+import org.bukkit.entity.Player;
 
 import java.util.Comparator;
 import java.util.Locale;
@@ -17,9 +18,35 @@ public final class ViolationStorage implements Storage {
   private static final long VIOLATION_ALLOWED_LIFETIME = TimeUnit.DAYS.toMillis(7);
   private static final long VIOLATION_OVERALL_LIMIT = 256;
 
+  public static final boolean USE_AUTO_STORAGE = (boolean) IntavePlugin.singletonInstance().settings().get("storage.auto-logs", true);
+
   private StorageViolationEvents interestingViolations = new StorageViolationEvents();
 
+  public void noteViolation(String violation, int vl) {
+    Optional<StorageViolationEvent> lastViolationEvent = lastViolationOfCheck(violation);
+    long lastViolationOfCheck = lastViolationEvent.map(StorageViolationEvent::timePassedSince).orElseGet(System::currentTimeMillis);
+    if (lastViolationOfCheck > VIOLATION_INSERT_CHECK_COOLDOWN) {
+      if (interestingViolations.size() < VIOLATION_OVERALL_LIMIT) {
+        StorageViolationEvent event = new StorageViolationEvent(
+          violation.toLowerCase(Locale.ROOT),
+          IntavePlugin.version().toLowerCase(Locale.ROOT),
+          vl, System.currentTimeMillis()
+        );
+        addViolationEvent(event);
+      }
+    } else if (lastViolationOfCheck < VIOLATION_UPDATE_CHECK_TIMEOUT && lastViolationEvent.isPresent()) {
+      StorageViolationEvent storageViolationEvent = lastViolationEvent.get();
+      if (vl > storageViolationEvent.violationLevel()) {
+        storageViolationEvent.setViolationLevel(vl);
+        storageViolationEvent.setTimestamp(System.currentTimeMillis());
+      }
+    }
+  }
+
   public void noteViolation(ViolationContext violationContext) {
+    if (!USE_AUTO_STORAGE) {
+      return;
+    }
     Violation violation = violationContext.violation();
     String checkName = violation.check().name();
     String details = violation.details();

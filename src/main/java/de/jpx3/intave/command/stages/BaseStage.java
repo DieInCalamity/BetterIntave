@@ -209,6 +209,11 @@ public final class BaseStage extends CommandStage {
     printHistory(sender, "Reach", filterByCheck("attackraytrace", violations));
     printHistory(sender, "KillAura", filterByCheck("heuristics", violations));
     printHistory(sender, "Fly/Speed", filterByCheck("physics", violations));
+    printHistory(sender, "Timer", filterByCheck("timer", violations));
+    printHistory(sender, "AutoClicker", filterByCheck("clickpatterns", violations));
+    printHistory(sender, "AutoClicker (speed)", filterByCheck("clickspeedlimiter", violations));
+    printHistory(sender, "FastBreak", filterByCheck("breakspeedlimiter", violations));
+    printHistory(sender, "BadPackets", filterByCheck("protocolscanner", violations));
     printHistory(sender, "Scaffold", filterByCheck("placementanalysis", violations));
     printHistory(sender, "ChestStealer", filterByCheck("inventoryAnalysis", violations));
   }

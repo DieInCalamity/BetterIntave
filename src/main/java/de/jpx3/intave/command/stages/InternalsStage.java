@@ -13,6 +13,7 @@ import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.storage.ViolationStorage;
 import de.jpx3.intave.world.WorldHeight;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -113,6 +114,23 @@ public final class InternalsStage extends CommandStage {
     WrappedDataWatcher watcher = WrappedDataWatcher.getEntityWatcher(entity).deepClone();
     entity.remove();
     return watcher;
+  }
+
+  @SubCommand(
+    selectors = "storelog",
+    usage = "<player> <check> <vl>",
+    permission = "intave.command.internals.storelog",
+    description = "Store the log of a player"
+  )
+  public void storeLog(CommandSender commandSender, Player target, String checkName, int violationLevel) {
+    User user = UserRepository.userOf(target);
+    ViolationStorage violationStorage = user.storageOf(ViolationStorage.class);
+    violationStorage.noteViolation(checkName, violationLevel);
+    if (ViolationStorage.USE_AUTO_STORAGE) {
+      commandSender.sendMessage(IntavePlugin.prefix() + ChatColor.RED + "Auto storage is enabled. This command will not work.");
+      return;
+    }
+    commandSender.sendMessage(IntavePlugin.prefix() + ChatColor.RED + target.getName() + " " + IntavePlugin.defaultColor() + "flagged for " + ChatColor.RED + checkName + " " + IntavePlugin.defaultColor() + "with vl of " + ChatColor.RED + violationLevel);
   }
 
   @SubCommand(
