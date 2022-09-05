@@ -17,12 +17,18 @@ public final class ViolationStorage implements Storage {
   private static final long VIOLATION_INSERT_CHECK_COOLDOWN = TimeUnit.MINUTES.toMillis(10);
   private static final long VIOLATION_ALLOWED_LIFETIME = TimeUnit.DAYS.toMillis(7);
   private static final long VIOLATION_OVERALL_LIMIT = 256;
+  public static boolean USE_AUTO_STORAGE = false;
 
-  public static final boolean USE_AUTO_STORAGE = (boolean) IntavePlugin.singletonInstance().settings().get("storage.auto-logs", true);
+  public static void setup() {
+    USE_AUTO_STORAGE = (boolean) IntavePlugin.singletonInstance().settings().get("storage.auto-logs", true);
+  }
 
   private StorageViolationEvents interestingViolations = new StorageViolationEvents();
 
   public void noteViolation(String violation, int vl) {
+    if (USE_AUTO_STORAGE) {
+      return;
+    }
     Optional<StorageViolationEvent> lastViolationEvent = lastViolationOfCheck(violation);
     long lastViolationOfCheck = lastViolationEvent.map(StorageViolationEvent::timePassedSince).orElseGet(System::currentTimeMillis);
     if (lastViolationOfCheck > VIOLATION_INSERT_CHECK_COOLDOWN) {

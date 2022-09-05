@@ -64,7 +64,7 @@ public final class PlayerStorage implements Storage {
   private <T> T instanceOf(Class<T> tClass) {
     try {
       return tClass.newInstance();
-    } catch (IllegalAccessException | InstantiationException exception) {
+    } catch (Exception exception) {
       exception.printStackTrace();
       return null;
     }

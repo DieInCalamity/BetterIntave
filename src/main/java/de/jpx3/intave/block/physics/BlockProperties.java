@@ -13,25 +13,19 @@ public final class BlockProperties {
   private static final Map<Material, Property> registry = new HashMap<>();
 
   public static void setup() {
-    Property.builderFor(ICE).slipperiness(0.98f).build().trySave();
-    Property.builderFor(SLIME_BLOCK).slipperiness(0.8f).build().trySave();
-    Property.builderFor(PACKED_ICE).slipperiness(0.98f).build().trySave();
-    Property.builderFor("FROSTED_ICE").slipperiness(0.98F).build().trySave();
-    Property.builderFor("BLUE_ICE").slipperiness(0.989F).build().trySave();
-    Property.builderFor(LADDER).climbable().build().trySave();
-    Property.builderFor(VINE).climbable().build().trySave();
-    Property.builderFor("SCAFFOLDING").climbable().build().trySave();
-    Property.builderFor("WEEPING_VINES").climbable().build().trySave();
-    Property.builderFor("WEEPING_VINES_PLANT").climbable().build().trySave();
-    Property.builderFor("TWISTING_VINES").climbable().build().trySave();
-    Property.builderFor("TWISTING_VINES_PLANT").climbable().build().trySave();
-    Property.builderFor("CAVE_VINES_PLANT").climbable().build().trySave();
-    Property.builderFor(SOUL_SAND).speedFactor(0.4f).soulSpeedAffected().build().trySave();
-    Property.builderFor("SOUL_SOIL").soulSpeedAffected().build().trySave();
-    Property.builderFor("HONEY_BLOCK").jumpFactor(0.5f).speedFactor(0.4f).build().trySave();
+    Property.builderFor(ICE, PACKED_ICE, "FROSTED_ICE", "BLUE_ICE").slipperiness(0.98f).buildAndSave();
+    Property.builderFor(SLIME_BLOCK).slipperiness(0.8f).buildAndSave();
+    Property.builderFor(LADDER, VINE).climbable().buildAndSave();
+    Property.builderFor("SCAFFOLDING").climbable().buildAndSave();
+    Property.builderFor("WEEPING_VINES", "WEEPING_VINES_PLANT").climbable().buildAndSave();
+    Property.builderFor("TWISTING_VINES", "TWISTING_VINES_PLANT").climbable().buildAndSave();
+    Property.builderFor("CAVE_VINES_PLANT").climbable().buildAndSave();
+    Property.builderFor(SOUL_SAND).speedFactor(0.4f).soulSpeedAffected().buildAndSave();
+    Property.builderFor("SOUL_SOIL").soulSpeedAffected().buildAndSave();
+    Property.builderFor("HONEY_BLOCK").jumpFactor(0.5f).speedFactor(0.4f).buildAndSave();
   }
 
-  private static void append(Property property, Material material) {
+  private static void append(Material material, Property property) {
     registry.put(material, property);
   }
 
@@ -40,7 +34,7 @@ public final class BlockProperties {
   }
 
   public static final class Property {
-    private final Material material;
+    private final Material[] materials;
     private final float slipperiness;
     private final float jumpFactor;
     private final float speedFactor;
@@ -48,14 +42,14 @@ public final class BlockProperties {
     private final boolean soulSpeedAffected;
 
     public Property(
-      Material material,
+      Material[] materials,
       float slipperiness,
       float jumpFactor,
       float speedFactor,
       boolean climbable,
       boolean soulSpeedAffected
     ) {
-      this.material = material;
+      this.materials = materials;
       this.slipperiness = slipperiness;
       this.jumpFactor = jumpFactor;
       this.speedFactor = speedFactor;
@@ -67,18 +61,12 @@ public final class BlockProperties {
       ifPresent(BlockProperties::append);
     }
 
-    public void ifPresent(BiConsumer<Property, Material> consumer) {
-      if (this.material != null) {
-        consumer.accept(this, this.material);
+    public void ifPresent(BiConsumer<Material, Property> consumer) {
+      for (Material material : materials) {
+        if (material != null) {
+          consumer.accept(material, this);
+        }
       }
-    }
-
-    public static Builder builderFor(Material material) {
-      return new Builder(material);
-    }
-
-    public static Builder builderFor(String material) {
-      return new Builder(getMaterial(material));
     }
 
     public float slipperiness() {
@@ -101,16 +89,31 @@ public final class BlockProperties {
       return soulSpeedAffected;
     }
 
+    public static Builder builderFor(Object... materials) {
+      Material[] materialArray = new Material[materials.length];
+      for (int i = 0; i < materials.length; i++) {
+        Object material = materials[i];
+        if (material instanceof Material) {
+          materialArray[i] = (Material) material;
+        } else if (material instanceof String) {
+          materialArray[i] = Material.getMaterial((String) material);
+        } else {
+          materialArray[i] = null;
+        }
+      }
+      return new Builder(materialArray);
+    }
+
     public static final class Builder {
-      private final Material material;
+      private final Material[] materials;
       private float slipperiness = 0.6f;
       private float jumpFactor = 1.0f;
       private float speedFactor = 1.0f;
       private boolean climbable = false;
       private boolean soulSpeedAffected = false;
 
-      public Builder(Material material) {
-        this.material = material;
+      public Builder(Material... materials) {
+        this.materials = materials;
       }
 
       public Builder slipperiness(float slipperiness) {
@@ -139,7 +142,11 @@ public final class BlockProperties {
       }
 
       public Property build() {
-        return new Property(material, slipperiness, jumpFactor, speedFactor, climbable, soulSpeedAffected);
+        return new Property(materials, slipperiness, jumpFactor, speedFactor, climbable, soulSpeedAffected);
+      }
+
+      public void buildAndSave() {
+        build().trySave();
       }
     }
   }

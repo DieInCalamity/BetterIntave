@@ -63,6 +63,7 @@ import de.jpx3.intave.share.link.WrapperConverter;
 import de.jpx3.intave.test.TestService;
 import de.jpx3.intave.trustfactor.TrustFactorService;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.storage.ViolationStorage;
 import de.jpx3.intave.version.DurationTranslator;
 import de.jpx3.intave.version.IntaveVersion;
 import de.jpx3.intave.version.IntaveVersionList;
@@ -662,6 +663,8 @@ public final class IntavePlugin extends JavaPlugin {
     BackgroundExecutor.execute(this::clearIntegrityGarbage);
     BackgroundExecutor.execute(this::clearSaveFolderGarbage);
     logger.performCompression();
+
+    ViolationStorage.setup();
 
     if (JavaVersion.current() < 12) {
 //      logger.warn(ChatColor.RED + "Upgrading Java has incredible performance benefits");
