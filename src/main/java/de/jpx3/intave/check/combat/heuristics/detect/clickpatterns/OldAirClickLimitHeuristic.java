@@ -224,7 +224,7 @@ public final class OldAirClickLimitHeuristic extends MetaCheckPart<Heuristics, O
         );
         parentCheck().saveAnomaly(player, anomaly);
 
-        if (meta.flaggCounter > 20) {
+        if (meta.flaggCounter > 20 && !IntaveControl.DISABLE_AUTOCLICKER_CHECK) {
           //dmc27
           user.applyAttackNerfer(AttackNerfStrategy.GARBAGE_HITS, "27");
           user.applyAttackNerfer(AttackNerfStrategy.DMG_LIGHT, "27");
