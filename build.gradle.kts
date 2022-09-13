@@ -1,4 +1,6 @@
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.Permission.Default
+import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.Permission.Default.FALSE
+import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.Permission.Default.OP
 import xyz.jpenilla.runpaper.task.RunServerTask
 
 plugins {
@@ -12,8 +14,8 @@ plugins {
 
 val simpleName = "Intave"
 group = "de.jpx3"
-version = "14.4.6"
-description = "$simpleName is a cheat detection software, providing fair play"
+version = "14.5.0"
+description = "Cheat detection software, providing fair play"
 
 /*
  * Dependencies
@@ -44,7 +46,7 @@ dependencies {
  */
 bukkit {
   name = simpleName
-  authors = listOf("DarkAndBlue", "Jpx3", "vento", "NotLucky", "lennoxlotl", "Trattue")
+  authors = listOf("DarkAndBlue", "Jpx3", "vento", "lennoxlotl", "NotLucky", "Trattue")
   version = "${rootProject.version}"
   description = "${rootProject.description}"
 
@@ -54,36 +56,36 @@ bukkit {
 
   commands { register("intave") { aliases = listOf("iac") } }
 
-  defaultPermission = Default.FALSE
+  defaultPermission = FALSE
 
   permissions {
-    register("intave.bypass") { default = Default.FALSE }
-    register("intave.trust.green") { default = Default.OP }
+    register("intave.bypass") { default = FALSE }
+    register("intave.trust.green") { default = OP }
     register("intave.trust.yellow") {
-      default = Default.FALSE
+      default = FALSE
     }
     register("intave.trust.orange") {
-      default = Default.FALSE
+      default = FALSE
     }
-    register("intave.trust.red") { default = Default.FALSE }
+    register("intave.trust.red") { default = FALSE }
     register("intave.trust.darkred") {
-      default = Default.FALSE
+      default = FALSE
     }
-    register("intave.command") { default = Default.OP }
+    register("intave.command") { default = OP }
     register("intave.command.notify") {
-      default = Default.OP
+      default = OP
     }
     register("intave.command.verbose") {
-      default = Default.OP
+      default = OP
     }
     register("intave.command.history") {
-      default = Default.OP
+      default = OP
     }
     register("intave.command.proxy") {
-      default = Default.FALSE
+      default = FALSE
     }
     register("intave.command.diagnostics") {
-      default = Default.OP
+      default = OP
       children =
         listOf(
           "intave.command.diagnostics.performance",
@@ -91,13 +93,13 @@ bukkit {
         )
     }
     register("intave.command.diagnostics.performance") {
-      default = Default.OP
+      default = OP
     }
     register("intave.command.diagnostics.statistics") {
-      default = Default.OP
+      default = OP
     }
     register("intave.command.internals") {
-      default = Default.FALSE
+      default = FALSE
       children =
         listOf(
           "intave.command.internals.delay",
@@ -108,19 +110,19 @@ bukkit {
         )
     }
     register("intave.command.internals.delay") {
-      default = Default.FALSE
+      default = FALSE
     }
     register("intave.command.internals.rejoinblock") {
-      default = Default.FALSE
+      default = FALSE
     }
     register("intave.command.internals.sendnotify") {
-      default = Default.FALSE
+      default = FALSE
     }
     register("intave.command.internals.collectivekick") {
-      default = Default.FALSE
+      default = FALSE
     }
     register("intave.command.internals.bot") {
-      default = Default.FALSE
+      default = FALSE
     }
   }
 }
