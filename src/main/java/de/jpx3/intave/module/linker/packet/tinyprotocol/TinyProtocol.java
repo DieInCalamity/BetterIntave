@@ -364,7 +364,7 @@ public class TinyProtocol {
   public Channel getChannel(Player player) {
     Channel channel = channelLookup.get(player.getName());
     // Lookup channel again
-    if (channel == null) {
+    if (channel == null || !channel.isOpen()) {
       Object connection = getConnection.get(getPlayerHandle.invoke(player));
       Object manager = getManager.get(connection);
       channelLookup.put(player.getName(), channel = getChannel.get(manager));

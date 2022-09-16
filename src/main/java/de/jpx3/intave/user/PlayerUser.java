@@ -129,10 +129,11 @@ final class PlayerUser implements User {
   private void outputVersionJoinInfo() {
     Player player = player();
     ProtocolMetadata clientData = meta().protocol();
-    String string = player.getName() + " joined with version " + clientData.versionString() + "/" + clientData.protocolVersion() + " and locale " + clientData.locale();
+    String string = player.getName() + " joined with version " + clientData.versionString() + "/" + clientData.protocolVersion();
     if (clientData.outdatedClient()) {
       string += " (behind)";
     }
+    string += " and locale " + clientData.locale();
     IntaveLogger.logger().printLine(string);
   }
 

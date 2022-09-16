@@ -3,7 +3,6 @@ package de.jpx3.intave.module.linker.packet.tinyprotocol;
 import com.comphenix.protocol.PacketType;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.check.EventProcessor;
-import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.module.linker.packet.FilteringPacketAdapter;
 import org.bukkit.Bukkit;
@@ -17,7 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class InjectionService implements EventProcessor {
   private final Map<PacketType, Collection<FilteringPacketAdapter>> packetListeners = new ConcurrentHashMap<>();
-
   private final IntavePlugin plugin;
   private final TinyProtocol pipelineInjector;
 
@@ -31,7 +29,7 @@ public final class InjectionService implements EventProcessor {
     this.plugin.eventLinker().registerEventsIn(this);
   }
 
-  protected Collection<FilteringPacketAdapter> subscriptionsOf(PacketType type) {
+  Collection<FilteringPacketAdapter> subscriptionsOf(PacketType type) {
     return packetListeners.get(type);
   }
 
@@ -46,7 +44,7 @@ public final class InjectionService implements EventProcessor {
   @BukkitEventSubscription
   public void onJoin(PlayerJoinEvent join) {
     Player player = join.getPlayer();
-    Synchronizer.synchronize(() -> inject(player));
+    inject(player);
   }
 
   @BukkitEventSubscription
