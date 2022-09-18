@@ -40,6 +40,7 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
   )
   public void receiveAttack(PacketEvent event) {
     Player player = event.getPlayer();
+    player.sendMessage("wtf");
     PacketContainer packet = event.getPacket();
     User user = userOf(player);
     ProtocolMetadata clientData = user.meta().protocol();
@@ -61,28 +62,20 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
     Player player = event.getPlayer();
     User user = userOf(player);
 
-    // On 1.9+ there is an error when switching to a consumable item for 1 tick
+    // Disable check on 1.9+ due to inconsitencies in mc source
     if (user.protocolVersion() > 47) {
-      ItemStack heldItem = user.meta().inventory().heldItem();
-      if (heldItem != null) {
-        // Swords are not consumable on 1.9+
-        boolean sword = ItemProperties.isSwordItem(heldItem);
-        boolean heldItemConsumable = ItemProperties.canItemBeUsed(player, heldItem) && !sword;
-        if (user.meta().inventory().pastHotBarSlotChange < 2 && heldItemConsumable) {
-          return;
-        }
-      }
+      return;
     }
+
+    player.sendMessage("check");
 
     // not checked yet
     if (user.meta().inventory().handActive()) {
-      player.sendMessage("active: " + user.meta().inventory().heldItemType());
+      player.sendMessage("active");
       Anomaly anomaly = Anomaly.anomalyOf("162", Confidence.NONE, Anomaly.Type.KILLAURA, "attacked whilst using an item");
       parentCheck().saveAnomaly(player, anomaly);
       //dmc28
       user.applyAttackNerfer(AttackNerfStrategy.BLOCKING, "28");
-//      user.applyAttackNerfer(AttackNerfStrategy.DMG_LIGHT, "28");
-
       sendStopUseItemPacketToServer(user);
     }
   }
