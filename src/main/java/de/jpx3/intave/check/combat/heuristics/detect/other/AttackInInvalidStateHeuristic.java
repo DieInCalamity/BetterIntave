@@ -40,7 +40,6 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
   )
   public void receiveAttack(PacketEvent event) {
     Player player = event.getPlayer();
-    player.sendMessage("wtf");
     PacketContainer packet = event.getPacket();
     User user = userOf(player);
     ProtocolMetadata clientData = user.meta().protocol();
@@ -67,11 +66,9 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
       return;
     }
 
-    player.sendMessage("check");
 
     // not checked yet
     if (user.meta().inventory().handActive()) {
-      player.sendMessage("active");
       Anomaly anomaly = Anomaly.anomalyOf("162", Confidence.NONE, Anomaly.Type.KILLAURA, "attacked whilst using an item");
       parentCheck().saveAnomaly(player, anomaly);
       //dmc28
