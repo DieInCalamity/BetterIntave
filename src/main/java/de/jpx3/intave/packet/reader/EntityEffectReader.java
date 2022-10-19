@@ -19,7 +19,6 @@ public final class EntityEffectReader extends EntityReader {
       return potionEffectType.getId();
     } else if (CAVE_AND_CLIFFS) {
       Integer potionEffectType = packet.getIntegers().readSafely(1);
-      System.out.println(potionEffectType);
       if (potionEffectType == null) {
         return 0;
       }
