@@ -704,7 +704,22 @@ public final class EntityTracker extends Module {
       MovementMetadata movement = user.meta().movement();
       InventoryMetadata inventory = user.meta().inventory();
       if (movement.pose() == Pose.FALL_FLYING && entityId == player.getEntityId()) {
-        int power = Math.max(calculateFireworkPower(inventory), 1);
+        int power = 1;
+        ItemStack firework = null;
+        // Choose firework item
+        if (inventory.heldItemType().name().contains(FIREWORK_IDENTIFIER)) {
+          firework = inventory.heldItem();
+        } else if (inventory.offhandItemType().name().contains(FIREWORK_IDENTIFIER)) {
+          firework = inventory.offhandItem();
+        }
+        // Only process if firework exists
+        if (firework != null) {
+          ItemMeta itemMeta = firework.getItemMeta();
+          if (itemMeta instanceof FireworkMeta) {
+            FireworkMeta fireworkMeta = (FireworkMeta) itemMeta;
+            power = Math.max(fireworkMeta.getPower(), 1);
+          }
+        }
         movement.fireworkRocketsTicks = 0;
         movement.fireworkRocketsPower = power;
       }
@@ -726,7 +741,22 @@ public final class EntityTracker extends Module {
       MovementMetadata movement = user.meta().movement();
       InventoryMetadata inventory = user.meta().inventory();
       if ((movement.pose() == Pose.FALL_FLYING || movement.elytraFlying) && entityId == player.getEntityId()) {
-        int power = Math.max(calculateFireworkPower(inventory), 1);
+        int power = 1;
+        ItemStack firework = null;
+        // Choose firework item
+        if (inventory.heldItemType().name().contains(FIREWORK_IDENTIFIER)) {
+          firework = inventory.heldItem();
+        } else if (inventory.offhandItemType().name().contains(FIREWORK_IDENTIFIER)) {
+          firework = inventory.offhandItem();
+        }
+        // Only process if firework exists
+        if (firework != null) {
+          ItemMeta itemMeta = firework.getItemMeta();
+          if (itemMeta instanceof FireworkMeta) {
+            FireworkMeta fireworkMeta = (FireworkMeta) itemMeta;
+            power = Math.max(fireworkMeta.getPower(), 1);
+          }
+        }
         movement.fireworkRocketsTicks = 0;
         movement.fireworkRocketsPower = power;
       }
@@ -736,25 +766,6 @@ public final class EntityTracker extends Module {
   }
 
   private static final String FIREWORK_IDENTIFIER = "FIREWORK";
-
-  private int calculateFireworkPower(InventoryMetadata inventory) {
-    ItemStack firework = null;
-    // Get the players firework item, can either be offhand or main hand
-    if (inventory.heldItemType().name().contains(FIREWORK_IDENTIFIER)) {
-      firework = inventory.heldItem();
-    } else if (inventory.offhandItemType().name().contains(FIREWORK_IDENTIFIER)) {
-      firework = inventory.offhandItem();
-    }
-    // Get the power of the rocket
-    if (firework != null) {
-      ItemMeta itemMeta = firework.getItemMeta();
-      if (itemMeta instanceof FireworkMeta) {
-        FireworkMeta fireworkMeta = (FireworkMeta) itemMeta;
-        return fireworkMeta.getPower();
-      }
-    }
-    return 1;
-  }
 
   private void processHealthMetaData(
     Player player,
