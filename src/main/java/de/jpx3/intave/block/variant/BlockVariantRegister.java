@@ -29,7 +29,7 @@ public final class BlockVariantRegister {
 
   public static BlockVariant variantOf(Material type, int variantIndex) {
     return blockVariants.computeIfAbsent(type, material ->
-      BlockVariantConverter.translate(material, blockDataRegister.get(material))
+      BlockVariantConverter.translateSettings(material, blockDataRegister.get(material))
     ).get(variantIndex);
   }
 

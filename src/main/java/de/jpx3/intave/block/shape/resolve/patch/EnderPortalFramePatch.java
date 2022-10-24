@@ -2,6 +2,8 @@ package de.jpx3.intave.block.shape.resolve.patch;
 
 import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.block.shape.BlockShapes;
+import de.jpx3.intave.block.variant.BlockVariant;
+import de.jpx3.intave.block.variant.BlockVariantRegister;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
@@ -18,10 +20,12 @@ final class EnderPortalFramePatch extends BoundingBoxPatch {
   private final BoundingBox eye13 = BoundingBox.originFromX16(4, 13, 4, 12, 16, 12);
 
   @Override
-  protected BlockShape collisionPatch(World world, Player player, int posX, int posY, int posZ, Material type, int blockState, BlockShape shape) {
+  protected BlockShape collisionPatch(World world, Player player, int posX, int posY, int posZ, Material type, int variantIndex, BlockShape shape) {
+    BlockVariant variant = BlockVariantRegister.variantOf(type, variantIndex);
+    boolean eye = variant.propertyOf("eye");
     List<BoundingBox> boundingBoxes = new ArrayList<>();
     boundingBoxes.add(baseShape);
-    if ((blockState & 4) != 0) {
+    if (eye) {
       User user = UserRepository.userOf(player);
       if (user.meta().protocol().waterUpdate()) {
         boundingBoxes.add(eye13);

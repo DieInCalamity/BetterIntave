@@ -371,14 +371,14 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
   }
 
   // position
-  public String toString() {
-    return "" + (minX + (maxX - minX) / 2d) + "," + (minY + (maxY - minY) / 2d) + "," + (minZ + (maxZ - minZ) / 2d);
-  }
+//  public String toString() {
+//    return "" + (minX + (maxX - minX) / 2d) + "," + (minY + (maxY - minY) / 2d) + "," + (minZ + (maxZ - minZ) / 2d);
+//  }
 
   // width and height
-//  public String toString() {
-//    return "" + (maxX - minX) + "," + (maxY - minY) + "," + (maxZ - minZ);
-//  }
+  public String toString() {
+    return "" + (maxX - minX) + "," + (maxY - minY) + "," + (maxZ - minZ);
+  }
 
   /**
    * Returns a bounding box that is inset by the specified amounts
