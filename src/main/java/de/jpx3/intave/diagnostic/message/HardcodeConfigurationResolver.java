@@ -41,6 +41,7 @@ final class HardcodeConfigurationResolver implements ConfigurationResolver {
     colors.put(MessageCategory.SIMFLT, ChatColor.DARK_GRAY);
     colors.put(MessageCategory.SIMFUL, ChatColor.GRAY);
     colors.put(MessageCategory.PKBF, ChatColor.GRAY);
+    colors.put(MessageCategory.MKLG, ChatColor.GRAY);
     colors.put(MessageCategory.PKDL, ChatColor.GRAY);
     colors.put(MessageCategory.TRUSTSET, ChatColor.GRAY);
 
@@ -55,6 +56,7 @@ final class HardcodeConfigurationResolver implements ConfigurationResolver {
           MessageCategory.ATLALI, player -> true,
           MessageCategory.ATRAFLT, player -> true,
           MessageCategory.HERAN, player -> true,
+          MessageCategory.MKLG, player -> true,
           MessageCategory.SIMFLT, player -> player.getUniqueId().equals(owner)))
       .defaultDetailSelect(MessageDetail.FULL)
       .build();
@@ -71,6 +73,7 @@ final class HardcodeConfigurationResolver implements ConfigurationResolver {
     colors.put(MessageCategory.SIMFLT, ChatColor.DARK_GRAY);
     colors.put(MessageCategory.SIMFUL, ChatColor.DARK_GRAY);
     colors.put(MessageCategory.PKBF, ChatColor.GRAY);
+    colors.put(MessageCategory.MKLG, ChatColor.GRAY);
     colors.put(MessageCategory.PKDL, ChatColor.GRAY);
     colors.put(MessageCategory.TRUSTSET, ChatColor.GOLD);
 
@@ -85,6 +88,7 @@ final class HardcodeConfigurationResolver implements ConfigurationResolver {
           MessageCategory.ATLALI, player -> true,
           MessageCategory.ATRAFLT, player -> true,
           MessageCategory.HERAN, player -> true,
+          MessageCategory.MKLG, player -> true,
           MessageCategory.SIMFLT, player -> player.getUniqueId().equals(owner)))
       .defaultDetailSelect(MessageDetail.FULL)
       .build();

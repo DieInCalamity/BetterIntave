@@ -139,6 +139,7 @@ public final class Balance extends MetaCheckPart<Timer, Balance.BalanceMeta> {
     }
 
 //    player.sendMessage("§c" + timerData.timerBalance + "§7 ~§c" + mean + "§7 -> §c" + formatDouble(timerData.balanceUnderflowVL, 2));
+//    System.out.println(timerData.timerBalance + "/" + overflowLimit);
 
     if (timerData.timerBalance > overflowLimit && !user.meta().movement().isInVehicle()) {
       String balanceAsString = formatDouble(timerData.timerBalance / 50, 2);

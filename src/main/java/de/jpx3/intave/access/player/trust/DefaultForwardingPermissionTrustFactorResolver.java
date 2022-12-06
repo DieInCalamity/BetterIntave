@@ -31,4 +31,11 @@ public final class DefaultForwardingPermissionTrustFactorResolver implements Tru
   private boolean hasPermissionFor(Player player, TrustFactor trustFactor) {
     return BukkitPermissionCheck.permissionCheck(player, trustFactor.permission());
   }
+
+  @Override
+  public String toString() {
+    return "DefaultForwardingPermissionTrustFactorResolver{" +
+      "defaultResolver=" + defaultResolver +
+      '}';
+  }
 }
