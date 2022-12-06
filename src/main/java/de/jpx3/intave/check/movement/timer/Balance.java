@@ -108,7 +108,7 @@ public final class Balance extends MetaCheckPart<Timer, Balance.BalanceMeta> {
 
     MovementMetadata movementData = user.meta().movement();
     boolean flyingPackets = user.protocolVersion() == 47;
-    boolean moving = Hypot.fast(movementData.motionX(), movementData.motionZ()) + Math.abs(movementData.motionY()) >= 0.0625 && movementData.pastFlyingPacketAccurate() > 6;
+    boolean moving = Hypot.fast(movementData.motionX(), movementData.motionZ()) + Math.abs(movementData.motionY()) >= 0.1 && movementData.pastFlyingPacketAccurate() > 8;
     boolean checkAllowed = moving || flyingPackets;
     if (checkAllowed) {
       safeTimerBalanceHistory.add(Math.min(timerData.timerBalance, timerData.confirmedBalance));
