@@ -153,7 +153,7 @@ public final class ProtocolMetadata {
     return protocolVersion >= VER_1_9;
   }
 
-  public boolean deadOldVersion() {
+  public boolean pre8() {
     return protocolVersion < VER_1_8;
   }
 

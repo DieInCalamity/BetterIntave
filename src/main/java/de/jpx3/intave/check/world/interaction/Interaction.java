@@ -3,6 +3,7 @@ package de.jpx3.intave.check.world.interaction;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.EnumWrappers;
+import de.jpx3.intave.share.Direction;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -19,6 +20,7 @@ public final class Interaction {
   private final ItemStack itemInHand;
   private final EnumWrappers.Hand hand;
   private final EnumWrappers.PlayerDigType digType;
+  private final float facingX, facingY, facingZ;
   private boolean entered = false;
 
   public Interaction(
@@ -27,8 +29,8 @@ public final class Interaction {
     BlockPosition targetBlock, int targetDirection,
     InteractionType type,
     Material itemTypeInHand, ItemStack itemInHand,
-    EnumWrappers.Hand hand, EnumWrappers.PlayerDigType digType
-  ) {
+    EnumWrappers.Hand hand, EnumWrappers.PlayerDigType digType,
+    float facingX, float facingY, float facingZ) {
     this.thePacket = thePacket;
     this.world = world;
     this.player = player;
@@ -39,6 +41,9 @@ public final class Interaction {
     this.itemInHand = itemInHand;
     this.hand = hand;
     this.digType = digType;
+    this.facingX = facingX;
+    this.facingY = facingY;
+    this.facingZ = facingZ;
   }
 
   public PacketContainer thePacket() {
@@ -77,12 +82,28 @@ public final class Interaction {
     return targetBlock != null;
   }
 
-  public int targetDirection() {
+  public Direction targetDirection() {
+    return Direction.getFront(targetDirectionIndex());
+  }
+
+  public int targetDirectionIndex() {
     return targetDirection;
   }
 
   public EnumWrappers.PlayerDigType digType() {
     return digType;
+  }
+
+  public float facingX() {
+    return facingX;
+  }
+
+  public float facingY() {
+    return facingY;
+  }
+
+  public float facingZ() {
+    return facingZ;
   }
 
   public void enter() {

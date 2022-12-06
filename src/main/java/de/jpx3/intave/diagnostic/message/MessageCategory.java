@@ -8,6 +8,7 @@ public enum MessageCategory {
   SIMFLT("SIMulation FauLTs"),
   SIMFUL("SIMulation REPORTs"),
   PKBF("PAcket BUFFers"),
+  MKLG("MiKro LaG"),
   PKDL("PAcket DELay"),
   ATLALI("ATtack LAtency LImiting"),
   ATRAFLT("ATtack RAytrace FauLTs"),

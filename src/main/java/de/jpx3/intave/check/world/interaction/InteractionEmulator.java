@@ -2,9 +2,12 @@ package de.jpx3.intave.check.world.interaction;
 
 import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.EnumWrappers;
+import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.event.BucketAction;
+import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.analytics.GlobalStatisticsRecorder;
+import de.jpx3.intave.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.block.access.BlockInteractionAccess;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
@@ -12,9 +15,11 @@ import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.block.physics.MaterialMagic;
 import de.jpx3.intave.block.state.ExtendedBlockStateCache;
 import de.jpx3.intave.block.type.BlockTypeAccess;
-import de.jpx3.intave.block.variant.BlockVariantNativeAccess;
+import de.jpx3.intave.block.type.MaterialSearch;
+import de.jpx3.intave.block.variant.BlockVariant;
+import de.jpx3.intave.block.variant.BlockVariantRegister;
+import de.jpx3.intave.block.variant.BlockVariantReverseLookup;
 import de.jpx3.intave.check.EventProcessor;
-import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.module.tracker.player.AbilityTracker;
 import de.jpx3.intave.share.Direction;
@@ -32,6 +37,10 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.util.NumberConversions;
+import org.bukkit.util.Vector;
+
+import java.util.Objects;
+import java.util.Set;
 
 import static de.jpx3.intave.IntaveControl.DUMP_BLOCK_HITBOX_ON_RIGHT_CLICK;
 
@@ -153,60 +162,98 @@ public final class InteractionEmulator implements EventProcessor {
         + NumberConversions.square(playerLocation.getBlockZ() - blockPosition.getZ()));
   }
 
+  private static final String STEP_PROPERTY_NAME = MinecraftVersions.VER1_13_0.atOrAbove() ? "type" : "half";
+
   private EmulationResult emulatePlacement(Player player, Interaction interaction) {
     User user = userOf(player);
+    ExtendedBlockStateCache blockStates = user.blockStates();
     World world = interaction.world();
     plugin.analytics().recorderOf(GlobalStatisticsRecorder.class).recordBlockPlaced();
     Location blockAgainstLocation = interaction.targetBlock().toLocation(world);
-    Location defaultPlacementLocation =
-      blockAgainstLocation
-        .clone()
-        .add(
-          Direction.getFront(interaction.targetDirection())
-            .getDirectionVec()
-            .convertToBukkitVec());
-    boolean replace =
-      BlockInteractionAccess.replacedOnPlacement(
-        world, player, new BlockPosition(blockAgainstLocation.toVector()));
-    Location blockPlacementLocation = replace ? blockAgainstLocation : defaultPlacementLocation;
+    Vector placementVector = Direction.getFront(interaction.targetDirectionIndex())
+      .getDirectionVec().convertToBukkitVec();
+    Location defaultPlacementLocation = blockAgainstLocation.clone().add(placementVector);
+    int originBlockX = blockAgainstLocation.getBlockX();
+    int originBlockY = blockAgainstLocation.getBlockY();
+    int originBlockZ = blockAgainstLocation.getBlockZ();
+    boolean replace = BlockInteractionAccess.replacedOnPlacement(
+      world, player, new BlockPosition(blockAgainstLocation.toVector())
+    );
+
     Material itemTypeInHand = interaction.itemTypeInHand();
+
+    // I don't want to hardcode this here, but where else should I put it?
+    Material typeAtOB = blockStates.typeAt(originBlockX, originBlockY, originBlockZ);
+//    System.out.println("typeAtOB: " + typeAtOB);
+    Material typeAtDPL = blockStates.typeAt(
+      defaultPlacementLocation.getBlockX(),
+      defaultPlacementLocation.getBlockY(),
+      defaultPlacementLocation.getBlockZ()
+    );
+    if (STEP_BLOCKS.contains(typeAtOB) && itemTypeInHand == typeAtOB) {
+      BlockVariant variant = BlockVariantRegister.variantOf(typeAtOB, blockStates.variantIndexAt(originBlockX, originBlockY, originBlockZ));
+      EnumHalf half = variant.enumProperty(EnumHalf.class, STEP_PROPERTY_NAME);
+      Direction direction = interaction.targetDirection();
+      if (direction == Direction.UP && half == EnumHalf.BOTTOM) {
+        replace = true;
+      } else if (direction == Direction.DOWN && half == EnumHalf.TOP) {
+        replace = true;
+      }
+    }
+    if (STEP_BLOCKS.contains(typeAtDPL) && itemTypeInHand == typeAtDPL) {
+      replace = true;
+    }
+
+    Location blockPlacementLocation = replace ? blockAgainstLocation : defaultPlacementLocation;
     int blockX = blockPlacementLocation.getBlockX();
     int blockY = blockPlacementLocation.getBlockY();
     int blockZ = blockPlacementLocation.getBlockZ();
-    int dat = 0;
+    Material placedBlockType = itemTypeInHand;
+    int variant = 0;
+    EstimationResult estimationResult = emulateBlockBehavior(
+      user, itemTypeInHand, interaction.targetDirection(),
+      blockStates.typeAt(blockX, blockY, blockZ),
+      blockStates.variantIndexAt(blockX, blockY, blockZ),
+      blockStates.typeAt(originBlockX, originBlockY, originBlockZ),
+      blockStates.variantIndexAt(originBlockX, originBlockY, originBlockZ),
+      blockX, blockY, blockZ,
+      interaction.facingX(), interaction.facingY(), interaction.facingZ()
+    );
+    if (estimationResult != null) {
+      placedBlockType = estimationResult.type();
+      variant = estimationResult.variantIndex();
+    }
     boolean raytraceCollidesWithPosition = Collision.playerInImaginaryBlock(
       user, world,
       blockX, blockY, blockZ,
-      itemTypeInHand, dat
+      placedBlockType, variant
     );
     if (raytraceCollidesWithPosition) {
+      if (IntaveControl.DEBUG_VARIANT_COMPILATION) {
+        System.out.println("[variant/debug] Failed to place block due to raytrace collision (replacing: " + replace + ")");
+      }
       return EmulationResult.FAILED;
     }
-    Material replacementType = interaction.itemTypeInHand();
-    int variant = 0;
     EnumWrappers.Hand hand = interaction.hand();
     boolean access = WorldPermission.blockPlacePermission(
       player, world,
       hand == null || hand == EnumWrappers.Hand.MAIN_HAND,
       blockX, blockY, blockZ,
-      interaction.targetDirection(),
-      replacementType, variant
+      interaction.targetDirectionIndex(),
+      placedBlockType, variant
     );
     if (access) {
       /*
        This hardcode is required
       */
-      if (replacementType == BlockTypeAccess.WEB) {
-        boolean playerInsideWeb =
-          Collision.playerInImaginaryBlock(
-            user, world, blockX, blockY, blockZ, Material.STONE, 0);
+      if (placedBlockType == BlockTypeAccess.WEB) {
+        boolean playerInsideWeb = Collision.playerInImaginaryBlock(user, world, blockX, blockY, blockZ, Material.STONE, 0);
         if (playerInsideWeb) {
           user.meta().movement().checkWebStateAgainNextTick = true;
         }
       }
       user.meta().movement().pastBlockPlacement = 0;
-      ExtendedBlockStateCache blockStates = user.blockStates();
-      blockStates.override(world, blockX, blockY, blockZ, replacementType, variant);
+      blockStates.override(world, blockX, blockY, blockZ, placedBlockType, variant);
       blockStates.invalidateCacheAt(blockX, blockY, blockZ);
       // enforce block reset later
       //      Synchronizer.synchronize(() -> {
@@ -219,6 +266,107 @@ public final class InteractionEmulator implements EventProcessor {
     return EmulationResult.SUCCEEDED;
   }
 
+  private static final Set<Material> STEP_BLOCKS = MaterialSearch.materialsThatContain("STEP", "SLAB");
+  private static final boolean DOUBLE_IN_STEP_TYPE = MinecraftVersions.VER1_13_0.atOrAbove();
+
+  private EstimationResult emulateBlockBehavior(
+    User user, Material placementType, Direction targetDirection,
+    Material presentType, int presentVariantIndex,
+    Material originType, int originVariantIndex,
+    int blockX, int blockY, int blockZ,
+    float facingX, float facingY, float facingZ
+  ) {
+    float playerYaw = user.meta().movement().rotationYaw();
+    if (placementType == Material.LADDER) {
+      Direction playerDirection = Direction.getHorizontal(floor((double)(playerYaw * 4.0F / 360.0F) + 0.5) & 3).getOpposite();
+      int uniqueId = playerDirection.hashCode();
+      Set<Integer> possibleIds = BlockVariantReverseLookup.variantsOfConfiguration(
+        placementType, uniqueId, propertyName -> Objects.equals(propertyName, "facing") ? playerDirection : null
+      );
+      return new EstimationResult(placementType, possibleIds.size() >= 1 ? possibleIds.iterator().next() : 0);
+    }
+    if (STEP_BLOCKS.contains(placementType)) {
+      boolean isSlab = presentType == placementType;
+      if (isSlab) {
+        BlockVariant presentVariant = BlockVariantRegister.variantOf(presentType, presentVariantIndex);
+        Comparable<?> variant = presentVariant.propertyOf("variant");
+        if (DOUBLE_IN_STEP_TYPE) {
+          int uniqueId = 64;
+          Set<Integer> possibleIds = BlockVariantReverseLookup.variantsOfConfiguration(
+            placementType, uniqueId, propertyName -> Objects.equals(propertyName, STEP_PROPERTY_NAME) ? "DOUBLE" : Objects.equals(propertyName, "variant") ? variant : null
+          );
+          return new EstimationResult(placementType, possibleIds.size() >= 1 ? possibleIds.iterator().next() : 0);
+        } else {
+          String enumName = placementType.name();
+          boolean isSlab2 = enumName.contains("SLAB2");
+          Material doubleSlabType;
+          if (isSlab2) {
+            doubleSlabType = MaterialSearch.materialThatIsNamed(enumName.substring(0, enumName.length() - 5) + "DOUBLE_SLAB2");
+          } else {
+            doubleSlabType = MaterialSearch.materialThatIsNamed(enumName.substring(0, enumName.length() - 4) + "DOUBLE_STEP");
+          }
+          // doesn't make a real difference, but hey - why not
+          int uniqueId = variant.hashCode() ;
+          Set<Integer> possibleIds = BlockVariantReverseLookup.variantsOfConfiguration(
+            doubleSlabType, uniqueId, propertyName -> Objects.equals(propertyName, "variant") ? variant : null
+          );
+          return new EstimationResult(doubleSlabType, possibleIds.size() >= 1 ? possibleIds.iterator().next() : 0);
+        }
+      } else {boolean keep = targetDirection != Direction.DOWN && (targetDirection == Direction.UP || facingY <= 0.5);
+        int uniqueId = Boolean.hashCode(keep);
+        Set<Integer> possibleIds = BlockVariantReverseLookup.variantsOfConfiguration(
+          placementType, uniqueId, propertyName -> Objects.equals(propertyName, STEP_PROPERTY_NAME) ? keep ? "BOTTOM" : "TOP" : null
+        );
+        return new EstimationResult(placementType, possibleIds.size() >= 1 ? possibleIds.iterator().next() : 0);
+      }
+    }
+    return null;
+  }
+
+  public static class EstimationResult {
+    private final Material type;
+    private final int variantIndex;
+
+    public EstimationResult(Material type, int variantIndex) {
+      this.type = type;
+      this.variantIndex = variantIndex;
+    }
+
+    public Material type() {
+      return type;
+    }
+
+    public int variantIndex() {
+      return variantIndex;
+    }
+  }
+
+  @KeepEnumInternalNames
+  public enum EnumHalf {
+    TOP("top"),
+    BOTTOM("bottom"),
+    DOUBLE("double");
+
+    private final String name;
+
+    EnumHalf(String s) {
+      this.name = s;
+    }
+
+    public String toString() {
+      return this.name;
+    }
+
+    public String getName() {
+      return this.name;
+    }
+  }
+
+  public static int floor(double var0) {
+    int var2 = (int)var0;
+    return var0 < (double)var2 ? var2 - 1 : var2;
+  }
+
   private EmulationResult emulateInteraction(Player player, Interaction interaction) {
     World world = interaction.world();
     BlockPosition blockPosition = interaction.targetBlock();
@@ -226,7 +374,7 @@ public final class InteractionEmulator implements EventProcessor {
     Block clickedBlock = clickedBlockLocation == null ? null : VolatileBlockAccess.blockAccess(clickedBlockLocation);
     Material itemTypeInHand = interaction.itemTypeInHand();
     Location placementLocation = clickedBlock == null ? null :
-      clickedBlockLocation.clone().add(Direction.getFront(interaction.targetDirection()).getDirectionVecAsVector());
+      clickedBlockLocation.clone().add(Direction.getFront(interaction.targetDirectionIndex()).getDirectionVecAsVector());
     emulateItemInteraction(player, itemTypeInHand);
     if (clickedBlock != null) {
       emulateInteractWithHandItem(player, clickedBlock, placementLocation, itemTypeInHand);

@@ -4,6 +4,7 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.MovingObjectPositionBlock;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
@@ -95,6 +96,17 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
       if (enumDirection == 255) {
         return;
       }
+
+      float facingX = -1;
+      float facingY = -1;
+      float facingZ = -1;
+      StructureModifier<Float> floatsInPacket = packet.getFloat();
+      if (floatsInPacket.size() >= 3) {
+        facingX = floatsInPacket.read(0);
+        facingY = floatsInPacket.read(1);
+        facingZ = floatsInPacket.read(2);
+      }
+
       Material clickedType = blockPosition == null ? Material.AIR : VolatileBlockAccess.typeAccess(user, blockPosition.toLocation(player.getWorld()));
       boolean clickableInteraction = BlockInteractionAccess.isClickable(clickedType);
       ItemStack heldItem = user.meta().inventory().heldItem();
@@ -119,19 +131,16 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
 
       InteractionType type = interactionIsBlank ? InteractionType.EMPTY_INTERACT : (interactionIsPlacement ? InteractionType.PLACE : InteractionType.INTERACT);
       Interaction interaction =
-          new Interaction(
-              packet.deepClone(),
-              player.getWorld(),
-              player,
-              blockPosition,
-              enumDirection,
-            type,
-              interactedBlockType,
-              handSlot == EnumWrappers.Hand.MAIN_HAND
-                  ? heldItem
-                  : user.meta().inventory().offhandItem(),
-              handSlot,
-              null);
+        new Interaction(
+          packet.deepClone(),
+          player.getWorld(), player,
+          blockPosition, enumDirection, type,
+          interactedBlockType,
+          handSlot == EnumWrappers.Hand.MAIN_HAND
+            ? heldItem
+            : user.meta().inventory().offhandItem(),
+          handSlot, null, facingX, facingY, facingX
+        );
 
       boolean mustPostValidate = interactionMeta.remainingBlockStart > 0;
       if (!mustPostValidate && preprocessInteraction(interaction)) {
@@ -205,7 +214,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
       return;
     }
 
-    if (protocol.deadOldVersion() &&
+    if (protocol.pre8() &&
       nullBlock &&
       direction == EnumWrappers.Direction.SOUTH &&
       playerDigType == RELEASE_USE_ITEM
@@ -216,7 +225,8 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     Interaction interaction = new Interaction(
       packet.deepClone(), player.getWorld(), player, blockPosition, enumDirection,
       breakBlock ? InteractionType.BREAK : InteractionType.START_BREAK,
-      inventoryData.heldItemType(), heldItemStack, EnumWrappers.Hand.MAIN_HAND, playerDigType
+      inventoryData.heldItemType(), heldItemStack, EnumWrappers.Hand.MAIN_HAND, playerDigType,
+      0.0f, 0.0f, 0.0f
     );
 
     boolean mustPostValidate = interactionMeta.remainingBlockStart > 0;
@@ -546,7 +556,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
         }
         append = "looking at " + blockName + " block";
         vl = 2.5;
-      } else if (interaction.targetDirection() != raycastResult.sideHit.getIndex()) {
+      } else if (interaction.targetDirectionIndex() != raycastResult.sideHit.getIndex()) {
         append = "invalid block face";
         vl = 2.5;
       }
@@ -600,7 +610,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     User user = UserRepository.userOf(player);
     ProtocolMetadata protocol = user.meta().protocol();
 
-    int targetDirection = interaction.targetDirection();
+    int targetDirection = interaction.targetDirectionIndex();
     boolean suppressDetection = protocol.oppositeBlockVectorBehavior()
       && interactionInHead(user, interaction)
       && targetDirection == rayTraceResult.sideHit.getOpposite().getIndex();

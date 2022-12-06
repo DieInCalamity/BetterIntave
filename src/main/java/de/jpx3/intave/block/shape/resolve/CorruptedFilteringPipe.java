@@ -40,6 +40,8 @@ final class CorruptedFilteringPipe implements ShapeResolverPipeline {
     if (type == BlockTypeAccess.END_PORTAL_FRAME) {
       ApplyOnShapeBoundingBoxBuilder builder = ApplyOnShapeBoundingBoxBuilder.create();
       builder.shapeX16AndApply(0.0D, 0.0D, 0.0D, 16.0D, 13.0D, 16.0D);
+
+      // faulty, do not use data literally
       boolean hasEye = (data & 4) != 0;
       if (hasEye) {
         builder.shapeX16AndApply(4.0D, 13.0D, 4.0D, 12.0D, 16.0D, 12.0D);
@@ -48,6 +50,8 @@ final class CorruptedFilteringPipe implements ShapeResolverPipeline {
       return builder.resolve();
     } else if (type == BlockTypeAccess.SKULL) {
       BoundingBoxBuilder builder = BoundingBoxBuilder.create();
+
+      // faulty, do not use data literally
       switch (data & 7) {
         case 1:
           builder.shape(0.25F, 0.0F, 0.25F, 0.75F, 0.5F, 0.75F); // up

@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 final class VariantCachePipe implements ShapeResolverPipeline {
   private final ShapeResolverPipeline forward;
   private final Map<Material, /*(SoftReference)*/Map<Integer, BlockShape>> collisionShapeCache = MemoryWatchdog.watch("variant-collide-cache", new ConcurrentHashMap<>());
-  private final Map<Material, /*(SoftReference)*/Map<Integer, BlockShape>> outlineShapeCache = MemoryWatchdog.watch("variant-outlier-cache", new ConcurrentHashMap<>());
+  private final Map<Material, /*(SoftReference)*/Map<Integer, BlockShape>> outlineShapeCache = MemoryWatchdog.watch("variant-outline-cache", new ConcurrentHashMap<>());
 
   public VariantCachePipe(ShapeResolverPipeline forward) {
     this.forward = forward;
@@ -23,8 +23,8 @@ final class VariantCachePipe implements ShapeResolverPipeline {
   }
 
   private void checkVersion() {
-    if (!MinecraftVersions.VER1_9_0.atOrAbove()) {
-      throw new UnsupportedOperationException("Can't utilize variant cache on versions older than 1.14");
+    if (!MinecraftVersions.VER1_13_0.atOrAbove()) {
+      throw new UnsupportedOperationException("Can't utilize variant cache on versions older than 1.13");
     }
   }
 

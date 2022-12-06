@@ -405,8 +405,8 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     }
 //    player.sendMessage("reach: " + reach);
     if (System.currentTimeMillis() - connection.lastAttackQueueRequest < 300) {
-      String message = "ML " + MathHelper.formatDouble(reach, 2) + " " + user.player().getName();
-      DebugBroadcast.broadcast(player, MessageCategory.PKBF, MessageSeverity.HIGH, message, message);
+      String message = player.getName() + " " + MathHelper.formatDouble(reach, 2);
+      DebugBroadcast.broadcast(player, MessageCategory.MKLG, MessageSeverity.HIGH, message, message);
       return reach > 2.4;
     }
     return false;
