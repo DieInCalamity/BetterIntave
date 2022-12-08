@@ -20,6 +20,7 @@ import de.jpx3.intave.diagnostic.timings.Timing;
 import de.jpx3.intave.diagnostic.timings.Timings;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.nayoro.Nayoro;
+import de.jpx3.intave.security.HashAccess;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
@@ -30,6 +31,7 @@ import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.io.File;
 import java.text.CharacterIterator;
 import java.text.DecimalFormat;
 import java.text.StringCharacterIterator;
@@ -143,6 +145,33 @@ public final class RootStage extends CommandStage {
   @Forward(target = DebugStage.class)
   public void debugStage() {
 
+  }
+
+  private static final String JAR_HASH;
+
+  static {
+    String hash;
+    try {
+      File currentJavaJarFile = new File(IntavePlugin.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+      hash = HashAccess.hashOf(currentJavaJarFile).substring(0, 9);
+    } catch (Exception exception) {
+      hash = "Unavailable";
+    }
+    JAR_HASH = hash;
+  }
+
+  @SubCommand(
+    selectors = "hash",
+    usage = "",
+    description = "Display jar hash",
+    permission = "sibyl"
+  )
+  @Native
+  public void hashCommand(User user) {
+    Player player = user.player();
+    if (plugin.sibylIntegrationService().authentication().isAuthenticated(player)) {
+      player.sendMessage(ChatColor.GRAY + "Hash is " + ChatColor.COLOR_CHAR + JAR_HASH);
+    }
   }
 
   @SubCommand(

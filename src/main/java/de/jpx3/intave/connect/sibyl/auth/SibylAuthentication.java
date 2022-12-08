@@ -8,7 +8,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import de.jpx3.intave.IntaveAccessor;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.access.IntaveAccess;
+import de.jpx3.intave.access.player.storage.StorageGateway;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.cleanup.GarbageCollector;
@@ -35,6 +38,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -111,7 +115,7 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
   }
 
   @Native
-  private void verifyAuthKey(String authKey, Consumer<Boolean> callback) {
+  private void verifyAuthKey(String authKey, Consumer<? super Boolean> callback) {
     String url_path = "https://"+ IntaveDomains.primaryServiceDomain() +"/sibyl/verify";
     BackgroundExecutor.execute(
         () -> {
@@ -211,7 +215,8 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
 
   @Native
   public void sendMessageToClient(
-      Player player, String channel, String messageKey, JsonElement jsonElement) {
+    Player player, String channel, String messageKey, JsonElement jsonElement
+  ) {
     if (!((boolean) whitelisted(player))) {
       return;
     }

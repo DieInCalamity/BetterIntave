@@ -97,6 +97,9 @@ public final class StorageLoader extends Module {
   }
 
   private void inputTo(Storage storage, ByteBuffer buffer) {
+    if (buffer == null) {
+      return;
+    }
     byte[] array = buffer.array();
     if (array.length == 0) {
       return;
@@ -145,6 +148,9 @@ public final class StorageLoader extends Module {
   }
 
   public void setStorageGateway(StorageGateway storageGateway) {
+    if (storageGateway == null) {
+      storageGateway = new EmptyStorageGateway();
+    }
     this.storageGateway = storageGateway;
   }
 }
