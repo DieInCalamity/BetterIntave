@@ -100,6 +100,10 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
                   setAuthState(
                       player,
                       success ? SibylAuthenticationState.ATH : SibylAuthenticationState.RGF);
+                  IntavePlugin.singletonInstance().sibylIntegrationService().publishTest(player, 1);
+                  IntavePlugin.singletonInstance().sibylIntegrationService().publishTest(player, 1);
+                  IntavePlugin.singletonInstance().sibylIntegrationService().publishTest(player, 1);
+                  IntavePlugin.singletonInstance().sibylIntegrationService().publishTest(player, 1);
                 });
           }
         } catch (RuntimeException exception) {

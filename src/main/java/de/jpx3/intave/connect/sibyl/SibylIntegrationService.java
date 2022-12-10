@@ -6,6 +6,7 @@ import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.connect.sibyl.auth.SibylAuthentication;
 import de.jpx3.intave.connect.sibyl.data.SibylPacketTransmitter;
 import de.jpx3.intave.connect.sibyl.data.packet.SibylPacket;
+import de.jpx3.intave.connect.sibyl.data.packet.SibylPacketMessage;
 import de.jpx3.intave.connect.sibyl.data.packet.SibylPacketOutAttackCancel;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscriber;
@@ -53,6 +54,12 @@ public final class SibylIntegrationService implements BukkitEventSubscriber {
     packet.setAttacker(attacker.getUniqueId());
     packet.setAttackedLocation(attacked.getLocation().toVector());
     packet.setDamage(damage);
+    broadcastTrustedPacket(packet);
+  }
+
+  public void publishTest(Player player, int id) {
+    SibylPacketMessage packet = new SibylPacketMessage();
+    packet.setDebugId(id);
     broadcastTrustedPacket(packet);
   }
 

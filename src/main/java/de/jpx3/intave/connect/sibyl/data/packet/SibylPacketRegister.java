@@ -11,6 +11,7 @@ public final class SibylPacketRegister {
 
   static {
     availablePackets.put("out-attack-cancel", SibylPacketOutAttackCancel.class);
+    availablePackets.put("out-message", SibylPacketMessage.class);
 
     availablePackets = ImmutableMap.copyOf(availablePackets);
   }
