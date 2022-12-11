@@ -3,6 +3,7 @@ package de.jpx3.intave.klass.locate;
 import de.jpx3.intave.klass.Lookup;
 
 import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 
 final class ClassLocation extends Location {
@@ -19,7 +20,7 @@ final class ClassLocation extends Location {
     Class<?> klass = classCache.get();
     if (klass == null) {
       klass = compile();
-      classCache = new WeakReference<>(klass);
+      classCache = new SoftReference<>(klass);
     }
     return klass;
   }

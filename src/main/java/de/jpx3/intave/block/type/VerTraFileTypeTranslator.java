@@ -3,16 +3,18 @@ package de.jpx3.intave.block.type;
 import com.comphenix.protocol.utility.MinecraftVersion;
 import de.jpx3.intave.access.IntaveResourceCompilationException;
 import de.jpx3.intave.adapter.MinecraftVersions;
+import de.jpx3.intave.resource.LineCollector;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collector;
 
-final class VerTraFileTypeTranslator implements FileTypeTranslator {
-  private final Pattern SELECTOR_REGEX_PATTERN = Pattern.compile("^from ([0-9]+(\\.[0-9]+)+) down to ([0-9]+(\\.[0-9]+)+) interpret$", Pattern.CASE_INSENSITIVE);
+final class VerTraFileTypeTranslator {
+  private static final Pattern SELECTOR_REGEX_PATTERN = Pattern.compile("^from ([0-9]+(\\.[0-9]+)+) down to ([0-9]+(\\.[0-9]+)+) interpret$", Pattern.CASE_INSENSITIVE);
 
-  public TypeTranslations apply(List<String> lines) {
+  public static TypeTranslations apply(List<String> lines) {
     lines.removeIf(String::isEmpty);
     lines.removeIf(line -> line.startsWith("#"));
     MinecraftVersion fromVersion = null;
@@ -67,5 +69,11 @@ final class VerTraFileTypeTranslator implements FileTypeTranslator {
 
   private static int afterIndex(String haystack, String needle) {
     return haystack.indexOf(needle) + needle.length();
+  }
+
+  private static final Collector<String, ?, TypeTranslations> RESOURCE_COLLECTOR = LineCollector.withFinisher(VerTraFileTypeTranslator::apply);
+
+  public static Collector<String, ?, TypeTranslations> resourceCollector() {
+    return RESOURCE_COLLECTOR;
   }
 }

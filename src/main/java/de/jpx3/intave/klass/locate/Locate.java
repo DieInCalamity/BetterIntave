@@ -18,10 +18,10 @@ public final class Locate {
     IntaveControl.USE_DEBUG_LOCATE_RESOURCE ?
       Resources.resourceFromFile(new File(IntavePlugin.singletonInstance().dataFolder(), "locate")) :
       Resources.localServiceCacheResource("locate/" + IntavePlugin.version(), "locate", TimeUnit.DAYS.toMillis(14));
-  private static final Locations CLASS_AND_FIELD_LOCATIONS = LocateFileCompiler.create().fromResource(LOCATE_RESOURCE).reduced();
-  private static final ClassLocations classLocations = CLASS_AND_FIELD_LOCATIONS.classLocations();
-  private static final FieldLocations fieldLocations = CLASS_AND_FIELD_LOCATIONS.fieldLocations();
-  private static final MethodLocations methodLocations = CLASS_AND_FIELD_LOCATIONS.methodLocations();
+  private static final Locations LOCATIONS = LOCATE_RESOURCE.collectLines(LocateFileCompiler.resourceCollector()).reduced();
+  private static final ClassLocations classLocations = LOCATIONS.classLocations();
+  private static final FieldLocations fieldLocations = LOCATIONS.fieldLocations();
+  private static final MethodLocations methodLocations = LOCATIONS.methodLocations();
   private static final Map<String, ClassLocation> classLocationCache = new ConcurrentHashMap<>();
   private static final Map<String, FieldLocation> fieldLocationCache = new ConcurrentHashMap<>();
   private static final Map<String, MethodLocation> methodLocationCache = new ConcurrentHashMap<>();

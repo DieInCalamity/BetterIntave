@@ -1,13 +1,13 @@
 package de.jpx3.intave.version;
 
-import de.jpx3.intave.resource.CompilerStreamFunctionProvider;
+import de.jpx3.intave.resource.LineCollector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collector;
 
-final class ProtocolVersionRangesCompiler implements CompilerStreamFunctionProvider<ProtocolVersionRanges> {
-  @Override
-  public ProtocolVersionRanges apply(List<String> lines) {
+final class ProtocolVersionRangesCompiler {
+  public static ProtocolVersionRanges apply(List<String> lines) {
     int lastEnd = Integer.MIN_VALUE;
     List<ProtocolVersionRange> ranges = new ArrayList<>();
     for (int i = 0; i < lines.size(); i++) {
@@ -47,5 +47,11 @@ final class ProtocolVersionRangesCompiler implements CompilerStreamFunctionProvi
       }
     }
     return new ProtocolVersionRanges(ranges);
+  }
+
+  private static final Collector<String, ?, ProtocolVersionRanges> RESOURCE_COLLECTOR = LineCollector.withFinisher(ProtocolVersionRangesCompiler::apply);
+
+  public static Collector<String, ?, ProtocolVersionRanges> resourceCollector() {
+    return RESOURCE_COLLECTOR;
   }
 }

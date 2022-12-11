@@ -37,6 +37,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static de.jpx3.intave.IntaveControl.USE_DEBUG_LOCATE_RESOURCE;
@@ -44,13 +45,13 @@ import static de.jpx3.intave.IntaveControl.USE_DEBUG_LOCATE_RESOURCE;
 @HighOrderService
 public final class TestService implements EventProcessor {
   private static final Resource environmentHashResource = Resources.fileCache("environmentHashes");
-  private static final Map<String, Long> supportedEnvironments = environmentHashResource.readLines().stream()
-    .filter(s -> s.contains(":"))
-    .limit(8192)
-    .map(line -> line.split(":"))
+  private static final Map<String, Long> supportedEnvironments = environmentHashResource.readLines()
+    .stream().limit(8192)
+    .filter(s -> s.contains(":")).map(line -> line.split(":"))
     .collect(Collectors.toMap(split -> split[0], split -> Long.parseLong(split[1])));
   private static final String environmentHash = environmentHash();
 
+  @Native
   private static String environmentHash() {
     StringBuilder bigString = new StringBuilder(Bukkit.getServer().getName());
     try {
@@ -150,9 +151,9 @@ public final class TestService implements EventProcessor {
       // parts
       performTest(BlockAccessTests.class);
       performTest(BlockVariantTests.class);
-      performTest(BlockShapeTests.class);
       performTest(BlockShapeDrillTests.class);
       performTest(BlockShapePipelineTests.class);
+      performTest(BlockShapeTests.class);
       performTest(StorageTests.class);
 
       // checks
@@ -167,7 +168,7 @@ public final class TestService implements EventProcessor {
         throwable = throwable.getCause();
       }
       String exceptionName = throwable.getClass().getSimpleName();
-      IntaveLogger.logger().error("Reported " + resolveArticle(exceptionName) + " " + exceptionName + ": " + throwable.getMessage());
+      IntaveLogger.logger().error("Reported " + resolveArticleOf(exceptionName) + " " + exceptionName + ": " + throwable.getMessage());
       IntaveLogger.logger().error("You are hereby advised to report this fault to us before using this version of Intave.");
       IntaveLogger.logger().error("If possible, include the following stacktrace in your report:");
       throwable.printStackTrace();
@@ -183,7 +184,7 @@ public final class TestService implements EventProcessor {
 
   private static final char[] vocals = "AEIOU".toCharArray();
 
-  private String resolveArticle(String exceptionName) {
+  private String resolveArticleOf(String exceptionName) {
     if (exceptionName.isEmpty()) {
       return "";
     }

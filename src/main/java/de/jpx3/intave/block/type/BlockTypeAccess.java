@@ -49,18 +49,13 @@ public final class BlockTypeAccess {
   }
 
   private static final Resource MAPPING_RESOURCE = Resources.localServiceCacheResource("bbm/" + IntavePlugin.version(),  "bbm", TimeUnit.DAYS.toMillis(14));
-  private static final FileTypeTranslator translator = new VerTraFileTypeTranslator();
-  private static final TypeTranslations typeTranslations;
-
-  static {
-    typeTranslations = translator.fromResource(MAPPING_RESOURCE);
-  }
+  private static final TypeTranslations TYPE_TRANSLATIONS = MAPPING_RESOURCE.collectLines(VerTraFileTypeTranslator.resourceCollector());
 
   public static void setupTranslationsFor(User user) {
     MinecraftVersion serverVersion = MinecraftVersion.getCurrentVersion();
     MinecraftVersion clientVersion = user.meta().protocol().minecraftVersion();
     user.clearTypeTranslations();
-    typeTranslations.specifiedTo(serverVersion, clientVersion).forEachType(user::applyTypeTranslation);
+    TYPE_TRANSLATIONS.specifiedTo(serverVersion, clientVersion).forEachType(user::applyTypeTranslation);
   }
 
   /**

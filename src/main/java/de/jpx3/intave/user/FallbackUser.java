@@ -109,7 +109,7 @@ final class FallbackUser implements User {
   public CheckCustomMetadata checkMetadata(Class<? extends CheckCustomMetadata> classTarget) {
     try {
       return classTarget.newInstance();
-    } catch (InstantiationException | IllegalAccessException exception) {
+    } catch (Exception exception) {
       throw new IllegalStateException(exception);
     }
   }

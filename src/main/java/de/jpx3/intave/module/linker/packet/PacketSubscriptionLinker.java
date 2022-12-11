@@ -238,14 +238,13 @@ public final class PacketSubscriptionLinker extends Module {
     String identifier
   ) {
     if (calledMethod.getParameterCount() == 1 && calledMethod.getParameterTypes()[0] == PacketEvent.class) {
-      // so boring
       String packetSubscriberSuperClassPath = canonicalRepresentation(className(PacketEventSubscriber.class));
       String packetSubscriberClassPath = canonicalRepresentation(className(target.getClass()));
       String packetEventClassPath = canonicalRepresentation(className(PacketEvent.class));
       Class<PacketSubscriptionMethodExecutor> executorClass = IRXClassFactory.assembleCallerClass(
         PacketSubscriptionLinker.class.getClassLoader(),
         PacketSubscriptionMethodExecutor.class,
-        "<generated>",
+        "<irx>",
         "invoke",
         "(L" + packetSubscriberSuperClassPath + ";L" + packetEventClassPath + ";)V",
         "(L" + packetSubscriberClassPath + ";L" + packetEventClassPath + ";)V",

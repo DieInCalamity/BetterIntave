@@ -1,10 +1,9 @@
 package de.jpx3.intave.klass.create;
 
-import com.google.common.collect.Lists;
-
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.IntUnaryOperator;
 
 public final class IRXClassFactory {
@@ -30,14 +29,57 @@ public final class IRXClassFactory {
     );
   }
 
-  private static final List<String> assembledClassNames = Lists.newArrayList();
+  private static final Set<String> CLASSES_CREATED = new HashSet<>();
+  private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789";
 
   private static synchronized String findClassName() {
-    String randomClassName;
+    StringBuilder randomClassName = new StringBuilder();
+    int length = 1;
+    int attempts = 0;
     do {
-      randomClassName = UUID.randomUUID().toString().replaceAll("-", "").toLowerCase(Locale.ROOT).substring(0, 8);
-    } while (assembledClassNames.contains(randomClassName));
-    assembledClassNames.add(randomClassName);
-    return "de/jpx3/intave/irx0x000000000054" + randomClassName;
+      randomClassName.delete(0, randomClassName.length());
+      int rem = length;
+      int pos = 0;
+      while (rem-- >= 0) {
+        char c = ALPHABET.charAt(ThreadLocalRandom.current().nextInt(0, (pos == 0 ? 26 : ALPHABET.length()) - 1));
+        if (ThreadLocalRandom.current().nextBoolean()) {
+          c = Character.toUpperCase(c);
+        }
+        randomClassName.append(c);
+        pos++;
+      }
+      attempts++;
+      for (int i = 9; i > 0; i--) {
+        int limit = i * ALPHABET.length();
+        if (attempts > limit) {
+          length = i;
+          break;
+        }
+      }
+    } while (classExists(randomClassName.toString()));
+    CLASSES_CREATED.add(randomClassName.toString());
+    return "de/jpx3/intave/" + randomClassName;
+  }
+
+  private static final Set<String> CLASSES_FOUND = new HashSet<>();
+
+  private static boolean classExists(String className) {
+    if (CLASSES_CREATED.contains(className) || CLASSES_FOUND.contains(className)) {
+      return true;
+    }
+    if (de.jpx3.classloader.ClassLoader.classLoaded("de.jpx3.intave." + className)) {
+      CLASSES_FOUND.add(className);
+      return true;
+    }
+    ClassLoader classLoader = IRXClassFactory.class.getClassLoader();
+    try (
+      InputStream stream = classLoader.getResourceAsStream(String.format("de/jpx3/intave/%s.class", className));
+    ) {
+      if (stream != null) {
+        CLASSES_FOUND.add(className);
+        return true;
+      }
+    } catch (IOException ignored) {}
+    return false;
   }
 }

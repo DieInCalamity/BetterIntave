@@ -7,8 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 public final class ProtocolVersionConverter {
   private static final Resource PROTOCOL_VERSION_RESOURCE = Resources.localServiceCacheResource("protocolversions", "protocolversions", TimeUnit.DAYS.toMillis(14));
-  private static final ProtocolVersionRangesCompiler RANGES_COMPILER = new ProtocolVersionRangesCompiler();
-  private static final ProtocolVersionRanges RANGES = RANGES_COMPILER.fromResource(PROTOCOL_VERSION_RESOURCE);
+  private static final ProtocolVersionRanges RANGES = PROTOCOL_VERSION_RESOURCE.collectLines(ProtocolVersionRangesCompiler.resourceCollector());
 
   public static String versionByProtocolVersion(int version) {
     return RANGES.byProtocolVersion(version);

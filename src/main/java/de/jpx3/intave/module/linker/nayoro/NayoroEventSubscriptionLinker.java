@@ -87,7 +87,7 @@ public final class NayoroEventSubscriptionLinker extends Module {
         Class<NayoroEventExecutor> executorClass = IRXClassFactory.assembleCallerClass(
           BukkitEventSubscriptionLinker.class.getClassLoader(),
           NayoroEventExecutor.class,
-          "<generated>",
+          "<irx>",
           "execute",
           "(L" + eventListenerClassPath + ";L" + playerClassPath + ";L" + eventClassPath + ";)V",
           "(L" + specifiedListenerClassPath + ";L" + specifiedPlayerClassPath + ";L" + specifiedEventClassPath + ";)V",

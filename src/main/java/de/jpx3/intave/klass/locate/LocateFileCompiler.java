@@ -1,15 +1,16 @@
 package de.jpx3.intave.klass.locate;
 
 import de.jpx3.intave.IntaveLogger;
-import de.jpx3.intave.resource.CompilerStreamFunctionProvider;
+import de.jpx3.intave.resource.LineCollector;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-final class LocateFileCompiler implements CompilerStreamFunctionProvider<Locations> {
-  public Locations apply(List<String> lines) {
+final class LocateFileCompiler {
+  public static Locations apply(List<String> lines) {
     List<ClassLocation> classLocations = new ArrayList<>();
     List<FieldLocation> fieldLocations = new ArrayList<>();
     List<MethodLocation> methodLocations = new ArrayList<>();
@@ -66,7 +67,7 @@ final class LocateFileCompiler implements CompilerStreamFunctionProvider<Locatio
     );
   }
 
-  private List<MethodLocation> methodCompile(String className, List<String> affectedLines) {
+  private static List<MethodLocation> methodCompile(String className, List<String> affectedLines) {
     if (affectedLines.isEmpty()) {
       return Collections.emptyList();
     }
@@ -86,7 +87,7 @@ final class LocateFileCompiler implements CompilerStreamFunctionProvider<Locatio
     return result;
   }
 
-  private List<MethodLocation> methodInnerCompile(String className, IntegerMatcher matcher, List<String> affectedLines) {
+  private static List<MethodLocation> methodInnerCompile(String className, IntegerMatcher matcher, List<String> affectedLines) {
     List<MethodLocation> methodLocations = new ArrayList<>();
     for (String affectedLine : affectedLines) {
       if (affectedLine.endsWith("}")) {
@@ -100,7 +101,7 @@ final class LocateFileCompiler implements CompilerStreamFunctionProvider<Locatio
     return methodLocations;
   }
 
-  private List<FieldLocation> fieldCompile(String className, List<String> affectedLines) {
+  private static List<FieldLocation> fieldCompile(String className, List<String> affectedLines) {
     if (affectedLines.isEmpty()) {
       return Collections.emptyList();
     }
@@ -120,7 +121,7 @@ final class LocateFileCompiler implements CompilerStreamFunctionProvider<Locatio
     return result;
   }
 
-  private List<FieldLocation> fieldInnerCompile(String className, IntegerMatcher matcher, List<String> affectedLines) {
+  private static List<FieldLocation> fieldInnerCompile(String className, IntegerMatcher matcher, List<String> affectedLines) {
     List<FieldLocation> fieldLocations = new ArrayList<>();
     for (String affectedLine : affectedLines) {
       if (affectedLine.endsWith("}")) {
@@ -134,13 +135,13 @@ final class LocateFileCompiler implements CompilerStreamFunctionProvider<Locatio
     return fieldLocations;
   }
 
-  private List<ClassLocation> classCompile(String className, List<String> affectedLines) {
+  private static List<ClassLocation> classCompile(String className, List<String> affectedLines) {
     return affectedLines
       .stream().map(line -> classCompile(className, line))
       .collect(Collectors.toList());
   }
 
-  private ClassLocation classCompile(String className, String line) {
+  private static ClassLocation classCompile(String className, String line) {
     String[] parts = line.split("->");
     String matcherInput = parts[0].trim();
     String versionDefinition = parts[1].trim().replace("/", ".");
@@ -153,7 +154,7 @@ final class LocateFileCompiler implements CompilerStreamFunctionProvider<Locatio
     return new ClassLocation(className, versionMatcher, versionDefinition);
   }
 
-  private IntegerMatcher matcherOf(String input) {
+  private static IntegerMatcher matcherOf(String input) {
     try {
       if (input.startsWith("[")) {
         if (!input.endsWith("]")) {
@@ -170,5 +171,11 @@ final class LocateFileCompiler implements CompilerStreamFunctionProvider<Locatio
 
   public static LocateFileCompiler create() {
     return new LocateFileCompiler();
+  }
+
+  private static final Collector<String, ?, Locations> RESOURCE_COLLECTOR = LineCollector.withFinisher(LocateFileCompiler::apply);
+
+  public static Collector<String, ?, Locations> resourceCollector() {
+    return RESOURCE_COLLECTOR;
   }
 }

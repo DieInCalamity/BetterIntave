@@ -90,7 +90,7 @@ public final class BukkitEventSubscriptionLinker extends Module {
         Class<EventExecutor> executorClass = IRXClassFactory.assembleCallerClass(
           BukkitEventSubscriptionLinker.class.getClassLoader(),
           EventExecutor.class,
-          "<generated>",
+          "<irx>",
           "execute",
           "(Lorg/bukkit/event/Listener;Lorg/bukkit/event/Event;)V",
           "(L" + listenerClassPath + ";L" + eventClassPath + ";)V",
