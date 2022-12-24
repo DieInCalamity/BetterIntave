@@ -6,6 +6,7 @@ import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.WrappedAttribute;
 import com.comphenix.protocol.wrappers.WrappedAttributeModifier;
 import com.google.common.collect.ImmutableList;
+import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.DispatchTarget;
 import de.jpx3.intave.annotate.Nullable;
@@ -22,9 +23,10 @@ import de.jpx3.intave.check.movement.physics.*;
 import de.jpx3.intave.cleanup.GarbageCollector;
 import de.jpx3.intave.entity.datawatcher.DataWatcherAccess;
 import de.jpx3.intave.executor.Synchronizer;
+import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.dispatch.MovementDispatcher;
 import de.jpx3.intave.module.feedback.Superposition;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.player.Effects;
 import de.jpx3.intave.player.ItemProperties;
 import de.jpx3.intave.share.BoundingBox;
@@ -32,10 +34,7 @@ import de.jpx3.intave.share.Motion;
 import de.jpx3.intave.share.Rotation;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -163,7 +162,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   public boolean awaitClickMovementSkip;
   public Location teleportLocation;
   public Vector teleportOffset = null;
-  public int teleportResendCountdown = 10;
+  public int teleportResendCountdown = 20;
   public int outgoingTeleportCountdown = 5;
   public int speculativeTicks = 0;
   public Map<UUID, Integer> pendingSpeculativeMovementTicks = GarbageCollector.watch(new HashMap<>());
@@ -198,7 +197,8 @@ public final class MovementMetadata implements SimulationEnvironment {
   private float aiMoveSpeed, jumpMovementFactor;
   private boolean eyesInWater;
   // Vehicle
-  private EntityShade vehicle;
+  private Entity vehicle;
+  private boolean vehicleCanBeRidden;
   private double attachMoveDistance;
   private volatile Location verifiedLocation;
 
@@ -406,8 +406,17 @@ public final class MovementMetadata implements SimulationEnvironment {
   private void updateElytra() {
     if (elytraFlying && !this.onGround /*&& !this.inWater*/ && !Effects.levitationEffectActive(player)) {
       elytraFlying = hasElytraEquipped();
+      if (IntaveControl.DEBUG_ELYTRA) {
+        if (elytraFlying) {
+          player.sendMessage("§aActivated elytra flying (context)");
+        } else {
+          player.sendMessage("§cActivated elytra flying (context)");
+        }
+      }
     } else if (elytraFlying) {
-//      player.sendMessage(ChatColor.RED + "Deactivated elytra flying");
+      if (IntaveControl.DEBUG_ELYTRA) {
+        player.sendMessage(ChatColor.RED + "Deactivated elytra flying (context)");
+      }
       elytraFlying = false;
       updatePose();
     }
@@ -421,7 +430,7 @@ public final class MovementMetadata implements SimulationEnvironment {
 
   private void updateEntityMovement() {
     ConnectionMetadata connectionMetadata = user.meta().connection();
-    for (EntityShade value : connectionMetadata.entities()) {
+    for (Entity value : connectionMetadata.entities()) {
       value.entityPlayerMoveUpdate();
     }
 //    for (Map.Entry<Integer, WrappedEntity> entry : entityMap.entrySet()) {
@@ -743,18 +752,6 @@ public final class MovementMetadata implements SimulationEnvironment {
     return superpositions;
   }
 
-  public void dismountRidingEntity() {
-    if (!isInVehicle()) {
-      return;
-    }
-    setVerifiedLocation(player.getLocation(), "Entity dismount location");
-    Synchronizer.synchronize(() -> {
-      // player.getLocation() is assumed to be correct
-      player.teleport(player.getLocation());
-    });
-    this.vehicle = null;
-  }
-
   public ShulkerBox shulkerBoxAt(int posX, int posY, int posZ) {
     if (shulkerData.isEmpty()) {
       return null;
@@ -784,7 +781,11 @@ public final class MovementMetadata implements SimulationEnvironment {
     return vehicle != null;
   }
 
-  public EntityShade ridingEntity() {
+  public boolean isInRidingVehicle() {
+    return vehicle != null && vehicleCanBeRidden;
+  }
+
+  public Entity ridingEntity() {
     return vehicle;
   }
 
@@ -1023,9 +1024,37 @@ public final class MovementMetadata implements SimulationEnvironment {
     return attachMoveDistance * 2;
   }
 
-  public void setVehicle(EntityShade ridingEntity) {
+  public void setVehicle(Entity ridingEntity) {
     this.attachVehicleTicks = 0;
     this.attachMoveDistance = ridingEntity.distanceTo(lastPosition());
     this.vehicle = ridingEntity;
+
+    String entityName = ridingEntity.entityName();
+    this.vehicleCanBeRidden = entityName.contains("Boat") || entityName.contains("Minecart") || entityName.contains("Pig") || entityName.contains("Horse");
+
+    if (IntaveControl.DEBUG_MOUNTING) {
+      player.sendMessage(ChatColor.RED + "Mounting " + ridingEntity.entityName() + " " + MathHelper.formatDouble(attachMoveDistance, 4) + " blocks away");
+    }
+  }
+
+  public void dismountRidingEntity() {
+    dismountRidingEntity("Non reason specified");
+  }
+
+  public void dismountRidingEntity(String reason) {
+    if (!isInVehicle()) {
+      return;
+    }
+    if (IntaveControl.DEBUG_MOUNTING) {
+      player.sendMessage(ChatColor.RED + "Dismounting " + vehicle.entityName() + " " + reason);
+      System.out.println("Dismounting " + vehicle.entityName() + " " + reason);
+      Thread.dumpStack();
+    }
+    setVerifiedLocation(player.getLocation(), "Entity dismount location");
+    Synchronizer.synchronize(() -> {
+      // player.getLocation() is assumed to be correct
+      player.teleport(player.getLocation());
+    });
+    this.vehicle = null;
   }
 }

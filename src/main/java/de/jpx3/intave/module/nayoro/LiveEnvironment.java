@@ -1,7 +1,7 @@
 package de.jpx3.intave.module.nayoro;
 
 import de.jpx3.intave.module.dispatch.AttackDispatcher;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.share.Position;
 import de.jpx3.intave.user.User;
 
@@ -48,7 +48,7 @@ public final class LiveEnvironment implements Environment {
 
   @Override
   public Position positionOf(int id) {
-    EntityShade.EntityPositionContext position = user.meta().connection().entityBy(id).position;
+    Entity.EntityPositionContext position = user.meta().connection().entityBy(id).position;
     return new Position(position.posX, position.posY, position.posZ);
   }
 

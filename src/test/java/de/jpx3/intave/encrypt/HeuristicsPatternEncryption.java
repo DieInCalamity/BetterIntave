@@ -19,6 +19,7 @@ public final class HeuristicsPatternEncryption {
       Anomaly.anomalyOf("85", Confidence.MAYBE, Anomaly.Type.KILLAURA, "description", 0),
       Anomaly.anomalyOf("85", Confidence.MAYBE, Anomaly.Type.KILLAURA, "description", 0),
       Anomaly.anomalyOf("85", Confidence.MAYBE, Anomaly.Type.KILLAURA, "description", 0),
+      Anomaly.anomalyOf("99", Confidence.MAYBE, Anomaly.Type.KILLAURA, "description", 0),
       Anomaly.anomalyOf("122", Confidence.PROBABLE, Anomaly.Type.KILLAURA, "description", 0),
       Anomaly.anomalyOf("122", Confidence.PROBABLE, Anomaly.Type.KILLAURA, "description", 0),
       Anomaly.anomalyOf("122", Confidence.PROBABLE, Anomaly.Type.KILLAURA, "description", 0),

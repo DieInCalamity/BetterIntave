@@ -8,6 +8,8 @@ public final class IntaveControl {
   public static final boolean DEBUG_HEURISTICS = false;
   public static final boolean LATENCY_PING_AS_XP_LEVEL = false;
   public static final boolean DEBUG_MOVEMENT_IGNORE = false;
+  public static final boolean DEBUG_MOUNTING = false;
+  public static final boolean DEBUG_ELYTRA = false;
   public static final boolean DEBUG_TELEPORT_LOCKS = false;
   public static final boolean DEBUG_TELEPORT_CAUSE_AND_CAUSER = false;
   public static final boolean DEBUG_TELEPORT_PACKET_STACKTRACE = false;
@@ -31,6 +33,7 @@ public final class IntaveControl {
   public static final boolean DEBUG_OUTPUT_FOR_TESTS = false;
   public static final boolean DEBUG_VARIANT_COMPILATION = false;
   public static final boolean DEBUG_ENTITY_TRACKING = false;
+  public static final boolean DEBUG_ATTACK_DAMAGE_MODIFIERS = false;
 
   public static final boolean USE_EXTERNAL_CONFIGURATION_FILE = true;
   public static final boolean GOMME_MODE = false;

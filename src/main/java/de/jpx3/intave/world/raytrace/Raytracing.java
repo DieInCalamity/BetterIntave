@@ -4,7 +4,7 @@ import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.diagnostic.timings.Timings;
 import de.jpx3.intave.klass.rewrite.PatchyLoadingInjector;
 import de.jpx3.intave.math.SinusCache;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.MovingObjectPosition;
 import de.jpx3.intave.share.NativeVector;
@@ -63,7 +63,7 @@ public final class Raytracing {
    * @return
    */
   public static Raytrace doubleMDFBlockConstraintEntityRaytrace(
-    Player player, EntityShade entity, boolean alternativePositionY,
+    Player player, Entity entity, boolean alternativePositionY,
     double lastPositionX, double lastPositionY, double lastPositionZ,
     float lastRotationYaw,
     float rotationYaw, float rotationPitch,
@@ -97,7 +97,7 @@ public final class Raytracing {
    * @param expandBoundingBox should be "0.1f" for a default hitbox
    */
   public static Raytrace blockConstraintEntityRaytrace(
-    Player player, EntityShade entity,
+    Player player, Entity entity,
     boolean useAlternativePositionY,
     double prevPosX, double prevPosY, double prevPosZ,
     float prevYaw, float pitch,
@@ -118,7 +118,7 @@ public final class Raytracing {
    * @param expandBoundingBox should be "0.1f" for a default hitbox
    */
   public static Raytrace blockIgnoringEntityRaytrace(
-    Player player, EntityShade entity,
+    Player player, Entity entity,
     boolean useAlternativePositionY,
     double prevPosX, double prevPosY, double prevPosZ,
     float prevYaw, float pitch,

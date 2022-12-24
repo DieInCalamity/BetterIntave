@@ -242,7 +242,7 @@ final class TestUser implements User {
   }
 
   @Override
-  public void applyAttackNerfer(AttackNerfStrategy strategy, String checkId) {
+  public void nerf(AttackNerfStrategy strategy, String checkId) {
 
   }
 

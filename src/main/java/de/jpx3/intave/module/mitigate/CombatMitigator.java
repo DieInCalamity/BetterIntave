@@ -14,6 +14,7 @@ import de.jpx3.intave.user.meta.PunishmentMetadata.AttackNerfer;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 
@@ -32,10 +33,22 @@ public final class CombatMitigator extends Module {
         attackNerfer.executor().accept(event);
       }
     }
+
+    if (IntaveControl.DEBUG_ATTACK_DAMAGE_MODIFIERS) {
+      player.sendMessage("");
+      for (EntityDamageEvent.DamageModifier value : EntityDamageEvent.DamageModifier.values()) {
+        double damage = event.getDamage(value);
+        if (damage != 0) {
+          player.sendMessage( value + " = " + damage);
+        }
+      }
+    }
+
     Entity attacked = event.getEntity();
     if (!(attacked instanceof Player)) {
       return;
     }
+
     Player attackedPlayer = (Player) attacked;
     punishmentData = UserRepository.userOf(attackedPlayer).meta().punishment();
     for (AttackNerfer attackNerfer : punishmentData.availableAttackNerfer()) {
@@ -52,6 +65,18 @@ public final class CombatMitigator extends Module {
       notify(user, nerfer, checkId);
       nerfer.activate();
     });
+  }
+
+  @BukkitEventSubscription
+  public void on(EntityCombustEvent event) {
+    if (!(event.getEntity() instanceof Player)) {
+      return;
+    }
+    Player player = (Player) event.getEntity();
+    User user = UserRepository.userOf(player);
+    if (user.meta().punishment().nerferOfType(AttackNerfStrategy.BURN_LONGER).active()) {
+      event.setDuration((int) (event.getDuration() * 1.3d));
+    }
   }
 
   @Deprecated

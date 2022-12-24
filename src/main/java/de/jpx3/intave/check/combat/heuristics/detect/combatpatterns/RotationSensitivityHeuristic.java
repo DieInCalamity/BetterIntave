@@ -71,7 +71,7 @@ public final class RotationSensitivityHeuristic extends MetaCheckPart<Heuristics
             )
           );
           //dmc21
-          user.applyAttackNerfer(AttackNerfStrategy.HT_MEDIUM, "21");
+//          user.applyAttackNerfer(AttackNerfStrategy.HT_MEDIUM, "21");
         }
       } else if (heuristicMeta.decimalVL > 0) {
         heuristicMeta.decimalVL--;
@@ -149,7 +149,7 @@ public final class RotationSensitivityHeuristic extends MetaCheckPart<Heuristics
         );
         if (heuristicMeta.sensitivityVL > 300) {
           //dmc22
-          user.applyAttackNerfer(AttackNerfStrategy.HT_MEDIUM, "22");
+          user.nerf(AttackNerfStrategy.DMG_LIGHT, "22");
           heuristicMeta.sensitivityVL = 300;
         }
       }

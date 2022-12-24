@@ -2,6 +2,9 @@ package de.jpx3.intave.module.filter;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.wrappers.EnumWrappers;
+import com.comphenix.protocol.wrappers.Pair;
+import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import org.bukkit.enchantments.Enchantment;
@@ -10,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
 
 import java.util.Collections;
+import java.util.List;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.ENTITY_EQUIPMENT;
 
@@ -29,27 +33,26 @@ public final class EquipmentFilter extends Filter {
   public void filterEquipment(PacketEvent event) {
     PacketContainer packet = event.getPacket();
 
-//    if (packet.getItemModifier().readSafely(0) != null) {
-//      // 1.8 - 1.15
-//      ItemStack itemStack = packet.getItemModifier().readSafely(0);
-//      ItemStack newItemStack = stripFromData(itemStack);
-//      packet.getItemModifier().write(0, newItemStack);
-//    } else {
-//      // 1.16+
-//      //noinspection unchecked
-//      List<Pair<?, ?>> slotItemPairList = (List<Pair<?, ?>>) packet.getModifier().readSafely(1);
-//      EquivalentConverter<ItemStack> converter = BukkitConverters.getItemStackConverter();
-//      for (int i = 0; i < slotItemPairList.size(); i++) {
-//        Pair<?, ?> pair = slotItemPairList.get(i)
-//          .mapSecond(o -> converter.getGeneric(stripFromData(converter.getSpecific(o))));
-//        slotItemPairList.set(i, pair);
-//      }
-//    }
+    if (packet.getItemModifier().readSafely(0) != null) {
+      // 1.8 - 1.15
+      ItemStack itemStack = packet.getItemModifier().readSafely(0);
+      ItemStack newItemStack = stripFromData(itemStack);
+      packet.getItemModifier().write(0, newItemStack);
+//      int a = packet.getIntegers().read(0);
+//      int b = packet.getIntegers().read(1);
+//      System.out.println("New equipment: " + itemStack + " " + a + " " + b);
+    } else {
+      List<Pair<EnumWrappers.ItemSlot, ItemStack>> read = packet.getSlotStackPairLists().read(0);
+      for (Pair<EnumWrappers.ItemSlot, ItemStack> itemSlotItemStackPair : read) {
+        ItemStack itemStack = itemSlotItemStackPair.getSecond().clone();
+        ItemStack newItemStack = stripFromData(itemStack);
+        itemSlotItemStackPair.setSecond(newItemStack);
+      }
+    }
   }
 
   private ItemStack stripFromData(ItemStack itemStack) {
     itemStack.setAmount(1);
-    itemStack.setDurability((short) 1337);
 
     if (itemStack.hasItemMeta()) {
       ItemMeta meta = itemStack.getItemMeta();
@@ -57,7 +60,7 @@ public final class EquipmentFilter extends Filter {
         for (Enchantment enchantment : itemStack.getEnchantments().keySet()) {
           itemStack.removeEnchantment(enchantment);
         }
-        itemStack.addUnsafeEnchantment(Enchantment.LURE, 1);
+        itemStack.addUnsafeEnchantment(Enchantment.THORNS, 1);
       }
 
       // taken from https://gist.github.com/dmulloy2/5d52ddbb89a1609dbea2
@@ -83,8 +86,8 @@ public final class EquipmentFilter extends Filter {
       }
       //
 
-      meta.setDisplayName("Intave");
-      meta.setLore(Collections.singletonList("Intave"));
+      meta.setDisplayName("");
+      meta.setLore(Collections.emptyList());
       meta.removeItemFlags(meta.getItemFlags().toArray(new ItemFlag[0]));
     }
     return itemStack;
@@ -92,6 +95,6 @@ public final class EquipmentFilter extends Filter {
 
   @Override
   protected boolean enabled() {
-    return false;
+    return !IntaveControl.GOMME_MODE;
   }
 }

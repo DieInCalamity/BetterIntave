@@ -363,7 +363,7 @@ final class PlayerUser implements User {
   }
 
   @Override
-  public void applyAttackNerfer(AttackNerfStrategy strategy, String checkId) {
+  public void nerf(AttackNerfStrategy strategy, String checkId) {
     if (trustFactor().atLeast(TrustFactor.BYPASS)) {
       return;
     }

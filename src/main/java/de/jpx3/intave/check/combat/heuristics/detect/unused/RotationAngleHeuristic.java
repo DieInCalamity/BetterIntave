@@ -4,7 +4,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.AttackMetadata;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
@@ -54,7 +54,7 @@ public final class RotationAngleHeuristic extends MetaCheckPart<Heuristics, Rota
 
     boolean look = true;
 
-    EntityShade attackedEntity = attackMeta.lastAttackedEntity();
+    Entity attackedEntity = attackMeta.lastAttackedEntity();
 
     if (attackedEntity != null && !attackedEntity.moving(0.05)) {
       look = false;

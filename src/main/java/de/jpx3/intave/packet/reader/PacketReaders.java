@@ -21,8 +21,9 @@ public final class PacketReaders {
   private static final Map<PacketType, ThreadLocal<? extends PacketReader>> readerLocals = new ConcurrentHashMap<>();
 
   public static void setup() {
-    setup(ATTACH_ENTITY, AttachEntityReader::new);
     setup(ABILITIES_OUT, AbilityOutReader::new);
+    setup(ANIMATION, EntityReader::new);
+    setup(ATTACH_ENTITY, AttachEntityReader::new);
     setup(BLOCK_ACTION, BlockActionReader::new);
     setup(BLOCK_CHANGE, SingleBlockChangeReader::new);
     setup(BLOCK_BREAK, SingleBlockChangeReader::new);
@@ -94,7 +95,10 @@ public final class PacketReaders {
   }
 
   private static PacketType searchByName(Collection<? extends PacketType> packetPool, String name) {
-    return packetPool.stream().filter(packetType -> matches(packetType, name)).findFirst().orElse(null);
+    Collection<PacketType> packetTypes = PacketType.fromName(name);
+    return packetTypes.stream().filter(packetPool::contains).findFirst().orElse(
+      packetPool.stream().filter(packetType -> matches(packetType, name)).findFirst().orElse(null)
+    );
   }
 
   private static boolean matches(PacketType packetType, String name) {

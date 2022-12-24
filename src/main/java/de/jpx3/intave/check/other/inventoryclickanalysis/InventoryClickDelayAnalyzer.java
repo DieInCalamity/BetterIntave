@@ -119,14 +119,17 @@ public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryCl
         .withVL(5).build();
 
       if (IntaveControl.GOMME_MODE) {
+        User user = userOf(player);
         ViolationContext violationContext = Modules.violationProcessor().processViolation(violation);
         if (violationContext.violationLevelAfter() >= 50) {
-          userOf(player).applyAttackNerfer(GARBAGE_HITS, "29");
+          user.nerf(CRITICALS, "29");
+          user.nerf(BURN_LONGER, "29");
+          user.nerf(DMG_ARMOR, "29");
+          user.nerf(BLOCKING, "29");
         }
         if (violationContext.violationLevelAfter() >= 100) {
-          userOf(player).applyAttackNerfer(CANCEL_FIRST_HIT, "29");
-          userOf(player).applyAttackNerfer(DMG_MEDIUM, "29");
-          userOf(player).applyAttackNerfer(BLOCKING, "29");
+//          userOf(player).applyAttackNerfer(CANCEL_FIRST_HIT, "29");
+          user.nerf(DMG_LIGHT, "29");
         }
       }
     }
@@ -149,6 +152,18 @@ public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryCl
         .withVL(5).build();
 //
       Modules.violationProcessor().processViolation(violation);
+
+      if (IntaveControl.GOMME_MODE) {
+        ViolationContext violationContext = Modules.violationProcessor().processViolation(violation);
+        if (violationContext.violationLevelAfter() >= 50) {
+          user.nerf(CRITICALS, "29");
+          user.nerf(BURN_LONGER, "29");
+          user.nerf(BLOCKING, "29");
+        }
+        if (violationContext.violationLevelAfter() >= 100) {
+          user.nerf(DMG_LIGHT, "29");
+        }
+      }
     }
   }
 

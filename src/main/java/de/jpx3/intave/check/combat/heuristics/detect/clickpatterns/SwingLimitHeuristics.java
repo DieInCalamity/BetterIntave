@@ -31,8 +31,8 @@ public final class SwingLimitHeuristics extends SwingBlueprint<SwingLimitBluepri
 //          user.applyAttackNerfer(AttackNerfStrategy.CANCEL, "29");
         }
 //        user.applyAttackNerfer(AttackNerfStrategy.DMG_MEDIUM, "29");
-        user.applyAttackNerfer(AttackNerfStrategy.GARBAGE_HITS, "29");
-        user.applyAttackNerfer(AttackNerfStrategy.BLOCKING, "29");
+        user.nerf(AttackNerfStrategy.GARBAGE_HITS, "29");
+        user.nerf(AttackNerfStrategy.BLOCKING, "29");
       }
     } else {
       meta.vl = Math.max(0, meta.vl - 0.25);

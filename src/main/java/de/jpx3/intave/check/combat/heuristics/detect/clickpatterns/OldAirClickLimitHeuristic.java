@@ -226,9 +226,9 @@ public final class OldAirClickLimitHeuristic extends MetaCheckPart<Heuristics, O
 
         if (meta.flaggCounter > 20/* && !IntaveControl.DISABLE_AUTOCLICKER_CHECK*/) {
           //dmc27
-          user.applyAttackNerfer(AttackNerfStrategy.GARBAGE_HITS, "27");
-          user.applyAttackNerfer(AttackNerfStrategy.DMG_LIGHT, "27");
-          user.applyAttackNerfer(AttackNerfStrategy.BLOCKING, "27");
+          user.nerf(AttackNerfStrategy.GARBAGE_HITS, "27");
+          user.nerf(AttackNerfStrategy.DMG_LIGHT, "27");
+          user.nerf(AttackNerfStrategy.BLOCKING, "27");
         }
 
         meta.lastFlagTimeStamp = System.currentTimeMillis();

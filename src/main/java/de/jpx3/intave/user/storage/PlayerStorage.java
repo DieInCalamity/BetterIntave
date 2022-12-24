@@ -3,6 +3,7 @@ package de.jpx3.intave.user.storage;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 
+import java.io.EOFException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +36,12 @@ public final class PlayerStorage implements Storage {
 
   @Override
   public void readFrom(ByteArrayDataInput input) {
-    int version = input.readByte();
-    if (version != STORAGE_VERSION) {
+    try {
+      int version = input.readByte();
+      if (version != STORAGE_VERSION) {
+        return;
+      }
+    } catch (Exception exception) {
       return;
     }
     long mostSigBits = input.readLong();

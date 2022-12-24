@@ -43,7 +43,7 @@ public final class IRXClassFactory {
       int pos = 0;
       while (rem-- >= 0) {
         char c = ALPHABET.charAt(ThreadLocalRandom.current().nextInt(0, (pos == 0 ? 26 : ALPHABET.length()) - 1));
-        if (ThreadLocalRandom.current().nextBoolean()) {
+        if (ThreadLocalRandom.current().nextBoolean() && pos != 0) {
           c = Character.toUpperCase(c);
         }
         randomClassName.append(c);

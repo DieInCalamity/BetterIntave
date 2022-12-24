@@ -18,7 +18,7 @@ import de.jpx3.intave.klass.Lookup;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.packet.converter.BlockPositionConverter;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.ClientMathHelper;
@@ -189,9 +189,9 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
       );
       meta.movementAtTick[0] = tick;
 
-      for (Map.Entry<Integer, EntityShade> entry : user.meta().connection().entitiesById().entrySet()) {
-        EntityShade value = entry.getValue();
-        if (value != null && !(value instanceof EntityShade.Destroyed)) {
+      for (Map.Entry<Integer, Entity> entry : user.meta().connection().entitiesById().entrySet()) {
+        Entity value = entry.getValue();
+        if (value != null && !(value instanceof Entity.Destroyed)) {
           meta.entityPositions.put(entry.getKey(), value.positionHistory.get(Math.max(value.positionHistory.size() - 1, 0)));
         }
       }
@@ -217,14 +217,14 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
 
       boolean changedLookToEntity = false;
       if (attackData.lastAttackedEntity() != null && attackData.lastAttackedEntity().positionHistory.size() > 2) {
-        EntityShade entityShade = attackData.lastAttackedEntity();
+        Entity entity = attackData.lastAttackedEntity();
 
         Tick tick = meta.movementAtTick[1];
-        Map<Integer, EntityShade.EntityPositionContext> entityPositions = meta.entityPositions;
-        EntityShade.EntityPositionContext lastEntityPosition = entityPositions.get(entityShade.entityId());
+        Map<Integer, Entity.EntityPositionContext> entityPositions = meta.entityPositions;
+        Entity.EntityPositionContext lastEntityPosition = entityPositions.get(entity.entityId());
 
         if (lastEntityPosition != null && tick != null) {
-          BoundingBox lastBoundingBox = EntityShade.entityBoundingBoxFrom(lastEntityPosition, entityShade);
+          BoundingBox lastBoundingBox = Entity.entityBoundingBoxFrom(lastEntityPosition, entity);
           Raytrace last = Raytracing.entityRaytrace(
             player,
             lastBoundingBox,
@@ -237,7 +237,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
 
           Raytrace raytrace = Raytracing.entityRaytrace(
             player,
-            entityShade.entityBoundingBox(),
+            entity.entityBoundingBox(),
             0,
             movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ,
             movementData.lastRotationYaw, movementData.lastRotationPitch,
@@ -390,7 +390,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
 
   public static final class RotationSnapHeuristicMeta extends CheckCustomMetadata {
     double lastLastPosX, lastLastPosY, lastLastPosZ;
-    Map<Integer, EntityShade.EntityPositionContext> entityPositions = new HashMap<>();
+    Map<Integer, Entity.EntityPositionContext> entityPositions = new HashMap<>();
     private final Tick[] movementAtTick = new Tick[2];
     private final double[] yawMotions = new double[2];
     private final KeyStates[] silentMovements = new KeyStates[2];

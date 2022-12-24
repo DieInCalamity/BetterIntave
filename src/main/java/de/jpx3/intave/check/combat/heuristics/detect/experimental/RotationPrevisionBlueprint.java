@@ -11,7 +11,7 @@ import de.jpx3.intave.math.Hypot;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.share.ClientMathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.AttackMetadata;
@@ -75,7 +75,7 @@ public abstract class RotationPrevisionBlueprint<M extends RotationPrevisionBlue
       return;
     }
     meta.lastAttack++;
-    EntityShade target = user.meta().attack().lastAttackedEntity();
+    Entity target = user.meta().attack().lastAttackedEntity();
     if (target == null) {
       return;
     }
@@ -143,7 +143,7 @@ public abstract class RotationPrevisionBlueprint<M extends RotationPrevisionBlue
     return Math.sqrt(variance.get() / values.size());
   }
 
-  private RotationData createRotationData(MovementMetadata movementData, EntityShade target) {
+  private RotationData createRotationData(MovementMetadata movementData, Entity target) {
     float lastPlayerYaw = ClientMathHelper.wrapAngleTo180_float(movementData.lastRotationYaw);
     float yaw = ClientMathHelper.wrapAngleTo180_float(movementData.rotationYaw);
     float yawDelta = MathHelper.noAbsDistanceInDegrees(yaw, lastPlayerYaw);
@@ -168,13 +168,13 @@ public abstract class RotationPrevisionBlueprint<M extends RotationPrevisionBlue
       .build();
   }
 
-  private float expectedYaw(EntityShade.EntityPositionContext entityPositions, double posX, double posZ) {
+  private float expectedYaw(Entity.EntityPositionContext entityPositions, double posX, double posZ) {
     double diffX = entityPositions.posX - posX;
     double diffZ = entityPositions.posZ - posZ;
     return (float) Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0f;
   }
 
-  private static float expectedPitch(EntityShade.EntityPositionContext entityPositions, double posX, double posY, double posZ) {
+  private static float expectedPitch(Entity.EntityPositionContext entityPositions, double posX, double posY, double posZ) {
     double diffY = entityPositions.posY + 1.62f - (posY + 1.62f);
     double diffX = entityPositions.posX - posX;
     double diffZ = entityPositions.posZ - posZ;

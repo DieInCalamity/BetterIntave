@@ -25,7 +25,7 @@ public final class BlockInteractionAccess {
   }
 
   public static float blockDamage(Player player, ItemStack itemInHand, BlockPosition blockPosition) {
-    return BlockAccess.global().blockDamage(player, itemInHand, blockPosition);
+    return BlockAccess.global().blockDamage(player.getWorld(), player, itemInHand, blockPosition);
   }
 
   public static boolean replacedOnPlacement(World world, Player player, BlockPosition blockPosition) {

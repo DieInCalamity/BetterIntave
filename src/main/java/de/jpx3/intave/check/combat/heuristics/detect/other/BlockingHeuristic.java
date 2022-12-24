@@ -97,7 +97,7 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
           Anomaly anomaly = Anomaly.anomalyOf("143", Confidence.MAYBE, Anomaly.Type.KILLAURA, description, options);
           parentCheck().saveAnomaly(player, anomaly);
           //dmc6
-          user.applyAttackNerfer(AttackNerfStrategy.BLOCKING, "6");
+          user.nerf(AttackNerfStrategy.BLOCKING, "6");
           punishmentData.timeLastBlockCancel = System.currentTimeMillis();
           Synchronizer.synchronize(() -> DataWatcherAccess.setDataWatcherFlag(player, DataWatcherAccess.WATCHER_BLOCKING_ID, false));
         }
@@ -112,7 +112,7 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
         Anomaly anomaly = Anomaly.anomalyOf("141", Confidence.NONE, Anomaly.Type.KILLAURA, description);
         parentCheck().saveAnomaly(player, anomaly);
         //dmc7
-        user.applyAttackNerfer(AttackNerfStrategy.BLOCKING, "7");
+        user.nerf(AttackNerfStrategy.BLOCKING, "7");
       }
 
       int clientTicksBetweenBlockingToggle = meta.clientTicksBetweenBlockingToggle;
@@ -131,7 +131,7 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
             Anomaly anomaly = Anomaly.anomalyOf("142", Confidence.NONE, Anomaly.Type.KILLAURA, description);
             parentCheck().saveAnomaly(player, anomaly);
             //dmc8
-            user.applyAttackNerfer(AttackNerfStrategy.BLOCKING, "8");
+            user.nerf(AttackNerfStrategy.BLOCKING, "8");
           }
         } else if (meta.acaBlockingVL > 1) {
           meta.acaBlockingVL -= 2;

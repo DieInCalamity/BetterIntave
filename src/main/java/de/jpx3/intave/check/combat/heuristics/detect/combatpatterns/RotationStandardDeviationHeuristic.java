@@ -12,7 +12,7 @@ import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.AttackMetadata;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
@@ -49,7 +49,7 @@ public final class RotationStandardDeviationHeuristic extends MetaCheckPart<Heur
     MovementMetadata movementData = meta.movement();
     AttackMetadata attackData = meta.attack();
     RotationStandardDeviationMeta heuristicMeta = metaOf(player);
-    EntityShade entity = attackData.lastAttackedEntity();
+    Entity entity = attackData.lastAttackedEntity();
 
     if (entity != null && attackData.recentlyAttacked(500) && entity.moving(0.05)) {
       /*
@@ -93,7 +93,7 @@ public final class RotationStandardDeviationHeuristic extends MetaCheckPart<Heur
         parentCheck().saveAnomaly(player, anomaly);
         heuristicMeta.rotationBalanceYaw--;
         //dmc24
-        user.applyAttackNerfer(AttackNerfStrategy.HT_MEDIUM, "24");
+        user.nerf(AttackNerfStrategy.DMG_LIGHT, "24");
       }
     } else {
       heuristicMeta.rotationBalanceYaw -= heuristicMeta.rotationBalanceYaw > 0 ? 0.2 : 0;
@@ -113,7 +113,7 @@ public final class RotationStandardDeviationHeuristic extends MetaCheckPart<Heur
         parentCheck().saveAnomaly(player, anomaly);
         heuristicMeta.rotationBalancePitch -= 2;
         //dmc25
-        user.applyAttackNerfer(AttackNerfStrategy.HT_LIGHT, "25");
+        user.nerf(AttackNerfStrategy.HT_LIGHT, "25");
       }
     } else {
       heuristicMeta.rotationBalancePitch -= heuristicMeta.rotationBalancePitch > 0 ? 0.2 : 0;

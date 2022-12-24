@@ -14,8 +14,7 @@ import de.jpx3.intave.check.combat.heuristics.Anomaly;
 import de.jpx3.intave.check.combat.heuristics.Confidence;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
-import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
@@ -23,6 +22,8 @@ import de.jpx3.intave.user.meta.*;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.USE_ENTITY;
+import static de.jpx3.intave.module.mitigate.AttackNerfStrategy.*;
+import static de.jpx3.intave.module.mitigate.AttackNerfStrategy.CRITICALS;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_8;
 
 public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristics, AttackInInvalidStateHeuristic.AttackInInvalidStateMeta> {
@@ -66,7 +67,8 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
       Anomaly anomaly = Anomaly.anomalyOf("162", Confidence.NONE, Anomaly.Type.KILLAURA, "attacked whilst using an item");
       parentCheck().saveAnomaly(player, anomaly);
       //dmc28
-      user.applyAttackNerfer(AttackNerfStrategy.BLOCKING, "28");
+      user.nerf(BLOCKING, "28");
+//      user.nerf(CRITICALS, "28");
       sendStopUseItemPacketToServer(user);
     }
   }
@@ -118,7 +120,7 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
     User user = userOf(player);
     AttackMetadata attackData = user.meta().attack();
     ProtocolMetadata clientData = user.meta().protocol();
-    EntityShade entity = attackData.lastAttackedEntity();
+    Entity entity = attackData.lastAttackedEntity();
     if (entity == null || !entity.clientSynchronized || !entity.typeData().isLivingEntity()) {
       return;
     }

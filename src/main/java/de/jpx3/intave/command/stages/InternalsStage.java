@@ -122,15 +122,15 @@ public final class InternalsStage extends CommandStage {
     permission = "intave.command.internals.storelog",
     description = "Store the log of a player"
   )
-  public void storeLog(CommandSender commandSender, Player target, String checkName, int violationLevel) {
+  public void storeLog(CommandSender commandSender, Player target, String checkName, Double violationLevel) {
     User user = UserRepository.userOf(target);
     ViolationStorage violationStorage = user.storageOf(ViolationStorage.class);
-    violationStorage.noteViolation(checkName, violationLevel);
+    violationStorage.noteViolation(checkName, violationLevel.intValue());
     if (ViolationStorage.USE_AUTO_STORAGE) {
       commandSender.sendMessage(IntavePlugin.prefix() + ChatColor.RED + "Auto storage is enabled. This command will not work.");
       return;
     }
-    commandSender.sendMessage(IntavePlugin.prefix() + ChatColor.RED + target.getName() + " " + IntavePlugin.defaultColor() + "flagged for " + ChatColor.RED + checkName + " " + IntavePlugin.defaultColor() + "with vl of " + ChatColor.RED + violationLevel);
+    commandSender.sendMessage(IntavePlugin.prefix() + ChatColor.RED +"Added storage entry for "+ target.getName() + " " + IntavePlugin.defaultColor() + "reaching " + ChatColor.RED + violationLevel.intValue() + " VL " + IntavePlugin.defaultColor() + "on " + ChatColor.RED + checkName);
   }
 
   @SubCommand(

@@ -225,7 +225,10 @@ public final class PacketSubscriptionLinker extends Module {
   }
 
   private PacketType searchByName(Collection<? extends PacketType> packetPool, String name) {
-    return packetPool.stream().filter(packetType -> matches(packetType, name)).findFirst().orElse(null);
+    Collection<PacketType> packetTypes = PacketType.fromName(name);
+    return packetTypes.stream().filter(packetPool::contains).findFirst().orElse(
+      packetPool.stream().filter(packetType -> matches(packetType, name)).findFirst().orElse(null)
+    );
   }
 
   private boolean matches(PacketType packetType, String name) {
@@ -388,9 +391,6 @@ public final class PacketSubscriptionLinker extends Module {
     boolean ignoreCancelled,
     String methodName, PacketSubscriptionMethodExecutor executor
   ) {
-    if (translatePacketTypes.length == 0) {
-      return;
-    }
     for (PacketType translatePacketType : translatePacketTypes) {
       FilteringPacketAdapter adapter = new FilteringPacketAdapter(plugin, subscriber, priority, new PacketType[]{translatePacketType}, methodName, executor, ignoreCancelled);
       internalPacketListenerMappings.computeIfAbsent(translatePacketType, x -> new SCOWAList<>()).add(adapter);

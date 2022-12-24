@@ -9,7 +9,7 @@ import de.jpx3.intave.check.combat.heuristics.Confidence;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.AttackMetadata;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
@@ -43,7 +43,7 @@ public final class RotationUnlikelyAccuracyHeuristic extends MetaCheckPart<Heuri
     if (!attackData.recentlyAttacked(1000)) {
       return;
     }
-    EntityShade entity = attackData.lastAttackedEntity();
+    Entity entity = attackData.lastAttackedEntity();
     if (entity == null) {
       return;
     }

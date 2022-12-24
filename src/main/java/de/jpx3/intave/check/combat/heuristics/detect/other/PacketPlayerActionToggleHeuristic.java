@@ -97,7 +97,7 @@ public final class PacketPlayerActionToggleHeuristic extends MetaCheckPart<Heuri
         if (cancel) {
           if (sprint) {
             //dmc12
-            user.applyAttackNerfer(AttackNerfStrategy.CANCEL, "12");
+            user.nerf(AttackNerfStrategy.CANCEL, "12");
           } else {
             punishmentData.timeLastSneakToggleCancel = System.currentTimeMillis();
             Synchronizer.synchronize(() -> DataWatcherAccess.setDataWatcherFlag(player, WATCHER_SNEAK_ID, false));

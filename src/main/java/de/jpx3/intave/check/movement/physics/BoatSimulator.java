@@ -254,7 +254,7 @@ public final class BoatSimulator extends Simulator {
   public void setback(User user, double predictedX, double predictedY, double predictedZ) {
     Player player = user.player();
     Synchronizer.synchronize(player::leaveVehicle);
-    user.meta().movement().dismountRidingEntity();
+    user.meta().movement().dismountRidingEntity("Boat setback");
   }
 
   @Override

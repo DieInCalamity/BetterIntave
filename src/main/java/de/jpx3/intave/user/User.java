@@ -306,7 +306,7 @@ public interface User {
    * @param strategy the strategy to apply
    * @param checkId  the check id (for debug purposes)
    */
-  void applyAttackNerfer(AttackNerfStrategy strategy, String checkId);
+  void nerf(AttackNerfStrategy strategy, String checkId);
 
   /**
    * Apply a one time use {@link AttackNerfStrategy} to a player

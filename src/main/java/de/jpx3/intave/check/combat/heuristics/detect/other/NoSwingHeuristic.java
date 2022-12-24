@@ -90,7 +90,7 @@ public final class NoSwingHeuristic extends MetaCheckPart<Heuristics, NoSwingHeu
         Anomaly anomaly = Anomaly.anomalyOf("171", /*Confidence.LIKELY*/Confidence.NONE, Anomaly.Type.KILLAURA, details, Anomaly.AnomalyOption.LIMIT_4);
         parentCheck().saveAnomaly(player, anomaly);
         //dmc26
-        user.applyAttackNerfer(AttackNerfStrategy.CANCEL, "26");
+        user.nerf(AttackNerfStrategy.CANCEL, "26");
       }
     }
 

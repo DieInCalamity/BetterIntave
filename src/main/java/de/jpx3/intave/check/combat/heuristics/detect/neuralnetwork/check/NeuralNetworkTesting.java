@@ -8,7 +8,7 @@ import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.executor.IntaveThreadFactory;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.share.ClientMathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
@@ -70,7 +70,7 @@ public class NeuralNetworkTesting extends MetaCheckPart<Heuristics, NeuralNetwor
     User user = userOf(player);
     NeuralNetworkTestingMeta meta = metaOf(player);
 
-    EntityShade target = user.meta().attack().lastAttackedEntity();
+    Entity target = user.meta().attack().lastAttackedEntity();
     if (target == null) {
       return;
     }
@@ -92,7 +92,7 @@ public class NeuralNetworkTesting extends MetaCheckPart<Heuristics, NeuralNetwor
     }
   }
 
-  private float resolveYawRotation(EntityShade.EntityPositionContext entityPositions, double posX, double posZ) {
+  private float resolveYawRotation(Entity.EntityPositionContext entityPositions, double posX, double posZ) {
     double diffX = entityPositions.posX - posX;
     double diffZ = entityPositions.posZ - posZ;
     return (float) Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0f;

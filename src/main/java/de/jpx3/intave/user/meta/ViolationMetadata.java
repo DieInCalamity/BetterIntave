@@ -18,6 +18,9 @@ public final class ViolationMetadata {
   public int detectionCounter;
   public long detectionCounterReset;
 
+  public double p99Level;
+  public long lastP99Violation;
+
   public Map<String, Map<String, Double>> violationLevel = Maps.newConcurrentMap();
   public Map<String, Map<String, Double>> violationLevelGainedCounter = Maps.newConcurrentMap();
   public Map<String, Map<String, Long>> lastViolationLevelGainedCounterReset = Maps.newConcurrentMap();

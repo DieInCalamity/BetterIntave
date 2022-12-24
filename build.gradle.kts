@@ -13,7 +13,7 @@ plugins {
 
 val simpleName = "Intave"
 group = "de.jpx3"
-version = "14.5.5"
+version = "14.5.6"
 description = "Cheat detection software, providing fair play"
 
 /*
@@ -41,8 +41,8 @@ dependencies {
   testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
 
   // random shit
-  compileOnly("org.jetbrains:annotations:23.0.0")
-  compileOnly("it.unimi.dsi:fastutil:8.5.8")
+  compileOnly("org.jetbrains:annotations:23.1.0")
+  compileOnly("it.unimi.dsi:fastutil:8.5.11")
 }
 
 /*
@@ -141,6 +141,7 @@ run {
   registerServerTask("1.18", 17)
   registerServerTask("1.18.2", 17)
   registerServerTask("1.19", 17)
+  registerServerTask("1.19.2", 17)
   registerServerTask("1.19.3", 17)
 }
 
@@ -151,7 +152,7 @@ fun registerServerTask(serverVersion: String, javaVersion: Int) {
     pluginJars.from("build/libs/$simpleName.jar")
     minecraftVersion(serverVersion)
     runDirectory(File("runs/paper_${serverVersion}-j$javaVersion"))
-    jvmArgs("-Dcom.mojang.eula.agree=true") // speak with our lawyer about this!!
+    jvmArgs("-Dcom.mojang.eula.agree=true")
     javaLauncher.set(
       project.javaToolchains.launcherFor {
         // Sets the JDK version for the Minecraft server, Intave is still built using Java

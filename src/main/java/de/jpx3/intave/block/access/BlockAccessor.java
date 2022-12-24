@@ -22,7 +22,7 @@ public interface BlockAccessor {
   @Deprecated
   Object nativeVariantBy(int blockId);
 
-  float blockDamage(Player player, ItemStack itemInHand, BlockPosition blockPosition);
+  float blockDamage(World world, Player player, ItemStack itemInHand, BlockPosition blockPosition);
 
   boolean replacementPlace(World world, Player player, BlockPosition blockPosition);
 }

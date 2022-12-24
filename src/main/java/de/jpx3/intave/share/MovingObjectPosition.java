@@ -90,35 +90,39 @@ public class MovingObjectPosition {
       Method typeResolveMethod = Lookup.serverMethod("MovingObjectPosition", "getType", movingObjectPositionType);
       String typeName = (String) Enum.class.getMethod("name").invoke(typeResolveMethod.invoke(movingObjectPosition));
       MovingObjectType movingObjectType = MovingObjectType.valueOf(typeName);
-      if (movingObjectType == MovingObjectType.ENTITY) {
-        Field field = movingObjectPositionEntity.getDeclaredField("entity");
-        if (!field.isAccessible()) {
-          field.setAccessible(true);
-        }
-        Object entity = field.get(movingObjectPosition);
-        return new MovingObjectPosition(serverEntityByIdentifier((int) entity.getClass().getMethod("getId").invoke(entity)));
-      } else {
-        Field movingObjectPositionBaseField = Lookup.serverField("MovingObjectPosition", "pos");
-        if (!movingObjectPositionBaseField.isAccessible())
-          movingObjectPositionBaseField.setAccessible(true);
-        Object pos = movingObjectPositionBaseField.get(movingObjectPosition);
-        NativeVector wrappedPos = WrapperConverter.vectorFromVec3D(pos);
-        Field bField = movingObjectPositionBlock.getDeclaredField("b");
-        if (!bField.isAccessible())
-          bField.setAccessible(true);
-        Object direction = bField.get(movingObjectPosition);
-        String directionName = (String) Enum.class.getMethod("name").invoke(direction);
-        Direction wrappedDirection = Direction.valueOf(directionName);
-        Field cField = movingObjectPositionBlock.getDeclaredField("c");
-        if (!cField.isAccessible())
-          cField.setAccessible(true);
-        Object blockPosition = cField.get(movingObjectPosition);
-        BlockPosition wrappedBlockPosition = WrapperConverter.blockPositionFromNativeBlockPosition(blockPosition);
-        return new MovingObjectPosition(movingObjectType, wrappedPos, wrappedDirection, wrappedBlockPosition);
+      switch (movingObjectType) {
+        case ENTITY:
+          Field field = movingObjectPositionEntity.getDeclaredField("entity");
+          if (!field.isAccessible()) {
+            field.setAccessible(true);
+          }
+          Object entity = field.get(movingObjectPosition);
+          return new MovingObjectPosition(serverEntityByIdentifier((int) entity.getClass().getMethod("getId").invoke(entity)));
+        case BLOCK:
+          Field movingObjectPositionBaseField = Lookup.serverField("MovingObjectPosition", "pos");
+          if (!movingObjectPositionBaseField.isAccessible())
+            movingObjectPositionBaseField.setAccessible(true);
+          Object pos = movingObjectPositionBaseField.get(movingObjectPosition);
+          NativeVector wrappedPos = WrapperConverter.vectorFromVec3D(pos);
+          Field bField = movingObjectPositionBlock.getDeclaredField("b");
+          if (!bField.isAccessible())
+            bField.setAccessible(true);
+          Object direction = bField.get(movingObjectPosition);
+          String directionName = (String) Enum.class.getMethod("name").invoke(direction);
+          Direction wrappedDirection = Direction.valueOf(directionName);
+          Field cField = movingObjectPositionBlock.getDeclaredField("c");
+          if (!cField.isAccessible())
+            cField.setAccessible(true);
+          Object blockPosition = cField.get(movingObjectPosition);
+          BlockPosition wrappedBlockPosition = WrapperConverter.blockPositionFromNativeBlockPosition(blockPosition);
+          return new MovingObjectPosition(movingObjectType, wrappedPos, wrappedDirection, wrappedBlockPosition);
+        case MISS:
+          return none();
       }
     } catch (Exception exception) {
       throw new IllegalStateException(exception);
     }
+    return none();
   }
 
   private static MovingObjectPosition legacyResolve(Object movingObjectPosition) {

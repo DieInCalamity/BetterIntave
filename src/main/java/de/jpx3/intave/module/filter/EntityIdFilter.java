@@ -154,6 +154,6 @@ public final class EntityIdFilter extends Filter {
 
   @Override
   protected boolean enabled() {
-    return true;
+    return false;
   }
 }

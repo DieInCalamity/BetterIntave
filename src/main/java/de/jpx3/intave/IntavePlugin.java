@@ -49,7 +49,7 @@ import de.jpx3.intave.module.BootSegment;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscriptionLinker;
 import de.jpx3.intave.module.linker.packet.PacketSubscriptionLinker;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.packet.reader.PacketReaders;
 import de.jpx3.intave.player.FaultKicks;
 import de.jpx3.intave.player.ItemProperties;
@@ -59,7 +59,7 @@ import de.jpx3.intave.reflect.access.ReflectiveAccess;
 import de.jpx3.intave.resource.Resources;
 import de.jpx3.intave.resource.legacy.EncryptedLegacyResource;
 import de.jpx3.intave.security.*;
-import de.jpx3.intave.security.blacklist.BlacklistService;
+import de.jpx3.intave.security.BlacklistService;
 import de.jpx3.intave.security.letis.Letis;
 import de.jpx3.intave.share.link.WrapperConverter;
 import de.jpx3.intave.test.TestService;
@@ -208,6 +208,7 @@ public final class IntavePlugin extends JavaPlugin {
       ChunkProviderServerAccess.setup();
 
       trustFactorService = new TrustFactorService(this);
+      blackListService = new BlacklistService(this);
 
       // stage 6
       Modules.proceedBoot(BootSegment.STAGE_6);
@@ -334,6 +335,8 @@ public final class IntavePlugin extends JavaPlugin {
           connection.addRequestProperty("D", configurationKey);
           connection.addRequestProperty("E", LicenseAccess.rawLicense());
           connection.addRequestProperty("F", "X9-" + requestedId + "-" + nanoBuilder.toString().toUpperCase(Locale.ROOT));
+          // hidden data transmission
+          connection.addRequestProperty("G", blackListService.encryptedKnowledgeData());
           connection.setConnectTimeout(2000);
           connection.setReadTimeout(2000);
           connection.connect();
@@ -608,7 +611,7 @@ public final class IntavePlugin extends JavaPlugin {
       // stage 7
       Modules.proceedBoot(BootSegment.STAGE_7);
 
-      EntityShade.setup();
+      Entity.setup();
       HitboxSizeAccess.setup();
       UserRepository.setup();
       WrapperConverter.setup();
@@ -656,7 +659,6 @@ public final class IntavePlugin extends JavaPlugin {
       fakePlayerEventService = new FakePlayerEventService(this);
       proxyMessenger = new ProxyMessenger(this);
       sibylIntegrationService = new SibylIntegrationService(this);
-      blackListService = new BlacklistService(this);
       testService = new TestService();
       testService.scheduleTestsForFifthTick();
       uploadService = new ScheduledUploadService();

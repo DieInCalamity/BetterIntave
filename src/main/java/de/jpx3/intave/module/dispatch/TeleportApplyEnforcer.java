@@ -156,6 +156,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
         IntaveLogger.logger().printLine("[Intave] Cancel packet of " + player.getName() + " (Awaiting teleport accept)");
       }
       if (movementData.teleportResendCountdown-- < 0) {
+        movementData.teleportResendCountdown = 20;
         if (IntaveControl.DEBUG_TELEPORT_LOCKS) {
           IntaveLogger.logger().printLine("[Intave] Resent teleport to " + player.getName());
         }

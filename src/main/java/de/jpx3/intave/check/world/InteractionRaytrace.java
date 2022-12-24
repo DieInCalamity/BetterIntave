@@ -108,7 +108,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
       }
 
       Material clickedType = blockPosition == null ? Material.AIR : VolatileBlockAccess.typeAccess(user, blockPosition.toLocation(player.getWorld()));
-      boolean clickableInteraction = BlockInteractionAccess.isClickable(clickedType);
+      boolean clickedIsInteractable = BlockInteractionAccess.isClickable(clickedType);
       ItemStack heldItem = user.meta().inventory().heldItem();
 
       EnumWrappers.Hand handSlot = packet.getHands().readSafely(0);
@@ -116,14 +116,14 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
 
       Material heldItemType = heldItem == null ? Material.AIR : heldItem.getType();
       Material offHandItemType = user.meta().inventory().offhandItemType();
-      Material interactedBlockType = handSlot == EnumWrappers.Hand.MAIN_HAND ? heldItemType : offHandItemType;
-      if (interactedBlockType == null) {
-        interactedBlockType = Material.AIR;
+      Material typeUsedInHand = handSlot == EnumWrappers.Hand.MAIN_HAND ? heldItemType : offHandItemType;
+      if (typeUsedInHand == null) {
+        typeUsedInHand = Material.AIR;
       }
 
-      boolean interactionIsPlacement = interactedBlockType != Material.AIR
-        && interactedBlockType.isBlock()
-        && !clickableInteraction
+      boolean interactionIsPlacement = typeUsedInHand != Material.AIR
+        && typeUsedInHand.isBlock()
+        && !clickedIsInteractable
         && !abilityMetadata.inGameMode(GameMode.ADVENTURE);
 
       boolean interactionIsBlank =
@@ -135,11 +135,11 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
           packet.deepClone(),
           player.getWorld(), player,
           blockPosition, enumDirection, type,
-          interactedBlockType,
+          typeUsedInHand,
           handSlot == EnumWrappers.Hand.MAIN_HAND
             ? heldItem
             : user.meta().inventory().offhandItem(),
-          handSlot, null, facingX, facingY, facingX
+          handSlot, null, facingX, facingY, facingZ
         );
 
       boolean mustPostValidate = interactionMeta.remainingBlockStart > 0;
@@ -291,7 +291,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
         raycastResultmdf = Raytracing.blockRayTrace(player, playerLocationmdf);
       } catch (Exception exception) {
         exception.printStackTrace();
-        return interaction.targetBlock().toLocation(world).distance(player.getLocation()) < 6;
+        return interaction.targetBlock().toLocation(world).distance(player.getLocation()) >= 6;
       }
       boolean estimateMouseDelayFix = interactionMeta.estimateMouseDelayFix;
 
@@ -305,6 +305,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
         raycastLocation.distance(targetLocation) > 0 ||
         wrongBlockFace(interaction, firstRaytraceResult);
 
+//      System.out.println("PREPROCESS raytraceFailed: " + raytraceFailed + " hitMiss: " + hitMiss + " raycastLocation: " + raycastLocation + " targetLocation: " + targetLocation + " wrongBlockFace: " + wrongBlockFace(interaction, firstRaytraceResult));
       // if first raytrace failed..
       if (raytraceFailed) {
         // ..try again with mouse delay fix toggled differently
@@ -369,6 +370,9 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     boolean raytraceFailed = hitMiss ||
       raycastLocation.distance(targetLocation) > 0 ||
       wrongBlockFace(interaction, firstRaytraceResult);
+
+//    System.out.println("PRIMARY raytraceFailed: " + raytraceFailed + " hitMiss: " + hitMiss);
+
     // if first raytrace failed..
     if (raytraceFailed) {
       // ..try again with mouse delay fix toggled differently
@@ -379,6 +383,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
       raytraceFailed = hitMiss2 ||
         raycastLocation2.distance(targetLocation) > 0 ||
         wrongBlockFace(interaction, secondRaytraceResult);
+//      System.out.println("SECONDARY raytraceFailed: " + raytraceFailed + " hitMiss: " + hitMiss2 + " " + (secondRaytraceResult == null ? "null" : secondRaytraceResult.hitVec));
       interactionMeta.estimateMouseDelayFix = raytraceFailed == interactionMeta.estimateMouseDelayFix;
     }
     boolean flag, mustCancelPacket;
@@ -396,6 +401,8 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
       boolean atLeastLookingAtBlock = movingObjectPosition != null && atLeastLookingAtBlock(user, location, targetLocation, movingObjectPosition);
       boolean isAbortDestroyBlock = interaction.digType() == ABORT_DESTROY_BLOCK;
       flag = enabled() && !isAbortDestroyBlock && performFlag(interaction, raycastResult, targetLocation, raycastLocation, hitMiss, atLeastLookingAtBlock);
+
+//      System.out.println(flag + " " + atLeastLookingAtBlock + " " + hitMiss);
       mustCancelPacket = false;
       // As the interaction was not canceled for consumables, we have to do it now as the raytrace failed
       if (usable && interaction.type() == InteractionType.INTERACT) {
@@ -687,8 +694,9 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
 
   private void writeBlockPosition(PacketContainer packet, com.comphenix.protocol.wrappers.BlockPosition blockPosition) {
     if (BLOCK_DATA_WRAPPED_IN_MOVING_OBJECT_POSITION && !packet.getType().equals(PacketType.Play.Client.BLOCK_DIG)) {
-      MovingObjectPositionBlock movingObjectPositionBlock = packet.getMovingBlockPositions().readSafely(0);
-      movingObjectPositionBlock.setBlockPosition(blockPosition);
+      MovingObjectPositionBlock raytraceSent = packet.getMovingBlockPositions().readSafely(0);
+      raytraceSent.setBlockPosition(blockPosition);
+      packet.getMovingBlockPositions().write(0, raytraceSent);
     } else {
       packet.getBlockPositionModifier().write(0, blockPosition);
     }
@@ -696,8 +704,9 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
 
   private void writeEnumDirection(PacketContainer packet, Direction direction) {
     if (BLOCK_DATA_WRAPPED_IN_MOVING_OBJECT_POSITION && !packet.getType().equals(PacketType.Play.Client.BLOCK_DIG)) {
-      MovingObjectPositionBlock movingObjectPositionBlock = packet.getMovingBlockPositions().readSafely(0);
-      movingObjectPositionBlock.setDirection(direction.toDirection());
+      MovingObjectPositionBlock raytraceSent = packet.getMovingBlockPositions().readSafely(0);
+      raytraceSent.setDirection(direction.toDirection());
+      packet.getMovingBlockPositions().write(0, raytraceSent);
     } else {
       if (packet.getDirections().size() > 0) {
         packet.getDirections().write(0, direction.toDirection());

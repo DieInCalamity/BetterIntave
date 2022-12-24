@@ -9,6 +9,7 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
+import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.Nullable;
 import de.jpx3.intave.annotate.Relocate;
@@ -33,7 +34,7 @@ import de.jpx3.intave.module.linker.packet.Engine;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.linker.packet.PrioritySlot;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.module.violation.Violation;
 import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.packet.reader.BlockActionReader;
@@ -50,6 +51,7 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.*;
 import de.jpx3.intave.world.WorldHeight;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -352,8 +354,8 @@ public final class MovementDispatcher extends Module {
     }
 
     boolean clientVehicleMovement = MinecraftVersions.VER1_9_0.atOrAbove() && protocol.combatUpdate();
-    if (movementData.isInVehicle() && !vehicleMove && clientVehicleMovement) {
-      movementData.dismountRidingEntity();
+    if (movementData.isInRidingVehicle() && !vehicleMove && clientVehicleMovement) {
+      movementData.dismountRidingEntity("Client vehicle movement");
     }
 
     if (hasMovement) {
@@ -448,11 +450,11 @@ public final class MovementDispatcher extends Module {
       return;
     }
 
-    EntityShade attachedEntity = movementData.ridingEntity();
+    Entity attachedEntity = movementData.ridingEntity();
     if (attachedEntity != null && !attachedEntity.isEntityAlive()
       && attachedEntity.hasTypeData() && attachedEntity.typeData().isLivingEntity()
     ) {
-      movementData.dismountRidingEntity();
+      movementData.dismountRidingEntity("Riding dead entity");
     }
 
     if (inventoryData.releaseItemNextTick) {
@@ -535,6 +537,7 @@ public final class MovementDispatcher extends Module {
     // flag & setback -> remove packet
     if (movementData.invalidMovement && violationLevelData.isInActiveTeleportBundle) {
       movementData.awaitOutgoingTeleport = true; // awaiting next teleport
+      movementData.outgoingTeleportCountdown = 5;
       event.setCancelled(true);
     }
   }
@@ -812,7 +815,7 @@ public final class MovementDispatcher extends Module {
   }
 
   @PacketSubscription(
-    priority = ListenerPriority.HIGH,
+    priority = ListenerPriority.LOWEST,
     packetsOut = {
       ENTITY_METADATA
     }
@@ -850,12 +853,23 @@ public final class MovementDispatcher extends Module {
       return;
     }
 
+    if (IntaveControl.DEBUG_ELYTRA) {
+      player.sendMessage("Elytra update received");
+    }
+
     byte data = (byte) elytraObject.getValue();
     boolean gliding = (data & 1 << 7) != 0;
 
     user.tickFeedback(unused -> {
       movement.elytraFlying = gliding;
       movement.updatePose();
+      if (IntaveControl.DEBUG_ELYTRA) {
+        if (gliding) {
+          player.sendMessage("§aActivated elytra flying (metadata)");
+        } else {
+          player.sendMessage("§cDeactivated elytra flying (metadata)");
+        }
+      }
     });
 
     reader.release();
@@ -1061,7 +1075,7 @@ public final class MovementDispatcher extends Module {
           cancelable.setCancelled(true);
         }
         if (movementData.isInVehicle()) {
-          movementData.dismountRidingEntity();
+          movementData.dismountRidingEntity("Sneak exit");
           movementData.sneaking = false;
         } else {
           movementData.sneaking = true;
@@ -1079,6 +1093,9 @@ public final class MovementDispatcher extends Module {
         if (movementData.hasElytraEquipped() && protocol.canUseElytra()) {
           if (protocol.serversideElytra()) {
             movementData.elytraFlying = true;
+            if (IntaveControl.DEBUG_ELYTRA) {
+              user.player().sendMessage(ChatColor.GREEN + "Activated elytra flying (START_FALL_FLYING)");
+            }
             movementData.setPose(Pose.FALL_FLYING);
           }
         }

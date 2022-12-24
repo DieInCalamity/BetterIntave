@@ -13,7 +13,7 @@ import de.jpx3.intave.block.physics.MaterialMagic;
 import de.jpx3.intave.block.type.MaterialSearch;
 import de.jpx3.intave.block.variant.BlockVariant;
 import de.jpx3.intave.module.Modules;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.player.Effects;
 import de.jpx3.intave.player.Enchantments;
 import de.jpx3.intave.player.collider.Colliders;
@@ -666,10 +666,10 @@ class BaseSimulator extends Simulator {
   }
 
   private void performGlobalEntityPush(User user, Motion context, BoundingBox boundingBox) {
-    Collection<EntityShade> entities = user.meta().connection().tracedEntities(); // .values();
+    Collection<Entity> entities = user.meta().connection().tracedEntities(); // .values();
     MovementMetadata movementData = user.meta().movement();
     movementData.pushedByEntity = false;
-    for (EntityShade entity : entities) {
+    for (Entity entity : entities) {
       if (!entity.tracingEnabled() || !entity.clientSynchronized) {
         continue;
       }
@@ -679,7 +679,7 @@ class BaseSimulator extends Simulator {
     }
   }
 
-  private void applyEntityPush(User user, Motion motionVector, EntityShade entity) {
+  private void applyEntityPush(User user, Motion motionVector, Entity entity) {
     MovementMetadata movementData = user.meta().movement();
     double xDistance = movementData.positionX - entity.position.posX;
     double zDistance = movementData.positionZ - entity.position.posZ;

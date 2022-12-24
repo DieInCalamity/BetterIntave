@@ -8,48 +8,48 @@ import de.jpx3.intave.share.Position;
 import java.util.List;
 
 final class MergeBlockShape implements BlockShape {
-  private final BlockShape shapeA, shapeB;
+  private final BlockShape firstShape, secondShape;
 
-  MergeBlockShape(BlockShape shapeA, BlockShape shapeB) {
-    this.shapeA = shapeA;
-    this.shapeB = shapeB;
+  MergeBlockShape(BlockShape firstShape, BlockShape secondShape) {
+    this.firstShape = firstShape;
+    this.secondShape = secondShape;
   }
 
   @Override
   public double allowedOffset(Direction.Axis axis, BoundingBox entity, double offset) {
-    return shapeA.allowedOffset(axis, entity, shapeB.allowedOffset(axis, entity, offset));
+    return firstShape.allowedOffset(axis, entity, secondShape.allowedOffset(axis, entity, offset));
   }
 
   @Override
   public double min(Direction.Axis axis) {
-    return Math.min(shapeA.min(axis), shapeB.min(axis));
+    return Math.min(firstShape.min(axis), secondShape.min(axis));
   }
 
   @Override
   public double max(Direction.Axis axis) {
-    return Math.max(shapeA.max(axis), shapeB.max(axis));
+    return Math.max(firstShape.max(axis), secondShape.max(axis));
   }
 
   @Override
   public BlockShape contextualized(int posX, int posY, int posZ) {
     return new MergeBlockShape(
-      shapeA.contextualized(posX, posY, posZ),
-      shapeB.contextualized(posX, posY, posZ)
+      firstShape.contextualized(posX, posY, posZ),
+      secondShape.contextualized(posX, posY, posZ)
     );
   }
 
   @Override
   public BlockShape normalized(int posX, int posY, int posZ) {
     return new MergeBlockShape(
-      shapeA.normalized(posX, posY, posZ),
-      shapeB.normalized(posX, posY, posZ)
+      firstShape.normalized(posX, posY, posZ),
+      secondShape.normalized(posX, posY, posZ)
     );
   }
 
   @Override
   public BlockRaytrace raytrace(Position origin, Position target) {
-    BlockRaytrace raytraceA = shapeA.raytrace(origin, target);
-    BlockRaytrace raytraceB = shapeB.raytrace(origin, target);
+    BlockRaytrace raytraceA = firstShape.raytrace(origin, target);
+    BlockRaytrace raytraceB = secondShape.raytrace(origin, target);
     if (raytraceA == null) {
       return raytraceB;
     }
@@ -61,35 +61,35 @@ final class MergeBlockShape implements BlockShape {
 
   @Override
   public List<BoundingBox> boundingBoxes() {
-    if (shapeA.isEmpty()) {
-      return shapeB.boundingBoxes();
+    if (firstShape.isEmpty()) {
+      return secondShape.boundingBoxes();
     }
-    if (shapeB.isEmpty()) {
-      return shapeA.boundingBoxes();
+    if (secondShape.isEmpty()) {
+      return firstShape.boundingBoxes();
     }
-    List<BoundingBox> merge = Lists.newArrayList(shapeA.boundingBoxes());
-    merge.addAll(shapeB.boundingBoxes());
+    List<BoundingBox> merge = Lists.newArrayList(firstShape.boundingBoxes());
+    merge.addAll(secondShape.boundingBoxes());
     return merge;
   }
 
   @Override
   public boolean isEmpty() {
-    return shapeA.isEmpty() && shapeB.isEmpty();
+    return firstShape.isEmpty() && secondShape.isEmpty();
   }
 
   @Override
   public boolean isCubic() {
-    return (shapeA.isCubic() && shapeB.isEmpty())
-      || (shapeB.isCubic() && shapeA.isEmpty());
+    return (firstShape.isCubic() && secondShape.isEmpty())
+      || (secondShape.isCubic() && firstShape.isEmpty());
   }
 
   @Override
   public boolean intersectsWith(BoundingBox boundingBox) {
-    return shapeA.intersectsWith(boundingBox) || shapeB.intersectsWith(boundingBox);
+    return firstShape.intersectsWith(boundingBox) || secondShape.intersectsWith(boundingBox);
   }
 
   @Override
   public String toString() {
-    return shapeA + " and " + shapeB;
+    return firstShape + " and " + secondShape;
   }
 }

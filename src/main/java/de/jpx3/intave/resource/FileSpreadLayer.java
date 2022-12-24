@@ -46,7 +46,8 @@ final class FileSpreadLayer implements Resource {
 
   @Override
   public boolean available() {
-    return targetResource.available() && Arrays.stream(spread).anyMatch(Resource::available);
+    if (!targetResource.available()) return false;
+    return Arrays.stream(spread).anyMatch(resource -> resource != null && resource.available());
   }
 
   @Override
@@ -76,6 +77,11 @@ final class FileSpreadLayer implements Resource {
       Resource spreadResource = spread[random];
       if (spreadResource.available()) {
         return spreadResource.read();
+      }
+      if (attemptsRemaining < 100) {
+        try {
+          Thread.sleep(10);
+        } catch (InterruptedException ignored) {}
       }
     }
     return targetResource.read();

@@ -12,7 +12,7 @@ import de.jpx3.intave.check.combat.heuristics.Anomaly;
 import de.jpx3.intave.check.combat.heuristics.Confidence;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.AttackMetadata;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
@@ -42,7 +42,7 @@ public final class LongTermClickAccuracyHeuristic extends MetaCheckPart<Heuristi
     ClickAccuracyMeta heuristicMeta = metaOf(user);
     PacketType packetType = event.getPacketType();
     PacketContainer packet = event.getPacket();
-    EntityShade entity = attackData.lastAttackedEntity();
+    Entity entity = attackData.lastAttackedEntity();
     if (entity == null || !entity.moving(0.05) || entity.ticksAlive < 200) {
       return;
     }

@@ -13,7 +13,7 @@ import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.AttackMetadata;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
@@ -42,7 +42,7 @@ public final class PerfectAttackHeuristic extends MetaCheckPart<Heuristics, Perf
     PerfectAttackMeta heuristicMeta = metaOf(user);
     PacketType packetType = event.getPacketType();
     PacketContainer packet = event.getPacket();
-    EntityShade attackedEntity = attackData.lastAttackedEntity();
+    Entity attackedEntity = attackData.lastAttackedEntity();
 
     if (attackedEntity != null && !attackedEntity.moving(0.05)) {
       return;
@@ -103,8 +103,8 @@ public final class PerfectAttackHeuristic extends MetaCheckPart<Heuristics, Perf
         parentCheck().saveAnomaly(player, anomaly);
         if (heuristicMeta.vl >= 2) {
           //dmc13
-          user.applyAttackNerfer(AttackNerfStrategy.HT_MEDIUM, "13");
-          user.applyAttackNerfer(AttackNerfStrategy.DMG_MEDIUM, "13");
+//          user.applyAttackNerfer(AttackNerfStrategy.HT_MEDIUM, "13");
+          user.nerf(AttackNerfStrategy.DMG_MEDIUM, "13");
         }
       } else if (heuristicMeta.vl > 0) {
         heuristicMeta.vl -= 0.2;

@@ -7,7 +7,7 @@ import de.jpx3.intave.check.combat.heuristics.Anomaly;
 import de.jpx3.intave.check.combat.heuristics.Confidence;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.AttackMetadata;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
@@ -37,7 +37,7 @@ public final class RotationAccuracyPitchHeuristic extends MetaCheckPart<Heuristi
     MetadataBundle meta = user.meta();
     MovementMetadata movementData = meta.movement();
     AttackMetadata attackData = meta.attack();
-    EntityShade attackedEntity = attackData.lastAttackedEntity();
+    Entity attackedEntity = attackData.lastAttackedEntity();
     RotationAccuracyHeuristicMeta heuristicMeta = metaOf(user);
 
     if (movementData.lastTeleport < 20) {

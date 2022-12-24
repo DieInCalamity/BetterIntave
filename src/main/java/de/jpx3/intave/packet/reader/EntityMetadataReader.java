@@ -37,4 +37,22 @@ public final class EntityMetadataReader extends EntityReader {
       }
     };
   }
+
+  public void setMetadataObjects(List<WrappedWatchableObject> watchables) {
+    if (IT_WAS_NICE_WHILE_IT_LASTED) {
+      packet().getWatchableCollectionModifier().write(0, watchables);
+    } else {
+      packet().getDataValueCollectionModifier().write(0, watchables.stream()
+        .map(EntityMetadataReader::dataValueFromWatchableObject)
+        .collect(Collectors.toList()));
+    }
+  }
+
+  private static WrappedDataValue dataValueFromWatchableObject(WrappedWatchableObject object) {
+    return new WrappedDataValue(
+      object.getIndex(),
+      object.getWatcherObject().getSerializer(),
+      object.getValue()
+    );
+  }
 }

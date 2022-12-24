@@ -11,6 +11,7 @@ public final class TypeTranslators {
 
   static {
     add(IntegerTranslator.class);
+    add(DoubleTranslator.class);
     add(StringArrayTranslator.class);
     add(StringTranslator.class);
     add(PlayerTranslator.class);

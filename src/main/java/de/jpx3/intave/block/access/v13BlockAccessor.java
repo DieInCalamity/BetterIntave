@@ -5,10 +5,7 @@ import de.jpx3.intave.block.variant.BlockVariantRegister;
 import de.jpx3.intave.klass.rewrite.PatchyAutoTranslation;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
-import net.minecraft.server.v1_13_R2.Chunk;
-import net.minecraft.server.v1_13_R2.IBlockData;
-import net.minecraft.server.v1_13_R2.Item;
-import net.minecraft.server.v1_13_R2.WorldServer;
+import net.minecraft.server.v1_13_R2.*;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -47,14 +44,15 @@ public final class v13BlockAccessor implements BlockAccessor {
 
   @Override
   @PatchyAutoTranslation
-  public float blockDamage(Player player, ItemStack itemInHand, BlockPosition blockPosition) {
-    WorldServer worldServer = ((CraftWorld) player.getWorld()).getHandle();
+  public float blockDamage(World world, Player player, ItemStack itemInHand, BlockPosition blockPosition) {
+    WorldServer worldServer = ((CraftWorld) world).getHandle();
     Chunk chunk = worldServer.getChunkIfLoaded(blockPosition.getX() >> 4, blockPosition.getZ() >> 4);
     if (chunk == null) {
       return 0.0f;
     }
     IBlockData blockData = chunk.getBlockData(blockPosition.getX(), blockPosition.getY(), blockPosition.getZ());
-    return blockData.getBlock().getDamage(blockData, ((CraftPlayer) player).getHandle(), worldServer, new net.minecraft.server.v1_13_R2.BlockPosition(blockPosition.getX(), blockPosition.getY(), blockPosition.getZ()));
+    EntityPlayer entityPlayer = player == null ? null : ((CraftPlayer) player).getHandle();
+    return blockData.getBlock().getDamage(blockData, entityPlayer, worldServer, new net.minecraft.server.v1_13_R2.BlockPosition(blockPosition.getX(), blockPosition.getY(), blockPosition.getZ()));
   }
 
   @Override

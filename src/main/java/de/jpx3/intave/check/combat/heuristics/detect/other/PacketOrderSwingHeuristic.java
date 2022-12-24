@@ -60,7 +60,7 @@ public final class PacketOrderSwingHeuristic extends MetaCheckPart<Heuristics, P
       Anomaly anomaly = Anomaly.anomalyOf("31", Confidence.LIKELY, Anomaly.Type.KILLAURA, description);
       parentCheck().saveAnomaly(player, anomaly);
       //dmc11
-      user.applyAttackNerfer(AttackNerfStrategy.HT_LIGHT, "11");
+      user.nerf(AttackNerfStrategy.DMG_LIGHT, "11");
     }
   }
 

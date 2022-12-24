@@ -15,6 +15,8 @@ import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.ConnectionMetadata;
+import de.jpx3.intave.user.meta.MetadataBundle;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -91,15 +93,24 @@ public final class FeedbackReceiver extends Module {
     if (!user.hasPlayer()) {
       return;
     }
-    ConnectionMetadata connection = user.meta().connection();
+    MetadataBundle meta = user.meta();
+    ProtocolMetadata protocol = meta.protocol();
+    ConnectionMetadata connection = meta.connection();
     Map<Long, FeedbackRequest<?>> transactionGlobalKeyMap = connection.transactionGlobalKeyMap();
     Map<Short, FeedbackRequest<?>> transactionShortKeyMap = connection.transactionShortKeyMap();
     PacketContainer packet = event.getPacket();
     short transactionIdentifier;
     if (USE_PING_PONG_PACKETS) {
       int inputInteger = packet.getIntegers().readSafely(0);
-      if ((inputInteger & 0xffff0000) != PING_MASK) {
-        return;
+      if (protocol.noPingMask()) {
+        if (inputInteger >= 0) {
+          return;
+        }
+        inputInteger = -inputInteger;
+      } else {
+        if ((inputInteger & 0xffff0000) != PING_MASK) {
+          return;
+        }
       }
       transactionIdentifier = (short) (inputInteger & 0xffff);
     } else {

@@ -1,11 +1,12 @@
 package de.jpx3.intave.module.filter;
 
-import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
+import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.module.linker.packet.Engine;
+import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.packet.reader.EntityMetadataReader;
 import de.jpx3.intave.packet.reader.PacketReaders;
@@ -16,7 +17,7 @@ import java.util.List;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.ENTITY_METADATA;
 
-@Deprecated
+//@Deprecated
 public final class HealthFilter extends Filter {
   private final IntavePlugin plugin;
 
@@ -28,51 +29,55 @@ public final class HealthFilter extends Filter {
   @PacketSubscription(
     packetsOut = {
       ENTITY_METADATA
-    }
+    },
+    priority = ListenerPriority.NORMAL
   )
   public void depriveHealth(PacketEvent event) {
-    if (!enabled()) {
+    // Rule #3151235: When editing metadata, do a deepClone().
+    // Why? I still don't know after 5 hours of debugging.
+    event.setPacket(event.getPacket().deepClone());
+    PacketContainer packet = event.getPacket();
+    EntityMetadataReader reader = PacketReaders.readerOf(packet);
+    Entity entity = reader.entityBy(event);
+    if (entity == null) {
+      reader.release();
       return;
     }
-    try {
-      if (event.getPacket().getIntegers().getValues().isEmpty()) {
-        return;
-      }
-      PacketContainer packet = event.getPacket();
-      EntityMetadataReader reader = PacketReaders.readerOf(packet);
-      Entity entity = reader.entityBy(event);
-      List<WrappedWatchableObject> watchables = reader.metadataObjects();
-      reader.release();
-      if (entity == null) {
-        return;
-      }
-      if (entity instanceof LivingEntity && entity.getUniqueId() != event.getPlayer().getUniqueId()) {
-        if (watchables != null) {
-          packet = packet.deepClone();
-          event.setPacket(packet);
-          if (event.getPacket().getType() == PacketType.Play.Server.ENTITY_METADATA) {
-            WrappedDataWatcher watcher = new WrappedDataWatcher(packet.getWatchableCollectionModifier().read(0));
-            stripHealthFromDataWatcher(watcher);
-            packet.getWatchableCollectionModifier().write(0, watcher.getWatchableObjects());
+    List<WrappedWatchableObject> watchables = reader.metadataObjects();
+    if (entity instanceof LivingEntity && entity.getEntityId() != event.getPlayer().getEntityId()) {
+      if (watchables != null) {
+//        WrappedWatchableObject healthWatchable = null;
+        for (int i = 0; i < watchables.size(); i++) {
+          WrappedWatchableObject watchable = watchables.get(i);
+          if (watchable.getIndex() == 6 && watchable.getValue() instanceof Float) {
+            watchable = new WrappedWatchableObject(watchable.getIndex(), watchable.getRawValue());
+            stripHealthFrom(watchable);
+            watchables.set(i, watchable);
+//            System.out.println("Stripped health from " + entity.getName() + " (" + entity.getEntityId() + ") " + "receiver id: " + event.getPlayer().getEntityId());
           }
         }
       }
-    } catch (Exception ignored) {
+    }
+    reader.setMetadataObjects(watchables);
+    reader.release();
+  }
+
+  private void stripHealthFrom(WrappedWatchableObject watchable) {
+    if (watchable != null && watchable.getIndex() == 6 && watchable.getRawValue() instanceof Float && (float) watchable.getRawValue() != 0.0F) {
+      watchable.setValue(createFakeHealth());
     }
   }
 
-  private void stripHealthFromDataWatcher(WrappedDataWatcher watcher) {
-    if (watcher != null && watcher.getObject(6) != null && watcher.getFloat(6) != 0.0F) {
-      float fakeHealth;
-      if (chanceOf(0.05f)) {
-        fakeHealth = Float.POSITIVE_INFINITY;
-      } else if (chanceOf(0.05f)) {
-        fakeHealth = Math.max(1, (float) (Math.random() * 20.0F));
-      } else {
-        fakeHealth = Float.NaN;
-      }
-      watcher.setObject(6, fakeHealth);
+  private float createFakeHealth() {
+    float fakeHealth;
+    if (chanceOf(0.05f)) {
+      fakeHealth = Float.POSITIVE_INFINITY;
+    } else if (chanceOf(0.05f)) {
+      fakeHealth = Math.max(1, (float) (Math.random() * 20.0F));
+    } else {
+      fakeHealth = Float.NaN;
     }
+    return fakeHealth;
   }
 
   private boolean chanceOf(float chance) {
@@ -81,7 +86,8 @@ public final class HealthFilter extends Filter {
 
   @Override
   protected boolean enabled() {
-    return false;
+//    return false;
+    return !IntaveControl.GOMME_MODE;
 //    return super.enabled();
   }
 }

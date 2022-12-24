@@ -1,4 +1,4 @@
-package de.jpx3.intave.security.blacklist;
+package de.jpx3.intave.security;
 
 import com.google.common.collect.ImmutableList;
 import de.jpx3.intave.resource.Resource;
@@ -9,12 +9,12 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.UUID;
 
-public final class Blacklist {
-  private final List<String> blacklistedHashes;
+public final class HashList {
+  private final List<String> hashes;
   private final MessageDigest sha256Digest;
 
-  private Blacklist(List<String> blacklistedHashes) {
-    this.blacklistedHashes = blacklistedHashes;
+  private HashList(List<String> hashes) {
+    this.hashes = hashes;
     try {
       this.sha256Digest = MessageDigest.getInstance("SHA-256");
     } catch (NoSuchAlgorithmException exception) {
@@ -22,16 +22,16 @@ public final class Blacklist {
     }
   }
 
-  public boolean nameBlacklisted(String name) {
+  public boolean containsName(String name) {
     return hashBlacklisted(hashOf(name));
   }
 
-  public boolean idBlacklisted(UUID id) {
+  public boolean containsId(UUID id) {
     return hashBlacklisted(hashOf(id.toString()));
   }
 
   private boolean hashBlacklisted(String input) {
-    for (String blacklistedHash : blacklistedHashes) {
+    for (String blacklistedHash : hashes) {
       if (blacklistedHash.equals(input)) {
         return true;
       }
@@ -55,11 +55,11 @@ public final class Blacklist {
     return hexString.toString();
   }
 
-  public static Blacklist empty() {
-    return new Blacklist(ImmutableList.of());
+  public static HashList empty() {
+    return new HashList(ImmutableList.of());
   }
 
-  public static Blacklist from(Resource resource) {
-    return new Blacklist(resource.readLines());
+  public static HashList from(Resource resource) {
+    return new HashList(resource.readLines());
   }
 }

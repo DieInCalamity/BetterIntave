@@ -3,7 +3,7 @@ package de.jpx3.intave.module.nayoro;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.check.combat.heuristics.Confidence;
 import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.module.tracker.player.AbilityTracker;
 import de.jpx3.intave.share.Position;
 import de.jpx3.intave.share.Rotation;
@@ -38,7 +38,7 @@ public final class UserPlayerContainer implements PlayerContainer {
 
   @Override
   public void nerf(AttackNerfStrategy strategy, String originCode) {
-    user.applyAttackNerfer(strategy, originCode);
+    user.nerf(strategy, originCode);
   }
 
   @Override
@@ -152,7 +152,7 @@ public final class UserPlayerContainer implements PlayerContainer {
   public boolean cursorUponEntity(int id, float expansion) {
     Player player = user.player();
     MetadataBundle meta = user.meta();
-    EntityShade entity = meta.connection().entityBy(id);
+    Entity entity = meta.connection().entityBy(id);
 
     MovementMetadata movementData = meta.movement();
     ProtocolMetadata clientData = meta.protocol();

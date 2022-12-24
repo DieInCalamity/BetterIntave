@@ -33,7 +33,7 @@ public final class ExpiringPermissionCache implements PermissionCache {
   }
 
   public static ExpiringPermissionCache withDefaultExpirationTime() {
-    return expiringAfter(16, TimeUnit.SECONDS);
+    return expiringAfter(4, TimeUnit.SECONDS);
   }
 
   public static ExpiringPermissionCache expiringAfter(long value, TimeUnit unit) {

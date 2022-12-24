@@ -15,7 +15,7 @@ import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.player.DamageModify;
 import de.jpx3.intave.player.fake.FakePlayer;
@@ -25,7 +25,6 @@ import de.jpx3.intave.user.meta.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -85,7 +84,7 @@ public final class AttackDispatcher extends Module {
     InventoryMetadata inventoryData = user.meta().inventory();
     ItemStack itemStack = inventoryData.heldItem();
     boolean knockbackEnchantment = itemStack != null && itemStack.containsEnchantment(Enchantment.KNOCKBACK);
-    EntityShade entity = connectionData.entityBy(entityId);
+    Entity entity = connectionData.entityBy(entityId);
     if (entity == null) {
       return;
     }
@@ -193,7 +192,7 @@ public final class AttackDispatcher extends Module {
     if (event.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
       return;
     }
-    Entity attacked = event.getEntity();
+    org.bukkit.entity.Entity attacked = event.getEntity();
     if (!(attacked instanceof Player)) {
       return;
     }

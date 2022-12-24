@@ -12,7 +12,7 @@ import de.jpx3.intave.check.combat.heuristics.Confidence;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.*;
 import de.jpx3.intave.world.raytrace.Raytrace;
@@ -94,7 +94,7 @@ public final class AttackRequiredHeuristic extends MetaCheckPart<Heuristics, Att
     ProtocolMetadata clientData = user.meta().protocol();
     AttackMetadata attackData = user.meta().attack();
     MovementMetadata movementData = user.meta().movement();
-    EntityShade entity = attackData.lastAttackedEntity();
+    Entity entity = attackData.lastAttackedEntity();
     if (entity == null || !entity.clientSynchronized || movementData.lastTeleport < 5) {
       return;
     }
@@ -123,8 +123,8 @@ public final class AttackRequiredHeuristic extends MetaCheckPart<Heuristics, Att
             Anomaly anomaly = Anomaly.anomalyOf("151", Confidence.LIKELY, Anomaly.Type.KILLAURA, "missed attack packet vl:" + vl);
             parentCheck().saveAnomaly(player, anomaly);
             //dmc5
-            user.applyAttackNerfer(AttackNerfStrategy.HT_LIGHT, "5");
-            user.applyAttackNerfer(AttackNerfStrategy.CANCEL_FIRST_HIT, "5");
+            user.nerf(AttackNerfStrategy.HT_LIGHT, "5");
+            user.nerf(AttackNerfStrategy.CANCEL_FIRST_HIT, "5");
           }
         }
         meta.lastFlag = System.currentTimeMillis();
@@ -144,7 +144,7 @@ public final class AttackRequiredHeuristic extends MetaCheckPart<Heuristics, Att
 
   private boolean cursorUponEntity(
     User user,
-    EntityShade entity
+    Entity entity
   ) {
     Player player = user.player();
     MetadataBundle meta = user.meta();

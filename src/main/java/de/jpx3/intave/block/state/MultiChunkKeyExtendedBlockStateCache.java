@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static de.jpx3.intave.IntaveControl.DISABLE_BLOCK_CACHING_ENTIRELY;
 
@@ -26,7 +27,7 @@ import static de.jpx3.intave.IntaveControl.DISABLE_BLOCK_CACHING_ENTIRELY;
 final class MultiChunkKeyExtendedBlockStateCache implements ExtendedBlockStateCache {
   private final Player player;
   private final ShapeResolverPipeline shapeResolver;
-  private final Map<Long, BlockState> blockCache = new HashMap<>(1024);
+  private final Map<Long, BlockState> blockCache = new ConcurrentHashMap<>(1024);
   private final BlockStateReplacementCache<Long> replacementCache;
   private int originChunkX, originChunkZ;
   private int chunkX, chunkZ;

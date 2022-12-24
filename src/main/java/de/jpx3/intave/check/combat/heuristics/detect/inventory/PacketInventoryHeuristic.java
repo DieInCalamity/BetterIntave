@@ -17,6 +17,7 @@ import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.check.combat.heuristics.Anomaly.AnomalyOption.*;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
+import static de.jpx3.intave.module.mitigate.AttackNerfStrategy.BURN_LONGER;
 
 public final class PacketInventoryHeuristic extends MetaCheckPart<Heuristics, PacketInventoryHeuristic.PacketInventoryMeta> {
   private final IntavePlugin plugin;
@@ -66,6 +67,7 @@ public final class PacketInventoryHeuristic extends MetaCheckPart<Heuristics, Pa
       Anomaly anomaly = Anomaly.anomalyOf("131", Confidence.NONE, Anomaly.Type.KILLAURA, details, options);
       parentCheck().saveAnomaly(player, anomaly);
       //dmc9
+      user.nerf(BURN_LONGER, "9");
 //      user.applyAttackNerfer(AttackNerfStrategy.HT_MEDIUM, "9");
 //      user.applyAttackNerfer(AttackNerfStrategy.CANCEL_FIRST_HIT, "9");
     }
@@ -105,7 +107,7 @@ public final class PacketInventoryHeuristic extends MetaCheckPart<Heuristics, Pa
         Anomaly anomaly = Anomaly.anomalyOf("132", Confidence.NONE, Anomaly.Type.KILLAURA, details, options);
         parentCheck().saveAnomaly(player, anomaly);
         //dmc10
-        user.applyAttackNerfer(AttackNerfStrategy.HT_LIGHT, "10");
+        user.nerf(AttackNerfStrategy.HT_LIGHT, "10");
       }
     }
 

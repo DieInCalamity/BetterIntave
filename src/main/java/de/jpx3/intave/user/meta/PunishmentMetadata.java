@@ -5,9 +5,11 @@ import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.module.mitigate.HurttimeModifier;
 import de.jpx3.intave.player.DamageModify;
+import de.jpx3.intave.user.UserRepository;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,8 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 
-import static org.bukkit.event.entity.EntityDamageEvent.DamageModifier.BASE;
-import static org.bukkit.event.entity.EntityDamageEvent.DamageModifier.BLOCKING;
+import static org.bukkit.event.entity.EntityDamageEvent.DamageModifier.*;
 
 @Relocate
 public final class PunishmentMetadata {
@@ -29,7 +30,9 @@ public final class PunishmentMetadata {
   private static final long DAMAGE_CANCEL_FIRST_HIT_DURATION = 60_000;
   private static final long ENTITY_HURT_TIME_CHANGE_DURATION = 5_000;
 
+  private static final long NO_CRITICAL_HITS_DURATION = 120_000;
   private static final long GARBAGE_HITS_DURATION = 120_000;
+  private static final long BURN_LONGER_DURATION = 120_000;
 
   private final Map<AttackNerfStrategy, AttackNerfer> attackNerfersMap = new HashMap<>();
   private final List<AttackNerfer> attackNerfers;
@@ -53,6 +56,13 @@ public final class PunishmentMetadata {
         event -> {
         }
       ),
+      new AttackNerfer(AttackNerfStrategy.CRITICALS, NO_CRITICAL_HITS_DURATION, event -> {
+        double attackDamage = DamageModify.attackDamageOf((Player) event.getDamager());
+        ItemStack heldItem = UserRepository.userOf((Player) event.getDamager()).meta().inventory().heldItem();
+        attackDamage += DamageModify.sharpnessDamageOf(heldItem);
+        event.setDamage(BASE, Math.min(attackDamage, event.getDamage(BASE)));
+        DamageModify.refreshModifiers(event);
+      }),
       new AttackNerfer(
         AttackNerfStrategy.DMG_HIGH, DAMAGE_CANCEL_HEAVY_DURATION,
         event -> {
@@ -74,21 +84,32 @@ public final class PunishmentMetadata {
           DamageModify.refreshModifiers(event);
         }
       ),
-      new AttackNerfer(AttackNerfStrategy.HT_MEDIUM, DAMAGE_CANCEL_MEDIUM_DURATION, event -> {
-        // Perform hurt-time change
-        int ticks = -ThreadLocalRandom.current().nextInt(0, 3);
-        HurttimeModifier.applyHurtTimeChangeTo(player, (int) (DAMAGE_CANCEL_MEDIUM_DURATION / 50), ticks);
-        // Perform hurt-time change on entity
-        performEntityHurtTimeChange(event.getEntity());
-      }),
+//      new AttackNerfer(AttackNerfStrategy.HT_MEDIUM, DAMAGE_CANCEL_MEDIUM_DURATION, event -> {
+//        // Perform hurt-time change
+//        int ticks = -ThreadLocalRandom.current().nextInt(0, 3);
+//        HurttimeModifier.applyHurtTimeChangeTo(player, (int) (DAMAGE_CANCEL_MEDIUM_DURATION / 50), ticks);
+//        // Perform hurt-time change on entity
+//        performEntityHurtTimeChange(event.getEntity());
+//      }),
       new AttackNerfer(AttackNerfStrategy.HT_LIGHT, DAMAGE_CANCEL_LIGHT_DURATION, event -> {
         // Perform hurt-time change
         int ticks = -ThreadLocalRandom.current().nextInt(0, 1);
         HurttimeModifier.applyHurtTimeChangeTo(player, (int) (DAMAGE_CANCEL_LIGHT_DURATION / 50), ticks);
       }),
+      new AttackNerfer(AttackNerfStrategy.BURN_LONGER, Long.MAX_VALUE, event -> {}),
       new AttackNerfer(AttackNerfStrategy.BLOCKING, BLOCKING_DAMAGE_CANCEL_DURATION, event -> {
         DamageModify.withNewDamageApplier(event, BLOCKING, current -> -0d);
       }, true),
+      new AttackNerfer(AttackNerfStrategy.DMG_ARMOR, Long.MAX_VALUE, event -> {
+        DamageModify.modifyDamageApplier(event, ARMOR, (damage, armor) -> {
+          if (armor < -2) {
+            double actualDamage = damage + armor; // armor is negative
+            double armorBuff = actualDamage * 0.33; // is positive
+            return armor - Math.min(armorBuff, 1);
+          }
+          return armor;
+        });
+      }),
       new AttackNerfer(AttackNerfStrategy.GARBAGE_HITS, GARBAGE_HITS_DURATION, event -> {
         int entityId = event.getEntity().getEntityId();
         long lastValidAttack = System.currentTimeMillis() - lastTimeValidHurttimeAttack.computeIfAbsent(entityId, x -> 0L);
@@ -112,6 +133,9 @@ public final class PunishmentMetadata {
     for (AttackNerfer attackNerfer : attackNerfers) {
       this.attackNerfersMap.put(attackNerfer.type, attackNerfer);
     }
+//    System.out.println("Remove me after testing! (ACAFA)");
+//    nerferOfType(AttackNerfStrategy.BURN_LONGER).activate();
+//    nerferOfType(AttackNerfStrategy.DMG_ARMOR).activate();
   }
 
   private void performEntityHurtTimeChange(Entity entity) {

@@ -237,7 +237,7 @@ final class FallbackUser implements User {
   }
 
   @Override
-  public void applyAttackNerfer(AttackNerfStrategy strategy, String checkId) {
+  public void nerf(AttackNerfStrategy strategy, String checkId) {
   }
 
   @Override

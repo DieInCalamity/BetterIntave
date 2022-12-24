@@ -297,6 +297,7 @@ public final class FeedbackSender extends Module {
     if (request == null) {
       return;
     }
+    User user = userOf(receiver);
     short id = request.key();
     int index = id - ID_START;
     PacketContainer packet;
@@ -305,7 +306,13 @@ public final class FeedbackSender extends Module {
     if (packet == null) {
       if (USE_PING_PONG_PACKETS) {
         packet = protocol.createPacket(PacketType.Play.Server.PING);
-        packet.getIntegers().write(0, PING_MASK | id);
+        int sentId = id;
+        if (!user.meta().protocol().noPingMask()) {
+          sentId = sentId | PING_MASK;
+        } else {
+          sentId *= -1;
+        }
+        packet.getIntegers().write(0, sentId);
       } else {
         packet = protocol.createPacket(PacketType.Play.Server.TRANSACTION);
         packet.getIntegers().write(0, 0);

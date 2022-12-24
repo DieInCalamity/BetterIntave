@@ -189,6 +189,10 @@ public final class ProtocolMetadata {
     return protocolVersion >= VER_1_14;
   }
 
+  public boolean noPingMask() {
+    return protocolVersion <= VER_1_17 && MinecraftVersions.VER1_17_0.atOrAbove();
+  }
+
   public void setLocale(String locale) {
     this.locale = locale;
   }

@@ -5,6 +5,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 import de.jpx3.intave.IntaveControl;
+import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.check.MitigationStrategy;
 import de.jpx3.intave.access.player.trust.TrustFactor;
@@ -34,7 +35,7 @@ import de.jpx3.intave.math.Hypot;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.feedback.Superposition;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.module.violation.Violation;
 import de.jpx3.intave.module.violation.ViolationContext;
 import de.jpx3.intave.packet.PacketSender;
@@ -177,8 +178,8 @@ public final class Physics extends Check {
     boolean clientVehicleMovement = MinecraftVersions.VER1_9_0.atOrAbove() && protocol.combatUpdate();
 
     if (movementData.isInVehicle() && clientVehicleMovement) {
-      EntityShade entityShade = movementData.ridingEntity();
-      return entityShade.typeData().isBoat() ? Simulators.BOAT : Simulators.HORSE;
+      Entity entity = movementData.ridingEntity();
+      return entity.typeData().isBoat() ? Simulators.BOAT : Simulators.HORSE;
     } else {
       boolean inLava = movementData.inLava();
       boolean inWater = movementData.inWater();
@@ -755,8 +756,8 @@ public final class Physics extends Check {
       return;
     }
     Player player = user.player();
-    BoundingBox box = BoundingBox.fromPosition(user, x, y, z).grow(0.75);
-    List<Position> positions = Collision.collectCollidingPositions(player, box, 8, Collectors.toList());
+    BoundingBox box = BoundingBox.fromPosition(user, x, y, z).grow(1.5);
+    List<Position> positions = Collision.collectCollidingPositions(player, box, 16, Collectors.toList());
     Synchronizer.synchronize(() -> {
       for (Position position : positions) {
         refreshBlock(player, position.toLocation(player.getWorld()));

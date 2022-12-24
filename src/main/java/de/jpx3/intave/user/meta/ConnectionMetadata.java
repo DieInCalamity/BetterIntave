@@ -10,7 +10,7 @@ import de.jpx3.intave.annotate.DispatchTarget;
 import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.module.feedback.DelayedPacket;
 import de.jpx3.intave.module.feedback.FeedbackRequest;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.packet.PacketSender;
 import org.bukkit.entity.Player;
 
@@ -24,15 +24,30 @@ public final class ConnectionMetadata {
   private final Map<Short, FeedbackRequest<?>> transactionShortMap = Maps.newConcurrentMap();
   private final Map<Long, FeedbackRequest<?>> transactionGlobalKeyMap = Maps.newConcurrentMap();
   private final Map<Long, Queue<FeedbackRequest<?>>> transactionOptionalAppendixMap = Maps.newConcurrentMap();
-  private final Map<Integer, EntityShade> entitiesById = Maps.newConcurrentMap();
+  private final Map<Integer, Entity> entitiesById = Maps.newConcurrentMap();
   private final Set<Integer> entityIds = new HashSet<>();
-  private final List<EntityShade> entities = Lists.newCopyOnWriteArrayList();
-  private final List<EntityShade> synchronizedEntities = Lists.newCopyOnWriteArrayList();
+  private final List<Entity> entities = Lists.newCopyOnWriteArrayList();
+  private final List<Entity> synchronizedEntities = Lists.newCopyOnWriteArrayList();
   private final Map<Long, Long> remainingPingPacketTimestamps = Maps.newConcurrentMap();
   private final List<Long> latencyDifferenceBalance = Lists.newCopyOnWriteArrayList();
+
+  // not used
   private final Map<Integer, Integer> localEntityIdsToGlobalIds = Maps.newConcurrentMap();
   private final Map<Integer, Integer> globalEntityIdsToLocalIds = Maps.newConcurrentMap();
   private final Set<Integer> globalEntityIdsForRemoval = new HashSet<>();
+
+  public final Map<Integer, Integer> duplicationOwners = new HashMap<>();
+  public final Map<Integer, DecoySide> decoySides = new HashMap<>();
+  public final Set<Integer> duplicatedEntityIds = new HashSet<>();
+  public final Set<Integer> shouldNotBeAttacked = new HashSet<>();
+  @Deprecated
+  public boolean markAttackInvalid;
+
+  public enum DecoySide {
+    FIRST_IS_DECOY,
+    SECOND_IS_DECOY,
+  }
+
 //  private final Set<Integer> takenLocalEntityIds = new HashSet<>();
   private int localEntityIdCounter = 1;
   public long lastCCCInfoMessageSent = 0;
@@ -235,20 +250,20 @@ public final class ConnectionMetadata {
   }
 
   @Deprecated
-  public Map<Integer, EntityShade> entitiesById() {
+  public Map<Integer, Entity> entitiesById() {
     return entitiesById;
   }
 
-  public Collection<EntityShade> entities() {
+  public Collection<Entity> entities() {
     return entities;
   }
 
-  public EntityShade entityBy(int identifier) {
+  public Entity entityBy(int identifier) {
     return entitiesById.get(identifier);
   }
 
   public void destroyEntity(int entityId) {
-    entitiesById.put(entityId, EntityShade.destroyedEntity());
+    entitiesById.put(entityId, Entity.destroyedEntity());
     entityIds.remove(entityId);
 
     // we will not override the entity collection, as it would require a lot of performance and seems quite redundant in the first place
@@ -267,13 +282,13 @@ public final class ConnectionMetadata {
     return delayQueue;
   }
 
-  public void enterEntity(EntityShade entity) {
+  public void enterEntity(Entity entity) {
     entitiesById.put(entity.entityId(), entity);
     entityIds.add(entity.entityId());
     entities.add(entity);
   }
 
-  public List<EntityShade> tracedEntities() {
+  public List<Entity> tracedEntities() {
     return synchronizedEntities;
   }
 

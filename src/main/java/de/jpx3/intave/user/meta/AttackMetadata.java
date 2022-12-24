@@ -4,8 +4,8 @@ import de.jpx3.intave.annotate.Nullable;
 import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.check.combat.heuristics.MiningStrategy;
 import de.jpx3.intave.check.combat.heuristics.mine.MiningStrategyContainer;
-import de.jpx3.intave.module.tracker.entity.EntityShade;
-import de.jpx3.intave.module.tracker.entity.EntityShade.EntityPositionContext;
+import de.jpx3.intave.module.tracker.entity.Entity;
+import de.jpx3.intave.module.tracker.entity.Entity.EntityPositionContext;
 import de.jpx3.intave.module.tracker.entity.EntityTracker;
 import de.jpx3.intave.player.fake.FakePlayer;
 import de.jpx3.intave.share.BoundingBox;
@@ -25,7 +25,7 @@ public final class AttackMetadata {
 
   private long lastTimeAttackedByEntity = 0;
 
-  private EntityShade lastAttackedEntity;
+  private Entity lastAttackedEntity;
   private float perfectYaw, perfectPitch;
   private float perfectClosestYaw;
   private float previousPerfectYaw, previousPerfectPitch;
@@ -73,7 +73,7 @@ public final class AttackMetadata {
   }
 
   private static float resolveYawRotation(
-    EntityShade.EntityPositionContext entityPositions,
+    Entity.EntityPositionContext entityPositions,
     double posX, double posZ
   ) {
     double diffX = entityPositions.posX - posX;
@@ -82,7 +82,7 @@ public final class AttackMetadata {
   }
 
   private static float resolvePitchRotation(
-    EntityShade.EntityPositionContext entityPositions,
+    Entity.EntityPositionContext entityPositions,
     double posX, double posY, double posZ
   ) {
     double diffY = entityPositions.posY + 1.62f - (posY + 1.62f);
@@ -93,11 +93,11 @@ public final class AttackMetadata {
   }
 
   private static float resolveClosestYawRotation(
-    EntityShade entity,
-    EntityShade.EntityPositionContext entityPositions,
+    Entity entity,
+    Entity.EntityPositionContext entityPositions,
     double posX, double posZ
   ) {
-    BoundingBox targetBoundingBox = EntityShade.entityBoundingBoxFrom(entityPositions, entity);
+    BoundingBox targetBoundingBox = Entity.entityBoundingBoxFrom(entityPositions, entity);
     double bestTargetX = ClientMathHelper.clamp_double(posX, targetBoundingBox.minX, targetBoundingBox.maxX);
     double bestTargetZ = ClientMathHelper.clamp_double(posZ, targetBoundingBox.minZ, targetBoundingBox.maxZ);
     double diffX = bestTargetX - posX;
@@ -150,7 +150,7 @@ public final class AttackMetadata {
   }
 
   @Nullable
-  public EntityShade lastAttackedEntity() {
+  public Entity lastAttackedEntity() {
     return lastAttackedEntity;
   }
 
@@ -161,8 +161,8 @@ public final class AttackMetadata {
   public void setLastAttackedEntityID(int lastAttackedEntityID) {
     this.lastAttackedEntityID = lastAttackedEntityID;
 
-    EntityShade lastAttackedEntity = this.lastAttackedEntity;
-    EntityShade attackedEntity = EntityTracker.entityByIdentifier(UserRepository.userOf(player), lastAttackedEntityID);
+    Entity lastAttackedEntity = this.lastAttackedEntity;
+    Entity attackedEntity = EntityTracker.entityByIdentifier(UserRepository.userOf(player), lastAttackedEntityID);
     if (attackedEntity != null && attackedEntity != lastAttackedEntity) {
       this.lastEntitySwitch = System.currentTimeMillis();
     }

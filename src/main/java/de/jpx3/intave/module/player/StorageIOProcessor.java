@@ -32,7 +32,7 @@ public final class StorageIOProcessor {
     byte[] bytes = new byte[0];
     try {
       Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-      Random random = new Random(LicenseAccess.network().hashCode());
+      Random random = new Random("Intave".hashCode());
       byte[] password = new byte[32];
       random.nextBytes(password);
       SecretKeySpec key = new SecretKeySpec(password, "AES");
@@ -66,7 +66,7 @@ public final class StorageIOProcessor {
       outputStream.close();
       byte[] imm = out.toByteArray();
       Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-      Random random = new Random(LicenseAccess.network().hashCode());
+      Random random = new Random("Intave".hashCode());
       byte[] password = new byte[32];
       random.nextBytes(password);
       SecretKeySpec key = new SecretKeySpec(password, "AES");
