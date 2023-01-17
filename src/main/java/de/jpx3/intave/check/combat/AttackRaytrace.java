@@ -203,7 +203,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
                 && attackRaytraceMeta.lastFlyPacketCounterReach > 1
               ) {
                 // 1.9+ beim bewegen
-                cancelHit = processReachCheck(player, entity, remainingAttack, 0.11f);
+                cancelHit = processReachCheck(player, entity, remainingAttack, 0.1f); // I don't trust the check, expand for now, this will be removed later
               } else {
                 // 1.9+ beim still stehen oder wenn das entity nicht synchronisiert ist
                 cancelHit = processIterativeReachCheck(player, entity);

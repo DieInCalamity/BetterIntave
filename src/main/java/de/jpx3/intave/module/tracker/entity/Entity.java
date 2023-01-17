@@ -232,11 +232,11 @@ public class Entity {
     }
 
     // Always set on 1.16+ as they removed the threshold
-    boolean requiresPositionUpdate =
+    boolean samePosition =
         Math.abs(position.posX - newPosX) < 0.03125d
             && Math.abs(position.posY - newPosY) < 0.015625d
             && Math.abs(position.posZ - newPosZ) < 0.03125d;
-    if (requiresPositionUpdate || user.protocolVersion() >= 735 /* 1.16 protocol version */) {
+    if (samePosition && user.protocolVersion() < 735 /* 1.16 protocol version */) {
       setPositionAndRotationEntityLiving(position.posX, position.posY, position.posZ, 3);
     } else {
       setPositionAndRotationEntityLiving(newPosX, newPosY, newPosZ, 3);
