@@ -33,6 +33,7 @@ import de.jpx3.intave.connect.proxy.ProxyMessenger;
 import de.jpx3.intave.connect.sibyl.SibylBroadcast;
 import de.jpx3.intave.connect.sibyl.SibylIntegrationService;
 import de.jpx3.intave.connect.upload.ScheduledUploadService;
+import de.jpx3.intave.diagnostic.ConsoleOutput;
 import de.jpx3.intave.diagnostic.natives.NativeCheck;
 import de.jpx3.intave.entity.EntityLookup;
 import de.jpx3.intave.entity.size.HitboxSizeAccess;
@@ -51,7 +52,6 @@ import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscriptionLinker;
 import de.jpx3.intave.module.linker.packet.PacketSubscriptionLinker;
 import de.jpx3.intave.module.tracker.entity.Entity;
-import de.jpx3.intave.packet.reader.PacketReaders;
 import de.jpx3.intave.player.FaultKicks;
 import de.jpx3.intave.player.ItemProperties;
 import de.jpx3.intave.player.fake.IdentifierReserve;
@@ -87,6 +87,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.*;
@@ -620,7 +621,7 @@ public final class IntavePlugin extends JavaPlugin {
 
       BlockVariantRegister.index();
 
-      PacketReaders.setup();
+//      PacketReaders.setup();
       BlockWrapper.setup();
       WorldBorders.setup();
 //      ShapeResolver.setup();
@@ -664,6 +665,7 @@ public final class IntavePlugin extends JavaPlugin {
       prefix = ChatColor.translateAlternateColorCodes('&', prefix);
       defaultColor = ChatColor.getLastColors(prefix);
       FaultKicks.applyFrom(configurationService.configuration().getConfigurationSection("fault-kicks"));
+      ConsoleOutput.applyFrom(configurationService.configuration().getConfigurationSection("debugs"));
 
       // stage 8
       Modules.proceedBoot(BootSegment.STAGE_8);
@@ -949,6 +951,8 @@ public final class IntavePlugin extends JavaPlugin {
             exception.printStackTrace();
           }
         });
+    } catch (NoSuchFileException ignored) {
+      // ignore
     } catch (Exception | Error throwable) {
       throwable.printStackTrace();
     }

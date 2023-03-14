@@ -14,19 +14,17 @@ import java.util.Set;
 
 abstract class Playback extends SinkEnvironment {
   private final DataInputStream dataInputStream;
-  private final Environment environment;
   private final Map<String, Boolean> properties = new HashMap<>();
-  private final PlaybackPlayerContainer playbackPlayer = new PlaybackPlayerContainer(new PrintStreamDetectionSubscription(System.out));
+  private final PlaybackPlayerContainer playbackPlayer = new PlaybackPlayerContainer(this, new PrintStreamDetectionSubscription(System.out));
   private final Map<Integer, Position> entityPositions = new HashMap<>();
   private final Map<Integer, Double> entityMovementThisTick = new HashMap<>();
   private int movementRefreshTicks = 0;
   private final Map<Integer, Boolean> inSight = new HashMap<>();
   private final Set<Integer> entityIds = new HashSet<>();
+  private boolean readHeader = false;
 
-  public Playback(DataInputStream stream, Environment environment) {
+  public Playback(DataInputStream stream) {
     this.dataInputStream = stream;
-    this.environment = environment;
-    this.playbackPlayer.setEnvironment(environment);
   }
 
   public abstract void start();
@@ -35,13 +33,25 @@ abstract class Playback extends SinkEnvironment {
 
   protected Event nextEvent() {
     try {
+      if (!readHeader) {
+        readHeader = true;
+        String headerData = dataInputStream.readUTF();
+        if (!"INTAVE/SAMPLE".equalsIgnoreCase(headerData)) {
+          throw new RuntimeException("Invalid header data");
+        }
+      }
       short offset = dataInputStream.readShort();
       int packetId = dataInputStream.readByte();
+      if (offset == 0 && packetId == -1) {
+        return null;
+      }
       Event event = EventRegistry.eventOf(packetId);
-      event.deserialize(environment, dataInputStream);
+      event.deserialize(this, dataInputStream);
       event.withOffset(offset);
+      System.out.println("Read event: " + event.getClass().getSimpleName() + " with offset " + offset);
       return event;
     } catch (IOException exception) {
+      exception.printStackTrace();
       return null;
     }
   }
@@ -60,41 +70,43 @@ abstract class Playback extends SinkEnvironment {
   public void visit(EntityMoveEvent event) {
     int entityId = event.entityId();
     entityIds.add(entityId);
-    Position oldPosition = entityPositions.get(entityId);
-    Position newPosition = entityPositions.compute(entityId, (id, position) -> {
-      if (position == null) {
-        position = new Position();
-      }
-      if (event.applyX()) {
-        position.setX(event.x());
-      }
-      if (event.applyY()) {
-        position.setY(event.y());
-      }
-      if (event.applyZ()) {
-        position.setZ(event.z());
-      }
-      return position;
-    });
-    if (oldPosition != null) {
-      entityMovementThisTick.compute(entityId, (id, movement) -> {
-        if (movement == null) {
-          movement = 0.0;
-        }
-        return movement + oldPosition.distance(newPosition);
-      });
+    Position position = entityPositions.get(entityId);
+    if (position == null) {
+      position = new Position();
     }
+    double distance = 0.0;
+    if (event.applyX()) {
+      distance += Math.abs(position.getX() - event.x());
+      position.setX(event.x());
+    }
+    if (event.applyY()) {
+      distance += Math.abs(position.getY() - event.y());
+      position.setY(event.y());
+    }
+    if (event.applyZ()) {
+      distance += Math.abs(position.getZ() - event.z());
+      position.setZ(event.z());
+    }
+    distance = Math.min(distance, 1);
+    entityPositions.put(entityId, position);
+    double finalDistance = distance;
+    entityMovementThisTick.compute(entityId, (id, movement) -> {
+      if (movement == null) {
+        movement = 0.0;
+      }
+      return movement + finalDistance;
+    });
     inSight.compute(entityId, (id, last) -> event.inSight());
     visitAny(event);
   }
 
   @Override
   public void visit(PlayerMoveEvent event) {
-    movementRefreshTicks++;
-    if (movementRefreshTicks >= 5) {
+    if (movementRefreshTicks++ >= 5) {
       entityMovementThisTick.clear();
       movementRefreshTicks = 0;
     }
+    visitAny(event);
   }
 
   @Override

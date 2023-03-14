@@ -4,6 +4,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
+import de.jpx3.intave.diagnostic.ConsoleOutput;
 import de.jpx3.intave.executor.TaskTracker;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.Module;
@@ -109,16 +110,18 @@ public final class ConnectionTracker extends Module {
       event.setCancelled(true);
       return;
     }
-    if (!remainingPingPackets.containsKey(id)) {
+    Long timeSent = remainingPingPackets.remove(id);
+    if (timeSent == null) {
       event.setCancelled(true);
       if (!user.justJoined() && FaultKicks.IGNORING_KEEP_ALIVE) {
-        IntaveLogger.logger().error(player.getName() + " sent keep-alive id " + id + ", but expected one of " + remainingPingPackets.keySet());
+        if (ConsoleOutput.FAULT_KICKS) {
+          IntaveLogger.logger().info(player.getName() + " sent keep-alive id " + id + ", but expected one of " + remainingPingPackets.keySet());
+        }
         user.kick("Unknown keep-alive identifier");
       }
       return;
     }
     List<Long> differenceBalance = synchronizeData.latencyDifferenceBalance();
-    Long timeSent = remainingPingPackets.remove(id);
     long difference = MathHelper.minmax(0, System.currentTimeMillis() - timeSent, 1000);
     synchronizeData.latency = (int) (((synchronizeData.latency * 3d) + difference) / 4d);
     long pingChange = Math.abs(difference - synchronizeData.lastKeepAliveDifference);

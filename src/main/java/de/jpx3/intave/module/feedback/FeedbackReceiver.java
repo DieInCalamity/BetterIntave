@@ -12,6 +12,7 @@ import de.jpx3.intave.executor.TaskTracker;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
+import de.jpx3.intave.player.FaultKicks;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.ConnectionMetadata;
@@ -30,7 +31,7 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
 public final class FeedbackReceiver extends Module {
   private static final boolean USE_PING_PONG_PACKETS = MinecraftVersions.VER1_17_0.atOrAbove();
-  private static final long TIMEOUT = 2000;
+  private static final long TIMEOUT = TimeUnit.SECONDS.toMillis(2);
   private static final long TIMEOUT_KICK = TimeUnit.SECONDS.toMillis(40);
   private static final long CHECK_TIMEOUT_KICK = TIMEOUT_KICK / 4;
 
@@ -50,7 +51,8 @@ public final class FeedbackReceiver extends Module {
     User user = userOf(player);
     ConnectionMetadata connection = user.meta().connection();
     if (oldestPendingTransaction(user) > TIMEOUT_KICK &&
-      connection.eligibleForTransactionTimeout
+      connection.eligibleForTransactionTimeout &&
+      FaultKicks.IGNORING_FEEDBACK
     ) {
       IntaveLogger.logger().error(player.getName() + " is not responding to any feedback packets");
       user.kick("Not responding to feedback packets");
@@ -115,6 +117,7 @@ public final class FeedbackReceiver extends Module {
     ConnectionMetadata connection = meta.connection();
     Map<Long, FeedbackRequest<?>> transactionGlobalKeyMap = connection.transactionGlobalKeyMap();
     Map<Short, FeedbackRequest<?>> transactionShortKeyMap = connection.transactionShortKeyMap();
+    Queue<FeedbackRequest<?>> feedbackRequests = connection.pendingFeedbackRequests();
     PacketContainer packet = event.getPacket();
     short transactionIdentifier = identifierFrom(packet, protocol.noPingMask());
     if (transactionIdentifier == -1) {
@@ -135,16 +138,28 @@ public final class FeedbackReceiver extends Module {
       for (long i = from; i < to; i++) {
         FeedbackRequest<?> request = transactionGlobalKeyMap.remove(i);
         if (request == null) continue;
-        FeedbackRequest<?> localRequest = transactionShortKeyMap.remove(request.key());
+        FeedbackRequest<?> localRequest = transactionShortKeyMap.remove(request.userKey());
         if (request != localRequest) {
           // This should never happen
+          throw new IllegalStateException("Transaction key mismatch alpha");
         }
+        FeedbackRequest<?> expectedRequest = feedbackRequests.poll();
+        if (request != expectedRequest) {
+          // This should never happen
+          throw new IllegalStateException("Transaction key mismatch beta");
+        }
+
         if (IntaveControl.DEBUG_FEEDBACK_PACKETS) {
-          System.out.println("Emulating " + localRequest.key() + "/" +localRequest.num() + " for " + player.getName());
+          System.out.println("Emulating " + localRequest.userKey() + "/" +localRequest.num() + " for " + player.getName());
         }
         receiveRequest(user, request);
       }
       user.noteFeedbackFault();
+    }
+
+    FeedbackRequest<?> poll = feedbackRequests.poll();
+    if (poll != transactionResponse) {
+      throw new IllegalStateException("Polling from feedback queue did not return the expected request");
     }
 
 //    transactionShortKeyMap.remove(transactionIdentifier);
@@ -251,13 +266,18 @@ public final class FeedbackReceiver extends Module {
   }
 
   public long oldestPendingTransaction(User user) {
-    ConnectionMetadata synchronizeData = user.meta().connection();
-    Map<Short, FeedbackRequest<?>> transactionFeedBackMap = synchronizeData.transactionShortKeyMap();
-    long duration = System.currentTimeMillis();
-    for (FeedbackRequest<?> value : transactionFeedBackMap.values()) {
-      duration = Math.min(duration, value.requested());
+    ConnectionMetadata connection = user.meta().connection();
+//    Map<Short, FeedbackRequest<?>> transactionFeedBackMap = connection.transactionShortKeyMap();
+//    long duration = System.currentTimeMillis();
+//    for (FeedbackRequest<?> value : transactionFeedBackMap.values()) {
+//      duration = Math.min(duration, value.requested());
+//    }
+    Queue<FeedbackRequest<?>> feedbackRequests = connection.pendingFeedbackRequests();
+    FeedbackRequest<?> peek = feedbackRequests.peek();
+    if (peek == null) {
+      return 0;
     }
-    return System.currentTimeMillis() - duration;
+    return System.currentTimeMillis() - peek.requested();
   }
 
   public User userOf(Player player) {

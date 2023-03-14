@@ -47,6 +47,16 @@ public final class BlockVariantRegister {
     return variant;
   }
 
+  public static BlockVariant uncachedVariantOf(Material type, int variantIndex) {
+    Map<Integer, BlockVariant> variantMap = translateFromServer(type);
+    BlockVariant variant = variantMap.get(variantIndex);
+    if (variant == null) {
+      IntaveLogger.logger().error("Could not find variant for " + type + " with index " + variantIndex + " (map size: " + variantMap.size() + ")");
+      return EMPTY_ERROR;
+    }
+    return variant;
+  }
+
   private static Map<Integer, BlockVariant> translateFromServer(Material material) {
     Map<Integer, BlockVariant> map = BlockVariantConverter.translateSettings(material, blockDataRegister.get(material));
     if (IntaveControl.DEBUG_VARIANT_COMPILATION) {

@@ -36,7 +36,7 @@ public final class SinusCache {
     }
   }
 
-  public static float roundToFloat(double d) {
+  private static float roundToFloat(double d) {
     return (float) ((double) Math.round(d * 100000000) / 100000000);
   }
 }

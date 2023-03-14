@@ -10,9 +10,10 @@ public final class InstantPlayback extends Playback implements Runnable {
   private final Executor executor;
   private final Consumer<? super Playback> onComplete;
   private boolean interrupted = false;
+  private long passedTime = 0;
 
   public InstantPlayback(DataInputStream stream, Executor executor, Consumer<? super Playback> onComplete) {
-    super(stream, null);
+    super(stream);
     this.executor = executor;
     this.onComplete = onComplete;
   }
@@ -32,6 +33,8 @@ public final class InstantPlayback extends Playback implements Runnable {
       Event event;
       // ignore schedule time
       while ((event = nextEvent()) != null && !interrupted) {
+        long offset = event.offset();
+        passedTime += offset;
         visitSelect(event);
       }
     } finally {
@@ -45,7 +48,7 @@ public final class InstantPlayback extends Playback implements Runnable {
   }
 
   @Override
-  public boolean hasPassed(long time) {
-    return false;
+  public long currentTime() {
+    return passedTime;
   }
 }

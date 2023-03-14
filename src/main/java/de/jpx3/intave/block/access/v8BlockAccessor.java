@@ -43,6 +43,9 @@ public final class v8BlockAccessor implements BlockAccessor {
   @PatchyAutoTranslation
   public float blockDamage(World world, Player player, ItemStack itemInHand, BlockPosition blockPosition) {
     WorldServer worldServer = ((CraftWorld) world).getHandle();
+    if (worldServer == null || blockPosition == null) {
+      return 0.0f;
+    }
     Chunk chunk = worldServer.getChunkIfLoaded(blockPosition.getX() >> 4, blockPosition.getZ() >> 4);
     if (chunk == null) {
       return 0.0f;

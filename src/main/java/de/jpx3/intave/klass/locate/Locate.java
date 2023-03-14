@@ -117,15 +117,20 @@ public final class Locate {
   }
 
   public static Field fieldByKey(String classKey, String fieldKey) {
-    String key = classKey + "." + fieldKey;
-    FieldLocation fieldLocation = fieldLocationCache.computeIfAbsent(key, s -> fieldLookupByKey(classKey, fieldKey));
-    return fieldLocation.access();
+    return fieldLocationCache.computeIfAbsent(
+      classKey + "." + fieldKey,
+      x -> fieldLookupByKey(classKey, fieldKey)
+    ).access();
   }
 
   private static String fieldNameByKey(String classKey, String fieldKey) {
-    String key = classKey + "." + fieldKey;
-    FieldLocation fieldLocation = fieldLocationCache.computeIfAbsent(key, s -> fieldLookupByKey(classKey, fieldKey));
-    return fieldLocation.targetName();
+//    String key = classKey + "." + fieldKey;
+//    FieldLocation fieldLocation = fieldLocationCache.computeIfAbsent(key, s -> fieldLookupByKey(classKey, fieldKey));
+//    return fieldLocation.targetName();
+    return fieldLocationCache.computeIfAbsent(
+      classKey + "." + fieldKey,
+      x -> fieldLookupByKey(classKey, fieldKey)
+    ).targetName();
   }
 
   private static FieldLocation fieldLookupByKey(String classKey, String fieldKey) {

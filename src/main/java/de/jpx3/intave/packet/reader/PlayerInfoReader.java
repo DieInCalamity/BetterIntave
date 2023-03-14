@@ -14,14 +14,22 @@ public final class PlayerInfoReader extends AbstractPacketReader {
 
   public Set<EnumWrappers.PlayerInfoAction> playerInfoActions() {
     if (MULTIPLE_ACTIONS) {
-      return packet().getPlayerInfoActions().read(0);
+      return packet().getPlayerInfoActions().readSafely(0);
     } else {
-      return Collections.singleton(packet().getPlayerInfoAction().read(0));
+      EnumWrappers.PlayerInfoAction read = packet().getPlayerInfoAction().readSafely(0);
+      if (read == null) {
+        return Collections.emptySet();
+      }
+      return Collections.singleton(read);
     }
   }
 
   public List<PlayerInfoData> playerInfoData() {
 //    return packet().getPlayerInfoDataLists().read(0);
-    return packet().getModifier().withType(List.class, PlayerInfoDataConverter.threadConverter()).read(0);
+    List<PlayerInfoData> read = packet().getModifier().withType(List.class, PlayerInfoDataConverter.threadConverter()).readSafely(0);
+    if (read == null) {
+      return Collections.emptyList();
+    }
+    return read;
   }
 }

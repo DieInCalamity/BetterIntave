@@ -1,6 +1,7 @@
 package de.jpx3.intave.resource;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
@@ -9,10 +10,10 @@ import java.util.function.Function;
 final class FileSpreadLayer implements Resource {
   private final File targetFile;
   private final Resource targetResource;
-  private final Function<File, Resource> fileToResource;
+  private final Function<? super File, ? extends Resource> fileToResource;
   private final Resource[] spread;
 
-  public FileSpreadLayer(File targetFile, Function<File, Resource> fileToResource, int spreadAmount) {
+  public FileSpreadLayer(File targetFile, Function<? super File, ? extends Resource> fileToResource, int spreadAmount) {
     this.targetFile = targetFile;
     this.targetResource = fileToResource.apply(targetFile);
     this.fileToResource = fileToResource;
@@ -46,8 +47,7 @@ final class FileSpreadLayer implements Resource {
 
   @Override
   public boolean available() {
-    if (!targetResource.available()) return false;
-    return Arrays.stream(spread).anyMatch(resource -> resource != null && resource.available());
+    return targetResource.available() && Arrays.stream(spread).anyMatch(resource -> resource != null && resource.available());
   }
 
   @Override
@@ -62,9 +62,25 @@ final class FileSpreadLayer implements Resource {
     copyMainToSpread();
   }
 
+  private boolean deactivateMarking = false;
+
   private void copyMainToSpread() {
-    for (Resource resource : spread) {
-      resource.write(targetResource.read());
+    InputStream read = targetResource.read();
+    if (!read.markSupported() || deactivateMarking) {
+      for (Resource resource : spread) {
+        resource.write(targetResource.read());
+      }
+    } else {
+      read.mark(Integer.MAX_VALUE);
+      for (Resource resource : spread) {
+        resource.write(read);
+        try {
+          read.reset();
+        } catch (IOException e) {
+          deactivateMarking = true;
+          copyMainToSpread();
+        }
+      }
     }
   }
 
@@ -80,7 +96,7 @@ final class FileSpreadLayer implements Resource {
       }
       if (attemptsRemaining < 100) {
         try {
-          Thread.sleep(10);
+          Thread.sleep(ThreadLocalRandom.current().nextInt(5, 10));
         } catch (InterruptedException ignored) {}
       }
     }

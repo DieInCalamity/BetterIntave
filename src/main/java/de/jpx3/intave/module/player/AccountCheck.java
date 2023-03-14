@@ -35,7 +35,6 @@ public final class AccountCheck extends Module {
   private static final String GET_GAME_STATS_REQUEST_SCHEMA = "https://laby.net/api/user/%s/get-game-stats";
   private static final int MINIMUM_AGE_IN_DAYS = 31;
 
-
   @BukkitEventSubscription
   public void onJoin(PlayerJoinEvent join) {
     if (!IntaveControl.GOMME_MODE) {

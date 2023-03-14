@@ -50,8 +50,8 @@ class BaseSimulator extends Simulator {
     MovementConfiguration configuration
   ) {
     // guessed movement configuration
-    float forward = configuration.forward();
-    float strafe = configuration.strafe();
+    float forward = configuration.forward() * 0.98f;
+    float strafe = configuration.strafe() * 0.98f;
     boolean handActive = configuration.isHandActive();
     boolean attackReduce = configuration.isReducing();
     boolean jumped = configuration.isJumping();
@@ -73,9 +73,6 @@ class BaseSimulator extends Simulator {
     boolean swimming = pose == Pose.SWIMMING;
     boolean crouching = pose == Pose.CROUCHING;
     boolean waterUpdate = protocol.waterUpdate();
-
-    forward = ((int) forward) * 0.98f;
-    strafe = ((int) strafe) * 0.98f;
 
     if (crouching || (!protocol.beeUpdate() && environment.isSneaking())) {
       double sneakingModifier = clamp_double(0.3 + Enchantments.resolveSwiftSpeedModifier(user.player()) * 0.15f, 0.0f, 1.0f);
@@ -124,7 +121,7 @@ class BaseSimulator extends Simulator {
     if (inWater) {
       performSimulationInWaterOfState(user, motion, environment, sprinting, forward, strafe, yawSine, yawCosine);
     } else if (inLava) {
-      performLavaSimulationOfState(user, motion, forward, strafe, yawSine, yawCosine);
+      performLavaSimulationOfState(motion, forward, strafe, yawSine, yawCosine);
     } else {
       performDefaultMoveSimulationOfState(user, motion, environment, forward, strafe, yawSine, yawCosine);
     }
@@ -170,7 +167,6 @@ class BaseSimulator extends Simulator {
   }
 
   private void performLavaSimulationOfState(
-    User user,
     Motion context,
     float moveForward,
     float moveStrafe,
@@ -313,7 +309,8 @@ class BaseSimulator extends Simulator {
           positionZ,
           nextPredictedX,
           nextPredictedY,
-          nextPredictedZ);
+          nextPredictedZ
+        );
       }
 
       interpolateX *= slipperiness;
@@ -403,8 +400,7 @@ class BaseSimulator extends Simulator {
     double slipperiness;
     if (movementData.lastOnGround()) {
       double blockPositionX = floor(movementData.verifiedPositionX);
-      double blockPositionY =
-        floor(movementData.verifiedPositionY - movementData.frictionPosSubtraction());
+      double blockPositionY = floor(movementData.verifiedPositionY - movementData.frictionPosSubtraction());
       double blockPositionZ = floor(movementData.verifiedPositionZ);
       slipperiness =
         MovementCharacteristics.currentSlipperiness(

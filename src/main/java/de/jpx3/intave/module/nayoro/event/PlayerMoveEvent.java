@@ -15,46 +15,53 @@ public final class PlayerMoveEvent extends Event {
   private float yaw;
   private float pitch;
 
-  public PlayerMoveEvent() {
-  }
+  private double lastX;
+  private double lastY;
+  private double lastZ;
+  private float lastYaw;
+  private float lastPitch;
 
-  public PlayerMoveEvent(double x, double y, double z, float yaw, float pitch) {
-    this.flags = -1;
-    this.x = x;
-    this.y = y;
-    this.z = z;
-    this.yaw = yaw;
-    this.pitch = pitch;
+  public PlayerMoveEvent() {
   }
 
   private static final double EPSILON = 1.0E-09;
 
   public PlayerMoveEvent(
     double lastX, double lastY, double lastZ,
-    double x, double y, double z,
     float lastYaw, float lastPitch,
-    float yaw, float pitch
+    double x, double y, double z,
+    float yaw, float pitch,
+    boolean forceSave
   ) {
     this.x = x;
     this.y = y;
     this.z = z;
     this.yaw = yaw;
     this.pitch = pitch;
+    this.lastX = lastX;
+    this.lastY = lastY;
+    this.lastZ = lastZ;
+    this.lastYaw = lastYaw;
+    this.lastPitch = lastPitch;
     int flags = 0;
-    if (Math.abs(x - lastX) >= EPSILON) {
-      flags |= Flag.X;
-    }
-    if (Math.abs(y - lastY) >= EPSILON) {
-      flags |= Flag.Y;
-    }
-    if (Math.abs(z - lastZ) >= EPSILON) {
-      flags |= Flag.Z;
-    }
-    if (Math.abs(yaw - lastYaw) >= EPSILON) {
-      flags |= Flag.YAW;
-    }
-    if (Math.abs(pitch - lastPitch) >= EPSILON) {
-      flags |= Flag.PITCH;
+    if (forceSave) {
+      flags |= Flag.X | Flag.Y | Flag.Z | Flag.YAW | Flag.PITCH;
+    } else {
+      if (Math.abs(x - lastX) >= EPSILON) {
+        flags |= Flag.X;
+      }
+      if (Math.abs(y - lastY) >= EPSILON) {
+        flags |= Flag.Y;
+      }
+      if (Math.abs(z - lastZ) >= EPSILON) {
+        flags |= Flag.Z;
+      }
+      if (Math.abs(yaw - lastYaw) >= EPSILON) {
+        flags |= Flag.YAW;
+      }
+      if (Math.abs(pitch - lastPitch) >= EPSILON) {
+        flags |= Flag.PITCH;
+      }
     }
     this.flags = flags;
   }
@@ -167,26 +174,64 @@ public final class PlayerMoveEvent extends Event {
     this.pitch = pitch;
   }
 
+  public double lastX() {
+    return lastX;
+  }
+
+  public double lastY() {
+    return lastY;
+  }
+
+  public double lastZ() {
+    return lastZ;
+  }
+
+  public float lastYaw() {
+    return lastYaw;
+  }
+
+  public float lastPitch() {
+    return lastPitch;
+  }
+
+  public void setLastX(double lastX) {
+    this.lastX = lastX;
+  }
+
+  public void setLastY(double lastY) {
+    this.lastY = lastY;
+  }
+
+  public void setLastZ(double lastZ) {
+    this.lastZ = lastZ;
+  }
+
+  public void setLastYaw(float lastYaw) {
+    this.lastYaw = lastYaw;
+  }
+
+  public void setLastPitch(float lastPitch) {
+    this.lastPitch = lastPitch;
+  }
+
   @Override
   public void accept(EventSink sink) {
     sink.visit(this);
   }
 
-  public static PlayerMoveEvent create(double x, double y, double z, float yaw, float pitch) {
-    return new PlayerMoveEvent(x, y, z, yaw, pitch);
-  }
-
   public static PlayerMoveEvent create(
     double lastX, double lastY, double lastZ,
-    double x, double y, double z,
     float lastYaw, float lastPitch,
-    float yaw, float pitch
+    double x, double y, double z,
+    float yaw, float pitch,
+    boolean forceSave
   ) {
     return new PlayerMoveEvent(
       lastX, lastY, lastZ,
-      x, y, z,
       lastYaw, lastPitch,
-      yaw, pitch
+      x, y, z,
+      yaw, pitch,
+      forceSave
     );
   }
 

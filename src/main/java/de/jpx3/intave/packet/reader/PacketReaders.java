@@ -20,7 +20,7 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
 public final class PacketReaders {
   private static final Map<PacketType, ThreadLocal<? extends PacketReader>> readerLocals = new ConcurrentHashMap<>();
 
-  public static void setup() {
+  static {
     setup(ABILITIES_OUT, AbilityOutReader::new);
     setup(ANIMATION, EntityReader::new);
     setup(ATTACH_ENTITY, AttachEntityReader::new);

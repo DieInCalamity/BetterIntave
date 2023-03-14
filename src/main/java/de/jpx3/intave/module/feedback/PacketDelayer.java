@@ -21,6 +21,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Deque;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.DelayQueue;
 
 import static de.jpx3.intave.access.player.trust.TrustFactor.RED;
@@ -231,12 +232,12 @@ public final class PacketDelayer extends Module {
   }
 
   private long oldestPendingTransaction(User user) {
-    ConnectionMetadata synchronizeData = user.meta().connection();
-    Map<Short, FeedbackRequest<?>> transactionFeedBackMap = synchronizeData.transactionShortKeyMap();
-    long duration = System.currentTimeMillis();
-    for (FeedbackRequest<?> value : transactionFeedBackMap.values()) {
-      duration = Math.min(duration, value.requested());
+    ConnectionMetadata connection = user.meta().connection();
+    Queue<FeedbackRequest<?>> feedbackRequests = connection.pendingFeedbackRequests();
+    FeedbackRequest<?> peek = feedbackRequests.peek();
+    if (peek == null) {
+      return 0;
     }
-    return System.currentTimeMillis() - duration;
+    return System.currentTimeMillis() - peek.requested();
   }
 }

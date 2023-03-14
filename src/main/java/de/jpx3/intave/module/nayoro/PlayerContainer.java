@@ -17,21 +17,26 @@ import java.util.function.Consumer;
 
 public interface PlayerContainer {
   Environment environment();
-  void setEnvironment(Environment environment);
   int id();
   int version();
   boolean outdatedClient();
   <T extends CheckCustomMetadata> T meta(Class<T> metaClass);
 
-  Rotation rotation();
+  default Rotation rotation() {
+    return new Rotation(yaw(), pitch());
+  }
   float yaw();
   float pitch();
 
-  Rotation lastRotation();
+  default Rotation lastRotation() {
+    return new Rotation(lastYaw(), lastPitch());
+  }
   float lastYaw();
   float lastPitch();
 
-  Position position();
+  default Position position() {
+    return new Position(x(), y(), z());
+  }
   double x();
   double y();
   double z();
@@ -41,6 +46,9 @@ public interface PlayerContainer {
   boolean inGameMode(GameMode gameMode);
   boolean recentlyAttacked(long millis);
   boolean recentlySwitchedEntity(long millis);
+  int lastAttackedEntity();
+  float perfectYaw();
+  float perfectPitch();
 
   void debug(String message);
   void nerf(AttackNerfStrategy strategy, String originCode);

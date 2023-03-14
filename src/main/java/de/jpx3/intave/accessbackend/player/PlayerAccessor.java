@@ -12,6 +12,7 @@ import de.jpx3.intave.access.player.PlayerConnection;
 import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.cleanup.GarbageCollector;
 import de.jpx3.intave.cleanup.ReferenceMap;
+import de.jpx3.intave.diagnostic.ConsoleOutput;
 import de.jpx3.intave.klass.trace.Caller;
 import de.jpx3.intave.klass.trace.PluginInvocation;
 import de.jpx3.intave.user.User;
@@ -109,15 +110,17 @@ public final class PlayerAccessor {
 
       @Override
       public void setTrustFactor(TrustFactor factor) {
-        PluginInvocation pluginInvocation = Caller.pluginInfo();
-        String message;
-        if (pluginInvocation == null) {
-          message = "Changed trustfactor of " + player.getName() + " to " + factor.name() + " (unknown origin)";
-        } else {
-          message = "Changed trustfactor of " + player.getName() + " to " + factor.name() + " (plugin " + pluginInvocation.pluginName() + " in class " + pluginInvocation.className() + ")";
-        }
-        IntaveLogger.logger().info(message);
         user.setTrustFactor(factor);
+        if (ConsoleOutput.TRUSTFACTOR_DEBUG) {
+          PluginInvocation pluginInvocation = Caller.pluginInfo();
+          String message;
+          if (pluginInvocation == null) {
+            message = "Changed trustfactor of " + player.getName() + " to " + factor.name() + " (unknown origin)";
+          } else {
+            message = "Changed trustfactor of " + player.getName() + " to " + factor.name() + " (plugin " + pluginInvocation.pluginName() + " in class " + pluginInvocation.className() + ")";
+          }
+          IntaveLogger.logger().info(message);
+        }
       }
 
       @Override

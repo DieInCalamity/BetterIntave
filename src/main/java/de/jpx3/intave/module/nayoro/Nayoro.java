@@ -10,6 +10,7 @@ import de.jpx3.intave.user.UserLocal;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,9 +44,9 @@ public final class Nayoro extends Module {
       outputStream = new DeflaterOutputStream(outputStream, new Deflater(Deflater.BEST_COMPRESSION));
       outputStream = new BufferedOutputStream(outputStream, 1024 * 1024);
 
-//      OutputStream outputStream2 = Files.newOutputStream(Paths.get(sampleFile.getAbsolutePath() + ".uncompressed"));
-//      outputStream2 = new BufferedOutputStream(outputStream2, 1024 * 1024);
-//      outputStream = new MultiplexOutputStream(outputStream, outputStream2);
+      OutputStream outputStream2 = Files.newOutputStream(Paths.get(sampleFile.getAbsolutePath() + ".uncompressed"));
+      outputStream2 = new BufferedOutputStream(outputStream2, 1024 * 1024);
+      outputStream = new MultiplexOutputStream(outputStream, outputStream2);
 
       DataOutputStream dataOutput = new DataOutputStream(outputStream);
       RecordEventSink recordEventSink = new RecordEventSink(new LiveEnvironment(user), dataOutput);
@@ -76,8 +77,10 @@ public final class Nayoro extends Module {
     File sampleFile = new File(samplesFolder, user.player().getUniqueId() + ".sample");
     try {
       if (!sampleFile.exists()) {
+        user.player().sendMessage("§cNo sample found for you.");
         return;
       }
+      int available = sampleFile.length() > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) sampleFile.length();
       InputStream inputStream = Files.newInputStream(sampleFile.toPath());
       inputStream = new InflaterInputStream(inputStream);
       inputStream = new BufferedInputStream(inputStream, 1024 * 1024);
@@ -85,6 +88,7 @@ public final class Nayoro extends Module {
       Playback playback = new InstantPlayback(dataInput, Runnable::run, playbacks::remove);
       playbacks.add(playback);
       playback.start();
+      user.player().sendMessage(String.format("§aPlayback of length %d started.", available));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -98,8 +102,9 @@ public final class Nayoro extends Module {
     if (!user.hasPlayer()) {
       return Collections.emptySet();
     }
-    PlayerContainer player = new UserPlayerContainer(user);
-    player.setEnvironment(new LiveEnvironment(user));
+    PlayerContainer player = new UserPlayerContainer(
+      user, new LiveEnvironment(user)
+    );
     return Sets.newHashSet(new ForwardEventSink(player));
   }
 

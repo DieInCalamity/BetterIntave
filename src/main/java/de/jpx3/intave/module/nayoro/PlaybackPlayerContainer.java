@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 final class PlaybackPlayerContainer extends SinkPlayerContainer {
-  private Environment environment;
+  private final Environment environment;
   private final Map<Class<?>, CheckCustomMetadata> metadata = new HashMap<>();
   private final DetectionSubscription detectionSubscription;
   private int id;
@@ -32,8 +32,10 @@ final class PlaybackPlayerContainer extends SinkPlayerContainer {
   private float lastPitch;
 
   private long lastAttack;
+  private int lastAttackedEntityId = -1;
 
-  public PlaybackPlayerContainer(DetectionSubscription... detectionSubscription) {
+  public PlaybackPlayerContainer(Environment environment, DetectionSubscription... detectionSubscription) {
+    this.environment = environment;
     this.detectionSubscription = DetectionSubscription.merge(detectionSubscription);
   }
 
@@ -131,7 +133,7 @@ final class PlaybackPlayerContainer extends SinkPlayerContainer {
 
   @Override
   public boolean recentlyAttacked(long millis) {
-    return environment.hasPassed(lastAttack + millis);
+    return lastAttack + millis > environment.currentTime();
   }
 
   @Override
@@ -140,13 +142,57 @@ final class PlaybackPlayerContainer extends SinkPlayerContainer {
   }
 
   @Override
-  public Environment environment() {
-    return environment;
+  public int lastAttackedEntity() {
+    return lastAttackedEntityId;
   }
 
   @Override
-  public void setEnvironment(Environment environment) {
-    this.environment = environment;
+  public float perfectYaw() {
+    if (lastAttackedEntityId == -1) {
+      return 0;
+    }
+    Position position = environment.positionOf(lastAttackedEntityId);
+    if (position == null) {
+      return 0;
+    }
+    return resolveYawRotation(position, posX, posZ);
+  }
+
+  @Override
+  public float perfectPitch() {
+    if (lastAttackedEntityId == -1) {
+      return 0;
+    }
+    Position position = environment.positionOf(lastAttackedEntityId);
+    if (position == null) {
+      return 0;
+    }
+    return resolvePitchRotation(position, posX, posY, posZ);
+  }
+
+  private static float resolveYawRotation(
+    Position entityPosition,
+    double posX, double posZ
+  ) {
+    double diffX = entityPosition.getX() - posX;
+    double diffZ = entityPosition.getZ() - posZ;
+    return (float) Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0f;
+  }
+
+  private static float resolvePitchRotation(
+    Position entityPosition,
+    double posX, double posY, double posZ
+  ) {
+    double diffX = entityPosition.getX() - posX;
+    double diffY = entityPosition.getY() + 1.62f - (posY + 1.62f);
+    double diffZ = entityPosition.getZ() - posZ;
+    double d3 = Math.sqrt(diffX * diffX + diffZ * diffZ);
+    return (float) (-Math.atan2(diffY, d3) * 180.0 / Math.PI);
+  }
+
+  @Override
+  public Environment environment() {
+    return environment;
   }
 
   @Override
@@ -171,7 +217,12 @@ final class PlaybackPlayerContainer extends SinkPlayerContainer {
 
   @Override
   public void visit(AttackEvent event) {
-    lastAttack = System.currentTimeMillis();
+    lastAttack = environment.currentTime();//System.currentTimeMillis();
+//    if (event.source() != id) {
+//      return;
+//    }
+    System.out.println("Attack: " + event.target());
+    lastAttackedEntityId = event.target();
     visitAny(event);
   }
 
@@ -184,8 +235,15 @@ final class PlaybackPlayerContainer extends SinkPlayerContainer {
 
   @Override
   public void visit(PlayerMoveEvent event) {
+    event.setLastX(posX);
+    event.setLastY(posY);
+    event.setLastZ(posZ);
+    event.setLastYaw(yaw);
+    event.setLastPitch(pitch);
+
     lastYaw = yaw;
     lastPitch = pitch;
+
     if (event.applyX()) {
       this.posX = event.x();
     } else {

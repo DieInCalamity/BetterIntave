@@ -26,31 +26,33 @@ final class ElytraSimulator extends BaseSimulator {
     double positionY = environment.verifiedPositionY();
     double positionZ = environment.verifiedPositionZ();
 
-    float f = rotationPitch * 0.017453292F;
-    double rotationVectorDistance = Math.sqrt(lookVector.getX() * lookVector.getX() + lookVector.getZ() * lookVector.getZ());
+    float pitchRad = rotationPitch * 0.017453292F;
+    double lookVectorX = lookVector.getX();
+    double lookVectorZ = lookVector.getZ();
+    double distance = Math.sqrt(lookVectorX * lookVectorX + lookVectorZ * lookVectorZ);
     double dist2 = Math.sqrt(motion.motionX * motion.motionX + motion.motionZ * motion.motionZ);
     double rotationVectorLength = Math.sqrt(lookVector.lengthSquared());
-    float pitchCosine = cos(f);
+    float pitchCosine = cos(pitchRad);
     pitchCosine = (float) ((double) pitchCosine * (double) pitchCosine * Math.min(1.0D, rotationVectorLength / 0.4D));
     motion.motionY += environment.gravity() * (-1 + pitchCosine * 0.75);
 
-    if (motion.motionY < 0.0D && rotationVectorDistance > 0.0D) {
+    if (motion.motionY < 0.0D && distance > 0.0D) {
       double d2 = motion.motionY * -0.1D * (double) pitchCosine;
       motion.motionY += d2;
-      motion.motionX += lookVector.getX() * d2 / rotationVectorDistance;
-      motion.motionZ += lookVector.getZ() * d2 / rotationVectorDistance;
+      motion.motionX += lookVectorX * d2 / distance;
+      motion.motionZ += lookVectorZ * d2 / distance;
     }
 
-    if (f < 0.0F && rotationVectorDistance > 0.0D) {
-      double d9 = dist2 * (double) (-sin(f)) * 0.04D;
+    if (pitchRad < 0.0F && distance > 0.0D) {
+      double d9 = dist2 * (double) (-sin(pitchRad)) * 0.04D;
       motion.motionY += d9 * 3.2D;
-      motion.motionX += -lookVector.getX() * d9 / rotationVectorDistance;
-      motion.motionZ += -lookVector.getZ() * d9 / rotationVectorDistance;
+      motion.motionX += -lookVectorX * d9 / distance;
+      motion.motionZ += -lookVectorZ * d9 / distance;
     }
 
-    if (rotationVectorDistance > 0.0D) {
-      motion.motionX += (lookVector.getX() / rotationVectorDistance * dist2 - motion.motionX) * 0.1D;
-      motion.motionZ += (lookVector.getZ() / rotationVectorDistance * dist2 - motion.motionZ) * 0.1D;
+    if (distance > 0.0D) {
+      motion.motionX += (lookVectorX / distance * dist2 - motion.motionX) * 0.1D;
+      motion.motionZ += (lookVectorZ / distance * dist2 - motion.motionZ) * 0.1D;
     }
 
     motion.motionX *= 0.99f;

@@ -24,6 +24,7 @@ public final class ConnectionMetadata {
   private final Player player;
   private final Map<Long, FeedbackRequest<?>> transactionGlobalKeyMap = Maps.newConcurrentMap();
   private final Map<Short, FeedbackRequest<?>> transactionShortMap = Maps.newConcurrentMap();
+  private final Queue<FeedbackRequest<?>> feedbackRequestsPending = new LinkedList<>();
   private final Map<Long, Queue<FeedbackRequest<?>>> transactionOptionalAppendixMap = Maps.newConcurrentMap();
   private final Map<Integer, Entity> entitiesById = Maps.newConcurrentMap();
   private final Set<Integer> entityIds = new HashSet<>();
@@ -190,6 +191,10 @@ public final class ConnectionMetadata {
 
   public Map<Short, FeedbackRequest<?>> transactionShortKeyMap() {
     return transactionShortMap;
+  }
+
+  public Queue<FeedbackRequest<?>> pendingFeedbackRequests() {
+    return feedbackRequestsPending;
   }
 
   public Map<Long, FeedbackRequest<?>> transactionGlobalKeyMap() {

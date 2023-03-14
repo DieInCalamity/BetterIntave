@@ -95,6 +95,9 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
         appendCheckPart(new OldAirClickLimitHeuristic(this));
         appendCheckPart(new AttackReduceIgnoreHeuristic(this));
         appendCheckPart(new RotationStandardDeviationHeuristic(this));
+//        if (!IntaveControl.GOMME_MODE && IntaveControl.DISABLE_LICENSE_CHECK) {
+//          appendCheckPart(new RotationStandardDeviationRelayHeuristic(this));
+//        }
         appendCheckPart(new RotationSnapHeuristic(this));
         appendCheckPart(new LongTermClickAccuracyHeuristic(this));
         if (!IntaveControl.GOMME_MODE && IntaveControl.DISABLE_LICENSE_CHECK) {

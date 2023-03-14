@@ -17,7 +17,6 @@ import de.jpx3.intave.user.meta.ConnectionMetadata;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -242,6 +241,7 @@ public final class FeedbackSender extends Module {
     FeedbackRequest<T> feedbackEntry = new FeedbackRequest<>(null, tracker, null, transactionKey, transactionNumCounter);
     synchronizeData.transactionShortKeyMap().put(transactionKey, feedbackEntry);
     synchronizeData.transactionGlobalKeyMap().put(transactionNumCounter, feedbackEntry);
+    synchronizeData.pendingFeedbackRequests().add(feedbackEntry);
 //    return transactionKey;
     return feedbackEntry;
   }
@@ -260,6 +260,7 @@ public final class FeedbackSender extends Module {
     FeedbackRequest<T> feedbackEntry = new FeedbackRequest<>(callback, tracker, obj, transactionKey, transactionNumCounter);
     connection.transactionShortKeyMap().put(transactionKey, feedbackEntry);
     connection.transactionGlobalKeyMap().put(transactionNumCounter, feedbackEntry);
+    connection.pendingFeedbackRequests().add(feedbackEntry);
     connection.pendingTransactions++;
     return feedbackEntry;
   }
@@ -271,13 +272,21 @@ public final class FeedbackSender extends Module {
     ConnectionMetadata connection = user.meta().connection();
     Map<Short, FeedbackRequest<?>> transactionFeedBackMap = connection.transactionShortKeyMap();
     int attempts = 1000;
-    short counter = ID_START;
+    short counter = TRANSACTION_MIN_CODE;
     int pending = transactionFeedBackMap.size();
     if (pending > 500) {
       counter += pending;
     }
-    while (transactionFeedBackMap.containsKey(counter) && attempts-- > 0)
+    while (transactionFeedBackMap.containsKey(counter) && attempts-- > 0) {
       counter++;
+    }
+    if (attempts <= 0) {
+      // should never ever happen, last resort
+      attempts = 1000;
+      while (transactionFeedBackMap.containsKey(counter) && attempts-- > 0) {
+        counter = (short) ThreadLocalRandom.current().nextInt(TRANSACTION_MIN_CODE + pending, TRANSACTION_MAX_CODE);
+      }
+    }
     return counter;
   }
 
@@ -292,15 +301,15 @@ public final class FeedbackSender extends Module {
     }
   }
 
-  private final PacketContainer[] PACKET_CACHE = new PacketContainer[256];
   // for the potentially billions of transaction packets we send, caching does make sense here
+  private final PacketContainer[] PACKET_CACHE = new PacketContainer[256];
 
   private void performRequest(Player receiver, FeedbackRequest<?> request) {
     if (request == null) {
       return;
     }
     User user = userOf(receiver);
-    short id = request.key();
+    short id = request.userKey();
     int index = id - ID_START;
     PacketContainer packet;
     PacketContainer[] packetCache = PACKET_CACHE;
@@ -309,10 +318,10 @@ public final class FeedbackSender extends Module {
       if (USE_PING_PONG_PACKETS) {
         packet = protocol.createPacket(PacketType.Play.Server.PING);
         int sentId = id;
-        if (!user.meta().protocol().noPingMask()) {
-          sentId = sentId | PING_MASK;
+        if (user.meta().protocol().noPingMask()) {
+//          sentId *= -1;
         } else {
-          sentId *= -1;
+          sentId = sentId | PING_MASK;
         }
         packet.getIntegers().write(0, sentId);
       } else {

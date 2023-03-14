@@ -74,17 +74,18 @@ public final class BlockUpdateTracker extends Module {
     }
   )
   public void checkInteractionTarget(
-    Player player, PacketContainer packet, BlockPositionReader reader, Cancellable cancellable
+    User user, PacketContainer packet,
+    BlockPositionReader reader, Cancellable cancellable
   ) {
     PacketType packetType = packet.getType();
     boolean check = true;
+
     if (packetType == PacketType.Play.Client.BLOCK_DIG) {
       EnumWrappers.PlayerDigType playerDigType = packet.getPlayerDigTypes().read(0);
       check = playerDigType == START_DESTROY_BLOCK || playerDigType == STOP_DESTROY_BLOCK || playerDigType == ABORT_DESTROY_BLOCK;
     } else if (packetType == PacketType.Play.Client.BLOCK_PLACE) {
       BlockPosition blockPosition = reader.blockPosition();
       if (blockPosition == null) {
-        reader.release();
         return;
       }
       BlockInteractionReader placeInterpreter = (BlockInteractionReader) reader;
@@ -94,20 +95,17 @@ public final class BlockUpdateTracker extends Module {
     }
 
     if (check) {
+      MovementMetadata movementData = user.meta().movement();
       BlockPosition blockPosition = reader.blockPosition();
       if (blockPosition == null) {
-        reader.release();
         return;
       }
       Vector targetBlock = blockPosition.toVector();
-      User user = UserRepository.userOf(player);
-      MovementMetadata movementData = user.meta().movement();
       Vector playerLocation = new Vector(movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ);
       if (playerLocation.distance(targetBlock) > 16) {
         cancellable.setCancelled(true);
       }
     }
-    reader.release();
   }
 
   @PacketSubscription(

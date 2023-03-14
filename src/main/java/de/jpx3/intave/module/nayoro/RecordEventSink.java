@@ -25,6 +25,11 @@ class RecordEventSink extends EventSink {
   public synchronized void setupIfNeeded() {
     if (!setup) {
       setup = true;
+      try {
+        dataOutput.writeUTF("INTAVE/SAMPLE");
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
       visit(new PlayerInitEvent(environment.mainPlayer()));
       visit(new PropertiesEvent(environment.properties()));
       environment.mainPlayer().applyIfUserPresent(user -> {
@@ -59,20 +64,22 @@ class RecordEventSink extends EventSink {
   public void visitAny(Event event) {
     setupIfNeeded();
     try {
-      int duration = (int) Math.max(Short.MAX_VALUE, System.currentTimeMillis() - last);
+      int duration = (int) Math.min(Short.MAX_VALUE, System.currentTimeMillis() - last);
+      last = System.currentTimeMillis();
       dataOutput.writeShort(duration);
       dataOutput.writeByte(EventRegistry.idOf(event));
       event.serialize(environment, dataOutput);
     } catch (IOException exception) {
       throw new IllegalStateException("Could not serialize event " + event.getClass().getName(), exception);
     }
-    last = System.currentTimeMillis();
   }
 
   @Override
   public void close() {
     try {
       if (dataOutput instanceof Closeable) {
+        dataOutput.writeShort(0);
+        dataOutput.writeByte(-1);
         ((Closeable) dataOutput).close();
       }
     } catch (IOException exception) {

@@ -2,6 +2,7 @@ package de.jpx3.intave;
 
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
+import de.jpx3.intave.diagnostic.ConsoleOutput;
 import de.jpx3.intave.executor.BackgroundExecutor;
 import de.jpx3.intave.resource.FileArchiver;
 import de.jpx3.intave.version.JavaVersion;
@@ -117,9 +118,11 @@ public final class IntaveLogger extends PluginLogger {
   }
 
   public void commandExecution(String command) {
-    command = ChatColor.stripColor(command);
-    printLine("[Intave] Issued server command /" + command);
-    logToFile("(EXE) " + command);
+    if (ConsoleOutput.COMMAND_EXECUTION_DEBUG) {
+      command = ChatColor.stripColor(command);
+      printLine("[Intave] Issued server command /" + command);
+      logToFile("(EXE) " + command);
+    }
   }
 
   @Deprecated

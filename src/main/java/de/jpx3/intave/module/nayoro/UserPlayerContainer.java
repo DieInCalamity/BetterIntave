@@ -23,10 +23,11 @@ import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_8;
 
 public final class UserPlayerContainer implements PlayerContainer {
   private final User user;
-  private Environment environment;
+  private final Environment environment;
 
-  public UserPlayerContainer(User user) {
+  public UserPlayerContainer(User user, Environment environment) {
     this.user = user;
+    this.environment = environment;
   }
 
   @Override
@@ -61,11 +62,6 @@ public final class UserPlayerContainer implements PlayerContainer {
   }
 
   @Override
-  public void setEnvironment(Environment environment) {
-    this.environment = environment;
-  }
-
-  @Override
   public int id() {
     return user.player().getEntityId();
   }
@@ -94,6 +90,22 @@ public final class UserPlayerContainer implements PlayerContainer {
   @Override
   public boolean recentlySwitchedEntity(long millis) {
     return user.meta().attack().recentlySwitchedEntity(millis);
+  }
+
+  @Override
+  public int lastAttackedEntity() {
+    Entity entity = user.meta().attack().lastAttackedEntity();
+    return entity == null ? -1 : entity.entityId();
+  }
+
+  @Override
+  public float perfectYaw() {
+    return user.meta().attack().perfectYaw();
+  }
+
+  @Override
+  public float perfectPitch() {
+    return user.meta().attack().perfectPitch();
   }
 
   @Override

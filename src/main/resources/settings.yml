@@ -158,22 +158,6 @@ proxy:
 clientwarning:
   enable: true
 
-# Does not work yet
-accountcheck:
-  enable: true
-
-  only-red-trustfactor: true
-  # LOWER_TRUSTFACTOR, LOWEST_TRUSTFACTOR, KICK
-  action: KICK
-
-  kick-message-in-chat: true
-  kick-message: "&cYou can't join this server."
-
-filter:
-  health: false
-  vanish: true
-  equipmentdata: false
-
 command:
   hide: true
   reroute:
@@ -199,8 +183,17 @@ fault-kicks:
   invalid-player-action: true
 
 logging:
-  console-log: false
+  # Save logs to a file?
   file-log: true
+
+  # Show trustfactor changes in the console?
+  trustfactor: true
+  # Show client version on join in the console?
+  client-version: true
+  # Show command executions in the console?
+  command-execution: true
+  # Show fault kicks in the console?
+  fault-kicks: true
 
 analytics:
   errorReporting: true

@@ -57,6 +57,6 @@ public final class StorageTrustfactorResolver implements TrustFactorResolver {
 
   @Override
   public String toString() {
-    return "Storage";
+    return "AutoTrustfactor";
   }
 }

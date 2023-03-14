@@ -30,6 +30,7 @@ public final class Fluids {
     PatchyLoadingInjector.loadUnloadedClassPatched(IntavePlugin.class.getClassLoader(), className);
     try {
       engine = (FluidResolver) Class.forName(className).newInstance();
+//      engine = new DynamicFluidResolver();
     } catch (Exception exception) {
       throw new IntaveInternalException(exception);
     }

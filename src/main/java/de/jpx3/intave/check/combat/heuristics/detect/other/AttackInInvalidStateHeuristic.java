@@ -60,7 +60,7 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
   private void checkBlocking(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    // Disable check on 1.9+ due to inconsitencies in mc source
+    // Disable check on 1.9+ due to inconsistencies in mc source
     if (user.protocolVersion() > 47) {
       return;
     }

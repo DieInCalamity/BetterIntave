@@ -100,7 +100,7 @@ public final class SimulationEvaluator {
     }
 
     // spamming sneak under blocks
-    // not a good solution, but it works
+    // not a good solution, but it works (sometimes)
     if (protocol.applyModernCollider()) {
       double crouchingHeightGap = 1 - user.sizeOf(Pose.CROUCHING).height() % 1;
       double standingHeightGap = 1 - user.sizeOf(Pose.STANDING).height() % 1;
@@ -389,7 +389,7 @@ public final class SimulationEvaluator {
           limit = 0.3;
         }
         if (movement.pastEdgeSneak <= 3 && !protocol.flyingPacketsAreSent()) {
-          limit = 0.07;
+          limit = Math.max(limit, 0.07);
         }
       } else {
         if (movement.pastEdgeSneak <= 3) {

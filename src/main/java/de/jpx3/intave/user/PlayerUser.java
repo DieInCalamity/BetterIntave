@@ -15,6 +15,7 @@ import de.jpx3.intave.block.type.BlockTypeAccess;
 import de.jpx3.intave.check.movement.physics.Pose;
 import de.jpx3.intave.cleanup.GarbageCollector;
 import de.jpx3.intave.connect.customclient.CustomClientSupportConfig;
+import de.jpx3.intave.diagnostic.ConsoleOutput;
 import de.jpx3.intave.entity.size.HitboxSize;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.Modules;
@@ -43,7 +44,6 @@ import de.jpx3.intave.user.storage.PlayerStorage;
 import de.jpx3.intave.user.storage.Storage;
 import de.jpx3.intave.user.storage.Storages;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -134,6 +134,9 @@ final class PlayerUser implements User {
   }
 
   private void outputVersionJoinInfo() {
+    if (!ConsoleOutput.CLIENT_VERSION_DEBUG) {
+      return;
+    }
     Player player = player();
     ProtocolMetadata clientData = meta().protocol();
     String string = player.getName() + " joined with version " + clientData.versionString() + "/" + clientData.protocolVersion();
@@ -141,7 +144,7 @@ final class PlayerUser implements User {
       string += " (behind)";
     }
     string += " and locale " + clientData.locale();
-    IntaveLogger.logger().printLine(string);
+    IntaveLogger.logger().info(string);
   }
 
   @Override
@@ -491,7 +494,9 @@ final class PlayerUser implements User {
   public void noteFeedbackFault() {
     ConnectionMetadata connectionData = metadata.connection();
     if (!justJoined() && connectionData.lastReceivedTransactionNum > 100 && connectionData.hardTransactionResponse++ > 3 && FaultKicks.FEEDBACK_FAULTS) {
-      IntaveLogger.logger().info(player().getName() + " will be removed for repeated feedback faults");
+      if (ConsoleOutput.FAULT_KICKS) {
+        IntaveLogger.logger().info(player().getName() + " will be removed for repeated feedback faults");
+      }
       kick("Repeated feedback faults");
     }
   }
@@ -504,8 +509,10 @@ final class PlayerUser implements User {
       return;
     }
     disconnectQueued = true;
-    IntaveLogger.logger().info("Queuing manual disconnect of player " + player().getName() + " for \"" + reason + "\"");
-    IntaveLogger.logger().info("This measure is a security-constraint necessity, but feel free to contact us if this happens too often");
+    if (ConsoleOutput.FAULT_KICKS) {
+      IntaveLogger.logger().info("Queuing manual disconnect of player " + player().getName() + " for \"" + reason + "\"");
+      IntaveLogger.logger().info("This measure is a security-constraint necessity, but feel free to contact us if this happens too often");
+    }
     Synchronizer.synchronize(() -> {
       if (player().isOnline()) {
         player().kickPlayer(reason);

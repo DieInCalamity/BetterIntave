@@ -1,5 +1,6 @@
 package de.jpx3.intave.module.nayoro;
 
+import de.jpx3.intave.annotate.Nullable;
 import de.jpx3.intave.module.dispatch.AttackDispatcher;
 import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.share.Position;
@@ -17,8 +18,7 @@ public final class LiveEnvironment implements Environment {
 
   public LiveEnvironment(User user) {
     this.user = user;
-    this.player = new UserPlayerContainer(user);
-    this.player.setEnvironment(this);
+    this.player = new UserPlayerContainer(user, this);
     setupProperties();
   }
 
@@ -53,9 +53,13 @@ public final class LiveEnvironment implements Environment {
   }
 
   @Override
+  @Nullable
   public Position positionOf(int id) {
-    Entity.EntityPositionContext position = user.meta().connection().entityBy(id).position;
-    return new Position(position.posX, position.posY, position.posZ);
+    Entity entity = user.meta().connection().entityBy(id);
+    if (entity == null) {
+      return null;
+    }
+    return entity.position.toPosition();
   }
 
   // not used
@@ -70,7 +74,7 @@ public final class LiveEnvironment implements Environment {
   }
 
   @Override
-  public boolean hasPassed(long time) {
-    return System.currentTimeMillis() > time;
+  public long currentTime() {
+    return System.currentTimeMillis();
   }
 }
