@@ -13,6 +13,7 @@ import org.bukkit.plugin.Plugin;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class FakeFallbackBlock implements Block {
@@ -229,12 +230,12 @@ public class FakeFallbackBlock implements Block {
 
   @Override
   public Collection<ItemStack> getDrops() {
-    return null;
+    return Collections.emptyList();
   }
 
   @Override
   public Collection<ItemStack> getDrops(ItemStack itemStack) {
-    return null;
+    return Collections.emptyList();
   }
 
   @Override

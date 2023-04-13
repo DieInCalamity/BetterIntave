@@ -1,5 +1,7 @@
 package de.jpx3.intave.check.movement.physics;
 
+import de.jpx3.intave.share.BoundingBox;
+import de.jpx3.intave.share.Motion;
 import org.bukkit.util.Vector;
 
 import static de.jpx3.intave.share.ClientMathHelper.cos;
@@ -10,17 +12,29 @@ public final class TestSimulationEnvironment implements SimulationEnvironment {
   private double verifiedPositionX, verifiedPositionY, verifiedPositionZ;
   private double lastPositionX, lastPositionY, lastPositionZ;
   private double motionX, motionY, motionZ;
+  private double baseMotionX, baseMotionY, baseMotionZ;
   private double jumpHeight;
+  private float height = 1.8F;
+  private float width = 0.6F;
   private float yaw, pitch;
-  private float resetMotion;
+  private float resetMotion = 0.05F;
   private float aiMovementSpeed;
-  private float friction;
-  private float gravity;
+  private float friction = 0.91F;
+  private float gravity = 0.08F;
+  private float stepHeight = 0.6F;
   private boolean inWater, inLava;
-  private boolean sneaking;
+  private boolean sprinting, sneaking;
+  private boolean collidedHorizontally, collidedVertically;
+  private final float frictionPosSubtraction = 1;
+  private double fallDistance;
   private boolean inWeb;
   private boolean onGround;
   private boolean lastOnGround;
+
+  private final Motion motionProcessorContext = new Motion();
+  private BoundingBox boundingBox = BoundingBox.fromBounds(0, 0, 0, 0, 0, 0);
+
+  private Vector motionMultiplier;
 
   public void copyPositionToLastPosition() {
     lastPositionX = positionX;
@@ -104,6 +118,10 @@ public final class TestSimulationEnvironment implements SimulationEnvironment {
 
   public void setFriction(float friction) {
     this.friction = friction;
+  }
+
+  public void setStepHeight(float stepHeight) {
+    this.stepHeight = stepHeight;
   }
 
   public void setGravity(float gravity) {
@@ -196,6 +214,16 @@ public final class TestSimulationEnvironment implements SimulationEnvironment {
   }
 
   @Override
+  public void setBoundingBox(BoundingBox boundingBox) {
+    this.boundingBox = boundingBox;
+  }
+
+  @Override
+  public BoundingBox boundingBox() {
+    return boundingBox;
+  }
+
+  @Override
   public double motionX() {
     return motionX;
   }
@@ -211,8 +239,58 @@ public final class TestSimulationEnvironment implements SimulationEnvironment {
   }
 
   @Override
+  public double baseMotionX() {
+    return baseMotionX;
+  }
+
+  @Override
+  public double baseMotionY() {
+    return baseMotionY;
+  }
+
+  @Override
+  public double baseMotionZ() {
+    return baseMotionZ;
+  }
+
+  @Override
+  public void setBaseMotionX(double baseMotionX) {
+    this.baseMotionX = baseMotionX;
+  }
+
+  @Override
+  public void setBaseMotionY(double baseMotionY) {
+    this.baseMotionY = baseMotionY;
+  }
+
+  @Override
+  public void setBaseMotionZ(double baseMotionZ) {
+    this.baseMotionZ = baseMotionZ;
+  }
+
+  @Override
+  public Motion motionProcessorContext() {
+    return motionProcessorContext;
+  }
+
+  @Override
+  public boolean motionXReset() {
+    return false;
+  }
+
+  @Override
+  public boolean motionZReset() {
+    return false;
+  }
+
+  @Override
   public Vector motionMultiplier() {
-    return null;
+    return motionMultiplier;
+  }
+
+  @Override
+  public void resetMotionMultiplier() {
+    motionMultiplier = null;
   }
 
   @Override
@@ -246,6 +324,11 @@ public final class TestSimulationEnvironment implements SimulationEnvironment {
   }
 
   @Override
+  public double stepHeight() {
+    return stepHeight;
+  }
+
+  @Override
   public double resetMotion() {
     return resetMotion;
   }
@@ -266,6 +349,11 @@ public final class TestSimulationEnvironment implements SimulationEnvironment {
   }
 
   @Override
+  public boolean isSprinting() {
+    return sprinting;
+  }
+
+  @Override
   public boolean inWater() {
     return inWater;
   }
@@ -281,6 +369,11 @@ public final class TestSimulationEnvironment implements SimulationEnvironment {
   }
 
   @Override
+  public void resetInWeb() {
+    inWeb = false;
+  }
+
+  @Override
   public boolean onGround() {
     return onGround;
   }
@@ -288,5 +381,130 @@ public final class TestSimulationEnvironment implements SimulationEnvironment {
   @Override
   public boolean lastOnGround() {
     return lastOnGround;
+  }
+
+  @Override
+  public boolean collidedHorizontally() {
+    return collidedHorizontally;
+  }
+
+  @Override
+  public boolean collidedVertically() {
+    return collidedVertically;
+  }
+
+  @Override
+  public double frictionPosSubtraction() {
+    return frictionPosSubtraction;
+  }
+
+  @Override
+  public boolean blockOnPositionSoulSpeedAffected() {
+    return false;
+  }
+
+  @Override
+  public double fallDistance() {
+    return fallDistance;
+  }
+
+  @Override
+  public void resetFallDistance() {
+    fallDistance = 0;
+  }
+
+  @Override
+  public boolean isInVehicle() {
+    return false;
+  }
+
+  @Override
+  public void dismountRidingEntity(String boatSetback) {
+
+  }
+
+  @Override
+  public void setPushedByEntity(boolean pushedByEntity) {
+
+  }
+
+  @Override
+  public boolean pushedByEntity() {
+    return false;
+  }
+
+  @Override
+  public int pastAnyVelocity() {
+    return 100;
+  }
+
+  @Override
+  public int pastExternalVelocity() {
+    return 100;
+  }
+
+  @Override
+  public void increaseFlyingPacketTicks() {
+
+  }
+
+  @Override
+  public void increaseEntityUseTicks() {
+
+  }
+
+  @Override
+  public void increasePlayerAttackTicks() {
+
+  }
+
+  @Override
+  public void increasePushedByWaterFlowTicks() {
+
+  }
+
+  @Override
+  public void resetPhysicsPacketRelinkFlyVL() {
+
+  }
+
+  @Override
+  public void increasePowderSnowTicks() {
+
+  }
+
+  @Override
+  public void resetPowderSnowTicks() {
+
+  }
+
+  @Override
+  public void increaseEdgeSneakTickGrants() {
+
+  }
+
+  @Override
+  public void aquaticUpdateLavaReset() {
+
+  }
+
+  @Override
+  public float height() {
+    return height;
+  }
+
+  @Override
+  public float width() {
+    return width;
+  }
+
+  @Override
+  public double heightRounded() {
+    return height;
+  }
+
+  @Override
+  public double widthRounded() {
+    return width;
   }
 }

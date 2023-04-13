@@ -2,12 +2,11 @@ package de.jpx3.intave.share;
 
 import de.jpx3.intave.block.shape.BlockRaytrace;
 import de.jpx3.intave.block.shape.BlockShape;
+import de.jpx3.intave.check.movement.physics.SimulationEnvironment;
 import de.jpx3.intave.diagnostic.MemoryTraced;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.share.link.WrapperConverter;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.meta.MovementMetadata;
-import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
@@ -112,33 +111,33 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
     return boundingBox;
   }
 
-  public static BoundingBox fromPosition(User user, Location location) {
-    return fromPosition(user, location.getX(), location.getY(), location.getZ());
+  public static BoundingBox fromPosition(User user, SimulationEnvironment environment, Location location) {
+    return fromPosition(user, environment, location.getX(), location.getY(), location.getZ());
   }
 
-  public static BoundingBox fromPosition(User user, Position position) {
-    return fromPosition(user, position.getX(), position.getY(), position.getZ());
+  public static BoundingBox fromPosition(User user, SimulationEnvironment environment, Position position) {
+    return fromPosition(user, environment, position.getX(), position.getY(), position.getZ());
   }
 
-  public static BoundingBox fromPosition(User user, BlockPosition position) {
-    return fromPosition(user, position.xCoord, position.yCoord, position.zCoord);
+  public static BoundingBox fromPosition(User user, SimulationEnvironment environment, BlockPosition position) {
+    return fromPosition(user, environment, position.xCoord, position.yCoord, position.zCoord);
   }
 
   public static BoundingBox fromPosition(
     User user,
+    SimulationEnvironment environment,
     double positionX, double positionY, double positionZ
   ) {
-    MovementMetadata movementData = user.meta().movement();
-    ProtocolMetadata clientData = user.meta().protocol();
-    double width = movementData.isInVehicle() ? movementData.width / 2.0f : movementData.widthRounded;
-    float height = movementData.height;
+    double width = environment.isInVehicle() ? environment.width() / 2.0f : environment.widthRounded();
+    float height = environment.height();
 
     double newYMax;
-    if (clientData.roundEnvironmentNumbers()) {
+    if (user.meta().protocol().roundEnvironmentNumbers()) {
       newYMax = Math.round((positionY + height) * 10000000d) / 10000000d;
     } else {
       newYMax = Math.round((positionY + height) * 10000000000d) / 10000000000d;
     }
+
     return new BoundingBox(
       positionX - width, positionY, positionZ - width,
       positionX + width, newYMax, positionZ + width
@@ -238,7 +237,11 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
     double d3 = this.maxX + x;
     double d4 = this.maxY + y;
     double d5 = this.maxZ + z;
-    return new BoundingBox(d0, d1, d2, d3, d4, d5);
+    BoundingBox resulting = new BoundingBox(d0, d1, d2, d3, d4, d5);
+    if (isOriginBox()) {
+      resulting.makeOriginBox();
+    }
+    return resulting;
   }
 
   public BoundingBox grow(double value) {
@@ -295,14 +298,17 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
 
   @Override
   public BlockShape contextualized(int posX, int posY, int posZ) {
-    if (isOriginBox()) {
-      return offset(posX, posY, posZ);
+    if (!isOriginBox()) {
+      return this;
     }
-    return this;
+    return offset(posX, posY, posZ);
   }
 
   @Override
   public BlockShape normalized(int posX, int posY, int posZ) {
+    if (isOriginBox()) {
+      return this;
+    }
     BoundingBox normalized = offset(-posX, -posY, -posZ);
     normalized.makeOriginBox();
     return normalized;
@@ -377,7 +383,7 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
 
   // width and height
   public String toString() {
-    return "" + (maxX - minX) + "," + (maxY - minY) + "," + (maxZ - minZ);
+    return (maxX - minX) + "," + (maxY - minY) + "," + (maxZ - minZ);
   }
 
   /**

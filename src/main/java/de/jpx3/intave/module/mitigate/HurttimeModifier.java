@@ -18,15 +18,12 @@ public final class HurttimeModifier {
     if (hitDelayLinkageError) {
       return;
     }
-
     User user = UserRepository.userOf(player);
     PunishmentMetadata punishmentData = user.meta().punishment();
-
     // Already changed
     if (punishmentData.damageTicksBefore != -1) {
       return;
     }
-
     int noDamageTicksBefore = resolveNoDamageTicksOf(player);
     int newNoDamageTicks = calculateNewNoDamageTicks(noDamageTicksBefore, additionalHurtTime);
     punishmentData.damageTicksBefore = noDamageTicksBefore;

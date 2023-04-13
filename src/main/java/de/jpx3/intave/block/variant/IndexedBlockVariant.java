@@ -11,7 +11,6 @@ final class IndexedBlockVariant implements BlockVariant {
   private final Material type;
   private final int variantIndex;
   private final Map<? extends Setting<?>, Comparable<?>> nativeConfig;
-  private final Map<String, Integer> baselineIndices = new HashMap<>();
   private final Map<String, Comparable<?>> namedConfig = new HashMap<>();
   private final Map<String, Setting<?>> namedSettings = new HashMap<>();
 

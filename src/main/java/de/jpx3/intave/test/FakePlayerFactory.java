@@ -55,7 +55,7 @@ public final class FakePlayerFactory {
   private static Constructor<?> playerConstructorForMethods(List<? extends BiFunction<String, Object[], Object>> methods) {
     MethodDelegation implementation = MethodDelegation.to(new Object() {
       @RuntimeType
-      public Object delegate(@This Object obj, @Origin Method method, @FieldValue("server") Server server, @AllArguments Object... args) throws Throwable {
+      public Object delegate(@This Object obj, @Origin Method method, @FieldValue("server") Server server, @AllArguments Object... args) {
         String methodName = method.getName();
         for (BiFunction<String, Object[], Object> stringObjectBiFunction : methods) {
           Object result = stringObjectBiFunction.apply(methodName, args);

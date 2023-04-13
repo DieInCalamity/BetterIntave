@@ -7,7 +7,6 @@ import com.google.common.collect.Lists;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.executor.TaskTracker;
-import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.player.fake.action.*;
 import de.jpx3.intave.player.fake.movement.FloatingMovement;
 import de.jpx3.intave.player.fake.movement.Movement;
@@ -219,26 +218,25 @@ public final class FakePlayer extends FakePlayerBody {
   public void movementTeleport(Location to, boolean onGround) {
     super.movementTeleport(to, onGround);
     movement.registerTeleport(to);
-    Modules.feedback()
-      .synchronize(observer, to, (player, target) -> {
-        User user = UserRepository.userOf(player);
-        AttackMetadata attackData = user.meta().attack();
-        attackData.fakePlayerLastReportedX = target.getX();
-        attackData.fakePlayerLastReportedY = target.getY();
-        attackData.fakePlayerLastReportedZ = target.getZ();
-      }, SELF_SYNCHRONIZATION);
+
+    User user = UserRepository.userOf(observer);
+    AttackMetadata attackData = user.meta().attack();
+    user.tickFeedback(() -> {
+      attackData.fakePlayerLastReportedX = to.getX();
+      attackData.fakePlayerLastReportedY = to.getY();
+      attackData.fakePlayerLastReportedZ = to.getZ();
+    }, SELF_SYNCHRONIZATION);
   }
 
   public void movementUpdate(Location to, Location prevLocation, boolean onGround) {
     super.movementUpdate(to, prevLocation, onGround);
-    Modules.feedback()
-      .synchronize(observer, to, (player, target) -> {
-        User user = UserRepository.userOf(player);
-        AttackMetadata attackData = user.meta().attack();
-        attackData.fakePlayerLastReportedX = target.getX();
-        attackData.fakePlayerLastReportedY = target.getY();
-        attackData.fakePlayerLastReportedZ = target.getZ();
-      }, SELF_SYNCHRONIZATION);
+    User user = UserRepository.userOf(observer);
+    AttackMetadata attackData = user.meta().attack();
+    user.tickFeedback(() -> {
+      attackData.fakePlayerLastReportedX = to.getX();
+      attackData.fakePlayerLastReportedY = to.getY();
+      attackData.fakePlayerLastReportedZ = to.getZ();
+    }, SELF_SYNCHRONIZATION);
   }
 
   public boolean teleportRequired(Location location1, Location location2) {

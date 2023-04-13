@@ -1,5 +1,6 @@
 package de.jpx3.intave.check.movement.physics;
 
+import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.Motion;
 import de.jpx3.intave.share.Position;
 import org.bukkit.util.Vector;
@@ -50,6 +51,9 @@ public interface SimulationEnvironment {
   double lastPositionY();
   double lastPositionZ();
 
+  void setBoundingBox(BoundingBox boundingBox);
+  BoundingBox boundingBox();
+
   default Motion motion() {
     return new Motion(motionX(), motionY(), motionZ());
   }
@@ -57,7 +61,24 @@ public interface SimulationEnvironment {
   double motionY();
   double motionZ();
 
+  default Motion baseMotion() {
+    return new Motion(baseMotionX(), baseMotionY(), baseMotionZ());
+  }
+  double baseMotionX();
+  double baseMotionY();
+  double baseMotionZ();
+
+  void setBaseMotionX(double baseMotionX);
+  void setBaseMotionY(double baseMotionY);
+  void setBaseMotionZ(double baseMotionZ);
+
+  Motion motionProcessorContext();
+
+  boolean motionXReset();
+  boolean motionZReset();
+
   Vector motionMultiplier();
+  void resetMotionMultiplier();
 
   float rotationYaw();
   float yawSine();
@@ -67,15 +88,55 @@ public interface SimulationEnvironment {
 
   float aiMoveSpeed(boolean sprinting);
   float friction();
+  double stepHeight();
   double resetMotion();
   double jumpMotion();
   double gravity();
 
   // states
   boolean isSneaking();
+  boolean isSprinting();
   boolean inWater();
   boolean inLava();
   boolean inWeb();
+  void resetInWeb();
   boolean onGround();
+
   boolean lastOnGround();
+  boolean collidedHorizontally();
+
+  boolean collidedVertically();
+  double frictionPosSubtraction();
+
+  boolean blockOnPositionSoulSpeedAffected();
+
+  double fallDistance();
+  void resetFallDistance();
+
+  boolean isInVehicle();
+  void dismountRidingEntity(String boatSetback);
+
+  void setPushedByEntity(boolean pushedByEntity);
+  boolean pushedByEntity();
+
+  int pastAnyVelocity();
+  int pastExternalVelocity();
+
+  void increaseFlyingPacketTicks();
+  void increaseEntityUseTicks();
+  void increasePlayerAttackTicks();
+  void increasePushedByWaterFlowTicks();
+  void resetPhysicsPacketRelinkFlyVL();
+
+  void increasePowderSnowTicks();
+  void resetPowderSnowTicks();
+
+  void increaseEdgeSneakTickGrants();
+
+  void aquaticUpdateLavaReset();
+
+  float height();
+  float width();
+  double heightRounded();
+  double widthRounded();
 }

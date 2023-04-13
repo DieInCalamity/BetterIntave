@@ -33,12 +33,6 @@ public final class HashList {
   }
 
   private boolean hashBlacklisted(String hash) {
-//    for (String blacklistedHash : hashes) {
-//      if (blacklistedHash.equals(hash)) {
-//        return true;
-//      }
-//    }
-//    return false;
     return hashes.contains(hash);
   }
 

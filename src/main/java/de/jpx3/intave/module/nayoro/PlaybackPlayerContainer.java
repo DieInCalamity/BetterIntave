@@ -211,7 +211,7 @@ final class PlaybackPlayerContainer extends SinkPlayerContainer {
   }
 
   @Override
-  public void applyIfUserPresent(Consumer<User> action) {
+  public void applyIfUserPresent(Consumer<? super User> action) {
     // ignore
   }
 

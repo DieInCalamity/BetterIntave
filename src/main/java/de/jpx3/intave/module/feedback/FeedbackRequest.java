@@ -6,15 +6,15 @@ import org.bukkit.entity.Player;
 
 public final class FeedbackRequest<T> {
   private final FeedbackCallback<T> callback;
-  private final FeedbackTracker tracker;
+  private final FeedbackObserver observer;
   private final T obj;
   private final short userKey;
   private final long key;
   private final long time;
 
-  FeedbackRequest(FeedbackCallback<T> callback, FeedbackTracker tracker, T obj, short userKey, long key) {
+  FeedbackRequest(FeedbackCallback<T> callback, FeedbackObserver observer, T obj, short userKey, long key) {
     this.callback = callback;
-    this.tracker = tracker;
+    this.observer = observer;
     this.obj = obj;
     this.userKey = userKey;
     this.key = key;
@@ -22,16 +22,16 @@ public final class FeedbackRequest<T> {
   }
 
   void sent() {
-    if (tracker != null) {
-      tracker.sent(this);
+    if (observer != null) {
+      observer.sent(this);
     }
   }
 
   void acknowledge(Player player) {
     try {
       callback.success(player, obj);
-      if (tracker != null) {
-        tracker.received(this);
+      if (observer != null) {
+        observer.received(this);
       }
     } catch (Exception e) {
       if (IntaveControl.DISABLE_LICENSE_CHECK) {

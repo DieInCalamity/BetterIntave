@@ -9,9 +9,7 @@ import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.tracker.entity.EntityTracker;
-import de.jpx3.intave.packet.reader.AbilityInReader;
-import de.jpx3.intave.packet.reader.AbilityOutReader;
-import de.jpx3.intave.packet.reader.PacketReaders;
+import de.jpx3.intave.packet.reader.*;
 import de.jpx3.intave.share.ClientMathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
@@ -24,27 +22,18 @@ import java.lang.reflect.Field;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.ABILITIES_IN;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
+import static de.jpx3.intave.packet.reader.GameStateChangeReader.GameState.CHANGE_GAME_MODE;
 
 public final class AbilityTracker extends Module {
-  @PacketSubscription(
-    packetsOut = {
-      CAMERA
-    }
-  )
-  public void receiveCamera(PacketEvent event) {
-    Player player = event.getPlayer();
-    PacketContainer packet = event.getPacket();
-    Integer entityId = packet.getIntegers().read(0);
-    Modules.feedback().synchronize(
-      player, EntityTracker.serverEntityByIdentifier(player, entityId),
-      this::synchronizedCameraUpdate
-    );
+  @PacketSubscription(packetsOut = CAMERA)
+  public void receiveCamera(User user, EntityReader reader) {
+    int entityId = reader.entityId();
+    user.tickFeedback(() -> synchronizedCameraUpdate(user, entityId));
   }
 
-  private void synchronizedCameraUpdate(Player player, Entity entity) {
-    User user = UserRepository.userOf(player);
+  private void synchronizedCameraUpdate(User user, int entityId) {
     AbilityMetadata abilityData = user.meta().abilities();
-    abilityData.hasViewEntity = entity != player;
+    abilityData.hasViewEntity = entityId != user.player().getEntityId();
   }
 
   @PacketSubscription(
@@ -53,16 +42,9 @@ public final class AbilityTracker extends Module {
       ABILITIES_IN
     }
   )
-  public void receiveAbilities(PacketEvent event) {
-    Player player = event.getPlayer();
-    User user = UserRepository.userOf(player);
-    PacketContainer packet = event.getPacket();
-
+  public void receiveAbilities(User user, AbilityInReader reader) {
     AbilityMetadata abilityData = user.meta().abilities();
     MovementMetadata movementData = user.meta().movement();
-
-    AbilityInReader reader = PacketReaders.readerOf(packet);
-
     boolean flying = reader.requestedFlying();
     if (abilityData.allowFlying()) {
       if (flying) {
@@ -71,10 +53,7 @@ public final class AbilityTracker extends Module {
         movementData.disabledFlying = true;
       }
     }
-
-    reader.release();
   }
-
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
@@ -82,21 +61,16 @@ public final class AbilityTracker extends Module {
       ABILITIES_OUT
     }
   )
-  public void sentAbilities(PacketEvent event) {
-    Player player = event.getPlayer();
-    User user = UserRepository.userOf(player);
+  public void sentAbilities(User user, AbilityOutReader reader) {
     AbilityMetadata abilityData = user.meta().abilities();
-    PacketContainer packet = event.getPacket();
-    AbilityOutReader reader = PacketReaders.readerOf(packet);
     float flyingSpeed = reader.flyingSpeed();
     float walkingSpeed = reader.walkingSpeed();
     boolean allowedFlight = reader.flyingAllowed();
-    user.tickFeedback(x -> {
+    user.tickFeedback(() -> {
       abilityData.setWalkSpeed(walkingSpeed);
       abilityData.setFlySpeed(flyingSpeed);
       abilityData.setAllowFlying(allowedFlight);
     });
-    reader.release();
   }
 
   @PacketSubscription(
@@ -105,42 +79,16 @@ public final class AbilityTracker extends Module {
       GAME_STATE_CHANGE
     }
   )
-  public void updateGameMode(PacketEvent event) {
-    Player player = event.getPlayer();
-    User user = UserRepository.userOf(player);
-    PacketContainer packet = event.getPacket();
-    AbilityMetadata abilityData = user.meta().abilities();
-    if (!gameModeUpdateState(packet)) {
+  public void outgoingGameModeUpdate(
+    User user, GameStateChangeReader reader
+  ) {
+    if (reader.type() != CHANGE_GAME_MODE) {
       return;
     }
-    Float value = packet.getFloat().read(0);
-    int gameTypeIdentifier = ClientMathHelper.floor_float(value + 0.5F);
-    GameMode gameMode = gameModeOf(gameTypeIdentifier);
+    GameMode gameMode = gameModeOf(reader.valueAsInt());
+    AbilityMetadata abilityData = user.meta().abilities();
     abilityData.setPendingGameMode(gameMode);
-    Modules.feedback().synchronize(
-      player, gameMode,
-      ((player1, target) -> UserRepository.userOf(player1).meta().abilities().setGameMode(target))
-    );
-  }
-
-  private final boolean NEW_GAME_STATE_CHANGE_PACKET = MinecraftVersions.VER1_16_0.atOrAbove();
-  private final Class<?> GAME_STATE_CLASS = !NEW_GAME_STATE_CHANGE_PACKET ? null : Lookup.serverClass("PacketPlayOutGameStateChange$a");
-
-  private boolean gameModeUpdateState(PacketContainer packet) {
-    if (NEW_GAME_STATE_CHANGE_PACKET) {
-      try {
-        Object obj = packet.getModifier().withType(GAME_STATE_CLASS).read(0);
-        Field field = obj.getClass().getDeclaredField("b");
-        field.setAccessible(true);
-        return (int) field.get(obj) == 3;
-      } catch (Exception exception) {
-        exception.printStackTrace();
-        return false;
-      }
-//      return packet.getGameStateIDs().read(0) == 3;
-    } else {
-      return packet.getIntegers().read(0) == 3;
-    }
+    user.tickFeedback(() -> abilityData.setGameMode(gameMode));
   }
 
   private GameMode gameModeOf(int id) {

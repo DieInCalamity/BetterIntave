@@ -70,4 +70,8 @@ public final class ColliderResult {
   public static ColliderResult invalid() {
     return INVALID_SIMULATION;
   }
+
+  public static ColliderResult untouched(Motion motion) {
+    return new ColliderResult(motion, false, false, false, false, false, false, false);
+  }
 }

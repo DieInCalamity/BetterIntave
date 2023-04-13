@@ -5,10 +5,7 @@ import com.comphenix.protocol.events.ConnectionSide;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.injector.packet.PacketRegistry;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
@@ -18,9 +15,9 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Server;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
 
 public final class PacketReaders {
-  private static final Map<PacketType, ThreadLocal<? extends PacketReader>> readerLocals = new ConcurrentHashMap<>();
+  private static final Map<PacketType, ThreadLocal<? extends PacketReader>> readerLocals = new HashMap<>();
 
-  static {
+  public static void setup() {
     setup(ABILITIES_OUT, AbilityOutReader::new);
     setup(ANIMATION, EntityReader::new);
     setup(ATTACH_ENTITY, AttachEntityReader::new);
@@ -43,6 +40,7 @@ public final class PacketReaders {
     setup(ENTITY_SOUND, EntityReader::new);
     setup(ENTITY_TELEPORT, EntityReader::new);
     setup(ENTITY_VELOCITY, EntityReader::new);
+    setup(GAME_STATE_CHANGE, GameStateChangeReader::new);
     setup(LOGIN, EntityReader::new);
     setup(LOOK_AT, EntityReader::new);
     setup(MAP_CHUNK, MapChunkReader::new);
@@ -73,6 +71,8 @@ public final class PacketReaders {
     setup(ENTITY_ACTION_IN, PlayerActionReader::new);
     setup(USE_ITEM, BlockInteractionReader::new);
     setup(USE_ENTITY, EntityUseReader::new);
+
+    // for some
   }
 
   private static void setup(Server serverPacket, Supplier<? extends PacketReader> supplier) {
@@ -111,7 +111,7 @@ public final class PacketReaders {
     PacketType type = container.getType();
     ThreadLocal<? extends PacketReader> threadLocal = readerLocals.get(type);
     if (threadLocal == null) {
-      throw new IllegalStateException("No reader available for type " + type);
+      throw new IllegalStateException("No reader available for type " + type.name());
     }
     PacketReader interpreter = threadLocal.get();
     interpreter.enter(container);

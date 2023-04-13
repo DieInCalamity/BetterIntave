@@ -262,6 +262,7 @@ public final class PacketSubscriptionLinker extends Module {
       return instanceOf(executorClass);
     } else {
       Class<?>[] parameterTypes = calledMethod.getParameterTypes();
+      int length = parameterTypes.length;
 
       int playerParameterIndex = findParameterPosition(parameterTypes, Player.class);
       int userParameterPosition = findParameterPosition(parameterTypes, User.class);
@@ -273,14 +274,13 @@ public final class PacketSubscriptionLinker extends Module {
 
       return (subscriber, event) -> {
         Player player = event.getPlayer();
-        User user = UserRepository.userOf(player);
 
-        Object[] arguments = new Object[parameterTypes.length];
+        Object[] arguments = new Object[length];
         if (playerParameterIndex != -1) {
           arguments[playerParameterIndex] = player;
         }
         if (userParameterPosition != -1) {
-          arguments[userParameterPosition] = user;
+          arguments[userParameterPosition] = UserRepository.userOf(player);
         }
         if (cancelableParameterPosition != -1) {
           arguments[cancelableParameterPosition] = event;

@@ -23,9 +23,9 @@ import java.util.function.Consumer;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
 public final class PacketEventDispatch implements PacketEventSubscriber {
-  private final BiConsumer<User, Consumer<EventSink>> reverseSink;
+  private final BiConsumer<? super User, Consumer<EventSink>> reverseSink;
 
-  public PacketEventDispatch(BiConsumer<User, Consumer<EventSink>> sinkCallback) {
+  public PacketEventDispatch(BiConsumer<? super User, Consumer<EventSink>> sinkCallback) {
     this.reverseSink = sinkCallback;
   }
 

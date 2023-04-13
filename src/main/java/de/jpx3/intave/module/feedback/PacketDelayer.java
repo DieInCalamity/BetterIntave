@@ -4,7 +4,6 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.check.movement.Timer;
 import de.jpx3.intave.diagnostic.LatencyStudy;
 import de.jpx3.intave.diagnostic.message.DebugBroadcast;
@@ -128,7 +127,7 @@ public final class PacketDelayer extends Module {
 
     long lagTolerance = user.trustFactorSetting("timer.lt");
 
-    boolean transactionTimeout = oldestTransactionPacket * (lowToleranceMode ? 1.25 : 1) > connection.transactionPingAverage() + LatencyStudy.transactionPingAverage() / 2 + lagTolerance;
+    boolean transactionTimeout = oldestTransactionPacket * (lowToleranceMode ? 1.25 : 1) > connection.transactionPingAverage() + ((double)LatencyStudy.transactionPingAverage() / 2d) + lagTolerance;
     boolean riding = movement.isInVehicle();
     long positionBlockTolerance = connection.transactionPingAverage() + LatencyStudy.transactionPingAverage() / 2 + lagTolerance + positionTimeoutTolerance;
     boolean positionTimeout = !riding && lastMovementPacket > positionBlockTolerance;
@@ -148,9 +147,16 @@ public final class PacketDelayer extends Module {
     Deque<Object> enqueuedPackets = connection.enqueuedPackets();
     DelayQueue<DelayedPacket> delayedPackets = connection.delayedPackets();
     boolean tooManyPackets = enqueuedPackets.size() > 8000;
-    boolean buffer = !tooManyPackets && !player.isDead() && (transactionTimeout || positionTimeout);
+    boolean requestBuffer = (transactionTimeout || positionTimeout);
 
-    if (buffer && reverseBlink) {
+    if (!requestBuffer && connection.lastBlinkState) {
+      connection.blinkDeactivated = System.currentTimeMillis();
+    }
+
+    connection.lastBlinkState = requestBuffer;
+    boolean activatePacketBuffer = !tooManyPackets &&  !player.isDead() && (requestBuffer || (System.currentTimeMillis() - connection.blinkDeactivated < 1000));
+
+    if (activatePacketBuffer && reverseBlink) {
       // put all delayed packets into the enqueuedPacket queue
       if (!delayedPackets.isEmpty()) {
         DelayedPacket[] delayedObjectsArray = delayedPackets.toArray(new DelayedPacket[0]);

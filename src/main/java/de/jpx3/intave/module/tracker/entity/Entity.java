@@ -7,8 +7,8 @@ import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.entity.size.HitboxSize;
 import de.jpx3.intave.entity.type.EntityTypeData;
 import de.jpx3.intave.math.Hypot;
-import de.jpx3.intave.module.feedback.FeedbackTracker;
-import de.jpx3.intave.module.feedback.PendingCountingFeedbackTracker;
+import de.jpx3.intave.module.feedback.FeedbackObserver;
+import de.jpx3.intave.module.feedback.PendingCountingFeedbackObserver;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.ClientMathHelper;
 import de.jpx3.intave.share.Position;
@@ -76,7 +76,7 @@ public class Entity {
   public double distanceToPlayerCache;
   private boolean temporaryCopy;
 
-  private final PendingCountingFeedbackTracker feedbackTracker;
+  private final PendingCountingFeedbackObserver feedbackTracker;
 
   public Entity(
     int entityId,
@@ -90,7 +90,7 @@ public class Entity {
     this.position = new EntityPositionContext();
     this.lastPosition = new EntityPositionContext();
     this.alternativePosition = new EntityPositionContext();
-    this.feedbackTracker = new PendingCountingFeedbackTracker();
+    this.feedbackTracker = new PendingCountingFeedbackObserver();
   }
 
   public boolean hasTypeData() {
@@ -197,11 +197,11 @@ public class Entity {
       newPosZ = immServerPosZ / 32.0;
     }
     // Always set on 1.16+ as they removed the threshold
-    boolean requiresPositionUpdate =
+    boolean samePosition =
         Math.abs(immediateServerPosition.getX() - newPosX) < 0.03125d &&
             Math.abs(immediateServerPosition.getY() - newPosY) < 0.015625d &&
             Math.abs(immediateServerPosition.getZ() - newPosZ) < 0.03125d;
-    if (!requiresPositionUpdate && user.protocolVersion() < 735 /* 1.16 protocol version */) {
+    if (samePosition && user.protocolVersion() < 735 /* 1.16 protocol version */) {
       return;
     }
     immediateServerPosition.setX(newPosX);
@@ -460,7 +460,7 @@ public class Entity {
     this.enabledResponseTracing = enabledResponseTracing;
   }
 
-  public FeedbackTracker feedbackTracker() {
+  public FeedbackObserver feedbackTracker() {
     return feedbackTracker;
   }
 

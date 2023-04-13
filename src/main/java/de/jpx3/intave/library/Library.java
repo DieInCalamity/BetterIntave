@@ -63,7 +63,7 @@ public final class Library {
           break;
         }
         HashResult hashResult = verifyHash(extensions.get(digests.indexOf(digest)), digest);
-        System.out.println(hashResult);
+//        System.out.println(hashResult);
         switch (hashResult) {
           case MATCH:
             matchingHash = true;

@@ -52,6 +52,7 @@ import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscriptionLinker;
 import de.jpx3.intave.module.linker.packet.PacketSubscriptionLinker;
 import de.jpx3.intave.module.tracker.entity.Entity;
+import de.jpx3.intave.packet.reader.PacketReaders;
 import de.jpx3.intave.player.FaultKicks;
 import de.jpx3.intave.player.ItemProperties;
 import de.jpx3.intave.player.fake.IdentifierReserve;
@@ -141,6 +142,9 @@ public final class IntavePlugin extends JavaPlugin {
     singletonInstance = this;
     version = getDescription().getVersion();
     createDataFolder();
+    if (IntaveControl.GOMME_MODE) {
+      ContextSecrets.setup();
+    }
     this.logger = new IntaveLogger(this);
     this.logger.checkColorAvailability();
     Modules.prepareModules();
@@ -161,7 +165,6 @@ public final class IntavePlugin extends JavaPlugin {
   @Override
   public void onEnable() {
     logger.info("Please stand by..");
-    IntaveDomains.setup();
 
     // stage 4
     Modules.proceedBoot(BootSegment.STAGE_4);
@@ -170,9 +173,7 @@ public final class IntavePlugin extends JavaPlugin {
       logger.info("Using agent :{~-~}:");
     }
 
-    if (IntaveControl.GOMME_MODE) {
-      ContextSecrets.setup();
-    }
+    IntaveDomains.setup();
 
     prefix = ChatColor.translateAlternateColorCodes('&', prefix);
 
@@ -205,6 +206,7 @@ public final class IntavePlugin extends JavaPlugin {
       SinusCache.setup();
       ServerHealth.setup();
       Synchronizer.setup();
+      PacketReaders.setup();
       SibylBroadcast.setup();
       ReflectiveAccess.setup();
       IdentifierReserve.setup();
@@ -328,7 +330,11 @@ public final class IntavePlugin extends JavaPlugin {
         }
 
         try {
-          String path = "https://" + IntaveDomains.primaryServiceDomain() + "/auth.php";
+          String domain = IntaveDomains.primaryServiceDomain();
+          if (!domain.contains("intave") || !domain.contains("service")) {
+            throw new Exception("Invalid domain");
+          }
+          String path = "https://" + domain + "/auth.php";
           URL url = new URL(path);
           URLConnection connection = url.openConnection();
           connection.setUseCaches(false);
@@ -464,7 +470,7 @@ public final class IntavePlugin extends JavaPlugin {
             } else {
               filePath = System.getProperty("user.home") + "/.intave/";
             }
-            File deleteFile = new File(filePath, "classloader." + version + suffix + ".delete");
+            File deleteFile = new File(filePath, "classloader.X" + suffix + ".delete");
             deleteFile.createNewFile();
           }
           // fake, used to note all suspicious licenses
@@ -559,8 +565,7 @@ public final class IntavePlugin extends JavaPlugin {
                   try {
                     connection.connect();
                     allowLeniency = true;
-                  } catch (Exception ignored) {
-                  }
+                  } catch (Exception ignored) {}
                 } else {
                   // perform GitHub check
                   Scanner scanner2 = new Scanner(connection.getInputStream(), "UTF-8");
@@ -728,7 +733,7 @@ public final class IntavePlugin extends JavaPlugin {
 //      logger.warn(ChatColor.RED + "Upgrading Java has incredible performance benefits");
 //      logger.warn(ChatColor.RED + "We strongly recommend updating Java now");
 //      logger.warn(ChatColor.RED + "Support for older versions of Java might eventually be dropped");
-      logger.warn(ChatColor.RED + "Your version of Java is outdated, consider updating");
+      logger.info(ChatColor.RED + "Your version of Java is outdated, consider updating");
     }
 
     if (IntaveControl.NETTY_DUMP_ON_TIMEOUT) {
@@ -756,7 +761,6 @@ public final class IntavePlugin extends JavaPlugin {
     }
 
     registerNativeCheck();
-
     Modules.linker().packetEvents().refreshLinkages();
     displayVersionInformation();
     successfullyBooted = true;

@@ -221,7 +221,9 @@ public final class Physics extends Check {
           movementData.physicsJumpedOverrideVL = Math.max(0, movementData.physicsJumpedOverrideVL - 0.5);
         }
       }
-      simulator.prepareNextTick(user,
+      simulator.prepareNextTick(
+        user,
+        movementData,
         movementData.positionX, movementData.positionY, movementData.positionZ,
         motionX, motionY, motionZ
       );
@@ -251,6 +253,7 @@ public final class Physics extends Check {
     double motionZ = physicsMotionZ * 0.91f;
     SimpleColliderResult colliderResult = Colliders.simplifiedCollision(
       user.player(),
+      movementData,
       movementData.verifiedPositionX, movementData.verifiedPositionY, movementData.verifiedPositionZ,
       motionX, motionY, motionZ
     );
@@ -268,6 +271,7 @@ public final class Physics extends Check {
     if (motionX != 0 && motionY != 0 && motionZ != 0) {
       SimpleColliderResult colliderResult = Colliders.simplifiedCollision(
         user.player(),
+        movementData,
         movementData.verifiedPositionX, movementData.verifiedPositionY, movementData.verifiedPositionZ,
         motionX, motionY, motionZ
       );
@@ -471,8 +475,8 @@ public final class Physics extends Check {
     }
 
     Location verifiedLocation = movementData.verifiedLocation();
-    BoundingBox verifiedBoundingBox = BoundingBox.fromPosition(user, verifiedLocation);
-    BoundingBox currentBoundingBox = BoundingBox.fromPosition(user, receivedPositionX, receivedPositionY, receivedPositionZ);
+    BoundingBox verifiedBoundingBox = BoundingBox.fromPosition(user, movementData, verifiedLocation);
+    BoundingBox currentBoundingBox = BoundingBox.fromPosition(user, movementData, receivedPositionX, receivedPositionY, receivedPositionZ);
 
     boolean boundingBoxIntersectionLast = Collision.present(player, verifiedBoundingBox);
     boolean boundingBoxIntersectionCurrent = Collision.present(player, currentBoundingBox);
@@ -619,8 +623,9 @@ public final class Physics extends Check {
       }
 
       if (setback) {
-        Simulator simulator = user.meta().movement().simulator();
-        simulator.setback(user, predictedX, predictedY, predictedZ);
+        MovementMetadata movement = user.meta().movement();
+        Simulator simulator = movement.simulator();
+        simulator.setback(user, movement, predictedX, predictedY, predictedZ);
         refreshNearbyBlocks(user, positionX, positionY, positionZ);
         movementData.invalidMovement = true;
       }
@@ -715,6 +720,8 @@ public final class Physics extends Check {
 
       debug += " y:" + formatDouble(movementData.motionY(), 4) + "@" + decimalPlacesOf(movementData.positionY(), 4);
 
+
+      debug += " x:" + formatDouble(movementData.motionX(), 4) + " z:" + formatDouble(movementData.motionZ(), 4);
       if (!simulation.details().isEmpty()) {
         debug += ChatColor.ITALIC + " " + simulation.details() + chatColor;
       }
@@ -838,7 +845,7 @@ public final class Physics extends Check {
       return;
     }
     Player player = user.player();
-    BoundingBox box = BoundingBox.fromPosition(user, x, y, z).grow(1.5);
+    BoundingBox box = BoundingBox.fromPosition(user, user.meta().movement(), x, y, z).grow(1.5);
     List<Position> positions = Collision.collectCollidingPositions(player, box, 16, Collectors.toList());
     Synchronizer.synchronize(() -> {
       for (Position position : positions) {

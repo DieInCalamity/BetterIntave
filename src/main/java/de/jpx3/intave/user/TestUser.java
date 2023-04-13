@@ -1,5 +1,6 @@
 package de.jpx3.intave.user;
 
+import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.block.state.ExtendedBlockStateCache;
@@ -7,7 +8,8 @@ import de.jpx3.intave.check.movement.physics.Pose;
 import de.jpx3.intave.connect.customclient.CustomClientSupportConfig;
 import de.jpx3.intave.entity.size.HitboxSize;
 import de.jpx3.intave.module.actionbar.DisplayType;
-import de.jpx3.intave.module.feedback.FeedbackCallback;
+import de.jpx3.intave.module.feedback.EmptyFeedbackCallback;
+import de.jpx3.intave.module.feedback.FeedbackObserver;
 import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.module.violation.placeholder.PlayerContext;
 import de.jpx3.intave.module.violation.placeholder.UserContext;
@@ -26,22 +28,31 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Relocate
 final class TestUser implements User {
   private final Map<Class<? extends CheckCustomMetadata>, CheckCustomMetadata> metadataPool = new ConcurrentHashMap<>();
   private final Player player;
-  private final int protocolVersion;
   private PlayerStorage storage;
+  private final MetadataBundle meta;
+  private final Map<Pose, HitboxSize> poseSizes;
+  private final Function<String, Object> callback;
 
-  TestUser(Player player, int protocolVersion) {
+  TestUser(Player player, Function<String, Object> callback) {
     this.player = player;
-    this.protocolVersion = protocolVersion;
     UUID id = player.getUniqueId();
     if (id != null) {
       this.storage = Storages.emptyPlayerStorageFor(id);
     }
+    this.callback = callback;
+    this.meta = new MetadataBundle(null, this);
+    Integer protocolVersion = (Integer) callback.apply("protocolVersion");
+    if (protocolVersion == null) {
+      protocolVersion = 0;
+    }
+    this.poseSizes = Pose.poseSizesByVersion(protocolVersion);
   }
 
   @Override
@@ -66,7 +77,7 @@ final class TestUser implements User {
 
   @Override
   public MetadataBundle meta() {
-    return null;
+    return meta;
   }
 
   @Override
@@ -81,12 +92,12 @@ final class TestUser implements User {
 
   @Override
   public boolean justJoined() {
-    return false;
+    return callback.apply("justJoined").equals(true);
   }
 
   @Override
   public long joined() {
-    return 0;
+    return (long) callback.apply("joined");
   }
 
   @Override
@@ -124,12 +135,12 @@ final class TestUser implements User {
 
   @Override
   public boolean shouldIgnoreNextInboundPacket() {
-    return false;
+    return (boolean) callback.apply("shouldIgnoreNextInboundPacket");
   }
 
   @Override
   public boolean shouldIgnoreNextOutboundPacket() {
-    return false;
+    return (boolean) callback.apply("shouldIgnoreNextOutboundPacket");
   }
 
   @Override
@@ -174,17 +185,17 @@ final class TestUser implements User {
 
   @Override
   public ExtendedBlockStateCache blockStates() {
-    return null;
+    return (ExtendedBlockStateCache) callback.apply("blockStates");
   }
 
   @Override
   public Collider collider() {
-    return null;
+    return (Collider) callback.apply("collider");
   }
 
   @Override
   public SimpleCollider simplifiedCollider() {
-    return null;
+    return (SimpleCollider) callback.apply("simplifiedCollider");
   }
 
   @Override
@@ -199,7 +210,7 @@ final class TestUser implements User {
 
   @Override
   public TrustFactor trustFactor() {
-    return null;
+    return (TrustFactor) callback.apply("trustFactor");
   }
 
   @Override
@@ -259,22 +270,22 @@ final class TestUser implements User {
 
   @Override
   public int latency() {
-    return 0;
+    return (int) callback.apply("latency");
   }
 
   @Override
   public int latencyJitter() {
-    return 0;
+    return (int) callback.apply("latencyJitter");
   }
 
   @Override
   public int protocolVersion() {
-    return protocolVersion;
+    return (int) callback.apply("protocolVersion");
   }
 
   @Override
   public HitboxSize sizeOf(Pose pose) {
-    return null;
+    return poseSizes.get(pose);
   }
 
   @Override
@@ -373,7 +384,22 @@ final class TestUser implements User {
   }
 
   @Override
-  public void tickFeedback(FeedbackCallback<Void> callback) {
+  public void tickFeedback(EmptyFeedbackCallback callback) {
+
+  }
+
+  @Override
+  public void tracedTickFeedback(EmptyFeedbackCallback callback, FeedbackObserver tracker) {
+    
+  }
+
+  @Override
+  public void doubleTickFeedback(PacketEvent event, EmptyFeedbackCallback callback, EmptyFeedbackCallback callback2) {
+
+  }
+
+  @Override
+  public void doubleTracedTickFeedback(PacketEvent event, EmptyFeedbackCallback callback, EmptyFeedbackCallback callback2, FeedbackObserver tracker) {
 
   }
 }

@@ -113,7 +113,7 @@ public final class MovementEmulation extends Module {
         positionY = movement.positionY();
         positionZ = movement.positionZ();
       }
-      Vector vector = motionProceed(motion, user, BoundingBox.fromPosition(user, positionX, positionY, positionZ), true);
+      Vector vector = motionProceed(motion, user, BoundingBox.fromPosition(user, movement, positionX, positionY, positionZ), true);
       double motionX = vector.getX();
       double motionY = vector.getY();
       double motionZ = vector.getZ();

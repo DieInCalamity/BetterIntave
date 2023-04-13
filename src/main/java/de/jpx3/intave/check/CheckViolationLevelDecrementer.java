@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class CheckViolationLevelDecrementer {
-  private final Check check;
   private final String checkName;
   private final String thresholdKey;
   private final double limitPerSecond;
@@ -22,7 +21,6 @@ public final class CheckViolationLevelDecrementer {
   public CheckViolationLevelDecrementer(
     Check check, String thresholdKey, double limitPerSecond
   ) {
-    this.check = check;
     this.checkName = check.configurationKey();
     this.thresholdKey = thresholdKey;
     this.limitPerSecond = limitPerSecond;

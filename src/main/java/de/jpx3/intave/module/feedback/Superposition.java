@@ -2,7 +2,6 @@ package de.jpx3.intave.module.feedback;
 
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.annotate.KeepEnumInternalNames;
-import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.user.User;
 import org.jetbrains.annotations.Nullable;
 
@@ -189,14 +188,19 @@ public final class Superposition<T> {
     return value;
   }
 
-  public void stateSynchronize(PacketEvent packet, T newState) {
+  public void stateSynchronize(PacketEvent event, T newState) {
     statusChange(newState, Status.AWAIT_START);
-    Modules.feedback().doubleSynchronize(
-      user.player(),
-      packet,
-      newState,
-      (player, target) -> statusChange(target, Status.RUNNING),
-      (player, target) -> statusChange(target, Status.RECEIVE_CONFIRMED)
+//    Modules.feedback().doubleSynchronize(
+//      user.player(),
+//      packet,
+//      newState,
+//      (player, target) -> statusChange(target, Status.RUNNING),
+//      (player, target) -> statusChange(target, Status.RECEIVE_CONFIRMED)
+//    );
+    user.doubleTickFeedback(
+      event,
+      () -> statusChange(newState, Status.RUNNING),
+      () -> statusChange(newState, Status.RECEIVE_CONFIRMED)
     );
   }
 

@@ -43,6 +43,14 @@ public final class FeedbackSender extends Module {
   }
 
   public <T> void doubleSynchronize(
+    Player player, PacketEvent event, T target,
+    FeedbackCallback<T> firstCallback, FeedbackCallback<T> secondCallback,
+    int options
+  ) {
+    tracedDoubleSynchronize(player, event, target, firstCallback, secondCallback, null, null, options);
+  }
+
+  public <T> void doubleSynchronize(
     Player player, PacketContainer encapsulate, T target,
     FeedbackCallback<T> firstCallback, FeedbackCallback<T> secondCallback
   ) {
@@ -52,7 +60,7 @@ public final class FeedbackSender extends Module {
   public <T> void tracedDoubleSynchronize(
     Player player, PacketEvent event, T target,
     FeedbackCallback<T> firstCallback, FeedbackCallback<T> secondCallback,
-    FeedbackTracker firstTracker, FeedbackTracker secondTracker
+    FeedbackObserver firstTracker, FeedbackObserver secondTracker
   ) {
     tracedDoubleSynchronize(player, event, target, firstCallback, secondCallback, firstTracker, secondTracker, 0);
   }
@@ -60,7 +68,7 @@ public final class FeedbackSender extends Module {
   public <T> void tracedDoubleSynchronize(
     Player player, PacketEvent event, T target,
     FeedbackCallback<T> firstCallback, FeedbackCallback<T> secondCallback,
-    FeedbackTracker firstTracker, FeedbackTracker secondTracker,
+    FeedbackObserver firstTracker, FeedbackObserver secondTracker,
     int options
   ) {
     tracedDoubleSynchronize(player, event.getPacket(), target, firstCallback, secondCallback, firstTracker, secondTracker, options);
@@ -74,7 +82,7 @@ public final class FeedbackSender extends Module {
     Player player,
     PacketContainer encapsulate, T target,
     FeedbackCallback<T> firstCallback, FeedbackCallback<T> secondCallback,
-    FeedbackTracker firstTracker, FeedbackTracker secondTracker,
+    FeedbackObserver firstTracker, FeedbackObserver secondTracker,
     int options
   ) {
     if (!Bukkit.isPrimaryThread()) {
@@ -120,12 +128,12 @@ public final class FeedbackSender extends Module {
     tracedSingleSynchronize(player, target, callback, null, options);
   }
 
-  public <T> void tracedSingleSynchronize(Player player, T target, FeedbackCallback<T> callback, FeedbackTracker tracker) {
+  public <T> void tracedSingleSynchronize(Player player, T target, FeedbackCallback<T> callback, FeedbackObserver tracker) {
     tracedSingleSynchronize(player, target, callback, tracker, 0);
   }
 
   public <T> void tracedSingleSynchronize(
-    Player player, T target, FeedbackCallback<T> callback, FeedbackTracker tracker, int options
+    Player player, T target, FeedbackCallback<T> callback, FeedbackObserver tracker, int options
   ) {
     if (!Bukkit.isPrimaryThread()) {
       if (FeedbackOptions.matches(SELF_SYNCHRONIZATION, options)) {
@@ -161,7 +169,7 @@ public final class FeedbackSender extends Module {
   }
 
   public <T> void tracedSingleSynchronize(
-    Player player, FeedbackTracker tracker, int options
+    Player player, FeedbackObserver tracker, int options
   ) {
     if (!Bukkit.isPrimaryThread()) {
       if (FeedbackOptions.matches(SELF_SYNCHRONIZATION, options)) {
@@ -218,7 +226,7 @@ public final class FeedbackSender extends Module {
 
   private <T> void appendRequestToContext(
     Player player,
-    FeedbackTracker tracker
+    FeedbackObserver tracker
   ) {
     User user = UserRepository.userOf(player);
     if (!user.hasPlayer()) {
@@ -232,7 +240,7 @@ public final class FeedbackSender extends Module {
   }
 
   private /* synchronized (is already always sync) */ <T> FeedbackRequest<T> createRequest(
-    Player player, FeedbackTracker tracker
+    Player player, FeedbackObserver tracker
   ) {
     User user = UserRepository.userOf(player);
     ConnectionMetadata synchronizeData = user.meta().connection();
@@ -247,7 +255,7 @@ public final class FeedbackSender extends Module {
   }
 
   private /* synchronized (is already always sync) */ <T> FeedbackRequest<T> createRequest_LEGACY(
-    Player player, T obj, FeedbackCallback<T> callback, FeedbackTracker tracker
+    Player player, T obj, FeedbackCallback<T> callback, FeedbackObserver tracker
   ) {
     User user = UserRepository.userOf(player);
     ConnectionMetadata connection = user.meta().connection();

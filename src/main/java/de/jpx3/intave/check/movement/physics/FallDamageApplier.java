@@ -8,7 +8,6 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 import org.bukkit.entity.Player;
 
 import java.lang.invoke.MethodHandle;
@@ -52,8 +51,7 @@ public final class FallDamageApplier {
     if (MinecraftVersions.VER1_19_4.atOrAbove()) {
       try {
         World world = Bukkit.getWorlds().get(0);
-        CraftWorld craftWorld = (CraftWorld) world;
-        Object handle = craftWorld.getHandle();
+        Object handle = world.getClass().getMethod("getHandle").invoke(world);
         Object damageSources = handle.getClass().getMethod("af").invoke(handle);
         fallDamageSource = Lookup.serverClass("DamageSources").getMethod("k").invoke(damageSources);
       } catch (Exception exception) {
@@ -65,7 +63,7 @@ public final class FallDamageApplier {
       } catch (Exception exception) {
         throw new IntaveInternalException(exception);
       }
-      if (fallDamageSource.toString().toLowerCase().contains("fall")) {
+      if (!fallDamageSource.toString().toLowerCase().contains("fall")) {
         throw new IllegalStateException("DamageSource.k is not the fall damage source");
       }
     } else {

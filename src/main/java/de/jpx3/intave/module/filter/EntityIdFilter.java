@@ -143,11 +143,10 @@ public final class EntityIdFilter extends Filter {
       Set<Integer> toRemove = new HashSet<>();
       entities.forEach(toRemove::add);
       toRemove.forEach(connection::markIdAsDeprecated);
-      user.tickFeedback((player, target) -> {
-        user.tickFeedback((player1, target1) -> {
-          toRemove.forEach(connection::removeId);
-        });
-      });
+      user.tickFeedback(() ->
+        user.tickFeedback(() ->
+          toRemove.forEach(connection::removeId)
+        ));
     }
     entities.release();
   }

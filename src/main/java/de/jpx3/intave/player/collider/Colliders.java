@@ -1,5 +1,6 @@
 package de.jpx3.intave.player.collider;
 
+import de.jpx3.intave.check.movement.physics.SimulationEnvironment;
 import de.jpx3.intave.player.collider.complex.Collider;
 import de.jpx3.intave.player.collider.complex.ColliderResult;
 import de.jpx3.intave.player.collider.complex.v14Collider;
@@ -28,7 +29,7 @@ public final class Colliders {
   }
 
   static {
-    V7_COMPLEX_COLLIDER = new v8Collider();//new v7ColliderProcessor();
+    V7_COMPLEX_COLLIDER = new v8Collider();
     V8_COMPLEX_COLLIDER = new v8Collider();
     V14_COMPLEX_COLLIDER = new v14Collider();
     UNIVERSAL_SIMPLE_COLLIDER = new UniversalSimpleCollider();
@@ -49,8 +50,17 @@ public final class Colliders {
     return UNIVERSAL_SIMPLE_COLLIDER;
   }
 
+  public static Collider anyCollider() {
+    return V8_COMPLEX_COLLIDER;
+  }
+
+  public static SimpleCollider anySimpleCollider() {
+    return UNIVERSAL_SIMPLE_COLLIDER;
+  }
+
   public static ColliderResult collision(
-    User user, Motion motion, boolean inWeb,
+    User user, SimulationEnvironment environment,
+    Motion motion, boolean inWeb,
     double positionX, double positionY, double positionZ
   ) {
     // Apply motion multiplier
@@ -61,26 +71,28 @@ public final class Colliders {
       motion.motionZ *= motionMultiplier.getZ();
     }
 
-    return user.collider().collide(user, motion, positionX, positionY, positionZ, inWeb);
+    return user.collider().collide(user, environment, motion, positionX, positionY, positionZ, inWeb);
   }
 
   public static SimpleColliderResult simplifiedCollision(
     Player player,
+    SimulationEnvironment environment,
     Position position,
     Motion motion
-  ) {
+    ) {
     User user = UserRepository.userOf(player);
-    BoundingBox boundingBox = BoundingBox.fromPosition(user, position);
+    BoundingBox boundingBox = BoundingBox.fromPosition(user, environment, position);
     return user.simplifiedCollider().collide(user, boundingBox, motion);
   }
 
   public static SimpleColliderResult simplifiedCollision(
     Player player,
+    SimulationEnvironment environment,
     double positionX, double positionY, double positionZ,
     double motionX, double motionY, double motionZ
   ) {
     User user = UserRepository.userOf(player);
-    BoundingBox boundingBox = BoundingBox.fromPosition(user, positionX, positionY, positionZ);
+    BoundingBox boundingBox = BoundingBox.fromPosition(user, environment, positionX, positionY, positionZ);
     SimpleCollider simpleCollider = user.simplifiedCollider();
     return simpleCollider.collide(user, boundingBox, motionX, motionY, motionZ);
   }

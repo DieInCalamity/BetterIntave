@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 @PatchyAutoTranslation
-public final class v8ConversionBridge implements ConversionBridge {
+final class v8ConversionBridge implements ConversionBridge {
   private static Method getStateListMethod;
 
   @PatchyAutoTranslation

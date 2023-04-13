@@ -11,7 +11,7 @@ import net.minecraft.server.v1_13_R2.IBlockState;
 import java.util.*;
 
 @PatchyAutoTranslation
-public final class v13ConversionBridge implements ConversionBridge {
+final class v13ConversionBridge implements ConversionBridge {
   @PatchyAutoTranslation
   public Map<Setting<?>, Comparable<?>> settingsOf(Object blockData) {
     net.minecraft.server.v1_13_R2.IBlockData data = (net.minecraft.server.v1_13_R2.IBlockData) blockData;

@@ -136,11 +136,11 @@ final class PatchyTranslator {
     if (methodReference == null) {
       if (configuration.translateEverything()) {
         String name = original.name;
-        if (original.type == InstructionTargetType.FIELD) {
-          name = Locate.patchyFieldCovert(original.owner, name);
-        }
         if (original.type == InstructionTargetType.METHOD) {
           name = Locate.patchyMethodCovert(original.owner, name, translate(original.desc));
+        }
+        if (original.type == InstructionTargetType.FIELD) {
+          name = Locate.patchyFieldCovert(original.owner, name);
         }
         return InstructionTarget.methodInstructionTarget(translate(original.owner), name, translate(original.desc));
       }

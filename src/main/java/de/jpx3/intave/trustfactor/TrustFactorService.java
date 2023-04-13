@@ -96,7 +96,7 @@ public final class TrustFactorService implements BukkitEventSubscriber {
     user.setTrustFactor(trustFactor);
 
     if (ConsoleOutput.TRUSTFACTOR_DEBUG) {
-      String message2 = ChatColor.RED + player.getName() + IntavePlugin.defaultColor() + " was assigned trustfactor " + trustFactor.coloredBaseName() + IntavePlugin.defaultColor() + " by " + source;
+      String message2 = ChatColor.RED + player.getName() + IntavePlugin.defaultColor() + " was assigned a " + trustFactor.coloredBaseName() + IntavePlugin.defaultColor() + " trustfactor by " + source;
       IntaveLogger.logger().info(message2);
     }
   }

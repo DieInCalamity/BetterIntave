@@ -2,7 +2,7 @@ package de.jpx3.intave.module.feedback;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public final class PendingCountingFeedbackTracker implements FeedbackTracker {
+public final class PendingCountingFeedbackObserver implements FeedbackObserver {
   private final AtomicLong counter = new AtomicLong();
 
   @Override
@@ -16,7 +16,9 @@ public final class PendingCountingFeedbackTracker implements FeedbackTracker {
   }
 
   @Override
-  public void failed() {}
+  public void failed() {
+    counter.decrementAndGet();
+  }
 
   public long pending() {
     return counter.get();

@@ -1,6 +1,7 @@
 package de.jpx3.intave.connect;
 
 import com.google.common.collect.Lists;
+import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.resource.Resource;
 import de.jpx3.intave.resource.Resources;
 
@@ -29,6 +30,7 @@ public final class IntaveDomains {
     return baseDomains;
   }
 
+  @Native
   public static String primaryServiceDomain() {
     return serviceDomains.isEmpty() ? "service.intave.de" : serviceDomains.get(0);
   }

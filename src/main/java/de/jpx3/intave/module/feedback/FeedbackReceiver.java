@@ -244,7 +244,7 @@ public final class FeedbackReceiver extends Module {
       // but I've put this stuff in this if-clause to have a common place for
       // any transaction-related attack cancels
       !connection.enqueuedPackets().isEmpty() ||
-      System.currentTimeMillis() - connection.lastBufferEnqueue < 250
+      System.currentTimeMillis() - connection.lastBufferEnqueue < 750
     ) {
       event.setCancelled(true);
     }

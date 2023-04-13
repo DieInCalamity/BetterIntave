@@ -1,7 +1,7 @@
 package de.jpx3.intave.share;
 
+import de.jpx3.intave.check.movement.physics.SimulationEnvironment;
 import de.jpx3.intave.math.Hypot;
-import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.util.Vector;
 
 import static de.jpx3.intave.math.MathHelper.hypot3d;
@@ -25,7 +25,7 @@ public final class Motion {
     return new Motion(velocity.getX(), velocity.getY(), velocity.getZ());
   }
 
-  public void reset(double x, double y, double z) {
+  public void setTo(double x, double y, double z) {
     this.motionX = x;
     this.motionY = y;
     this.motionZ = z;
@@ -67,11 +67,11 @@ public final class Motion {
   }
 
   public void resetTo(Motion motion) {
-    reset(motion.motionX, motion.motionY, motion.motionZ);
+    setTo(motion.motionX, motion.motionY, motion.motionZ);
   }
 
-  public void resetTo(MovementMetadata data) {
-    reset(data.baseMotionX, data.baseMotionY, data.baseMotionZ);
+  public void resetTo(SimulationEnvironment data) {
+    setTo(data.baseMotionX(), data.baseMotionY(), data.baseMotionZ());
   }
 
   public double length() {

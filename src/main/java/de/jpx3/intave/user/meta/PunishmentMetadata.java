@@ -56,8 +56,7 @@ public final class PunishmentMetadata {
       ),
       new AttackNerfer(
         AttackNerfStrategy.CANCEL_FIRST_HIT, DAMAGE_CANCEL_FIRST_HIT_DURATION,
-        event -> {
-        }
+        event -> {}
       ),
       new AttackNerfer(AttackNerfStrategy.CRITICALS, NO_CRITICAL_HITS_DURATION, event -> {
         double attackDamage = DamageModify.attackDamageOf((Player) event.getDamager());
@@ -94,7 +93,6 @@ public final class PunishmentMetadata {
 //        // Perform hurt-time change on entity
 //        performEntityHurtTimeChange(event.getEntity());
 //      }),
-
       new AttackNerfer(AttackNerfStrategy.HT_LIGHT, DAMAGE_CANCEL_LIGHT_DURATION, event -> {
         // Perform hurt-time change
         int ticks = -ThreadLocalRandom.current().nextInt(0, 1);

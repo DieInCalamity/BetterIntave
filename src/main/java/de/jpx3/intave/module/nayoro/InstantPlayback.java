@@ -12,14 +12,14 @@ public final class InstantPlayback extends Playback implements Runnable {
   private boolean interrupted = false;
   private long passedTime = 0;
 
+  public InstantPlayback(DataInputStream stream, Executor executor) {
+    this(stream, executor, (playback) -> {});
+  }
+
   public InstantPlayback(DataInputStream stream, Executor executor, Consumer<? super Playback> onComplete) {
     super(stream);
     this.executor = executor;
     this.onComplete = onComplete;
-  }
-
-  public InstantPlayback(DataInputStream stream, Executor executor) {
-    this(stream, executor, (playback) -> {});
   }
 
   @Override

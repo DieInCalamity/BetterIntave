@@ -131,9 +131,10 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
      * ViaBackwards messes up the order of teleportation packets, so we need to account for that
      */
     if (!user.meta().protocol().outdatedClient()) {
-      Modules.feedback().doubleSynchronize(player, event, null,
-        (player1, target) -> movementData.transactionTeleportAllow = true,
-        (player1, target) -> movementData.transactionTeleportAllow = false
+      user.doubleTickFeedback(
+        event,
+        () -> movementData.transactionTeleportAllow = true,
+        () -> movementData.transactionTeleportAllow = false
       );
     } else {
       movementData.transactionTeleportAllow = true;
@@ -352,6 +353,6 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     movementData.baseMotionZ = 0.0;
 
     movementData.lastOnGround = false;
-    movementData.setBoundingBox(BoundingBox.fromPosition(user, movementData.teleportLocation));
+    movementData.setBoundingBox(BoundingBox.fromPosition(user, movementData, movementData.teleportLocation));
   }
 }

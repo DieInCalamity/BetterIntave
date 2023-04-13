@@ -30,7 +30,7 @@ public final class BlockShapeDrillTests extends Tests {
     block = world.getBlockAt(0, 0, 0);
     priorMaterial = BlockStorage.store(block);
     player = FakePlayerFactory.createPlayer();
-    user = UserFactory.createTestUserFor(player, 47);
+    user = UserFactory.createTestUserFor(player);
     UserRepository.manuallyRegisterUser(player, user);
     drill = DrillResolver.selectedDrill();
     block.setType(Material.AIR);

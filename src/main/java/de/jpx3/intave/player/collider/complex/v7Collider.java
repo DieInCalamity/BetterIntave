@@ -2,43 +2,43 @@ package de.jpx3.intave.player.collider.complex;
 
 import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.block.shape.BlockShape;
+import de.jpx3.intave.check.movement.physics.SimulationEnvironment;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.Direction;
 import de.jpx3.intave.share.Motion;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.meta.MovementMetadata;
 
-public final class v7Collider implements Collider {
+final class v7Collider implements Collider {
   @Override
-  public ColliderResult collide(User user, Motion context, double positionX, double positionY, double positionZ, boolean inWeb) {
-    MovementMetadata movement = user.meta().movement();
+  public ColliderResult collide(User user, SimulationEnvironment environment, Motion motion, double positionX, double positionY, double positionZ, boolean inWeb) {
+//    MovementMetadata movement = user.meta().movement();
 
     // ?
     // this.ySize *= 0.4F;
 
-    double startMotionX = context.motionX;
-    double startMotionY = context.motionY;
-    double startMotionZ = context.motionZ;
+    double startMotionX = motion.motionX;
+    double startMotionY = motion.motionY;
+    double startMotionZ = motion.motionZ;
 
-    double var13 = context.motionX;
-    double var15 = context.motionY;
-    double var17 = context.motionZ;
+    double var13 = motion.motionX;
+    double var15 = motion.motionY;
+    double var17 = motion.motionZ;
 
-    BoundingBox entityBoundingBox = movement.boundingBox();
-    BoundingBox var19 = movement.boundingBox().copy();
-    boolean var20 = movement.onGround && movement.isSneaking();
+    BoundingBox entityBoundingBox = environment.boundingBox();
+    BoundingBox var19 = environment.boundingBox().copy();
+    boolean var20 = environment.onGround() && environment.isSneaking();
 
     if (inWeb) {
-      context.motionX *= 0.25D;
-      context.motionY *= 0.05f;
-      context.motionZ *= 0.25D;
+      motion.motionX *= 0.25D;
+      motion.motionY *= 0.05f;
+      motion.motionZ *= 0.25D;
     }
 
     BlockShape var37 = Collision.shape(user.player(), entityBoundingBox.expand(startMotionX, startMotionY, startMotionZ));
     startMotionY = var37.allowedOffset(Direction.Axis.Y_AXIS, entityBoundingBox, startMotionY);
     entityBoundingBox = entityBoundingBox.offset(0, startMotionY, 0);
 
-    boolean var36 = movement.onGround || var15 != startMotionY && var15 < 0.0D;
+    boolean var36 = environment.onGround() || var15 != startMotionY && var15 < 0.0D;
     startMotionX = var37.allowedOffset(Direction.Axis.X_AXIS, entityBoundingBox, startMotionX);
     entityBoundingBox.offset(startMotionX, 0, 0);
 
@@ -55,7 +55,7 @@ public final class v7Collider implements Collider {
       var25 = startMotionY;
       var27 = startMotionZ;
       startMotionX = var13;
-      startMotionY = movement.stepHeight;
+      startMotionY = environment.stepHeight();
       startMotionZ = var17;
 
       BoundingBox var29 = entityBoundingBox.copy();
@@ -83,19 +83,19 @@ public final class v7Collider implements Collider {
       }
     }
 
-    boolean collidedVertically = startMotionY != context.motionY;
-    boolean collidedHorizontally = startMotionX != context.motionX || startMotionZ != context.motionZ;
-    boolean onGround = startMotionY != context.motionY && startMotionY < 0.0;
-    boolean moveResetX = startMotionX != context.motionX;
-    boolean moveResetZ = startMotionZ != context.motionZ;
+    boolean collidedVertically = startMotionY != motion.motionY;
+    boolean collidedHorizontally = startMotionX != motion.motionX || startMotionZ != motion.motionZ;
+    boolean onGround = startMotionY != motion.motionY && startMotionY < 0.0;
+    boolean moveResetX = startMotionX != motion.motionX;
+    boolean moveResetZ = startMotionZ != motion.motionZ;
     double newPositionX = (entityBoundingBox.minX + entityBoundingBox.maxX) / 2.0D;
     double newPositionY = entityBoundingBox.minY;
     double newPositionZ = (entityBoundingBox.minZ + entityBoundingBox.maxZ) / 2.0D;
-    context.motionX = newPositionX - positionX;
-    context.motionY = newPositionY - positionY;
-    context.motionZ = newPositionZ - positionZ;
+    motion.motionX = newPositionX - positionX;
+    motion.motionY = newPositionY - positionY;
+    motion.motionZ = newPositionZ - positionZ;
     return new ColliderResult(
-      Motion.copyFrom(context), onGround,
+      Motion.copyFrom(motion), onGround,
       collidedHorizontally, collidedVertically, moveResetX, moveResetZ,
       step, false
     );

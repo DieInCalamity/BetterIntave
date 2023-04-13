@@ -48,7 +48,6 @@ import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_9;
 
 @Relocate
 public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytraceMeta> {
-  private static final char[] vocals = "aeiou".toCharArray();
   private final IntavePlugin plugin;
   private final CheckViolationLevelDecrementer hitboxDecrementer, reachDecrementer;
   private final double VL_DECREMENT_PER_ATTACK = 0.125;
@@ -675,10 +674,12 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     return minReach;
   }
 
-  private String resolveArticle(String entityName) {
+  private static final char[] VOCALS = "aeiou".toCharArray();
+
+  private static String resolveArticle(String entityName) {
     char c = entityName.trim().toLowerCase(Locale.ROOT).toCharArray()[0];
     boolean isVocal = false;
-    for (char vocal : vocals) {
+    for (char vocal : VOCALS) {
       if (vocal == c) {
         isVocal = true;
         break;

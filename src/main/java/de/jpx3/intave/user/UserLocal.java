@@ -12,10 +12,6 @@ public final class UserLocal<T> {
   private final Function<? super User, ? extends T> initializer;
   private final Map<UUID, T> map = GarbageCollector.watch(new ConcurrentHashMap<>());
 
-  private UserLocal(Supplier<T> initializer) {
-    this.initializer = u -> initializer.get();
-  }
-
   private UserLocal(Function<? super User, ? extends T> initializer) {
     this.initializer = initializer;
   }
@@ -35,11 +31,11 @@ public final class UserLocal<T> {
     return new UserLocal<>(u -> value);
   }
 
-  public static <T> UserLocal<T> withInitial(Supplier<T> initializer) {
-    return new UserLocal<>(initializer);
+  public static <T> UserLocal<T> withInitial(Supplier<? extends T> initializer) {
+    return new UserLocal<>(user -> initializer.get());
   }
 
-  public static <T> UserLocal<T> withInitial(Function<User, ? extends T> initializer) {
+  public static <T> UserLocal<T> withInitial(Function<? super User, ? extends T> initializer) {
     return new UserLocal<>(initializer);
   }
 }

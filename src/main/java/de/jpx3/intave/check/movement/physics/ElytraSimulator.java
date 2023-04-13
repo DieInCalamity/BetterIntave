@@ -62,7 +62,7 @@ final class ElytraSimulator extends BaseSimulator {
     tryRelinkFlyingPosition(user, motion, environment);
 
     ColliderResult collisionResult = Colliders.collision(
-      user, motion, environment.inWeb(),
+      user, environment, motion, environment.inWeb(),
       positionX, positionY, positionZ
     );
     notePossibleFlyingPacket(user, collisionResult);
@@ -90,7 +90,8 @@ final class ElytraSimulator extends BaseSimulator {
 
     for (; interpolations <= 2; interpolations++) {
       SimpleColliderResult colliderResult = Colliders.simplifiedCollision(
-        player, positionX, positionY, positionZ,
+        player, movementData,
+        positionX, positionY, positionZ,
         interpolateX, interpolateY, interpolateZ
       );
 

@@ -1,6 +1,5 @@
 package de.jpx3.intave.world.permission;
 
-import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.event.BucketAction;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -15,10 +14,9 @@ public final class WorldPermission {
   private static BucketActionPermissionCheck bucketActionPermissionCheck;
 
   public static void setup() {
-    IntavePlugin plugin = IntavePlugin.singletonInstance();
-    blockPlacePermissionCheck = new EventPlacePermissionResolver(plugin);
-    blockBreakPermissionCheck = new EventBreakPermissionResolver(plugin);
-    bucketActionPermissionCheck = new EventBukkitActionPermissionResolver(plugin);
+    blockPlacePermissionCheck = new EventPlacePermissionResolver();
+    blockBreakPermissionCheck = new EventBreakPermissionResolver();
+    bucketActionPermissionCheck = new EventBukkitActionPermissionResolver();
   }
 
   public static boolean blockPlacePermission(

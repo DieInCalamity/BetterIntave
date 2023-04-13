@@ -17,7 +17,6 @@ import de.jpx3.intave.klass.trace.Caller;
 import de.jpx3.intave.klass.trace.PluginInvocation;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.Module;
-import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.player.Effects;
 import de.jpx3.intave.share.BlockPosition;
@@ -217,7 +216,7 @@ public final class SetbackSimulator extends Module {
 
     // check motion status (velocity?)
     Location futurePosition = movementData.verifiedLocation();
-    BoundingBox boundingBox = BoundingBox.fromPosition(user, futurePosition);
+    BoundingBox boundingBox = BoundingBox.fromPosition(user, movementData, futurePosition);
 
     Vector emulationVelocity = movementData.emulationVelocity;
     if (emulationVelocity != null) {
@@ -232,7 +231,7 @@ public final class SetbackSimulator extends Module {
       movementData.artificialFallDistance += -motion.getY();
     }
 
-    if (!Collision.present(player, BoundingBox.fromPosition(user, futurePosition.clone().add(motion)))) {
+    if (!Collision.present(player, BoundingBox.fromPosition(user, movementData, futurePosition.clone().add(motion)))) {
       futurePosition = futurePosition.clone().add(motion);
     }
     futurePosition.setYaw(movementData.rotationYaw);
@@ -245,18 +244,21 @@ public final class SetbackSimulator extends Module {
 
       // fixes stuck in block below, please remove and fix me differently
       futurePosition.subtract(0, 0.02, 0);
-      boundingBox = BoundingBox.fromPosition(user, futurePosition);
+      boundingBox = BoundingBox.fromPosition(user, movementData, futurePosition);
       futurePosition.add(0, Collision.nonePresent(player, boundingBox) ? 0.03 : 0.0201, 0);
-      boundingBox = BoundingBox.fromPosition(user, futurePosition);
+      boundingBox = BoundingBox.fromPosition(user, movementData, futurePosition);
 
       /*
        * giving the client control over the atb variable is actually very bad,
        * because it would allow the client to disable the entire movement system.
        * however, we have a teleport packet after, requiring the client to respond
        */
-      Modules.feedback().synchronize(player, (player1, nothing) -> {
-        violationLevelData.disableActiveTeleportBundleNextTick = true;
-      });
+//      Modules.feedback().synchronize(player, (player1, nothing) -> {
+//        violationLevelData.disableActiveTeleportBundleNextTick = true;
+//      });
+      user.tickFeedback(
+        () -> violationLevelData.disableActiveTeleportBundleNextTick = true
+      );
       teleport(player, futurePosition);
 //      violationLevelData.isInActiveTeleportBundle = false;
 
@@ -282,7 +284,7 @@ public final class SetbackSimulator extends Module {
       // teleport
       //player.teleport(futurePosition);
 
-      boundingBox = BoundingBox.fromPosition(user, futurePosition);
+      boundingBox = BoundingBox.fromPosition(user, movementData, futurePosition);
       boolean boundingBoxIntersection = Collision.present(user.player(), boundingBox);
       if (boundingBoxIntersection) {
         double positionX = (boundingBox.minX + boundingBox.maxX) / 2.0;
@@ -431,7 +433,7 @@ public final class SetbackSimulator extends Module {
     User user = UserRepository.userOf(player);
     MovementMetadata movementData = user.meta().movement();
 
-    BoundingBox entityBoundingBox = BoundingBox.fromPosition(user, teleportLocation);
+    BoundingBox entityBoundingBox = BoundingBox.fromPosition(user, movementData, teleportLocation);
     movementData.setBoundingBox(entityBoundingBox);
     movementData.setVerifiedLocation(teleportLocation.clone(), "Emulation-Setback");
 //    player.teleport(teleportLocation);
@@ -573,6 +575,7 @@ public final class SetbackSimulator extends Module {
   }
 
   private boolean hasEmptyCollisionBox(Player player, BlockPosition blockPosition) {
-    return Collision.nonePresent(player, BoundingBox.fromPosition(UserRepository.userOf(player), blockPosition));
+    User user = UserRepository.userOf(player);
+    return Collision.nonePresent(player, BoundingBox.fromPosition(user, user.meta().movement(), blockPosition));
   }
 }

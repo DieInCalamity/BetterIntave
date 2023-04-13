@@ -11,8 +11,8 @@ import static de.jpx3.intave.math.MathHelper.distanceOf;
 @Relocate
 public final class Simulation {
   private static final Simulation INVALID_SIMULATION = new Simulation(MovementConfiguration.empty(), ColliderResult.invalid());
+  private static final UserLocal<Simulation> SIMULATION_OBJ_CACHE = UserLocal.withInitial(Simulation::new);
 
-  private static final UserLocal<Simulation> simulationUserLocal = UserLocal.withInitial(Simulation::new);
   private MovementConfiguration configuration;
   private ColliderResult colliderResult;
   private String details = "";
@@ -69,7 +69,7 @@ public final class Simulation {
   }
 
   static Simulation of(User user, MovementConfiguration configuration, ColliderResult colliderResult) {
-    Simulation simulation = simulationUserLocal.get(user);
+    Simulation simulation = SIMULATION_OBJ_CACHE.get(user);
     simulation.flush(configuration, colliderResult);
     return simulation;
   }

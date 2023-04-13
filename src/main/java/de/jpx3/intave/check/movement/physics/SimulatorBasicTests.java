@@ -1,16 +1,28 @@
 package de.jpx3.intave.check.movement.physics;
 
+import de.jpx3.intave.block.state.MockFullBlockStaticPlane;
+import de.jpx3.intave.player.collider.Colliders;
+import de.jpx3.intave.player.collider.complex.Collider;
+import de.jpx3.intave.player.collider.simple.SimpleCollider;
 import de.jpx3.intave.share.Motion;
 import de.jpx3.intave.test.*;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserFactory;
 import de.jpx3.intave.user.UserRepository;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.PlayerInventory;
+
+import java.util.UUID;
 
 public final class SimulatorBasicTests extends Tests {
+  private static final UUID EMPTY_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+
   private User testUser;
   private Player player;
-  private TestWorld testWorld;
+  private final Collider collider = Colliders.anyCollider();
+  private final SimpleCollider simpleCollider = Colliders.anySimpleCollider();
+  private final PlayerInventory inventory = new MockEmptyInventory();
 
   public SimulatorBasicTests() {
     super("SB");
@@ -20,30 +32,78 @@ public final class SimulatorBasicTests extends Tests {
   public void setupMovementTest() {
     player = FakePlayerFactory.createPlayer(
       (s, objects) -> {
-        if (s.equals("getWorld")) {
-          return testWorld.bukkitWorld();
+        switch (s) {
+          case "getInventory":
+            return inventory;
+          case "getWorld":
+            return Bukkit.getWorlds().get(0);
+          case "getUniqueId":
+            return EMPTY_ID;
         }
         return null;
       }
     );
-    testUser = UserFactory.createTestUserFor(player, 47);
-    testWorld = TestWorld.createLoaded();
+
+    MockFullBlockStaticPlane plane = new MockFullBlockStaticPlane();
+    plane.horizontalFill(1);
+    testUser = UserFactory.createTestUserFor(player, s -> {
+      switch (s) {
+        case "collider":
+          return collider;
+        case "simplifiedCollider":
+          return simpleCollider;
+        case "blockStates":
+          return plane;
+        case "protocolVersion":
+          return 47;
+      }
+      return null;
+    });
+    UserRepository.manuallyRegisterUser(player, testUser);
+//    testWorld = TestWorld.createLoaded();
+//    testUser
   }
 
   @Test(
     testCode = "A",
-    severity = Severity.ERROR
+    severity = Severity.WARNING
   )
   public void simpleFallingTest() {
-    double[][] relativeMotion = new double[60][3];
+
+    // prepare data
+    double[][] relativeMotion = new double[200][3];
+    double[][] positions = new double[200][3];
+
+    positions[0][1] = 250;
+
     for (int i = 1; i < relativeMotion.length; i++) {
       relativeMotion[i][0] = 0;
       relativeMotion[i][1] = (relativeMotion[i - 1][1] - 0.08) * 0.98;
       relativeMotion[i][2] = 0;
+      positions[i][0] = positions[i - 1][0] + relativeMotion[i][0];
+      positions[i][1] = positions[i - 1][1] + relativeMotion[i][1];
+      positions[i][2] = positions[i - 1][2] + relativeMotion[i][2];
     }
+
     Simulator simulator = Simulators.PLAYER;
     MovementConfiguration configuration = MovementConfiguration.empty();
     TestSimulationEnvironment environment = new TestSimulationEnvironment();
+
+    environment.setPositionY(250);
+    environment.copyPositionToLastPosition();
+    environment.copyPositionToVerifiedPosition();
+    environment.setGravity(0.08f);
+    environment.setFriction(0.98f);
+    environment.setAiMovementSpeed(0.1f);
+
+    simulator.prepareNextTick(
+      testUser,
+      environment,
+      environment.positionX(),
+      environment.positionY(),
+      environment.positionZ(),
+      0, 0, 0
+    );
 
     for (int i = 1; i < relativeMotion.length; i++) {
       double lastMotionX = relativeMotion[i - 1][0];
@@ -56,23 +116,36 @@ public final class SimulatorBasicTests extends Tests {
       double motionZ = relativeMotion[i][2];
       Motion motion = new Motion(motionX, motionY, motionZ);
 
+      environment.setPositionX(environment.positionX() + motionX);
+      environment.setPositionY(environment.positionY() + motionY);
+      environment.setPositionZ(environment.positionZ() + motionZ);
+
       Simulation simulation = simulator.simulate(
         testUser,
-        lastMotion,
+        environment.baseMotion(),
         environment,
         configuration
       );
 
       double accuracy = simulation.accuracy(motion);
       if (accuracy > 0.001) {
+        System.out.println("#" + i + " (" + lastMotion + " -> " + simulation.motion() + ", but expected " + motion + ")");
         throw new IllegalStateException("Simulation accuracy deviation: " + accuracy);
       }
+
+      simulator.prepareNextTick(
+        testUser,
+        environment,
+        environment.position(),
+        simulation.motion()
+      );
     }
   }
 
   @After
   public void tearDownMovementTest() {
     UserRepository.unregisterUser(player);
-    testWorld.erase();
+//    testWorld.erase();
   }
 }
+

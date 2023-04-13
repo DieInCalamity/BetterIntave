@@ -18,8 +18,8 @@ import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.executor.TaskTracker;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.Modules;
-import de.jpx3.intave.module.feedback.FeedbackCallback;
-import de.jpx3.intave.module.feedback.FeedbackTracker;
+import de.jpx3.intave.module.feedback.EmptyFeedbackCallback;
+import de.jpx3.intave.module.feedback.FeedbackObserver;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.nayoro.Nayoro;
@@ -183,16 +183,12 @@ public final class EntityTracker extends Module {
       // Another entity
       if (vehicleEntityID == -1) {
         // when an entity dismounts
-        Modules.feedback().synchronize(player, null, (player1, target) -> {
-          sittingEntity.unmountFromEntity();
-        });
+        user.tickFeedback(sittingEntity::unmountFromEntity);
       } else {
         // mounts on entity
         Entity sittingOnEntity = connection.entityBy(vehicleEntityID);
         if (sittingOnEntity != null) {
-          Modules.feedback().synchronize(player, null, (player1, x) ->
-            sittingEntity.mountToEntity(sittingOnEntity)
-          );
+          user.tickFeedback(() -> sittingEntity.mountToEntity(sittingOnEntity));
         } else {
           if (IntaveControl.DISABLE_LICENSE_CHECK) {
             IntaveLogger.logger().error(String.format("mounted On Entity with id %d could not be found", vehicleEntityID));
@@ -207,12 +203,13 @@ public final class EntityTracker extends Module {
       if (target == null) {
         target = Entity.destroyedEntity();
       }
-      Modules.feedback().synchronize(player, target, (a, ridingEntity) -> {
+      Entity finalTarget = target;
+      user.tickFeedback(() -> {
         if (movementData.isInVehicle()) {
           movementData.dismountRidingEntity("Override");
         }
-        if (ridingEntity != null && !(ridingEntity instanceof Entity.Destroyed)) {
-          movementData.setVehicle(ridingEntity);
+        if (finalTarget != null && !(finalTarget instanceof Entity.Destroyed)) {
+          movementData.setVehicle(finalTarget);
         }
       });
     }
@@ -271,6 +268,7 @@ public final class EntityTracker extends Module {
       PacketContainer oldPacket = event.getPacket();
       PacketContainer newPacket = oldPacket.deepClone();
       modifyWatchablesOf((makeOwnerInvisible ? oldPacket : newPacket));
+      //is this correct?
       connection.shouldNotBeAttacked.add(entityId);
       connection.decoySides.put(entityId, makeOwnerInvisible ? SECOND_IS_DECOY : FIRST_IS_DECOY);
       entity.duplicationId = newId;
@@ -380,7 +378,6 @@ public final class EntityTracker extends Module {
     }
     return processPacketSpawnMob(user, packet, typeData, entityId, entityIsPlayer);
   }
-
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
@@ -509,19 +506,21 @@ public final class EntityTracker extends Module {
 
     entity.immediateEntityTeleport(user, packet);
     if (entity.typeData().isLivingEntity() && entity.tracingEnabled()) {
-      FeedbackCallback<PacketEvent> task = (player1, event1) -> {
+      EmptyFeedbackCallback task = () -> {
         entity.verifiedPosition = false;
         entity.handleEntityTeleport(user, packet);
         entity.clientSynchronized = true;
         nayoroEntityPositionUpdate(player, entity);
       };
-      FeedbackTracker feedbackTracker = entity.feedbackTracker();
-//      if (entity.doubleVerification) {
-//        FeedbackCallback<PacketEvent> verificationTask = (x, theEvent) -> entity.verifiedPosition = true;
-//        Modules.feedback().tracedDoubleSynchronize(player, event, event, task, verificationTask, feedbackTracker, feedbackTracker);
-//      } else {
-      Modules.feedback().tracedSingleSynchronize(player, event, task, feedbackTracker);
-//      }
+      FeedbackObserver observer = entity.feedbackTracker();
+////      if (entity.doubleVerification) {
+////        FeedbackCallback<PacketEvent> verificationTask = (x, theEvent) -> entity.verifiedPosition = true;
+////        Modules.feedback().tracedDoubleSynchronize(player, event, event, task, verificationTask, feedbackTracker, feedbackTracker);
+////      } else {
+//      Modules.feedback().tracedSingleSynchronize(player, event, task, observer);
+      user.tracedTickFeedback(task, observer);
+
+////      }
     } else {
       entity.handleEntityTeleport(user, packet);
       entity.clientSynchronized = false;
@@ -576,18 +575,19 @@ public final class EntityTracker extends Module {
     entity.immediateEntityMovement(packet);
 
     if (entity.typeData().isLivingEntity() && entity.tracingEnabled()) {
-      FeedbackCallback<PacketEvent> task = (player1, event1) -> {
+      EmptyFeedbackCallback task = () -> {
         entity.verifiedPosition = false;
         entity.handleEntityMovement(packet);
         nayoroEntityPositionUpdate(player, entity);
       };
-      FeedbackTracker tracker = entity.feedbackTracker();
-//      if (entity.doubleVerification) {
-//        FeedbackCallback<PacketEvent> verificationTask = (x, theEvent) -> entity.verifiedPosition = true;
-//        Modules.feedback().tracedDoubleSynchronize(player, event, event, task, verificationTask, tracker, tracker);
-//      } else {
-      Modules.feedback().tracedSingleSynchronize(player, event, task, tracker);
-//      }
+      FeedbackObserver tracker = entity.feedbackTracker();
+////      if (entity.doubleVerification) {
+////        FeedbackCallback<PacketEvent> verificationTask = (x, theEvent) -> entity.verifiedPosition = true;
+////        Modules.feedback().tracedDoubleSynchronize(player, event, event, task, verificationTask, tracker, tracker);
+////      } else {
+//      Modules.feedback().tracedSingleSynchronize(player, event, task, tracker);
+      user.tracedTickFeedback(task, tracker);
+////      }
     } else {
       entity.handleEntityMovement(packet);
       entity.clientSynchronized = false;
@@ -826,8 +826,7 @@ public final class EntityTracker extends Module {
     }
     boolean synchronize = entity.clientSynchronized && entity.tracingEnabled();
     if (synchronize) {
-      FeedbackCallback<Entity> task = (p, e) -> updateDeadState(e);
-      Modules.feedback().tracedSingleSynchronize(player, entity, task, entity.feedbackTracker());
+      user.tracedTickFeedback(() -> updateDeadState(entity), entity.feedbackTracker());
     } else {
       updateDeadState(entity);
     }
@@ -1026,8 +1025,10 @@ public final class EntityTracker extends Module {
     if (health != null) {
       boolean synchronize = entity.clientSynchronized && entity.tracingEnabled();
       if (synchronize) {
-        FeedbackTracker tracker = entity.feedbackTracker();
-        Modules.feedback().tracedSingleSynchronize(player, entity, (p, e) -> updateHealthState(e, health), tracker);
+//        FeedbackObserver tracker = entity.feedbackTracker();
+//        Modules.feedback().tracedSingleSynchronize(player, entity, (p, e) -> updateHealthState(e, health), tracker);
+        User user = UserRepository.userOf(player);
+        user.tracedTickFeedback(() -> updateHealthState(entity, health), entity.feedbackTracker());
       } else {
         updateHealthState(entity, health);
       }
@@ -1040,10 +1041,11 @@ public final class EntityTracker extends Module {
     }
     Float health = readHealthOf(watchableObjects);
     if (health != null) {
-      AbilityMetadata abilityData = UserRepository.userOf(player).meta().abilities();
+      User user = UserRepository.userOf(player);
+      AbilityMetadata abilityData = user.meta().abilities();
       abilityData.unsynchronizedHealth = health;
-      Modules.feedback().synchronize(player, health, (p, retrievedHealth) -> {
-        abilityData.health = retrievedHealth;
+      user.tickFeedback(() -> {
+        abilityData.health = health;
         abilityData.ticksToLastHealthUpdate = 0;
       });
     }
@@ -1079,7 +1081,6 @@ public final class EntityTracker extends Module {
       if (!optionalInt.isPresent()) {
         return null;
       }
-
       rawValue = optionalInt.getAsInt();
     }
     return ((Number) rawValue).floatValue();
@@ -1101,7 +1102,6 @@ public final class EntityTracker extends Module {
 
   @Nullable
   public static Entity entityByIdentifier(User user, int entityID) {
-    ConnectionMetadata synchronizeData = user.meta().connection();
-    return synchronizeData.entityBy(entityID);
+    return user.meta().connection().entityBy(entityID);
   }
 }

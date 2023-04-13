@@ -28,7 +28,6 @@ import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.Modules;
-import de.jpx3.intave.module.feedback.FeedbackCallback;
 import de.jpx3.intave.module.feedback.Superposition;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.module.linker.packet.Engine;
@@ -169,12 +168,14 @@ public final class MovementDispatcher extends Module {
     Location toLocation = event.getTo();
     World world = toLocation.getWorld();
     if (toLocation.getWorld() != player.getWorld() || toLocation.distance(fromLocation) > 8) {
-      BoundingBox bb = BoundingBox.fromPosition(user, toLocation);
+      MovementMetadata movement = user.meta().movement();
+
+      BoundingBox bb = BoundingBox.fromPosition(user, movement, toLocation);
       int shiftAllowed = 5;
       Location oldToLocation = toLocation.clone();
       while (toLocation.getY() < WorldHeight.UPPER_WORLD_LIMIT && shiftAllowed-- > 0 && Collision.unsafePresent(world, player, bb) && Collision.unsafeNonePresent(world, player, bb.offset(0, 0.5, 0))) {
         toLocation.add(0, 0.1, 0);
-        bb = BoundingBox.fromPosition(user, toLocation);
+        bb = BoundingBox.fromPosition(user, movement, toLocation);
       }
       if (IntaveControl.DEBUG_STUCK_REVIVAL) {
         player.sendMessage("SREV " + shiftAllowed + " " + toLocation.distance(oldToLocation) + " cause " + cause);
@@ -213,13 +214,14 @@ public final class MovementDispatcher extends Module {
   public void postShift(PlayerRespawnEvent respawn) {
     Player player = respawn.getPlayer();
     User user = UserRepository.userOf(player);
+    MovementMetadata movement = user.meta().movement();
     Location respawnLocation = respawn.getRespawnLocation().clone();
     World world = respawnLocation.getWorld();
     int shiftAllowed = 5;
-    BoundingBox bb = BoundingBox.fromPosition(user, respawnLocation);
+    BoundingBox bb = BoundingBox.fromPosition(user, movement, respawnLocation);
     while (respawnLocation.getY() < WorldHeight.UPPER_WORLD_LIMIT && shiftAllowed-- > 0 && Collision.unsafePresent(world, player, bb) && Collision.unsafeNonePresent(world, player, bb.offset(0, 0.5, 0))) {
       respawnLocation.add(0, 0.1, 0);
-      bb = BoundingBox.fromPosition(user, respawnLocation);
+      bb = BoundingBox.fromPosition(user, movement, respawnLocation);
       if (IntaveControl.DEBUG_STUCK_REVIVAL) {
         player.sendMessage("SREV " + shiftAllowed + " " + respawnLocation.distance(respawn.getRespawnLocation()) + " respawn");
       }
@@ -280,22 +282,24 @@ public final class MovementDispatcher extends Module {
   }
 
   private void synchronizeRespawn(Player player) {
-    Modules.feedback()
-      .synchronize(player, UserRepository.userOf(player), (p, user) -> {
-        MovementMetadata movement = user.meta().movement();
-        ProtocolMetadata protocol = user.meta().protocol();
-        movement.sneaking = false;
-        movement.setSprinting(false);
-        if (protocol.protocolVersion() >= VER_1_16) {
-          movement.sprintReset();
-          user.refreshSprintState();
-        }
-        movement.baseMotionX = 0;
-        movement.baseMotionY = 0;
-        movement.baseMotionZ = 0;
-        user.blockStates().invalidateAll();
-        user.meta().potions().clearPotionEffects();
-      });
+//    Modules.feedback()
+//      .synchronize(player, UserRepository.userOf(player), (p, user) -> {
+    User user = UserRepository.userOf(player);
+    user.tickFeedback(() -> {
+      MovementMetadata movement = user.meta().movement();
+      ProtocolMetadata protocol = user.meta().protocol();
+      movement.sneaking = false;
+      movement.setSprinting(false);
+      if (protocol.protocolVersion() >= VER_1_16) {
+        movement.sprintReset();
+        user.refreshSprintState();
+      }
+      movement.baseMotionX = 0;
+      movement.baseMotionY = 0;
+      movement.baseMotionZ = 0;
+      user.blockStates().invalidateAll();
+      user.meta().potions().clearPotionEffects();
+    });
   }
 
   @PacketSubscription(
@@ -306,9 +310,9 @@ public final class MovementDispatcher extends Module {
   )
   public void sentExplosion(PacketEvent event) {
     Player player = event.getPlayer();
-    PacketContainer packet = event.getPacket();
-    Modules.feedback().synchronize(player, packet.getFloat(), (player1, floats) -> {
-      User user = UserRepository.userOf(player1);
+    StructureModifier<Float> floats = event.getPacket().getFloat();
+    User user = UserRepository.userOf(player);
+    user.tickFeedback(() -> {
       MovementMetadata movementData = user.meta().movement();
       Float motionX = floats.read(1);
       Float motionY = floats.read(2);
@@ -822,14 +826,13 @@ public final class MovementDispatcher extends Module {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
     Integer originalFoodLevel = event.getPacket().getIntegers().read(0);
-    FeedbackCallback<Integer> callback = (x, foodLevel) -> {
+    user.tickFeedback(() -> {
       MetadataBundle meta = user.meta();
-      if (foodLevel <= 6) {
+      if (originalFoodLevel <= 6) {
         meta.movement().setSprinting(false);
       }
-      meta.abilities().foodLevel = foodLevel;
-    };
-    Modules.feedback().synchronize(player, originalFoodLevel, callback, SELF_SYNCHRONIZATION);
+      meta.abilities().foodLevel = originalFoodLevel;
+    }, SELF_SYNCHRONIZATION);
   }
 
   @PacketSubscription(
@@ -878,7 +881,7 @@ public final class MovementDispatcher extends Module {
     byte data = (byte) elytraObject.getValue();
     boolean gliding = (data & 1 << 7) != 0;
 
-    user.tickFeedback(unused -> {
+    user.tickFeedback(() -> {
       movement.elytraFlying = gliding;
       movement.updatePose();
       if (IntaveControl.DEBUG_ELYTRA) {
@@ -967,7 +970,9 @@ public final class MovementDispatcher extends Module {
       if (Physics.USE_SUPERPOSITIONS) {
         movementData.velocitySuperposition().stateSynchronize(event, motion);
       } else {
-        Modules.feedback().synchronize(player, velocity, this::receiveVelocity);
+//        Modules.feedback().synchronize(player, velocity, this::receiveVelocity);
+        Vector finalVelocity = velocity;
+        user.tickFeedback(() -> receiveVelocity(player, finalVelocity));
       }
     }
   }
@@ -1015,7 +1020,8 @@ public final class MovementDispatcher extends Module {
       BlockVariant variant = VolatileBlockAccess.variantAccess(user, blockPosition.toLocation(world));
       Direction facing = variant.enumProperty(Direction.class, "facing");
       boolean opening = reader.data() == 1;
-      Modules.feedback().synchronize(player, (p, n) -> {
+      user.tickFeedback(() -> {
+//      Modules.feedback().synchronize(player, (p, n) -> {
         if (movement.shulkerData.containsKey(blockPosition)) {
           ShulkerBox shulkerBox = movement.shulkerData.get(blockPosition);
           if (opening) {

@@ -47,6 +47,11 @@ public final class ProtocolMetadata {
     this.refresh(player);
   }
 
+  public ProtocolMetadata(User user, int protocolVersion) {
+    this.user = user;
+    this.setProtocolVersion(protocolVersion);
+  }
+
   public void refresh(Player player) {
     setProtocolVersion(player == null ? -1 : ViaVersionAdapter.protocolVersionOf(player));
     this.refreshes++;

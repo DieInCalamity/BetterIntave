@@ -5,7 +5,6 @@ import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.movement.Timer;
 import de.jpx3.intave.executor.IntaveThreadFactory;
 import de.jpx3.intave.module.Modules;
-import de.jpx3.intave.module.feedback.FeedbackOptions;
 import de.jpx3.intave.module.linker.packet.PacketId;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.violation.Violation;
@@ -23,6 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static de.jpx3.intave.module.feedback.FeedbackOptions.SELF_SYNCHRONIZATION;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
 @Deprecated
@@ -46,7 +46,8 @@ public final class BalanceButActuallyGood extends MetaCheckPart<Timer, BalanceBu
   }
 
   private void transaction(Player player) {
-    Modules.feedback().synchronize(player, (p, target) -> checkPackets(userOf(p)), FeedbackOptions.SELF_SYNCHRONIZATION);
+    User user = userOf(player);
+    user.tickFeedback(() -> checkPackets(user), SELF_SYNCHRONIZATION);
   }
 
   private void checkPackets(User user) {

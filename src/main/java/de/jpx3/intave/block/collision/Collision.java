@@ -88,6 +88,7 @@ public final class Collision {
     ExtendedBlockStateCache stateAccess = user.blockStates();
     boolean outsideBorderLast = movementData.outsideBorder;
     boolean outsideBorderCurrent = playerOutsideBorder(user);
+    // this works, but why?
     if (outsideBorderLast && outsideBorderCurrent) {
       movementData.outsideBorder = false;
     } else if (!outsideBorderLast && !outsideBorderCurrent) {

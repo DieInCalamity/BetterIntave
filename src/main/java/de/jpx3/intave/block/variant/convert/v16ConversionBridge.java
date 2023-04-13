@@ -8,7 +8,7 @@ import net.minecraft.server.v1_16_R1.*;
 import java.util.*;
 
 @PatchyAutoTranslation
-public final class v16ConversionBridge implements ConversionBridge {
+final class v16ConversionBridge implements ConversionBridge {
   @PatchyAutoTranslation
   public Map<Setting<?>, Comparable<?>> settingsOf(Object blockData) {
     IBlockData data = (IBlockData) blockData;

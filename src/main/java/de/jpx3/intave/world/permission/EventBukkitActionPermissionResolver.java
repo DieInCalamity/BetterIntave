@@ -1,6 +1,5 @@
 package de.jpx3.intave.world.permission;
 
-import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.event.AsyncIntaveBukkitActionPermissionEvent;
 import de.jpx3.intave.access.player.event.BucketAction;
 import de.jpx3.intave.module.Modules;
@@ -11,12 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 final class EventBukkitActionPermissionResolver implements BucketActionPermissionCheck {
-  private final IntavePlugin plugin;
-
-  public EventBukkitActionPermissionResolver(IntavePlugin plugin) {
-    this.plugin = plugin;
-  }
-
   @Override
   public boolean hasPermission(
     Player player,

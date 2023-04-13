@@ -2,11 +2,11 @@ package de.jpx3.intave.player.collider.complex;
 
 import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.block.shape.BlockShape;
+import de.jpx3.intave.check.movement.physics.SimulationEnvironment;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.Motion;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MetadataBundle;
-import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.share.Direction.Axis.*;
@@ -15,6 +15,7 @@ public final class v14Collider implements Collider {
   @Override
   public ColliderResult collide(
     User user,
+    SimulationEnvironment environment,
     Motion motion,
     double positionX,
     double positionY,
@@ -23,25 +24,24 @@ public final class v14Collider implements Collider {
   ) {
     Player player = user.player();
     MetadataBundle meta = user.meta();
-    MovementMetadata movement = meta.movement();
     if (inWeb) {
       motion.motionX *= 0.25D;
       motion.motionY *= 0.05f;
       motion.motionZ *= 0.25D;
     }
     boolean edgeSneak = false;
-    if (movement.onGround() && movement.isSneaking()) {
-      edgeSneak = calculateBackOffFromEdge(user, movement.stepHeight, motion);
+    if (environment.onGround() && environment.isSneaking()) {
+      edgeSneak = calculateBackOffFromEdge(user, environment, environment.stepHeight(), motion);
     }
     double startMotionX = motion.motionX();
     double startMotionY = motion.motionY();
     double startMotionZ = motion.motionZ();
     boolean step = false;
     BlockShape collisionShape = Collision.shape(
-      player, movement.boundingBox().expand(motion.motionX, motion.motionY, motion.motionZ)
+      player, environment.boundingBox().expand(motion.motionX, motion.motionY, motion.motionZ)
     );
-    BoundingBox startBoundingBox = movement.boundingBox();
-    BoundingBox shiftedBoundingBox = movement.boundingBox();
+    BoundingBox startBoundingBox = environment.boundingBox();
+    BoundingBox shiftedBoundingBox = environment.boundingBox();
     if (motion.motionY != 0.0) {
       motion.motionY = collisionShape.allowedOffset(Y_AXIS, shiftedBoundingBox, motion.motionY);
       if (motion.motionY != 0.0) {
@@ -67,14 +67,14 @@ public final class v14Collider implements Collider {
         shiftedBoundingBox = shiftedBoundingBox.offset(0.0, 0.0, motion.motionZ);
       }
     }
-    boolean flag1 = movement.onGround || startMotionY != motion.motionY && startMotionY < 0.0D;
+    boolean flag1 = environment.onGround() || startMotionY != motion.motionY && startMotionY < 0.0D;
     if (flag1 && (startMotionX != motion.motionX || startMotionZ != motion.motionZ)) {
       double copyX = motion.motionX;
       double copyY = motion.motionY;
       double copyZ = motion.motionZ;
       BoundingBox boundingBox3 = shiftedBoundingBox;
       shiftedBoundingBox = startBoundingBox;
-      motion.motionY = movement.stepHeight;
+      motion.motionY = environment.stepHeight();
       BlockShape stepCollisionShape = Collision.shape(
         player, shiftedBoundingBox.expand(startMotionX, motion.motionY, startMotionZ)
       );
@@ -145,10 +145,9 @@ public final class v14Collider implements Collider {
     );
   }
 
-  private boolean calculateBackOffFromEdge(User user, double length, Motion context) {
+  private boolean calculateBackOffFromEdge(User user, SimulationEnvironment environment, double length, Motion context) {
     Player player = user.player();
-    MovementMetadata movementData = user.meta().movement();
-    BoundingBox boundingBox = movementData.boundingBox();
+    BoundingBox boundingBox = environment.boundingBox();
     double motionX = context.motionX;
     double motionZ = context.motionZ;
     boolean edgeSneak = false;

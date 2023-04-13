@@ -10,6 +10,9 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import static de.jpx3.classloader.ClassLoader.classLoad;
+import static de.jpx3.classloader.ClassLoader.classLoaded;
+
 public final class PatchyLoadingInjector {
   @Native
   public static <T> Class<T> loadUnloadedClassPatched(ClassLoader classLoader, String className) {
@@ -19,10 +22,10 @@ public final class PatchyLoadingInjector {
     className = className.replace("/", ".");
     byte[] classBytes = new byte[0];
     try {
-      if (!de.jpx3.classloader.ClassLoader.classLoaded((className))) {
+      if (!classLoaded((className))) {
         classBytes = classBytesOf(classLoader, className);
         classBytes = PatchyTranslator.translateClass(classBytes);
-        de.jpx3.classloader.ClassLoader.classLoad(classBytes);
+        classLoad(classBytes);
       }
       return classByName(className);
     } catch (Error | Exception exception) {

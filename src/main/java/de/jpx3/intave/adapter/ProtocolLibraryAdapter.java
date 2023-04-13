@@ -18,7 +18,7 @@ public final class ProtocolLibraryAdapter {
     return MinecraftVersion.getCurrentVersion();
   }
 
-  public static boolean protocolLibAlreadyAvailable() {
+  public static boolean protocolLibAvailable() {
     return Bukkit.getPluginManager().getPlugin("ProtocolLib") != null;
   }
 

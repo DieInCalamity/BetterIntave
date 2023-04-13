@@ -64,6 +64,7 @@ abstract class Playback extends SinkEnvironment {
   @Override
   public void visit(PropertiesEvent event) {
     properties.putAll(event.properties());
+    visitAny(event);
   }
 
   @Override

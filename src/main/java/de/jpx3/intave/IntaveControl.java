@@ -24,7 +24,7 @@ public final class IntaveControl {
   public static final boolean IGNORE_CACHE_REFRESH_ON_SIMULATION_FAULT = false;
   public static final boolean SIBYL_DEBUG = false;
   public static final boolean ENABLE_MEMTRACE = false;
-  public static final boolean NETTY_DUMP_ON_TIMEOUT = true;
+  public static final boolean NETTY_DUMP_ON_TIMEOUT = false;
   public static final boolean FILL_UFOE_STACKTRACE = false;
   public static final boolean USE_TIMINGS = true;
   public static final boolean DUMP_BLOCK_HITBOX_ON_RIGHT_CLICK = false;

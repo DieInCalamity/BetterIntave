@@ -12,6 +12,7 @@ import de.jpx3.intave.user.meta.MetadataBundle;
 import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.user.meta.ViolationMetadata;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -117,7 +118,7 @@ public final class SimulationEvaluator {
       } else if (Math.abs(Math.abs(receivedMotionY - crouchingHeightGap) - movement.jumpMotion()) < 0.01) {
         scuffed = true;
       }
-      boolean collides = Collision.present(player, BoundingBox.fromPosition(user, movement.positionX, movement.positionY + 0.0001, movement.positionZ)
+      boolean collides = Collision.present(player, BoundingBox.fromPosition(user, movement, movement.positionX, movement.positionY + 0.0001, movement.positionZ)
         .expand(movement.motionX(), Math.abs(receivedMotionY + 0.1), movement.motionZ()));
 //      player.sendMessage(scuffed + " " + movement.isSneaking() + " " + Math.abs(receivedMotionY - crouchingHeightGap) + " " + Math.abs(receivedMotionY - standingHeightGap));
       if (scuffed && collides) {
@@ -277,6 +278,9 @@ public final class SimulationEvaluator {
           horizontalLegitimateDeviation = distanceMoved < 0.04 ? 0.04 : 0.002;
         }
       }
+      if (user.meta().protocol().beeUpdate() && (Math.abs(motionX) < 0.09 || Math.abs(motionZ) < 0.09)) {
+        horizontalLegitimateDeviation = Math.max(horizontalLegitimateDeviation, 0.009);
+      }
     }
 
     if (movement.shulkerXToleranceRemaining > 0 || movement.shulkerZToleranceRemaining > 0) {
@@ -387,6 +391,9 @@ public final class SimulationEvaluator {
         limit = movement.pastEdgeSneak <= 1 ? 0.12 : (smallMovement ? 0.099 : (movement.pastEdgeSneak < 10 ? 0.05 : 0.035));
         if (movement.motionY() >= 0.1 && protocol.cavesAndCliffsUpdate() && movement.pastEdgeSneak <= 1 && movement.sprinting && distanceMoved <= 0.5) {
           limit = 0.3;
+        }
+        if (Math.abs(movement.motionY()) < 0.001) {
+          limit = 0.07;
         }
         if (movement.pastEdgeSneak <= 3 && !protocol.flyingPacketsAreSent()) {
           limit = Math.max(limit, 0.07);

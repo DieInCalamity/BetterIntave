@@ -39,7 +39,7 @@ public final class BoatSimulator extends Simulator {
     updateMotion(user, motion);
     controlBoat(user, motion);
     ColliderResult collision = Colliders.collision(
-      user, motion, movement.inWeb, movement.verifiedPositionX, movement.verifiedPositionY, movement.verifiedPositionZ
+      user, environment, motion, movement.inWeb, movement.verifiedPositionX, movement.verifiedPositionY, movement.verifiedPositionZ
     );
     return Simulation.of(user, configuration, collision);
   }
@@ -192,7 +192,8 @@ public final class BoatSimulator extends Simulator {
 
   private float boatGlide(User user) {
     Player player = user.player();
-    BoundingBox axisalignedbb = BoundingBox.fromPosition(user, user.meta().movement().position());
+    MovementMetadata movementMeta = user.meta().movement();
+    BoundingBox axisalignedbb = BoundingBox.fromPosition(user, movementMeta, movementMeta.position());
     BoundingBox axisalignedbb1 = new BoundingBox(axisalignedbb.minX, axisalignedbb.minY - 0.001D, axisalignedbb.minZ, axisalignedbb.maxX, axisalignedbb.minY, axisalignedbb.maxZ);
     int minX = ClientMathHelper.floor(axisalignedbb1.minX) - 1;
     int maxX = ClientMathHelper.ceil(axisalignedbb1.maxX) + 1;
@@ -234,27 +235,26 @@ public final class BoatSimulator extends Simulator {
   }
 
   @Override
-  public void prepareNextTick(User user, double positionX, double positionY, double positionZ, double motionX, double motionY, double motionZ) {
-    MovementMetadata movement = user.meta().movement();
-    Motion motionVector = movement.motion();
-    motionVector.reset(motionX, motionY, motionZ);
+  public void prepareNextTick(User user, SimulationEnvironment environment, double positionX, double positionY, double positionZ, double motionX, double motionY, double motionZ) {
+    Motion motionVector = environment.motion();
+    motionVector.setTo(motionX, motionY, motionZ);
     ViolationMetadata violationMetadata = user.meta().violationLevel();
 
-    BoundingBox boundingBox = BoundingBox.fromPosition(user, positionX, positionY, positionZ);
-    movement.setBoundingBox(boundingBox);
+    BoundingBox boundingBox = BoundingBox.fromPosition(user, environment, positionX, positionY, positionZ);
+    environment.setBoundingBox(boundingBox);
 
     if (!violationMetadata.isInActiveTeleportBundle) {
-      movement.baseMotionX = motionVector.motionX;
-      movement.baseMotionY = motionVector.motionY;
-      movement.baseMotionZ = motionVector.motionZ;
+      environment.setBaseMotionX(motionVector.motionX);
+      environment.setBaseMotionY(motionVector.motionY);
+      environment.setBaseMotionZ(motionVector.motionZ);
     }
   }
 
   @Override
-  public void setback(User user, double predictedX, double predictedY, double predictedZ) {
+  public void setback(User user, SimulationEnvironment environment, double predictedX, double predictedY, double predictedZ) {
     Player player = user.player();
     Synchronizer.synchronize(player::leaveVehicle);
-    user.meta().movement().dismountRidingEntity("Boat setback");
+    environment.dismountRidingEntity("Boat setback");
   }
 
   @Override

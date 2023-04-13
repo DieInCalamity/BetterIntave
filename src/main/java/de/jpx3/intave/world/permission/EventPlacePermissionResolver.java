@@ -1,6 +1,5 @@
 package de.jpx3.intave.world.permission;
 
-import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.event.AsyncIntaveBlockPlacePermissionEvent;
 import de.jpx3.intave.module.Modules;
 import org.bukkit.Material;
@@ -8,12 +7,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 final class EventPlacePermissionResolver implements BlockPlacePermissionCheck {
-  private final IntavePlugin plugin;
-
-  public EventPlacePermissionResolver(IntavePlugin plugin) {
-    this.plugin = plugin;
-  }
-
   @Override
   public boolean hasPermission(
     Player player, World world,

@@ -250,8 +250,8 @@ public final class MovementMetadata implements SimulationEnvironment {
     this.frictionPosSubtraction = version <= VER_1_15 ? 1.0 : 0.5000001;
     this.hasJumpFactor = version >= VER_1_15;
     if (!boundingBoxSetup) {
-      Location location = player.getLocation();
-      boundingBox = BoundingBox.fromPosition(user, location.getX(), location.getY(), location.getZ());
+      Location location = player == null ? new Location(null, verifiedPositionX, verifiedPositionY, verifiedPositionZ) : player.getLocation();
+      boundingBox = BoundingBox.fromPosition(user, this, location.getX(), location.getY(), location.getZ());
       boundingBoxSetup = true;
       // just a default non-null value
       teleportLocation = location;
@@ -625,6 +625,16 @@ public final class MovementMetadata implements SimulationEnvironment {
     return BlockProperties.of(blockOnPosition()).soulSpeedAffected();
   }
 
+  @Override
+  public double fallDistance() {
+    return artificialFallDistance;
+  }
+
+  @Override
+  public void resetFallDistance() {
+    artificialFallDistance = 0;
+  }
+
   private void updateEntityActionStates() {
     MetadataBundle meta = user.meta();
     AbilityMetadata abilities = meta.abilities();
@@ -671,6 +681,11 @@ public final class MovementMetadata implements SimulationEnvironment {
   }
 
   @Override
+  public void resetInWeb() {
+    inWeb = false;
+  }
+
+  @Override
   public boolean onGround() {
     return onGround;
   }
@@ -678,6 +693,16 @@ public final class MovementMetadata implements SimulationEnvironment {
   @Override
   public boolean lastOnGround() {
     return lastOnGround;
+  }
+
+  @Override
+  public boolean collidedHorizontally() {
+    return collidedHorizontally;
+  }
+
+  @Override
+  public boolean collidedVertically() {
+    return collidedVertically;
   }
 
   public boolean recentlyEncounteredFlyingPacket(int ticks) {
@@ -780,10 +805,74 @@ public final class MovementMetadata implements SimulationEnvironment {
     pastFlyingPacketAccurate = 0;
   }
 
-  public void increaseFlyingPacket() {
+  public void increaseFlyingPacketTicks() {
     pastFlyingPacketAccurate++;
     pastClientFlyingPacket++;
     pastNearbyCollisionInaccuracy++;
+  }
+
+  @Override
+  public void increaseEntityUseTicks() {
+    pastEntityUse++;
+  }
+
+  @Override
+  public void increasePlayerAttackTicks() {
+    if (pastPlayerAttackPhysics < 100) {
+      pastPlayerAttackPhysics++;
+    }
+  }
+
+  @Override
+  public void increasePushedByWaterFlowTicks() {
+    if (pastPushedByWaterFlow < 100) {
+      pastPushedByWaterFlow++;
+    }
+  }
+
+  @Override
+  public void resetPhysicsPacketRelinkFlyVL() {
+    physicsPacketRelinkFlyVL = 0;
+  }
+
+  @Override
+  public void increasePowderSnowTicks() {
+    pastInPowderSnow++;
+  }
+
+  @Override
+  public void resetPowderSnowTicks() {
+    pastInPowderSnow = 0;
+  }
+
+  @Override
+  public void increaseEdgeSneakTickGrants() {
+    pastEdgeSneakTickGrants++;
+  }
+
+  @Override
+  public void aquaticUpdateLavaReset() {
+    aquaticUpdateInLava = false;
+  }
+
+  @Override
+  public float height() {
+    return height;
+  }
+
+  @Override
+  public double heightRounded() {
+    return heightRounded;
+  }
+
+  @Override
+  public float width() {
+    return width;
+  }
+
+  @Override
+  public double widthRounded() {
+    return widthRounded;
   }
 
   private Material blockOnPosition() {
@@ -822,6 +911,51 @@ public final class MovementMetadata implements SimulationEnvironment {
     return motionZ;
   }
 
+  @Override
+  public double baseMotionX() {
+    return baseMotionX;
+  }
+
+  @Override
+  public double baseMotionY() {
+    return baseMotionY;
+  }
+
+  @Override
+  public double baseMotionZ() {
+    return baseMotionZ;
+  }
+
+  @Override
+  public void setBaseMotionX(double baseMotionX) {
+    this.baseMotionX = baseMotionX;
+  }
+
+  @Override
+  public void setBaseMotionY(double baseMotionY) {
+    this.baseMotionY = baseMotionY;
+  }
+
+  @Override
+  public void setBaseMotionZ(double baseMotionZ) {
+    this.baseMotionZ = baseMotionZ;
+  }
+
+  @Override
+  public Motion motionProcessorContext() {
+    return motionProcessorContext;
+  }
+
+  @Override
+  public boolean motionXReset() {
+    return physicsResetMotionX;
+  }
+
+  @Override
+  public boolean motionZReset() {
+    return physicsResetMotionZ;
+  }
+
   public Motion motion() {
     return new Motion(motionX, motionY, motionZ);
   }
@@ -846,6 +980,11 @@ public final class MovementMetadata implements SimulationEnvironment {
   @Override
   public boolean isSneaking() {
     return sneaking;
+  }
+
+  @Override
+  public boolean isSprinting() {
+    return sprinting;
   }
 
   @Override
@@ -944,6 +1083,11 @@ public final class MovementMetadata implements SimulationEnvironment {
 
   public float friction() {
     return friction;
+  }
+
+  @Override
+  public double stepHeight() {
+    return stepHeight;
   }
 
   public float frictionMultiplier() {
@@ -1069,5 +1213,25 @@ public final class MovementMetadata implements SimulationEnvironment {
       player.teleport(player.getLocation());
     });
     this.vehicle = null;
+  }
+
+  @Override
+  public void setPushedByEntity(boolean pushedByEntity) {
+    this.pushedByEntity = pushedByEntity;
+  }
+
+  @Override
+  public boolean pushedByEntity() {
+    return pushedByEntity;
+  }
+
+  @Override
+  public int pastAnyVelocity() {
+    return pastVelocity;
+  }
+
+  @Override
+  public int pastExternalVelocity() {
+    return pastExternalVelocity;
   }
 }

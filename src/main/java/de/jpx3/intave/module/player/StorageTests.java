@@ -53,7 +53,7 @@ public final class StorageTests extends Tests {
     StorageLoader storageLoader = Modules.storage();
     exampleGateway = storageLoader.hasStorageGateway() ? storageLoader.storageGateway() : new MemoryStorageGateway();
     player = FakePlayerFactory.createPlayer((s, objects) -> s.equals("getUniqueId") ? ZERO_UUID : null);
-    user = UserFactory.createTestUserFor(player, 47);
+    user = UserFactory.createTestUserFor(player);
     UserRepository.manuallyRegisterUser(player, user);
   }
 

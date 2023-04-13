@@ -31,7 +31,7 @@ public final class OpenWindowReader extends AbstractPacketReader implements Enti
 
         @Override
         public Integer next() {
-          return null;
+          throw new UnsupportedOperationException();
         }
       };
     } else {
