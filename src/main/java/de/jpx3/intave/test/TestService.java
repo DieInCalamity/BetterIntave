@@ -12,7 +12,6 @@ import de.jpx3.intave.block.shape.resolve.BlockShapeDrillTests;
 import de.jpx3.intave.block.shape.resolve.BlockShapePipelineTests;
 import de.jpx3.intave.block.variant.BlockVariantTests;
 import de.jpx3.intave.check.EventProcessor;
-import de.jpx3.intave.check.movement.physics.SimulatorBasicTests;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.klass.locate.ReferenceExistenceTests;
 import de.jpx3.intave.math.MathHelper;
@@ -46,10 +45,17 @@ import static de.jpx3.intave.IntaveControl.USE_DEBUG_LOCATE_RESOURCE;
 @HighOrderService
 public final class TestService implements EventProcessor {
   private static final Resource environmentHashResource = Resources.fileCache("environmentHashes");
-  private static final Map<String, Long> supportedEnvironments = environmentHashResource.readLines()
-    .stream().limit(8192)
-    .filter(s -> s.contains(":")).map(line -> line.split(":"))
-    .collect(Collectors.toMap(split -> split[0], split -> Long.parseLong(split[1])));
+  private static final Map<String, Long> supportedEnvironments =
+    environmentHashResource.collectLines(
+      Collectors.mapping(
+        line -> {
+          String[] split = line.split(":");
+          return new AbstractMap.SimpleEntry<>(split[0], Long.parseLong(split[1]));
+        },
+        Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Long::max, HashMap::new)
+      ),
+      8192
+    );
   private static final String environmentHash = environmentHash();
 
   @Native
@@ -213,7 +219,7 @@ public final class TestService implements EventProcessor {
     supportedEnvironments.put(environmentHash, currentTimeMillis);
     // delete system older than 1 month
     supportedEnvironments.entrySet().removeIf(entry -> entry.getValue() < currentTimeMillis - MILLIS_IN_A_MONTH);
-    environmentHashResource.write(supportedEnvironments.entrySet().stream().map(entry -> entry.getKey() + ":" + entry.getValue()).collect(Collectors.joining(System.lineSeparator())));
+    environmentHashResource.write(supportedEnvironments.entrySet().stream().map(entry -> entry.getKey() + ":" + entry.getValue()));
   }
 
   private static int testsInInstance = 0;

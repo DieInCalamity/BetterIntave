@@ -108,11 +108,27 @@ public final class PacketReaders {
 
   public static <T extends PacketReader> T readerOf(PacketContainer container) {
     PacketType type = container.getType();
-    ThreadLocal<? extends PacketReader> threadLocal = readerLocals.get(type);
-    if (threadLocal == null) {
-      throw new IllegalStateException("No reader available for type " + type.name());
+    ThreadLocal<? extends PacketReader> readerThreadLocal = readerLocals.get(type);
+    if (readerThreadLocal == null) {
+
+      // perform a name-based lookup, enter if found
+      for (Map.Entry<PacketType, ThreadLocal<? extends PacketReader>> entry : readerLocals.entrySet()) {
+        if (matches(entry.getKey(), type.name())) {
+          // must be the same protocol
+//          if (!type.getProtocol().equals(entry.getKey().getProtocol())) {
+//            continue;
+//          }
+          readerThreadLocal = entry.getValue();
+          readerLocals.put(type, readerThreadLocal);
+          break;
+        }
+      }
+
+      if (readerThreadLocal == null) {
+        throw new IllegalStateException("No reader available for type " + type.name());
+      }
     }
-    PacketReader interpreter = threadLocal.get();
+    PacketReader interpreter = readerThreadLocal.get();
     interpreter.enter(container);
     //noinspection unchecked
     return (T) interpreter;

@@ -1,11 +1,11 @@
 package de.jpx3.intave.resource;
 
 import de.jpx3.intave.annotate.Native;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -40,6 +40,36 @@ final class HashProtectedLayer implements Resource {
   }
 
   @Override
+  public OutputStream writeStream() {
+    if (!writeStreamSupported()) {
+      throw new UnsupportedOperationException("Write stream is not supported for this resource");
+    }
+    MessageDigest md;
+    try {
+      md = MessageDigest.getInstance("SHA-256");
+    } catch (NoSuchAlgorithmException exception) {
+      throw new RuntimeException(exception);
+    }
+    return new DigestOutputStream(target.writeStream(), md) {
+      @Override
+      @Native
+      public void close() throws IOException {
+        super.close();
+        MessageDigest md = getMessageDigest();
+        md.update("good password".getBytes(StandardCharsets.UTF_8));
+        md.update("bad password".getBytes(StandardCharsets.UTF_8));
+        byte[] hash = md.digest();
+        hashResource.write(hash);
+      }
+    };
+  }
+
+  @Override
+  public boolean writeStreamSupported() {
+    return target.writeStreamSupported();
+  }
+
+  @Override
   public InputStream read() {
     if (!hashResource.available()) {
       return null;
@@ -64,8 +94,8 @@ final class HashProtectedLayer implements Resource {
       while ((read = inputStream.read(buffer)) != -1) {
         outputStream.write(buffer, 0, read);
       }
-    }
-    catch (Exception e) {
+      inputStream.close();
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
     return outputStream.toByteArray();

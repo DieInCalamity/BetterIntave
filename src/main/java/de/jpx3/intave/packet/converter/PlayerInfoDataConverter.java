@@ -60,16 +60,26 @@ public final class PlayerInfoDataConverter {
       private StructureModifier<Object> gameProfileModifier;
 
       public synchronized PlayerInfoData getSpecific(Object generic) {
+        StructureModifier<Object> gameProfileModifier = this.gameProfileModifier;
         if (gameProfileClass == null) {
-          gameProfileClass = MinecraftReflection.getGameProfileClass();
           gameModeClass = EnumWrappers.getGameModeClass();
           chatBaseComponentClass = MinecraftReflection.getIChatBaseComponentClass();
-          gameProfileModifier = new StructureModifier<>(generic.getClass(), null, false);
+          this.gameProfileModifier = gameProfileModifier = new StructureModifier<>(generic.getClass(), null, false);
+          gameProfileClass = MinecraftReflection.getGameProfileClass();
+        }
+        if (gameProfileModifier == null) {
+          throw new RuntimeException("Cannot find game profile modifier.");
         }
         StructureModifier<Object> modifier = gameProfileModifier.withTarget(generic);
         StructureModifier<WrappedGameProfile> gameProfiles = modifier.withType(gameProfileClass, gameProfileConverter);
-        WrappedGameProfile gameProfile = gameProfiles.read(0);
+        WrappedGameProfile gameProfile = gameProfiles.readSafely(0);
+        if (gameProfile == null) {
+          throw new RuntimeException("Cannot find game profile.");
+        }
         StructureModifier<Integer> ints = modifier.withType(Integer.TYPE);
+        if (ints.size() < 1) {
+          throw new RuntimeException("Cannot find latency.");
+        }
         int latency = ints.read(0);
         StructureModifier<EnumWrappers.NativeGameMode> gameModes = modifier.withType(gameModeClass, gameModeConverter);
         EnumWrappers.NativeGameMode gameMode = gameModes.read(0);

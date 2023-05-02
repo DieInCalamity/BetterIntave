@@ -20,15 +20,15 @@ public final class HWIDVerification {
     }
     if (!encryptedResource.exists()) {
       identifier = randomString();
-      ByteArrayInputStream inputStream = new ByteArrayInputStream(identifier.getBytes(StandardCharsets.UTF_8));
-      encryptedResource.write(inputStream);
+      encryptedResource.write(identifier);
     }
     if (identifier == null) {
-      Scanner scanner = new Scanner(new InputStreamReader(encryptedResource.read()));
-      while (scanner.hasNext()) {
-        identifier = scanner.next();
-      }
-      identifier = identifier.trim();
+//      Scanner scanner = new Scanner(new InputStreamReader(encryptedResource.read()));
+//      while (scanner.hasNext()) {
+//        identifier = scanner.next();
+//      }
+//      identifier = identifier.trim();
+      identifier = encryptedResource.readAsString().trim();
     }
     return identifier;
   }

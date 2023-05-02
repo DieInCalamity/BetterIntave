@@ -250,6 +250,7 @@ public final class SimulationEvaluator {
     ProtocolMetadata protocol = meta.protocol();
 
     double motionX = movement.motionX();
+    double motionY = movement.motionY();
     double motionZ = movement.motionZ();
     double distanceMoved = MathHelper.resolveHorizontalDistance(
       movement.positionX, movement.positionZ,
@@ -376,8 +377,8 @@ public final class SimulationEvaluator {
     }
 
     if (movement.physicsUnpredictableVelocityExpected) {
-      Vector lastVelocity = movement.lastVelocity;
-      double velocityDistance = Hypot.fast(lastVelocity.getX(), lastVelocity.getZ());
+//      Vector lastVelocity = movement.lastVelocity;
+//      double velocityDistance = Hypot.fast(lastVelocity.getX(), lastVelocity.getZ());
 //      distance -= velocityDistance;
       horizontalLegitimateDeviation = Math.max(horizontalLegitimateDeviation, 0.1);
 //      player.sendMessage("Gave you " + (velocityDistance * 1.2 - distanceMoved) + " tolerance for velocity, plus extra " + velocityDistance + " for distance, " + distanceMoved + " for distance moved");
@@ -398,8 +399,8 @@ public final class SimulationEvaluator {
           limit = Math.max(limit, 0.07);
         }
       } else {
-        if (movement.pastEdgeSneak <= 3) {
-          boolean smallMovement = (Math.abs(movement.motionX()) < 0.099 && Math.abs(movement.motionZ()) < 0.2) || (Math.abs(movement.motionZ()) < 0.099 && Math.abs(movement.motionX()) < 0.2) && movement.onGround();
+        if (movement.pastEdgeSneak <= 3 || (movement.pastEdgeSneak <= 10 && movement.onGround() && Math.abs(motionY) < 0.01)) {
+          boolean smallMovement = (Math.abs(movement.motionX()) < 0.099 && Math.abs(movement.motionZ()) < 0.21) || (Math.abs(movement.motionZ()) < 0.099 && Math.abs(movement.motionX()) < 0.21) && movement.onGround();
           limit = smallMovement ? 0.2 : 0.02;
         }
       }

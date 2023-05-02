@@ -7,10 +7,7 @@ import de.jpx3.intave.share.Position;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 abstract class Playback extends SinkEnvironment {
   private final DataInputStream dataInputStream;
@@ -39,6 +36,10 @@ abstract class Playback extends SinkEnvironment {
         if (!"INTAVE/SAMPLE".equalsIgnoreCase(headerData)) {
           throw new RuntimeException("Invalid header data");
         }
+        String license = dataInputStream.readUTF();
+//        String id = dataInputStream.readUTF();
+        String id = new UUID(dataInputStream.readLong(), dataInputStream.readLong()).toString();
+        long millis = dataInputStream.readLong();
       }
       short offset = dataInputStream.readShort();
       int packetId = dataInputStream.readByte();

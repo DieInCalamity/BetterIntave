@@ -33,6 +33,9 @@ final class RetryReadLayer implements Resource {
     int remAttempts = attempts;
     try {
       while ((read == null || read.available() == 0) && remAttempts-- > 0) {
+        try {
+          if (read != null) read.close();
+        } catch (Exception ignored) {}
         read = target.read();
       }
     } catch (IOException exception) {

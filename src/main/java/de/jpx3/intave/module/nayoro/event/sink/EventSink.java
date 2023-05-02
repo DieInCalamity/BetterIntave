@@ -2,12 +2,18 @@ package de.jpx3.intave.module.nayoro.event.sink;
 
 import de.jpx3.intave.module.nayoro.event.*;
 
-public abstract class EventSink {
+import java.io.Closeable;
+
+public abstract class EventSink implements Closeable {
   public void visitSelect(Event event) {
     if (event instanceof AttackEvent) {
       visit((AttackEvent) event);
     } else if (event instanceof ClickEvent) {
       visit((ClickEvent) event);
+    } else if (event instanceof EntitySpawnEvent) {
+      visit((EntitySpawnEvent) event);
+    } else if (event instanceof EntityRemoveEvent) {
+      visit((EntityRemoveEvent) event);
     } else if (event instanceof EntityMoveEvent) {
       visit((EntityMoveEvent) event);
     } else if (event instanceof PlayerInitEvent) {
@@ -63,5 +69,11 @@ public abstract class EventSink {
 
   public void close() {
 
+  }
+
+  @Override
+  protected void finalize() throws Throwable {
+    close();
+    super.finalize();
   }
 }

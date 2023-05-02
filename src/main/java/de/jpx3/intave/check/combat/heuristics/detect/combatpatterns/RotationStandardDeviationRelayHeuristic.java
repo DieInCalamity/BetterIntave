@@ -69,7 +69,7 @@ public final class RotationStandardDeviationRelayHeuristic extends MetaCheckPart
   private void evaluateYawPatterns(PlayerContainer player) {
     RotationStandardDeviationMeta meta = player.meta(RotationStandardDeviationMeta.class);
     double standardDeviation = standardDeviation(meta.distancesToPerfectYaw);
-    Bukkit.broadcastMessage(player.id() + "/" + player.version() + " x " + "standard deviation (yaw) (" + MathHelper.formatDouble(standardDeviation, 4) + ")");
+//    Bukkit.broadcastMessage(player.id() + "/" + player.version() + " x " + "standard deviation (yaw) (" + MathHelper.formatDouble(standardDeviation, 4) + ")");
     if (standardDeviation < 1.0) {
       if (meta.rotationBalanceYaw++ >= 2) {
         String description = "standard deviation (yaw) (" + MathHelper.formatDouble(standardDeviation, 4) + ")";

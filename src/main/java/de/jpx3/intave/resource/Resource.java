@@ -7,14 +7,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
+import java.util.stream.*;
 
 public interface Resource extends LegacyResource {
   boolean available();
-
   long lastModified();
 
   void write(InputStream inputStream);
@@ -28,15 +27,86 @@ public interface Resource extends LegacyResource {
   }
 
   default void write(Collection<String> lines) {
-    write(String.join(System.lineSeparator(), lines));
+    if (lines == null) {
+      throw new NullPointerException("Lines cannot be null");
+    }
+    if (writeStreamSupported()) {
+      try (OutputStream outputStream = writeStream()) {
+        OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+        for (String line : lines) {
+          writer.write(line);
+          writer.write(System.lineSeparator());
+        }
+      } catch (IOException exception) {
+        throw new RuntimeException(exception);
+      }
+    } else {
+      write(String.join(System.lineSeparator(), lines));
+    }
+  }
+
+  default void write(Stream<String> lines) {
+    if (lines == null) {
+      throw new NullPointerException("Lines cannot be null");
+    }
+    if (writeStreamSupported()) {
+      try (OutputStream outputStream = writeStream()) {
+        OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+        AtomicBoolean first = new AtomicBoolean(true);
+        lines.forEach(line -> {
+          try {
+            if (first.get()) {
+              first.set(false);
+            } else {
+              writer.write(System.lineSeparator());
+            }
+            writer.write(line);
+          } catch (IOException exception) {
+            throw new RuntimeException(exception);
+          }
+        });
+      } catch (IOException exception) {
+        throw new RuntimeException(exception);
+      }
+    } else {
+      write(lines.collect(Collectors.joining(System.lineSeparator())));
+    }
+  }
+
+  default void write(Resource resource) {
+    if (writeStreamSupported()) {
+      try (InputStream inputStream = resource.read();
+           OutputStream outputStream = writeStream()) {
+        if (inputStream == null) {
+          return;
+        }
+        byte[] buffer = new byte[1024];
+        int read;
+        while ((read = inputStream.read(buffer)) != -1) {
+          outputStream.write(buffer, 0, read);
+        }
+      } catch (IOException exception) {
+        throw new RuntimeException(exception);
+      }
+    } else {
+      write(resource.read());
+    }
   }
 
   InputStream read();
 
+  default OutputStream writeStream() {
+    throw new UnsupportedOperationException("This resource does not support output streams");
+  }
+
+  default boolean writeStreamSupported() {
+    return false;
+  }
+
   void delete();
 
   default String readAsString() {
-    return collectLines(Collectors.joining());
+    return collectLines(Collectors.joining("\n"));
   }
 
   default List<String> readLines() {
@@ -44,6 +114,10 @@ public interface Resource extends LegacyResource {
   }
 
   default <C, R> R collectLines(Collector<? super String, C, R> collector) {
+    return collectLines(collector, Long.MAX_VALUE);
+  }
+
+  default <C, R> R collectLines(Collector<? super String, C, R> collector, long limit) {
     C container = collector.supplier().get();
     BiConsumer<C, ? super String> accumulator = collector.accumulator();
     Function<C, R> finisher = collector.finisher();
@@ -51,9 +125,10 @@ public interface Resource extends LegacyResource {
       if (inputStream == null) {
         return finisher.apply(container);
       }
-      Scanner scanner = new Scanner(inputStream, "UTF-8");
-      while (scanner.hasNextLine()) {
-        accumulator.accept(container, scanner.nextLine());
+      try (Scanner scanner = new Scanner(inputStream, "UTF-8")) {
+        while (scanner.hasNextLine() && limit-- > 0) {
+          accumulator.accept(container, scanner.nextLine());
+        }
       }
     } catch (IOException exception) {
       exception.printStackTrace();

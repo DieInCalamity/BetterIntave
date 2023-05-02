@@ -3,6 +3,9 @@ package de.jpx3.intave.resource;
 import java.io.*;
 import java.nio.file.Files;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
+
 final class FileResource implements Resource {
   private final File file;
 
@@ -23,22 +26,59 @@ final class FileResource implements Resource {
   @Override
   public void write(InputStream inputStream) {
     try {
+      File file = new File(this.file.getAbsolutePath() + ".tmp");
       if (!file.exists()) {
         if (!file.createNewFile()) {
           throw new IllegalStateException("Unable to create file " + file + ", exists: " + file.exists());
         }
       }
+      file.setReadable(true);
+      file.setWritable(true);
+      file.setExecutable(false);
       try (OutputStream output = Files.newOutputStream(file.toPath())) {
-        byte[] buf = new byte[4096];
+        byte[] buf = new byte[1024 * 2];
         int i;
         while ((i = inputStream.read(buf)) != -1) {
           output.write(buf, 0, i);
         }
         inputStream.close();
       }
+      Files.move(file.toPath(), this.file.toPath(), REPLACE_EXISTING);
     } catch (IOException exception) {
       exception.printStackTrace();
     }
+  }
+
+  @Override
+  public OutputStream writeStream() {
+    try {
+      File file = new File(this.file.getAbsolutePath() + ".tmp");
+      if (!file.exists()) {
+        if (!file.createNewFile()) {
+          throw new IllegalStateException("Unable to create file " + file + ", exists: " + file.exists());
+        }
+      }
+      file.setReadable(true);
+      file.setWritable(true);
+      file.setExecutable(false);
+      OutputStream outputStream = Files.newOutputStream(file.toPath(), WRITE);
+      outputStream = new BufferedOutputStream(outputStream, 1024 * 1024);
+      outputStream = Resources.subscribeToClose(outputStream, () -> {
+        try {
+          Files.move(file.toPath(), this.file.toPath(), REPLACE_EXISTING);
+        } catch (IOException exception) {
+          throw new IllegalStateException(exception);
+        }
+      });
+      return outputStream;
+    } catch (IOException exception) {
+      throw new IllegalStateException(exception);
+    }
+  }
+
+  @Override
+  public boolean writeStreamSupported() {
+    return true;
   }
 
   @Override
@@ -47,15 +87,15 @@ final class FileResource implements Resource {
       if (!available()) {
         return new ByteArrayInputStream(new byte[0]);
       }
-      InputStream inputStream = Files.newInputStream(file.toPath());
-      ByteArrayOutputStream inputBytes = new ByteArrayOutputStream();
-      byte[] buf = new byte[4096];
-      int i;
-      while ((i = inputStream.read(buf)) != -1) {
-        inputBytes.write(buf, 0, i);
-      }
-      inputStream.close();
-      return new ByteArrayInputStream(inputBytes.toByteArray());
+//      ByteArrayOutputStream inputBytes = new ByteArrayOutputStream();
+//      byte[] buf = new byte[4096];
+//      int i;
+//      while ((i = inputStream.read(buf)) != -1) {
+//        inputBytes.write(buf, 0, i);
+//      }
+//      inputStream.close();
+//      return new ByteArrayInputStream(inputBytes.toByteArray());
+      return Files.newInputStream(file.toPath());
     } catch (IOException exception) {
 //      throw new IllegalStateException(exception);
       return new ByteArrayInputStream(new byte[0]);

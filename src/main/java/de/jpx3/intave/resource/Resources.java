@@ -7,7 +7,7 @@ import de.jpx3.intave.library.asm.ByteVector;
 import de.jpx3.intave.security.ContextSecrets;
 import de.jpx3.intave.security.HashAccess;
 
-import java.io.File;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -49,6 +49,10 @@ public final class Resources {
     return new WebResource(url, fallback);
   }
 
+  public static Resource ramResource() {
+    return new ByteArrayResource();
+  }
+
   public static Resource resourceFromOneOf(URL[] urls) {
     Resource previous = null;
     for (int i = urls.length - 1; i >= 0; i--) {
@@ -71,7 +75,7 @@ public final class Resources {
 
   static Resource withCompression(Resource resource) {
     // add later
-    return resource;
+    return new CompressionLayer(resource);
   }
 
   static Resource retryRead(Resource resource, int retries) {
@@ -88,7 +92,7 @@ public final class Resources {
   ) {
     try {
       String name = nameFrom(new URL("https://google.com"), identifier, Long.MAX_VALUE);
-      return withFileSpread(fileLocationOf(name), Resources::resourceFromFileWithLock, 8).encrypted();
+      return withFileSpread(cacheFileLocationOf(name), Resources::resourceFromFileWithLock, 8).encrypted();
     } catch (MalformedURLException exception) {
       throw new IllegalStateException(exception);
     }
@@ -106,7 +110,7 @@ public final class Resources {
     } catch (MalformedURLException exception) {
       throw new IllegalStateException(exception);
     }
-    File initialFile = fileLocationOf(nameFrom(url, identifier, expires));
+    File initialFile = cacheFileLocationOf(nameFrom(url, identifier, expires));
     Resource cache = withFileSpread(initialFile, Resources::resourceFromFileWithLock, 8).encrypted();
     Resource access = resourceFromWeb(url);
     Resource resourceCache = new ResourceCache(cache, access, expires).retryReads(3);
@@ -141,7 +145,7 @@ public final class Resources {
         throw new IllegalStateException(exception);
       }
     }
-    File initialFile = fileLocationOf(nameFrom(urls[0], identifier, expires));
+    File initialFile = cacheFileLocationOf(nameFrom(urls[0], identifier, expires));
     Resource cache = withFileSpread(initialFile, Resources::resourceFromFileWithLock, 8).encrypted();
     Resource access = resourceFromOneOf(urls);
     Resource resourceCache = new ResourceCache(cache, access, expires).retryReads(3);
@@ -225,7 +229,45 @@ public final class Resources {
     return ((long) (short)fileHashCode & Math.abs(quarterHash.hashCode())) << Integer.SIZE | quarterYearsSinceEpoch << Integer.SIZE + Short.SIZE;
   }
 
-  private static File fileLocationOf(String resourceId) {
+  static InputStream subscribeToClose(InputStream initial, Runnable onClose) {
+    return new FilterInputStream(initial) {
+      boolean closed = false;
+      @Override
+      public void close() throws IOException {
+        super.close();
+        onClose.run();
+        closed = true;
+      }
+
+      @Override
+      protected void finalize() {
+        if (!closed) {
+          throw new IllegalStateException("InputStream was not closed");
+        }
+      }
+    };
+  }
+
+  static OutputStream subscribeToClose(OutputStream initial, Runnable onClose) {
+    return new FilterOutputStream(initial) {
+      boolean closed = false;
+      @Override
+      public void close() throws IOException {
+        super.close();
+        onClose.run();
+        closed = true;
+      }
+
+      @Override
+      protected void finalize() {
+        if (!closed) {
+          throw new IllegalStateException("OutputStream was not closed");
+        }
+      }
+    };
+  }
+
+  private static File cacheFileLocationOf(String resourceId) {
     String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.ROOT);
     String filePath;
     if (operatingSystem.contains("win")) {

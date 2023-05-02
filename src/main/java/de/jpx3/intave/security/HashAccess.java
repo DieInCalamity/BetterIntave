@@ -34,7 +34,7 @@ public final class HashAccess {
   }
 
   @Native
-  public static String readHash(InputStream inputStream) {
+  public static String readHashFromStream(InputStream inputStream) {
     StringBuilder jarChecksum = new StringBuilder();
     try {
       MessageDigest md = MessageDigest.getInstance("SHA-256");// MD5

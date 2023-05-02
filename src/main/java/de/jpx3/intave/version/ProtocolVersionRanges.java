@@ -1,5 +1,6 @@
 package de.jpx3.intave.version;
 
+import com.comphenix.protocol.utility.MinecraftVersion;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -26,6 +27,17 @@ final class ProtocolVersionRanges implements Iterable<ProtocolVersionRange> {
     return protocolVersionRange.version();
   }
 
+  public int nearestProtocolVersion(String version) {
+    MinecraftVersion requestVersion = new MinecraftVersion(version);
+    Optional<ProtocolVersionRange> nearest = versionRanges.stream()
+      .min((first, second) -> {
+        int firstDistance = Math.abs(first.asMinecraftVersion().compareTo(requestVersion));
+        int secondDistance = Math.abs(second.asMinecraftVersion().compareTo(requestVersion));
+        return firstDistance - secondDistance;
+      });
+    return nearest.map(ProtocolVersionRange::to).orElse(-1);
+  }
+
   @NotNull
   @Override
   public Iterator<ProtocolVersionRange> iterator() {
@@ -40,9 +52,5 @@ final class ProtocolVersionRanges implements Iterable<ProtocolVersionRange> {
   @Override
   public Spliterator<ProtocolVersionRange> spliterator() {
     return versionRanges.spliterator();
-  }
-
-  public int byVersion(String version) {
-    return -1;
   }
 }

@@ -15,6 +15,7 @@ import de.jpx3.intave.packet.reader.PacketReaders;
 import de.jpx3.intave.packet.reader.PlayerActionReader;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -52,9 +53,9 @@ public final class SneakAndPlace extends MetaCheckPart<PlacementAnalysis, SneakA
         if (!suspiciousSneaking && meta.violationLevel > 0) {
           meta.violationLevel -= 0.05;
         } else if (suspiciousSneaking) {
-          meta.violationLevel += 1;
+          meta.violationLevel += diff > 1 ? 0.1 : 1;
+//          player.sendMessage(ChatColor.YELLOW + "Sneak start -> Place: " + diff + " last duration: " + meta.lastSneakDuration);
         }
-//        player.sendMessage((suspiciousSneaking ? ChatColor.YELLOW : ChatColor.GREEN) + "Sneak start -> Place: " + diff + " last duration: " + meta.lastSneakDuration);
       }
       if (meta.sneakChangedInThisTick) {
         // difference to last place
@@ -63,9 +64,9 @@ public final class SneakAndPlace extends MetaCheckPart<PlacementAnalysis, SneakA
         if (!suspiciousSneaking && meta.violationLevel > 0) {
           meta.violationLevel -= 0.05;
         } else if (suspiciousSneaking) {
-          meta.violationLevel += 1;
+          meta.violationLevel += diff > 1 ? 0.1 : 1;
+//          player.sendMessage(ChatColor.YELLOW +"Place -> Sneak start: " + diff + " last duration: " + meta.lastSneakDuration);
         }
-//        player.sendMessage((suspiciousSneaking ? ChatColor.YELLOW : ChatColor.GREEN) +"Place -> Sneak start: " + diff + " last duration: " + meta.lastSneakDuration);
       }
     }
     if (meta.startSneakInThisTick) {
@@ -168,7 +169,7 @@ public final class SneakAndPlace extends MetaCheckPart<PlacementAnalysis, SneakA
     meta.lastBlocksPlaced.add(place.getBlock().getLocation().toVector());
   }
 
-  private boolean isOneLine(List<Vector> blocks) {
+  private boolean isOneLine(List<? extends Vector> blocks) {
     int lastBlockX = 0,
       lastBlockY = 0,
       lastBlockZ = 0;

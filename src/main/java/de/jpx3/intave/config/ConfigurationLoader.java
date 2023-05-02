@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.util.*;
+import java.util.stream.Collector;
 
 import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 
@@ -73,21 +74,22 @@ public final class ConfigurationLoader {
     }
   }*/
 
+  private static final Collector<String, Map<String, Integer>, Map<String, Integer>> STATE_COLLECTOR = Collector.of(HashMap::new, (map, line) -> {
+    if (line.contains(":")) {
+      String[] split = line.split(":");
+      map.put(split[0], Integer.parseInt(split[1]));
+    }
+  }, (map1, map2) -> {
+    map1.putAll(map2);
+    return map1;
+  });
+
   @Native
   public int latestState() {
     if (!configurationStates.exists()) {
       return 0;
     }
-    Scanner scanner = new Scanner(configurationStates.read());
-    Map<String, Integer> mappings = new HashMap<>();
-    while (scanner.hasNextLine()) {
-      String nextLine = scanner.nextLine();
-      if (!nextLine.contains(":")) {
-        return 0;
-      }
-      String[] split = nextLine.split(":");
-      mappings.put(split[0], Integer.parseInt(split[1]));
-    }
+    Map<String, Integer> mappings = configurationStates.collectLines(STATE_COLLECTOR);
     if (!mappings.containsKey(configurationKey)) {
       return -1;
     }
@@ -98,14 +100,7 @@ public final class ConfigurationLoader {
   public void saveState(int state) {
     Map<String, Integer> mappings = new HashMap<>();
     if (configurationStates.exists()) {
-      Scanner scanner = new Scanner(configurationStates.read());
-      while (scanner.hasNextLine()) {
-        String nextLine = scanner.nextLine();
-        if (nextLine.contains(":")) {
-          String[] split = nextLine.split(":");
-          mappings.put(split[0], Integer.parseInt(split[1]));
-        }
-      }
+      mappings = configurationStates.collectLines(STATE_COLLECTOR);
     }
     mappings.put(configurationKey.toLowerCase(), state);
     StringBuilder content = new StringBuilder();

@@ -1,18 +1,22 @@
 package de.jpx3.intave.cleanup;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public final class GarbageCollector {
   private static final List<Reference<Map<?, ?>>> boundMaps = Lists.newCopyOnWriteArrayList();
   private static final List<Reference<List<?>>> boundLists = Lists.newCopyOnWriteArrayList();
   private static final List<Reference<Set<?>>> boundSets = Lists.newCopyOnWriteArrayList();
+  private static final Map<Object, Runnable> removalSubscriptions = Maps.newConcurrentMap();
 
   private GarbageCollector() {
     throw new UnsupportedOperationException();
@@ -38,7 +42,15 @@ public final class GarbageCollector {
     return initialSet;
   }
 
+  public static void subscribeToRemoval(Object key, Runnable callback) {
+    removalSubscriptions.put(key, callback);
+  }
+
   public static <K> void clear(K key) {
+    Runnable remove = removalSubscriptions.remove(key);
+    if (remove != null) {
+      remove.run();
+    }
     boundMaps.forEach(reference -> {
       Map<?, ?> map;
       if ((map = reference.get()) != null) {

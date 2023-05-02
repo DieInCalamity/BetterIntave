@@ -3,12 +3,14 @@ package de.jpx3.intave.module.nayoro;
 import de.jpx3.intave.module.nayoro.event.*;
 import de.jpx3.intave.module.nayoro.event.sink.EventSink;
 import de.jpx3.intave.module.tracker.entity.Entity;
+import de.jpx3.intave.security.LicenseAccess;
 
 import java.io.Closeable;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 class RecordEventSink extends EventSink {
   private long last = System.currentTimeMillis();
@@ -27,6 +29,11 @@ class RecordEventSink extends EventSink {
       setup = true;
       try {
         dataOutput.writeUTF("INTAVE/SAMPLE");
+        dataOutput.writeUTF(LicenseAccess.network());
+        UUID id = UUID.randomUUID();
+        dataOutput.writeLong(id.getMostSignificantBits());
+        dataOutput.writeLong(id.getLeastSignificantBits());
+        dataOutput.writeLong(System.currentTimeMillis());
       } catch (IOException e) {
         throw new RuntimeException(e);
       }

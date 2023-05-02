@@ -3,6 +3,7 @@ package de.jpx3.intave.resource;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
@@ -62,27 +63,54 @@ final class FileSpreadLayer implements Resource {
     copyMainToSpread();
   }
 
+  @Override
+  public OutputStream writeStream() {
+    if (!writeStreamSupported()) {
+      throw new UnsupportedOperationException("Write stream is not supported for this resource");
+    }
+    return Resources.subscribeToClose(targetResource.writeStream(), () -> {
+      setupSpreadFiles();
+      copyMainToSpread();
+    });
+//    OutputStream[] streams = new OutputStream[spread.length + 1];
+//    streams[0] = targetResource.writeStream();
+//    for (int i = 0; i < spread.length; i++) {
+//      streams[i + 1] = spread[i].writeStream();
+//    }
+//    return new OutputStreamMultiplexer(streams);
+  }
+
+  @Override
+  public boolean writeStreamSupported() {
+    return targetResource.writeStreamSupported();
+  }
+
   private boolean deactivateMarking = false;
 
   private void copyMainToSpread() {
-    InputStream read = targetResource.read();
-    if (!read.markSupported() || deactivateMarking) {
+//    InputStream read = targetResource.read();
+//    if (!read.markSupported() || deactivateMarking) {
       for (Resource resource : spread) {
         resource.write(targetResource.read());
       }
-    } else {
-      read.mark(Integer.MAX_VALUE);
-      for (Resource resource : spread) {
-        resource.write(read);
-        try {
-          read.reset();
-        } catch (IOException e) {
-          deactivateMarking = true;
-          copyMainToSpread();
-          return;
-        }
-      }
-    }
+//    } else {
+//      read.mark(Integer.MAX_VALUE);
+//      for (Resource resource : spread) {
+//        resource.write(read);
+//        try {
+//          read.reset();
+//        } catch (IOException e) {
+//          deactivateMarking = true;
+//          copyMainToSpread();
+//          return;
+//        }
+//      }
+//      try {
+//        read.close();
+//      } catch (IOException e) {
+//        throw new RuntimeException(e);
+//      }
+//    }
   }
 
   @Override

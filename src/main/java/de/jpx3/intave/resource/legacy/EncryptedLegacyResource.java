@@ -22,6 +22,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -129,6 +130,18 @@ public final class EncryptedLegacyResource implements LegacyResource {
       removeFileLock(fileChannel);
     }
     return file.exists();
+  }
+
+  public void write(byte[] bytes) {
+    write(new ByteArrayInputStream(bytes));
+  }
+
+  public void write(String string) {
+    write(string.getBytes(StandardCharsets.UTF_8));
+  }
+
+  public void write(Collection<String> lines) {
+    write(String.join(System.lineSeparator(), lines));
   }
 
   @Native

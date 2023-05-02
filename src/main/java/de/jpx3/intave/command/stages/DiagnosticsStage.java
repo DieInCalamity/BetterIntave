@@ -156,7 +156,7 @@ public final class DiagnosticsStage extends CommandStage {
   public void resourceStatus(CommandSender sender) {
     sender.sendMessage(IntavePlugin.prefix() + "Resources");
     ResourceRegistry.registeredResources().forEach((identifier, resource) ->
-      sender.sendMessage(IntavePlugin.prefix() + " " + identifier.substring(0, 2) + " of " + HashAccess.readHash(resource.read()))
+      sender.sendMessage(IntavePlugin.prefix() + " " + identifier.substring(0, 2) + " of " + HashAccess.readHashFromStream(resource.read()))
     );
   }
 

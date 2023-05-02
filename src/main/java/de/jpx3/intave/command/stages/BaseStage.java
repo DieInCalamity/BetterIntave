@@ -99,6 +99,27 @@ public final class BaseStage extends CommandStage {
     }
   }
 
+  @SubCommand(
+    selectors = "record",
+    usage = "",
+    description = "Record timings"
+  )
+  @Native
+  public void recordCommand(User user) {
+    if (IntaveControl.DISABLE_LICENSE_CHECK) {
+      Nayoro nayoro = Modules.nayoro();
+      if (nayoro.isGlobalRecordingActive()) {
+        nayoro.disableGlobalRecording();
+        user.player().sendMessage(ChatColor.GREEN + "Global recording disabled.");
+      } else {
+        nayoro.enableGlobalRecording();
+        user.player().sendMessage(ChatColor.GREEN + "Global recording enabled.");
+      }
+    } else {
+      user.player().sendMessage(ChatColor.RED + "This command is not available currently.");
+    }
+  }
+
   // REMOVE ON LIVE SERVER
   /*
   @SubCommand(

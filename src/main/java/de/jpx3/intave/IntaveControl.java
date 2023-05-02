@@ -46,7 +46,7 @@ public final class IntaveControl {
   public static final boolean DEBUG_SERVER_VERSION = false;
   public static final boolean REPLACE_JOAP_SETBACK_WITH_CM = true;
 
-  public static final boolean USE_EXTERNAL_CONFIGURATION_FILE = true;
+  public static final boolean USE_EXTERNAL_CONFIGURATION_FILE = false;
   public static final boolean GOMME_MODE = false;
-  public static final boolean DISABLE_LICENSE_CHECK = true;
+  public static final boolean DISABLE_LICENSE_CHECK = false;
 }

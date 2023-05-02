@@ -1,9 +1,6 @@
 package de.jpx3.intave.resource;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -36,23 +33,9 @@ final class LockingLayer implements Resource {
   }
 
   @Override
-  public void write(InputStream inputStream) {
-    try {
-      lock();
-      target.write(inputStream);
-    } finally {
-      unlock();
-    }
-  }
-
-  @Override
   public InputStream read() {
-    try {
-      lock();
-      return target.read();
-    } finally {
-      unlock();
-    }
+    lock();
+    return Resources.subscribeToClose(target.read(), this::unlock);
   }
 
   @Override
@@ -65,21 +48,48 @@ final class LockingLayer implements Resource {
     }
   }
 
+  @Override
+  public void write(InputStream inputStream) {
+    try {
+      lock();
+      target.write(inputStream);
+    } finally {
+      unlock();
+    }
+  }
+
+  @Override
+  public OutputStream writeStream() {
+    if (!writeStreamSupported()) {
+      throw new UnsupportedOperationException();
+    }
+    lock();
+    OutputStream outputStream = target.writeStream();
+    return Resources.subscribeToClose(outputStream, this::unlock);
+  }
+
+  @Override
+  public boolean writeStreamSupported() {
+    return target.writeStreamSupported();
+  }
+
   private boolean locked() {
     return lockFile.exists() && lockChannel != null && lockChannel.isOpen();
   }
 
   private void lock() {
     try {
+//      System.out.println("Locking " + lockFile.getAbsolutePath());
+//      Thread.dumpStack();
       javaLock.lock();
-      if (lockFile.exists() && System.currentTimeMillis() - lockFile.lastModified() > 60 * 1000) {
+      if (lockFile.exists() && System.currentTimeMillis() - lockFile.lastModified() > 5 * 60 * 1000) {
         try {
           lockFile.delete();
         } catch (Exception ignored) {}
       }
       int attemptsRemaining = 30 * 1000 / 50;
       while (lockFile.exists() && attemptsRemaining-- > 0) {
-//        System.out.println("Waiting for lockfile release... " + attemptsRemaining + "rem");
+        System.out.println("Waiting for "+lockFile.getAbsolutePath()+" release... " + attemptsRemaining + "rem");
         try {
           Thread.sleep(ThreadLocalRandom.current().nextLong(25, 100));
         } catch (InterruptedException exception) {
@@ -101,6 +111,8 @@ final class LockingLayer implements Resource {
 
   private void unlock() {
     try {
+//      System.out.println("Unlocking " + lockFile.getAbsolutePath());
+//      Thread.dumpStack();
       javaLock.unlock();
       lock.close();
       lockChannel.close();

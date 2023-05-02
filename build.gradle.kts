@@ -11,13 +11,14 @@ plugins {
 
 val simpleName = "Intave"
 group = "de.jpx3"
-version = "14.5.9"
+version = "14.6.0"
 description = "Cheat detection software, providing fair play"
 
 /*
  * Dependencies
  */
 repositories {
+
   mavenCentral()
 
   // Spigot

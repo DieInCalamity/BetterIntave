@@ -542,13 +542,7 @@ public final class IntavePlugin extends JavaPlugin {
         boolean allowLeniency = IntaveControl.DISABLE_LICENSE_CHECK;
         //noinspection ConstantConditions
         if (!allowLeniency && contextStatusResource.exists()) {
-          InputStream input = contextStatusResource.read();
-          Scanner scanner = new Scanner(input);
-          StringBuilder text = new StringBuilder();
-          while (scanner.hasNext()) {
-            text.append(scanner.next());
-          }
-          String textString = text.toString();
+          String textString = contextStatusResource.readAsString();
           if (textString.startsWith("success")) {
             Long lastSuccessfulStart = null;
             try {
@@ -607,13 +601,7 @@ public final class IntavePlugin extends JavaPlugin {
         boolean writeSuccessLog = true;
         try {
           if (contextStatusResource.exists()) {
-            InputStream input = contextStatusResource.read();
-            Scanner scanner = new Scanner(input);
-            StringBuilder text = new StringBuilder();
-            while (scanner.hasNext()) {
-              text.append(scanner.next());
-            }
-            String textString = text.toString();
+            String textString = contextStatusResource.readAsString();
             if (textString.startsWith("success")) {
               try {
                 long lastSuccessfulStart = Long.parseLong(textString.split("/")[1]);

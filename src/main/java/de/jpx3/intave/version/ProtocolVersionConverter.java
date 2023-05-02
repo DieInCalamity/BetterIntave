@@ -1,5 +1,6 @@
 package de.jpx3.intave.version;
 
+import com.comphenix.protocol.utility.MinecraftVersion;
 import de.jpx3.intave.resource.Resource;
 import de.jpx3.intave.resource.Resources;
 
@@ -13,7 +14,11 @@ public final class ProtocolVersionConverter {
     return RANGES.byProtocolVersion(version);
   }
 
-  public static int protocolVersionByVersion(String version) {
-    throw new UnsupportedOperationException("Not implemented yet");
+  public static int protocolVersionBy(MinecraftVersion version) {
+    return protocolVersionBy(version.getVersion());
+  }
+
+  public static int protocolVersionBy(String version) {
+    return RANGES.nearestProtocolVersion(version);
   }
 }

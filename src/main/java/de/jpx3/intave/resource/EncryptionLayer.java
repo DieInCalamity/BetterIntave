@@ -4,14 +4,13 @@ import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.library.asm.ByteVector;
 
 import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -118,19 +117,96 @@ final class EncryptionLayer implements Resource {
 
   @Override
   @Native
+  public OutputStream writeStream() {
+    if (!writeStreamSupported()) {
+      throw new UnsupportedOperationException();
+    }
+
+    try {
+      SecureRandom secureRandom = new SecureRandom();
+      byte[] iv = new byte[12];
+      secureRandom.nextBytes(iv);
+      long quarterYearsSinceEpoch = ByteVector.startTime / (1000L * 60 * 60 * 24 * 365 / 4);
+      String asString = String.valueOf(quarterYearsSinceEpoch);
+      Random random = new Random(quarterYearsSinceEpoch);
+      // compute the hash of the string
+      MessageDigest messageDigest;
+      try {
+        messageDigest = MessageDigest.getInstance("SHA-256");
+      } catch (NoSuchAlgorithmException exception) {
+        throw new IllegalStateException(exception);
+      }
+      // shuffle the string using the random
+      byte[] bytes = asString.getBytes(UTF_8);
+      for (int j = 0; j < bytes.length; j++) {
+        int index = random.nextInt(bytes.length);
+        byte temp = bytes[j];
+        bytes[j] = bytes[index];
+        bytes[index] = temp;
+      }
+      messageDigest.update(bytes);
+      // insert random bytes into the string, using the random
+      byte[] randomBytes = new byte[bytes.length];
+      for (int j = 0; j < randomBytes.length; j++) {
+        randomBytes[j] = (byte) random.nextInt();
+      }
+      messageDigest.update(randomBytes);
+      byte[] digest = messageDigest.digest();
+      StringBuilder stringBuilder = new StringBuilder();
+      for (byte b : digest) {
+        stringBuilder.append(String.format("%02x", b));
+      }
+      String quarterHash = stringBuilder.toString();
+      String password = "adXUOhsZW7H5m4dlOyrNV7ZvHBBB071Sy2jCiuUZ91QMAcYyexjxwDQmXL1LR1nV";
+      // xor the password with the quarterHash
+      byte[] passwordBytes = password.getBytes(UTF_8);
+      byte[] quarterHashBytes = quarterHash.getBytes(UTF_8);
+      for (int j = 0; j < passwordBytes.length; j++) {
+        passwordBytes[j] ^= quarterHashBytes[j % quarterHash.length()];
+      }
+      // shuffle the password bytes using the random
+      for (int j = 0; j < passwordBytes.length; j++) {
+        int index = random.nextInt(passwordBytes.length);
+        byte temp = passwordBytes[j];
+        passwordBytes[j] = passwordBytes[index];
+        passwordBytes[index] = temp;
+      }
+      KeySpec spec = new PBEKeySpec(new String(passwordBytes, UTF_8).toCharArray(), iv, 65536, 128); // AES-128
+      SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+      byte[] key = secretKeyFactory.generateSecret(spec).getEncoded();
+      SecretKey secretKey = new SecretKeySpec(key, "AES");
+      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+      GCMParameterSpec parameterSpec = new GCMParameterSpec(128, iv);
+      cipher.init(Cipher.ENCRYPT_MODE, secretKey, parameterSpec);
+
+      OutputStream outputStream = target.writeStream();
+      ByteBuffer byteBuffer = ByteBuffer.allocate(4 + iv.length);
+      byteBuffer.putInt(iv.length);
+      byteBuffer.put(iv);
+      outputStream.write(byteBuffer.array());
+      return new CipherOutputStream(outputStream, cipher);
+//      target.write(new ByteArrayInputStream(byteBuffer.array()));
+    } catch (Exception exception) {
+      exception.printStackTrace();
+      return new ByteArrayOutputStream();
+    }
+  }
+
+  @Override
+  @Native
   public InputStream read() {
     try {
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-      InputStream inputStream = target.read();
-      if (inputStream == null) {
-        return null;
+      try (InputStream inputStream = target.read()) {
+        if (inputStream == null) {
+          return null;
+        }
+        byte[] buf = new byte[4096];
+        int i;
+        while ((i = inputStream.read(buf)) != -1) {
+          byteArrayOutputStream.write(buf, 0, i);
+        }
       }
-      byte[] buf = new byte[4096];
-      int i;
-      while ((i = inputStream.read(buf)) != -1) {
-        byteArrayOutputStream.write(buf, 0, i);
-      }
-      inputStream.close();
       byte[] byteArray = byteArrayOutputStream.toByteArray();
       if (byteArray.length == 0) {
         return new ByteArrayInputStream(new byte[0]);
@@ -199,6 +275,11 @@ final class EncryptionLayer implements Resource {
       exception.printStackTrace();
     }
     return new ByteArrayInputStream(new byte[0]);
+  }
+
+  @Override
+  public boolean writeStreamSupported() {
+    return target.writeStreamSupported();
   }
 
   @Override

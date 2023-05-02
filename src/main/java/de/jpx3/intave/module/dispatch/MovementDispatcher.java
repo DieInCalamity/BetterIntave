@@ -392,7 +392,7 @@ public final class MovementDispatcher extends Module {
 
     if (hasMovement || movementData.isInVehicle() || movementData.inRespawnScreen) {
       movementData.lastPositionUpdate = 0;
-    } else if (++movementData.lastPositionUpdate > 20 && FaultKicks.MISSING_POSITION_UPDATE && !user.trustFactor().atLeast(TrustFactor.BYPASS)) {
+    } else if (++movementData.lastPositionUpdate > 20 && FaultKicks.MISSING_POSITION_UPDATE && !user.justJoined() && !user.trustFactor().atLeast(TrustFactor.BYPASS)) {
       user.kick("Missing position update");
     }
 

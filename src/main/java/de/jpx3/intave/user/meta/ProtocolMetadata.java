@@ -216,7 +216,7 @@ public final class ProtocolMetadata {
       try {
         client = new MinecraftVersion(versionAsString(protocolVersion));
       } catch (Exception exception) {
-        client = MinecraftVersions.VER1_19_1;
+        client = MinecraftVersions.VER1_19_4;
       }
       behind = !client.isAtLeast(server);
     }

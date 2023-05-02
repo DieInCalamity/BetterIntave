@@ -222,7 +222,7 @@ public abstract class CommandStage {
 
   @Native
   private LevenshteinPicker.SearchResult levenshteinSubCommandPick(CommandSender sender, String search) {
-    List<String> haystacks = new ArrayList<>();
+    Set<String> haystacks = new HashSet<>();
     for (CommandExecutor commandExecutor : commandExecutors) {
       String permission = commandExecutor.permission();
       if ("sibyl".equals(permission) && !(sender instanceof Player && IntavePlugin.singletonInstance().sibyl().isAuthenticated((Player) sender))) {

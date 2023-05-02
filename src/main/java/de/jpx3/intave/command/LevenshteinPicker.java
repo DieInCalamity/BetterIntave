@@ -35,9 +35,9 @@ final class LevenshteinPicker {
   private static Map<String, Integer> searchWithLimit(Collection<String> selectors, String selection, int limit) {
     Map<String, Integer> result = new HashMap<>();
     for (String rootString : selectors) {
-      int distance = levenshteinDistance(rootString, selection.substring(0, Math.min(selection.length(), rootString.length())));
+      int distance = levenshteinDistance(rootString.toLowerCase(), selection.substring(0, Math.min(selection.length(), rootString.length())));
       if (distance < limit) {
-        result.put(rootString, distance);
+        result.put(rootString.toLowerCase(), distance);
       }
     }
     return result;

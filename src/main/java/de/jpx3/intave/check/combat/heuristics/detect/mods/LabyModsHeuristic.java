@@ -22,6 +22,7 @@ import de.jpx3.intave.user.UserRepository;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -48,17 +49,14 @@ public final class LabyModsHeuristic extends CheckPart<Heuristics> {
   }
 
   public void compile() {
-    String raw = hashResource.readAsString();
-    if (!raw.isEmpty()) {
-      JsonReader json = new JsonReader(new StringReader(raw));
-      json.setLenient(true);
-      JsonArray jsonArray = new JsonParser().parse(json).getAsJsonArray();
-      for (JsonElement jsonElement : jsonArray) {
-        JsonObject jsonObject = jsonElement.getAsJsonObject();
-        String name = jsonObject.get("name").getAsString();
-        String hash = jsonObject.get("hash").getAsString();
-        invalidModsByHash.put(hash.toLowerCase(Locale.ROOT), name);
-      }
+    JsonReader json = new JsonReader(new InputStreamReader(hashResource.read()));
+    json.setLenient(true);
+    JsonArray jsonArray = new JsonParser().parse(json).getAsJsonArray();
+    for (JsonElement jsonElement : jsonArray) {
+      JsonObject jsonObject = jsonElement.getAsJsonObject();
+      String name = jsonObject.get("name").getAsString();
+      String hash = jsonObject.get("hash").getAsString();
+      invalidModsByHash.put(hash.toLowerCase(Locale.ROOT), name);
     }
   }
 

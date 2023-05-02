@@ -229,8 +229,22 @@ final class PlaybackPlayerContainer extends SinkPlayerContainer {
   @Override
   public void visit(PlayerInitEvent event) {
     id = event.id();
-    version = event.version();
-    outdated = event.outdated();
+    version = event.clientVersion();
+    outdated = event.serverVersion() > version;
+
+    Position position = event.position();
+    posX = position.getX();
+    posY = position.getY();
+    posZ = position.getZ();
+
+    Rotation rotation = event.rotation();
+    yaw = rotation.yaw();
+    pitch = rotation.pitch();
+
+    lastYaw = yaw;
+    lastPitch = pitch;
+
+    visitAny(event);
   }
 
   @Override

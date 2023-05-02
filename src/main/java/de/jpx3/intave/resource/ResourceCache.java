@@ -46,11 +46,13 @@ final class ResourceCache implements Resource {
     try {
       if (read == null || read.available() == 0) {
         // try again
+        if (read != null) read.close();
         read = source.read();
         if (read == null || read.available() == 0) {
 //          System.out.println("Source resource is empty");
 //          Thread.dumpStack();
           // cache fallback
+          if (read != null) read.close();
           return cache.read();
         }
       }
@@ -60,14 +62,15 @@ final class ResourceCache implements Resource {
       while ((i = read.read(buf)) != -1) {
         inputBytes.write(buf, 0, i);
       }
+      read.close();
     } catch (Exception exception) {
       return cache.read();
     }
     byte[] bytes = inputBytes.toByteArray();
     if (bytes.length == 0) {
-      return cache.read();
+      return read;
     }
-    cache.write(new ByteArrayInputStream(bytes));
+    cache.write(inputBytes.toByteArray());
     return new ByteArrayInputStream(bytes);
   }
 
