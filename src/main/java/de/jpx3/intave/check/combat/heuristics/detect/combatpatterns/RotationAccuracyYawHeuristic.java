@@ -144,7 +144,7 @@ public final class RotationAccuracyYawHeuristic extends MetaCheckPart<Heuristics
     boolean sameYawDirection = heuristicMeta.lastBodyDirection == direction;
     if (!sameYawDirection) {
       heuristicMeta.bitBoxCornerBalance = 0;
-    } else if (yawSpeed > 3) {
+    } else if (yawSpeed > 3 && !movementData.isInRidingVehicle()) {
       float deviation = MathHelper.distanceInDegrees(heuristicMeta.prevDistanceToPerfectYaw, distanceToPerfectYaw);
       double increase = MathHelper.minmax(-0.2, (1 - deviation) * 4, 4);
       heuristicMeta.bitBoxCornerBalance = (int) MathHelper.minmax(0, heuristicMeta.bitBoxCornerBalance + increase, 100);
