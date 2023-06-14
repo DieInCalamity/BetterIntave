@@ -1,5 +1,7 @@
 package de.jpx3.intave.share;
 
+import de.jpx3.intave.math.MathHelper;
+
 import java.io.Serializable;
 
 public final class Rotation implements Serializable {
@@ -24,5 +26,11 @@ public final class Rotation implements Serializable {
 
   public void setPitch(float pitch) {
     this.pitch = pitch;
+  }
+
+  public float distanceTo(Rotation rotation) {
+    float yawDistance = MathHelper.distanceInDegrees(yaw, rotation.yaw);
+    float pitchDistance = MathHelper.distanceInDegrees(pitch, rotation.pitch);
+    return yawDistance + pitchDistance;
   }
 }

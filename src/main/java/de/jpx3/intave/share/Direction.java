@@ -102,7 +102,7 @@ public enum Direction {
   /**
    * Get the AxisDirection of this Facing.
    */
-  public Direction.AxisDirection getAxisDirection() {
+  public Direction.AxisDirection axisDirection() {
     return this.axisDirection;
   }
 
@@ -318,7 +318,7 @@ public enum Direction {
 
   public static Direction func_181076_a(Direction.AxisDirection p_181076_0_, Direction.Axis p_181076_1_) {
     for (Direction enumfacing : values()) {
-      if (enumfacing.getAxisDirection() == p_181076_0_ && enumfacing.axis() == p_181076_1_) {
+      if (enumfacing.axisDirection() == p_181076_0_ && enumfacing.axis() == p_181076_1_) {
         return enumfacing;
       }
     }

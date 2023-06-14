@@ -3,8 +3,10 @@ package de.jpx3.intave.check.world.placementanalysis;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import de.jpx3.intave.annotate.Reserved;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.world.PlacementAnalysis;
+import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
@@ -13,10 +15,12 @@ import de.jpx3.intave.packet.reader.BlockInteractionReader;
 import de.jpx3.intave.packet.reader.PacketReaders;
 import de.jpx3.intave.packet.reader.PlayerActionReader;
 import de.jpx3.intave.share.BlockPosition;
+import de.jpx3.intave.share.Direction;
 import de.jpx3.intave.share.Rotation;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.MovementMetadata;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -26,9 +30,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
+import static de.jpx3.intave.share.Direction.Axis.Y_AXIS;
 
+@Reserved
 public class SmartSpeed extends MetaCheckPart<PlacementAnalysis, SmartSpeed.SmartSpeedMeta> {
-  protected SmartSpeed(PlacementAnalysis parent) {
+  public SmartSpeed(PlacementAnalysis parent) {
     super(parent, SmartSpeedMeta.class);
   }
 
@@ -66,9 +72,67 @@ public class SmartSpeed extends MetaCheckPart<PlacementAnalysis, SmartSpeed.Smar
         if (placementHistory.size() > 100) {
           placementHistory.remove(0);
         }
-        placementHistory.add(new Placement(reader.nativeBlockPosition(), meta.ticksSinceBlockPlacement));
+        BlockPosition blockPosition = reader.nativeBlockPosition();
+        Direction direction = reader.direction();
+
+        double diff = blockPosition.getBlockY() - user.meta().movement().positionY;
+        boolean under = diff < 0 && diff > -2.5;
+        boolean highRotationSinceLastPlacement = false;
+
+        boolean near = placementHistory.stream().anyMatch(placement -> placement.position.distanceTo(blockPosition) < 1.1);
+
+        long currentTick = meta.tickCount;
+        long lastPlacement = meta.lastPlacementTick;
+        int duration = (int) (currentTick - lastPlacement);
+
+        float rotationSinceLastPlacement = 0;
+        float highestPitch = 0;
+        if (lastPlacement != -1) {
+          List<Rotation> pastRotations = meta.pastRotations;
+          if (pastRotations.size() > 2) {
+            for (int i = pastRotations.size() - 1; i >= Math.max(1, pastRotations.size() - duration); i--) {
+              Rotation rotation = pastRotations.get(i);
+              rotationSinceLastPlacement += rotation.distanceTo(meta.pastRotations.get(i - 1));
+              highestPitch = Math.max(highestPitch, rotation.pitch());
+            }
+          }
+        }
+        if (rotationSinceLastPlacement > 180) {
+          highRotationSinceLastPlacement = true;
+        }
+
+        placementHistory.add(new Placement(blockPosition, direction, meta.ticksSinceBlockPlacement, meta.tickCount, near));
+
+        double average = 0;
+        int size = 3;
+        if (placementSpeedHistory.size() >= size) {
+          int requiredElements = size;
+          for (int i = placementSpeedHistory.size() - 1; i >= Math.max(0, placementSpeedHistory.size() - requiredElements); i--) {
+            Direction placementDirection = placementHistory.get(i) == null ? Direction.UP : placementHistory.get(i).direction();
+            if (placementDirection != null && placementDirection.axis().isVertical()) {
+//              System.out.println("Skipping placement because it is on the y axis: " + placementDirection);
+              requiredElements++;
+              continue;
+            }
+            average += placementSpeedHistory.get(i);
+          }
+          average /= size;
+        }
+
+        int minimumTicks = 50;
+
+        
+
+        double finalSpeedAverageOfLastTwo = average;
+//        boolean finalHighRotationSinceLastPlacement = highRotationSinceLastPlacement;
+        float finalRotationSinceLastPlacement = rotationSinceLastPlacement;
+        float finalLowestPitch = highestPitch;
+        Synchronizer.synchronize(() -> {
+          player.sendMessage((under && near ? ChatColor.GRAY : ChatColor.DARK_GRAY) + MathHelper.formatDouble(finalSpeedAverageOfLastTwo, 2) + "b/t, rot:" + finalRotationSinceLastPlacement + ", pitch:"+ finalLowestPitch);
+        });
 
         meta.ticksSinceBlockPlacement = 0;
+        meta.lastPlacementTick = meta.tickCount;
         meta.placedInThisTick = true;
       }
     }
@@ -104,6 +168,8 @@ public class SmartSpeed extends MetaCheckPart<PlacementAnalysis, SmartSpeed.Smar
     if (movementData.rotationYaw != movementData.lastRotationYaw ||
       movementData.rotationPitch != movementData.lastRotationPitch) {
       pastRotations.add(movementData.rotation());
+    } else {
+      pastRotations.add(pastRotations.get(pastRotations.size() - 1));
     }
 
     // sneaking logic
@@ -199,6 +265,7 @@ public class SmartSpeed extends MetaCheckPart<PlacementAnalysis, SmartSpeed.Smar
     private final List<Long> preplacementSneakDelay = new LinkedList<>();
     private final List<Long> postplacementSneakDelay = new LinkedList<>();
     private final List<Placement> placementHistory = new LinkedList<>();
+    public long lastPlacementTick;
 
     private int ticksSinceHardFaultClick = 100;
     private int ticksSinceBlockPlacement = 100;
@@ -218,16 +285,26 @@ public class SmartSpeed extends MetaCheckPart<PlacementAnalysis, SmartSpeed.Smar
 
   private static class Placement {
     private final BlockPosition position;
+    private final Direction direction;
     private final int ticksSinceLast;
+    private final long tickCount;
+    private final boolean connected;
     private boolean wasSneakingSinceLast;
 
-    public Placement(BlockPosition position, int ticksSinceLast) {
+    public Placement(BlockPosition position, Direction direction, int ticksSinceLast, long tickCount, boolean connected) {
       this.position = position;
+      this.direction = direction;
       this.ticksSinceLast = ticksSinceLast;
+      this.connected = connected;
+      this.tickCount = tickCount;
     }
 
     public BlockPosition position() {
       return position;
+    }
+
+    public Direction direction() {
+      return direction;
     }
 
     public int ticksSince() {
@@ -240,6 +317,10 @@ public class SmartSpeed extends MetaCheckPart<PlacementAnalysis, SmartSpeed.Smar
 
     public void registerSneak() {
       wasSneakingSinceLast = true;
+    }
+
+    public long tickCountAt() {
+      return tickCount;
     }
   }
 

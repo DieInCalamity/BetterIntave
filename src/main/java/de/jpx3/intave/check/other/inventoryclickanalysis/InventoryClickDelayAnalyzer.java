@@ -20,6 +20,7 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -67,7 +68,7 @@ public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryCl
 
     int slot = event.getPacket().getIntegers().read(1);
     ItemStack itemStack = event.getPacket().getItemModifier().read(0);
-    int clickedItemID = itemStack.getData().getItemTypeId() * 16 + itemStack.getData().getData();
+    Material clickedItemID = itemStack == null ? Material.AIR : itemStack.getType();
     boolean droppedAnItem;
     if (MODERN_WINDOW_CLICK) {
       InventoryClickTypes clickTypes = event.getPacket().getEnumModifier(InventoryClickTypes.class, clickType).read(0);
@@ -77,7 +78,7 @@ public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryCl
     }
 
     if (slot != -999 && meta.lastClickedSlot != -999) {
-      if ((clickedItemID != meta.lastClickedItemID || droppedAnItem) && meta.lastClickedTimeStamp != 0) {
+      if ((clickedItemID != meta.lastClickedMaterial || droppedAnItem) && meta.lastClickedTimeStamp != 0) {
         checkWindowClick(player, meta, slot);
       }
     }
@@ -179,11 +180,11 @@ public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryCl
     return Math.sqrt(newSum / sd.size());
   }
 
-  private void prepareNextTick(User user, int slot, int itemID) {
+  private void prepareNextTick(User user, int slot, Material itemID) {
     ClickDelayMeta meta = metaOf(user);
     meta.lastClickedSlot = slot;
     meta.lastClickedTimeStamp = System.nanoTime();
-    meta.lastClickedItemID = itemID;
+    meta.lastClickedMaterial = itemID;
   }
 
   private double distanceBetween(int slot1, int slot2) {
@@ -202,7 +203,7 @@ public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryCl
     List<Double> clickDelayList = new ArrayList<>();
     private int lastClickedSlot;
     private long lastClickedTimeStamp;
-    private int lastClickedItemID;
+    private Material lastClickedMaterial;
     private long lastFlagTimeStamp;
   }
 
