@@ -42,6 +42,9 @@ dependencies {
   // random shit
   compileOnly("org.jetbrains:annotations:23.1.0")
   compileOnly("it.unimi.dsi:fastutil:8.5.11")
+
+  compileOnly("com.github.haifengl:smile-base:3.0.1")
+  compileOnly("com.github.haifengl:smile-core:3.0.1")
 }
 
 /*

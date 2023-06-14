@@ -40,14 +40,14 @@ public final class Enchantments {
   }
 
   public static int resolveRiptideModifier(ItemStack stack) {
-    if (ENCHANTMENT_RIPTIDE == null) {
+    if (ENCHANTMENT_RIPTIDE == null || stack == null) {
       return 0;
     }
     return resolveEnchantmentLevel(ENCHANTMENT_RIPTIDE, stack);
   }
 
   private static int resolveEnchantmentLevel(Enchantment enchantment, ItemStack itemStack) {
-    return itemStack.getEnchantmentLevel(enchantment);
+    return itemStack == null ? 0 : itemStack.getEnchantmentLevel(enchantment);
   }
 
   private static int resolveEnchantmentLevel(Enchantment enchantment, ItemStack[] stacks) {

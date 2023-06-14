@@ -1,30 +1,55 @@
 package de.jpx3.intave.access.player.trust;
 
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.annotate.Native;
-import de.jpx3.intave.library.python.PythonTask;
 import de.jpx3.intave.resource.Resource;
 import de.jpx3.intave.resource.Resources;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.storage.*;
 import org.bukkit.entity.Player;
+import smile.classification.KNN;
+import smile.data.DataFrame;
+import smile.data.Tuple;
+import smile.io.Arff;
 
-import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.text.ParseException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import static de.jpx3.intave.library.Python.*;
-
 public final class DynamicStorageTrustfactorResolver implements TrustFactorResolver {
-  private static final Resource STORAGE_SCRIPT =
-    IntaveControl.USE_DEBUG_SCRIPT_RESOURCES ?
-    Resources.resourceFromFile(new File(IntavePlugin.singletonInstance().dataFolder() + "/scripts/storage-dt/main.py")) :
-    Resources.localServiceCacheResource("script/storage-dt/main.py", "sdx-main", TimeUnit.DAYS.toMillis(3));
-  private static final Resource TREE_CSV = Resources.localServiceCacheResource("script/storage-dt/data.csv", "sdx-tree", TimeUnit.DAYS.toMillis(3));
-  private static final PythonTask TASK = taskFromScript("storagetrust", prepareScript(STORAGE_SCRIPT, scriptAssetMapFrom("samples", TREE_CSV)));
-  private static final String INPUT_FORMAT = "%s %s %s\n";
+//  private static final Resource STORAGE_SCRIPT =
+//    IntaveControl.USE_DEBUG_SCRIPT_RESOURCES ?
+//    Resources.resourceFromFile(new File(IntavePlugin.singletonInstance().dataFolder() + "/scripts/storage-dt/main.py")) :
+//    Resources.localServiceCacheResource("script/storage-dt/main.py", "sdx-main", TimeUnit.DAYS.toMillis(3));
+  private static final Resource TREE_ARFF = Resources.localServiceCacheResource("script/storage-dt/data.arff", "sdx-tree", TimeUnit.DAYS.toMillis(3));
+//  private static final PythonTask TASK = taskFromScript("storagetrust", prepareScript(STORAGE_SCRIPT, scriptAssetMapFrom("samples", TREE_CSV)));
+//  private static final String INPUT_FORMAT = "%s %s %s\n";
+
+  private final KNN<double[]> classifier;
+
+  {
+    try {
+      DataFrame frame = new Arff(new InputStreamReader(TREE_ARFF.read())).read();
+
+      double[][] x = new double[frame.size()][];
+      int[] y = new int[frame.size()];
+      for (int i = 0; i < frame.size(); i++) {
+        Tuple tuple = frame.get(i);
+        int a = tuple.getInt("a");
+        int b = tuple.getInt("b");
+        int c = tuple.getInt("c");
+        x[i] = new double[] {a, b, c};
+        y[i] = TrustFactor.valueOf(tuple.getString("t")).ordinal();
+      }
+
+      classifier = KNN.fit(x, y, 3);
+    } catch (IOException | ParseException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   @Override
   @Native
@@ -42,8 +67,7 @@ public final class DynamicStorageTrustfactorResolver implements TrustFactorResol
       long hoursPlayed = playtimeStorage.minutesPlayed() / 60;
       long hoursAfk = playtimeStorage.minutesAfk() / 60;
 
-      String output = TASK.feedLineAndRead(String.format(INPUT_FORMAT, hoursPlayed * 5, joins, hoursAfk)).trim();
-      TrustFactor factor = TrustFactor.valueOf(output);
+      TrustFactor factor = TrustFactor.values()[classifier.predict(new double[] {hoursPlayed * 5, joins, hoursAfk})];
  
       ViolationStorage violationStorage = playerStorage.storageOf(ViolationStorage.class);
       StorageViolationEvents violations = violationStorage.violations();

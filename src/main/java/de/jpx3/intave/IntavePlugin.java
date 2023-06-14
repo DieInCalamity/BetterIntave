@@ -209,7 +209,7 @@ public final class IntavePlugin extends JavaPlugin {
       // check again, after ProtocolLibs availability is guaranteed
       logger.checkColorAvailability();
 
-      Python.setup();
+//      Python.setup();
 
       // version mambo jumbo
       // stage 5

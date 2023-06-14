@@ -376,6 +376,9 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
       default: {
         hitboxDecrementer.decrement(user, VL_DECREMENT_PER_ATTACK);
         reachDecrementer.decrement(user, VL_DECREMENT_PER_ATTACK);
+        if (raytrace.reach() > 2.8 && user.meta().punishment().nerferOfType(AttackNerfStrategy.CANCEL_FIRST_HIT).active()) {
+          resendAllowed = false;
+        }
         // Redirect if resend is allowed
         if (resendAllowed) {
           redirectValidPacket(player, attack.packet());

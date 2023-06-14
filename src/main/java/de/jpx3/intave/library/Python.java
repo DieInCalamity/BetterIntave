@@ -27,18 +27,15 @@ public class Python {
     // todo build from source packages on separate thread
 //    IntaveLogger.logger().info("Using $" + path + " as Python interpreter");
     String[] libraries = new String[]{
-      "keras", "matplotlib", "numpy", "pandas", "scikit-learn", "scipy", "seaborn", "statsmodels"
+      "keras", "numpy", "pandas", "scikit-learn", "scipy", "seaborn", "statsmodels"
     };
 //    installLibraries(path, libraries);
     Set<String> uninstalled = pickUninstalled(path, libraries);
 
     // print info
     if (uninstalled.size() > 0) {
-      IntaveLogger.logger().error("Unable to find the following Python libraries:");
-      for (String s : uninstalled) {
-        IntaveLogger.logger().error("  - " + s);
-      }
-      IntaveLogger.logger().error("For improved functionality, please install the above libraries.");
+      IntaveLogger.logger().error("Missing python libraries, please install them with the following command:");
+      IntaveLogger.logger().error("Run '"+path+" -m pip install --upgrade pip && "+path+" -m pip install " + String.join(" ", uninstalled) + "'");
       available = false;
     }
   }

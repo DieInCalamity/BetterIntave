@@ -19,6 +19,7 @@ import de.jpx3.intave.command.SubCommand;
 import de.jpx3.intave.diagnostic.*;
 import de.jpx3.intave.diagnostic.timings.Timing;
 import de.jpx3.intave.diagnostic.timings.Timings;
+import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.library.Python;
 import de.jpx3.intave.library.python.PythonTask;
 import de.jpx3.intave.module.Modules;
@@ -369,7 +370,9 @@ public final class RootStage extends CommandStage {
     player.sendMessage("You are now in storage trace mode");
     PlaytimeStorage storage = user.storageOf(PlaytimeStorage.class);
     storage.setDebugTag();
-    player.sendMessage("Your storage-tag is " + storage.readTag());
+    Synchronizer.synchronize(() -> {
+      player.sendMessage("Your storage-tag is " + storage.readTag());
+    });
   }
 
   @SubCommand(
@@ -386,7 +389,9 @@ public final class RootStage extends CommandStage {
     PlaytimeStorage storage = targetUser.storageOf(PlaytimeStorage.class);
     long minutesPlayed = storage.minutesPlayed();
     long minutesAfk = storage.minutesAfk();
-    player.sendMessage("The player " + targetPlayer.getName() + " has played for " + minutesPlayed + " minutes and was afk for " + minutesAfk + " minutes");
+    Synchronizer.synchronize(() -> {
+      player.sendMessage("The player " + targetPlayer.getName() + " has played for " + minutesPlayed + " minutes and was afk for " + minutesAfk + " minutes");
+    });
   }
 
   @SubCommand(

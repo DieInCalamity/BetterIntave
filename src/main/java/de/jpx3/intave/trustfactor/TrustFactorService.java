@@ -27,7 +27,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 public final class TrustFactorService implements BukkitEventSubscriber {
   private static final TrustFactorResolver DEFAULT_RESOLVER = new DefaultForwardingPermissionTrustFactorResolver(new EmptyTrustFactorResolver());
   private static final TrustFactorResolver AUTO_STORAGE_RESOLVER = new DefaultForwardingPermissionTrustFactorResolver(
-    Python.available() ? new DynamicStorageTrustfactorResolver() : new StorageTrustfactorResolver()
+    /*Python.available() ?*/ new DynamicStorageTrustfactorResolver()/* : new StorageTrustfactorResolver()*/
   );
   private final IntavePlugin plugin;
   private TrustFactorResolver trustFactorResolver;

@@ -186,6 +186,11 @@ fault-kicks:
   invalid-key-input: true
   invalid-player-action: true
 
+# Remove some data from packets used to slightly improve cheats
+filter:
+  equipmentdata: false
+  health: true
+
 logging:
   # Save logs to a file?
   file-log: true

@@ -5,7 +5,9 @@ import de.jpx3.intave.security.ContextSecrets;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.Arrays;
@@ -96,6 +98,20 @@ public final class Library {
     }
   }
 
+  public void pushToClasspath() {
+    try {
+      if (!isInCache()) {
+        throw new IllegalStateException("Library is not in cache");
+      }
+      ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+      Method addURL = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+      addURL.setAccessible(true);
+      addURL.invoke(systemClassLoader, cacheFile().toURI().toURL());
+    } catch (Exception exception) {
+      exception.printStackTrace();
+    }
+  }
+
   private HashResult verifyHash(String extension, MessageDigest digest) {
     try {
       URL url = new URL(String.format("%s/%s/%s/%s-%s.jar.%s", repository, (path + "/" + name).replace(".", "/"), version, name, version, extension));
@@ -158,6 +174,10 @@ public final class Library {
     return file;
   }
 
+  public String name() {
+    return name;
+  }
+
   public String version() {
     return version;
   }
@@ -165,6 +185,4 @@ public final class Library {
   public String path() {
     return path;
   }
-
-
 }
