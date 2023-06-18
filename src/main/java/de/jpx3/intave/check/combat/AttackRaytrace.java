@@ -38,7 +38,8 @@ import java.util.Locale;
 import java.util.function.Function;
 
 import static com.comphenix.protocol.wrappers.EnumWrappers.EntityUseAction.ATTACK;
-import static de.jpx3.intave.module.linker.packet.ListenerPriority.*;
+import static de.jpx3.intave.module.linker.packet.ListenerPriority.HIGH;
+import static de.jpx3.intave.module.linker.packet.ListenerPriority.LOW;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DONT_PROCESS_VIOSTAT;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_9;
@@ -175,9 +176,10 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
         }
       }
 
+      boolean unsafeSynchronization = movement.dropPostTickMotionProcessing && protocol.protocolVersion() >= 755;
       boolean entityOutOfSync =
           (!protocol.flyingPacketsAreSent() && movement.receivedFlyingPacketIn(2))
-              || !attackedEntity.clientSynchronized;
+              || !attackedEntity.clientSynchronized || unsafeSynchronization;
       // As entity attack redirections are processed inside this, we don't need to do anything extra to block hits besides
       // just not raytracing
       if (entityHasNotTimedOut) {
