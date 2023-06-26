@@ -415,14 +415,16 @@ public final class InteractionEmulator implements EventProcessor {
             clickedBlock,
             BlockFace.SELF,
             itemTypeInHand,
-            null)) {
+            null)
+          ) {
             blockStateAccess.override(
               world,
               placementLocation.getBlockX(),
               placementLocation.getBlockY(),
               placementLocation.getBlockZ(),
               Material.AIR,
-              0);
+              0
+            );
           }
         }
         break;

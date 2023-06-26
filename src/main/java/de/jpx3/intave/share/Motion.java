@@ -55,6 +55,14 @@ public final class Motion {
     return Hypot.fast(motionX - other.motionX, motionZ - other.motionZ);
   }
 
+  public double horizontalLength() {
+    return Math.sqrt(motionX * motionX + motionZ * motionZ);
+  }
+
+  public double horizontalLengthSqr() {
+    return motionX * motionX + motionZ * motionZ;
+  }
+
   public Motion add(double x, double y, double z) {
     motionX += x;
     motionY += y;

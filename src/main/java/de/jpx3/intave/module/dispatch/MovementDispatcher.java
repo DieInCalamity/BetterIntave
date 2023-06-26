@@ -754,6 +754,7 @@ public final class MovementDispatcher extends Module {
     inventoryData.pastItemUsageTransition++;
     movement.pastWaterMovement++;
     movement.pastVelocity++;
+    movement.pastStep++;
     movement.pastEdgeSneak++;
     movement.ignoredAttackReduce = false;
     if (hasMovement || hasRotation) {
@@ -794,6 +795,10 @@ public final class MovementDispatcher extends Module {
 
     updateSize(user);
     movement.externalKeyApply = false;
+
+    if (!movement.movementDebugValues.isEmpty()) {
+      movement.movementDebugValues.clear();
+    }
   }
 
   private void updateSize(User user) {

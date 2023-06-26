@@ -1,6 +1,7 @@
 package de.jpx3.intave.check.movement.physics;
 
 import de.jpx3.intave.adapter.MinecraftVersions;
+import de.jpx3.intave.annotate.Nullable;
 import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
@@ -10,6 +11,7 @@ import de.jpx3.intave.block.fluid.LegacyWaterflow;
 import de.jpx3.intave.block.physics.BlockPhysics;
 import de.jpx3.intave.block.physics.BlockProperties;
 import de.jpx3.intave.block.physics.MaterialMagic;
+import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.block.type.MaterialSearch;
 import de.jpx3.intave.block.variant.BlockVariant;
 import de.jpx3.intave.module.Modules;
@@ -19,10 +21,7 @@ import de.jpx3.intave.player.Enchantments;
 import de.jpx3.intave.player.collider.Colliders;
 import de.jpx3.intave.player.collider.complex.ColliderResult;
 import de.jpx3.intave.player.collider.simple.SimpleColliderResult;
-import de.jpx3.intave.share.BoundingBox;
-import de.jpx3.intave.share.ClientMathHelper;
-import de.jpx3.intave.share.Motion;
-import de.jpx3.intave.share.Position;
+import de.jpx3.intave.share.*;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MetadataBundle;
 import de.jpx3.intave.user.meta.MovementMetadata;
@@ -522,14 +521,28 @@ class BaseSimulator extends Simulator {
     int blockCollisionPosX = floor(positionX);
     int blockCollisionPosY = floor(positionY - 0.2f);
     int blockCollisionPosZ = floor(positionZ);
-    Material block =
-      VolatileBlockAccess.typeAccess(
-        user, world, blockCollisionPosX, blockCollisionPosY, blockCollisionPosZ);
+
+    Material block;
+    if (clientData.trailsAndTailsUpdate()) {
+      BoundingBox boundingBox = environment.boundingBox();
+      BoundingBox secondBoundingBox = new BoundingBox(
+        boundingBox.minX, boundingBox.minY - 0.000001, boundingBox.minZ,
+        boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ
+      );
+      block = findSupportingBlock(user, environment, secondBoundingBox);
+      if (block == null) {
+        BoundingBox thirdBoundingBox = secondBoundingBox.move(-motion.motionX, 0.0, -motion.motionZ);
+        block = findSupportingBlock(user, environment, thirdBoundingBox);
+      }
+      if (block == null) {
+        block = Material.AIR;
+      }
+    } else {
+      block = VolatileBlockAccess.typeAccess(user, world, blockCollisionPosX, blockCollisionPosY, blockCollisionPosZ);
+    }
 
     if (block == Material.AIR) {
-      Material blockBelow =
-        VolatileBlockAccess.typeAccess(
-          user, world, blockCollisionPosX, blockCollisionPosY, blockCollisionPosZ);
+      Material blockBelow = VolatileBlockAccess.typeAccess(user, world, blockCollisionPosX, blockCollisionPosY, blockCollisionPosZ);
       if (blockBelow.name().contains("FENCE") || blockBelow.name().contains("WALL")) {
         block = blockBelow;
       }
@@ -599,6 +612,79 @@ class BaseSimulator extends Simulator {
         motion.motionZ *= speedFactor;
       }
     }
+  }
+
+  @Nullable
+  private Material findSupportingBlock(
+    User user, SimulationEnvironment environment, BoundingBox box
+  ) {
+    World world = user.player().getWorld();
+    Material block = null;
+    int blockX = 0, blockY = 0, blockZ = 0;
+    double distance = Double.MAX_VALUE;
+
+    int startX = ClientMathHelper.floor(box.minX - 0.0000001) - 1;
+    int endX = ClientMathHelper.floor(box.maxX + 0.0000001) + 1;
+    int startY = ClientMathHelper.floor(box.minY - 0.0000001) - 1;
+    int endY = ClientMathHelper.floor(box.maxY + 0.0000001) + 1;
+    int startZ = ClientMathHelper.floor(box.minZ - 0.0000001) - 1;
+    int endZ = ClientMathHelper.floor(box.maxZ + 0.0000001) + 1;
+
+    double positionX = environment.positionX();
+    double positionY = environment.positionY();
+    double positionZ = environment.positionZ();
+
+    CubeIterator iterator = new CubeIterator(startX, startY, startZ, endX, endY, endZ);
+
+    while (iterator.advance()) {
+      int x = iterator.nextX();
+      int y = iterator.nextY();
+      int z = iterator.nextZ();
+      int type = iterator.nextType();
+
+      if (type == CubeIterator.TYPE_CORNER) {
+        continue;
+      }
+
+      BlockShape shape = user.blockStates().collisionShapeAt(x, y, z);
+      if (shape.isEmpty() || !shape.intersectsWith(box)) {
+        continue;
+      }
+
+      double distanceToCenter = distanceToCenter(x, y, z, positionX, positionY, positionZ);
+      int comparison = compare(x, y, z, blockX, blockY, blockZ);
+
+      if (distanceToCenter < distance || distanceToCenter == distance || comparison < 0) {
+        block = VolatileBlockAccess.typeAccess(user, world, x, y, z);
+        blockX = x;
+        blockY = y;
+        blockZ = z;
+        distance = distanceToCenter;
+      }
+
+    }
+    return block;
+  }
+
+  private int compare(
+    int alphaX, int alphaY, int alphaZ,
+    int betaX, int betaY, int betaZ
+  ) {
+    if (alphaY == betaY) {
+      return alphaZ == betaZ ? alphaX - betaX : alphaZ - betaZ;
+    } else {
+      return alphaY - betaY;
+    }
+  }
+
+  private double distanceToCenter(
+    int blockX, int blockY, int blockZ,
+    double entityX, double entityY, double entityZ
+  ) {
+    double d0 = blockX + 0.5 - entityX;
+    double d1 = blockY + 0.5 - entityY;
+    double d2 = blockZ + 0.5 - entityZ;
+    return d0 * d0 + d1 * d1 + d2 * d2;
   }
 
   private void simulateWaterAfter(

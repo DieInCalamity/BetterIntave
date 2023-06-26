@@ -202,7 +202,7 @@ public final class Violation {
 
   public static class ViolationFlags {
     public static int DONT_PROCESS_VIOSTAT = 1;
-    public static int OPTION_TWO = 1 << 1;
+    public static int DISPLAY_IN_ALL_MODES = 1 << 1;
 
     public static boolean matches(int optionFlags, int optionFlag) {
       return (optionFlags & optionFlag) != 0;

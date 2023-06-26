@@ -26,6 +26,7 @@ public final class v8Collider implements Collider {
     double startMotionZ = motion.motionZ;
     boolean step = false;
     boolean edgeSneak = false;
+    double stepHeight = 0.0D;
     if (environment.onGround() && environment.isSneaking()) {
       BoundingBox boundingBox = environment.boundingBox();
       double size;
@@ -129,6 +130,7 @@ public final class v8Collider implements Collider {
         entityBoundingBox = axisalignedbb3;
       } else {
         step = true;
+        stepHeight = environment.stepHeight() + motion.motionY;
       }
     }
     boolean collidedVertically = startMotionY != motion.motionY;
@@ -145,7 +147,7 @@ public final class v8Collider implements Collider {
     return new ColliderResult(
       Motion.copyFrom(motion), onGround,
       collidedHorizontally, collidedVertically,
-      moveResetX, moveResetZ, step, edgeSneak
+      moveResetX, moveResetZ, step, edgeSneak, stepHeight
     );
   }
 }

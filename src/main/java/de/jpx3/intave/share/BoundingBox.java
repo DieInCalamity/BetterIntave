@@ -186,6 +186,10 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
     return expand(vec.getX(), vec.getY(), vec.getZ());
   }
 
+  public BoundingBox expand(Motion motion) {
+    return expand(motion.motionX(), motion.motionY(), motion.motionZ());
+  }
+
   /**
    * Adds the coordinates to the bounding box extending it if the point lies outside the current ranges. Args: x, y, z
    */
@@ -529,6 +533,14 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
 
   public BoundingBox addJustMaxY(double expansionY) {
     return new BoundingBox(minX, minY, minZ, maxX, this.maxY + expansionY, maxZ);
+  }
+
+  public BoundingBox move(Motion motion) {
+    return move(motion.motionX, motion.motionY, motion.motionZ);
+  }
+
+  public BoundingBox move(double x, double y, double z) {
+    return new BoundingBox(minX + x, minY + y, minZ + z, maxX + x, maxY + y, maxZ + z);
   }
 
   /**

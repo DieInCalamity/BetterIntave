@@ -15,6 +15,7 @@ import java.util.UUID;
 @Relocate
 public final class ProtocolMetadata {
   // final has been removed to disguise modified integer VERSION_DETAILS
+  public static int VER_1_20 = 763; // 1.17
   public static int VER_1_17 = 755; // 1.17
   public static int VER_1_16 = 735; // 1.16
   public static int VER_1_15 = 573; // 1.15
@@ -189,6 +190,10 @@ public final class ProtocolMetadata {
 
   public boolean combatUpdate() {
     return protocolVersion >= VER_1_9;
+  }
+
+  public boolean trailsAndTailsUpdate() {
+    return protocolVersion >= VER_1_20;
   }
 
   public boolean oppositeBlockVectorBehavior() {

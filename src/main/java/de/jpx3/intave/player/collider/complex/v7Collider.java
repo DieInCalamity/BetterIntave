@@ -50,6 +50,7 @@ final class v7Collider implements Collider {
     double var38;
 
     boolean step = false;
+    double stepHeight = 0.0D;
     if (var36 && (var20 /*|| this.ySize < 0.05F*/) && (var13 != startMotionX || var17 != startMotionZ)) {
       var38 = startMotionX;
       var25 = startMotionY;
@@ -80,6 +81,7 @@ final class v7Collider implements Collider {
         entityBoundingBox = var29;
       } else {
         step = true;
+        stepHeight = startMotionY;
       }
     }
 
@@ -97,7 +99,7 @@ final class v7Collider implements Collider {
     return new ColliderResult(
       Motion.copyFrom(motion), onGround,
       collidedHorizontally, collidedVertically, moveResetX, moveResetZ,
-      step, false
+      step, false, stepHeight
     );
   }
 }

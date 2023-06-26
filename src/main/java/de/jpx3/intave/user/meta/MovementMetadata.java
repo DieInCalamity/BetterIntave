@@ -60,9 +60,11 @@ public final class MovementMetadata implements SimulationEnvironment {
   // superposition
   private final Superposition<Motion> velocitySuperposition;
   private final List<Superposition<?>> superpositions;
+  public final Map<String, Double> movementDebugValues = new HashMap<>();
   public boolean disabledFlying;
   public float width = 0.6f, height = 1.8f;
   public float stepHeight = 0.6f;
+  public double stepHeightThisMove = 0d;
   public double widthRounded, heightRounded;
   public boolean elytraFlying;
   public int fireworkRocketsTicks = 100;
@@ -108,6 +110,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   public int pastInventoryOpen = 100;
   public int pastBlockPlacement = 100;
   public int pastEdgeSneak = 100;
+  public int pastStep = 100;
   public int pastEntityUse = 100;
   public boolean onLadderLast;
   public boolean aquaticUpdateInLava;

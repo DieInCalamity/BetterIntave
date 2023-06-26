@@ -21,6 +21,7 @@ import org.bukkit.entity.Player;
 import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType.DROP_ITEM;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION_LOOK;
+import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DISPLAY_IN_ALL_MODES;
 
 public abstract class TickAlignedHistoryBlueprint<E extends TickAlignedMeta> extends Blueprint<ClickPatterns, TickAlignedMeta, E> {
   private int historyLength = 80;
@@ -106,7 +107,7 @@ public abstract class TickAlignedHistoryBlueprint<E extends TickAlignedMeta> ext
     Violation violation = Violation.builderFor(ClickPatterns.class)
       .forPlayer(user.player()).withDefaultThreshold()
       .withMessage(message).withDetails("pattern: "+buildHistoryString(user))
-      .withVL(0).build();
+      .appendFlags(DISPLAY_IN_ALL_MODES).withVL(0).build();
     Modules.violationProcessor().processViolation(violation);
   }
 

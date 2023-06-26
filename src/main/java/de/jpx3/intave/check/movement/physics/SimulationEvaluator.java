@@ -153,7 +153,7 @@ public final class SimulationEvaluator {
         && movement.pastExternalVelocity != 0;
 
     if (movement.inWeb) {
-      verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, criticalWeb ? 0.000001 : 0.13);
+      verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, /*criticalWeb ? 0.000001 : */0.13);
     }
 
     if (movement.pastInWeb < 10 && !movement.inWeb && differenceY < 0.1) {
@@ -215,7 +215,7 @@ public final class SimulationEvaluator {
     }
 
     if (criticalWeb) {
-      multiplier *= 40;
+//      multiplier *= 40;
     }
 
     boolean justInPowderSnow = movement.pastInPowderSnow < 5;

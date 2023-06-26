@@ -90,10 +90,10 @@ public final class AccountCheck extends Module {
       if (!IntaveControl.GOMME_MODE) {
         return;
       }
-      if (!isMicrosoftAccount) {
-        callback.accept(false);
-        return;
-      }
+//      if (!isMicrosoftAccount) {
+//        callback.accept(false);
+//        return;
+//      }
       seenOnLabyMod(id, seenOnLabyMod -> {
         if (!IntaveControl.GOMME_MODE) {
           return;
@@ -147,7 +147,6 @@ public final class AccountCheck extends Module {
       user.nerfPermanently(AttackNerfStrategy.BLOCKING, "86");
       user.nerfPermanently(AttackNerfStrategy.GARBAGE_HITS, "86");
       user.nerfPermanently(AttackNerfStrategy.BURN_LONGER, "86");
-      user.setTrustFactor(TrustFactor.RED);
     }
   }
 

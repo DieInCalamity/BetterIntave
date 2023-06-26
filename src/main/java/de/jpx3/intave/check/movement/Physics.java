@@ -57,6 +57,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static de.jpx3.intave.diagnostic.message.MessageCategory.SIMFLT;
@@ -146,7 +147,12 @@ public final class Physics extends Check {
     movementData.collidedVertically = collider.collidedVertically();
     movementData.physicsResetMotionX = collider.resetMotionX();
     movementData.physicsResetMotionZ = collider.resetMotionZ();
-    movementData.step = collider.step();
+    boolean step = collider.step();
+    movementData.step = step;
+    movementData.stepHeightThisMove = step ? collider.stepHeightThisMove() : 0;
+    if (step) {
+      movementData.pastStep = 0;
+    }
     if (collider.edgeSneak()) {
       movementData.pastEdgeSneak = 0;
     }
@@ -346,19 +352,19 @@ public final class Physics extends Check {
     double receivedMotionX = movementData.motionX();
     double receivedMotionY = movementData.motionY();
     double receivedMotionZ = movementData.motionZ();
-    double predictedX = context.motionX;
-    double predictedY = context.motionY;
-    double predictedZ = context.motionZ;
+    double predictedX = context.motionX();
+    double predictedY = context.motionY();
+    double predictedZ = context.motionZ();
     double differenceX = predictedX - receivedMotionX;
     double differenceY = predictedY - receivedMotionY;
     double differenceZ = predictedZ - receivedMotionZ;
     double distance = MathHelper.hypot3d(differenceX, differenceY, differenceZ);
-    double receivedPositionX = movementData.positionX;
-    double receivedPositionY = movementData.positionY;
-    double receivedPositionZ = movementData.positionZ;
-    double positionX = movementData.verifiedPositionX;
-    double positionY = movementData.verifiedPositionY;
-    double positionZ = movementData.verifiedPositionZ;
+    double receivedPositionX = movementData.positionX();
+    double receivedPositionY = movementData.positionY();
+    double receivedPositionZ = movementData.positionZ();
+    double positionX = movementData.verifiedPositionX();
+    double positionY = movementData.verifiedPositionY();
+    double positionZ = movementData.verifiedPositionZ();
 
     boolean onLadderCurrent = MovementCharacteristics.onClimbable(user, positionX, positionY, positionZ);
     boolean onLadder = onLadderCurrent || movementData.onLadderLast;
@@ -382,7 +388,11 @@ public final class Physics extends Check {
 
     if (checkVelocity && !movementData.elytraFlying && movementData.pastExternalVelocity < 10 && !movementData.receivedFlyingPacketIn(2)) {
       boolean actuallyMoved = (Math.abs(predictedX) > 0.01 || Math.abs(predictedZ) > 0.01);
-      if (distance > 0.005 && !onLadder) {
+
+      boolean noCollisionOnHighVersion = !(protocol.cavesAndCliffsUpdate()
+        && Collision.present(player, movementData.boundingBox().growHorizontally(0.3)));
+
+      if (distance > 0.005 && !onLadder && noCollisionOnHighVersion) {
         if (actuallyMoved) {
           boolean aggressive = violationLevelData.physicsVelocityVL++ >= VELOCITY_VL_THRESHOLD || movementData.pastExternalVelocity == 0;
           if (aggressive || distance > 0.01) {
@@ -721,7 +731,7 @@ public final class Physics extends Check {
         debug += ChatColor.BOLD + poseName + chatColor;
       }
 
-      debug += " y:" + formatDouble(movementData.motionY(), 4) + "@" + decimalPlacesOf(movementData.positionY(), 4);
+      debug += " y:" + formatDouble(movementData.motionY(), 4) + "@" + decimalPlacesOf(receivedPositionY, 4);
 
 //      debug += " x:" + formatDouble(movementData.motionX(), 4) + " z:" + formatDouble(movementData.motionZ(), 4);
       if (!simulation.details().isEmpty()) {
@@ -762,9 +772,12 @@ public final class Physics extends Check {
       if (movementData.endMotionZOverride) {
         debug += ChatColor.ITALIC + " emz:" + MathHelper.formatDouble(movementData.endMotionZOverrideValue, 4) + chatColor;
       }
-      if (Math.abs(movementData.motionY()) > 0.01) {
-        debug += simulation.configuration() + " ";
+      if (movementData.step) {
+        debug += ChatColor.ITALIC + " stp:" + formatDouble(movementData.stepHeightThisMove, 5) + chatColor;
       }
+//      if (Math.abs(movementData.motionY()) > 0.01) {
+//        debug += simulation.configuration() + " ";
+//      }
 
 //      debug += " spr:" + (simulation.wasSprinting() ? 1 : 0);
 
@@ -776,6 +789,28 @@ public final class Physics extends Check {
 //      debug += inventoryData.heldItem().getType().name();
 //      debug += " flying:" + movementData.pastFlyingPacketAccurate;
 //      debug += " gliding:" + shortenBoolean(movementData.elytraFlying);
+
+//        if (violationLevelIncrease > 0) {
+//          debug += " yexp:" + formatDouble(predictedY, 4) + "@" + decimalPlacesOf(movementData.verifiedPositionY(), 4);
+//        }
+
+      Map<String, Double> serverDebugData = simulation.collider().debugData();
+      Map<String, Double> clientDebugData = movementData.movementDebugValues;
+      if (!serverDebugData.isEmpty()) {
+        debug += ChatColor.ITALIC + " " + serverDebugData.entrySet().stream().map(entry -> {
+          String key1 = entry.getKey();
+          double value = entry.getValue();
+          return "S"+key1 + ":" + formatDouble(value, 4);
+        }).collect(Collectors.joining(" ")) + chatColor;
+      }
+      if (!clientDebugData.isEmpty()) {
+        debug += ChatColor.ITALIC + " " + clientDebugData.entrySet().stream().map(entry -> {
+          String key1 = entry.getKey();
+          double value = entry.getValue();
+          return "C"+key1 + ":" + formatDouble(value, 4);
+        }).collect(Collectors.joining(" ")) + chatColor;
+      }
+
 
 //      List<String> tags = new ArrayList<>();
 //      tags.add("d:" + (movementData.recentlyEncounteredFlyingPacket(1) ? "~" + formatDouble(distance, 6) : formatDouble(distance, 6)));

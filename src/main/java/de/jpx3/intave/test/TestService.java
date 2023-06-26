@@ -209,6 +209,8 @@ public final class TestService implements EventProcessor {
   }
 
   public boolean environmentKnown() {
+//    System.out.println("Environment hash: " + environmentHash);
+//    System.out.println("Supported environments: " + supportedEnvironments);
     return supportedEnvironments.containsKey(environmentHash) && !USE_DEBUG_LOCATE_RESOURCE;
   }
 
@@ -218,7 +220,7 @@ public final class TestService implements EventProcessor {
     long currentTimeMillis = System.currentTimeMillis();
     supportedEnvironments.put(environmentHash, currentTimeMillis);
     // delete system older than 1 month
-    supportedEnvironments.entrySet().removeIf(entry -> entry.getValue() < currentTimeMillis - MILLIS_IN_A_MONTH);
+    supportedEnvironments.entrySet().removeIf(entry -> currentTimeMillis - entry.getValue() > MILLIS_IN_A_MONTH);
     environmentHashResource.write(supportedEnvironments.entrySet().stream().map(entry -> entry.getKey() + ":" + entry.getValue()));
   }
 

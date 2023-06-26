@@ -65,6 +65,7 @@ public interface Resource extends LegacyResource {
             throw new RuntimeException(exception);
           }
         });
+        writer.flush();
       } catch (IOException exception) {
         throw new RuntimeException(exception);
       }

@@ -214,13 +214,16 @@ public final class FeedbackSender extends Module {
     if (pending > 500) {
       counter += pending;
     }
-    while (feedbackQueue.hasUserKey(counter) && counter >= MIN_USER_KEY && attempts-- > 0) {
+    while (feedbackQueue.hasUserKey(counter) && counter >= MIN_USER_KEY && counter < MAX_USER_KEY && attempts-- > 0) {
       counter++;
     }
     if (attempts <= 0) {
       // should never ever happen, last resort
       attempts = 1000;
       while (feedbackQueue.hasUserKey(counter) && counter >= MIN_USER_KEY && attempts-- > 0) {
+        if (MIN_USER_KEY + pending >= MAX_USER_KEY) {
+          break;
+        }
         counter = (short) ThreadLocalRandom.current().nextInt(MIN_USER_KEY + pending, MAX_USER_KEY);
       }
       if (attempts <= 0) {

@@ -1,6 +1,7 @@
 package de.jpx3.intave.user.meta;
 
 import com.google.common.collect.Lists;
+import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
@@ -156,7 +157,7 @@ public final class PunishmentMetadata {
   }
 
   public static class EncapsulationClass {
-    private static final Pattern JUSTIN_PATTERN = Pattern.compile("j.+st.*n", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+    private static final Pattern JUSTIN_PATTERN = Pattern.compile("[ji].*s.*t.*[nm]", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
     @Native
     public static boolean isRedlistedPlayer(Player player) {
@@ -171,7 +172,7 @@ public final class PunishmentMetadata {
           return true;
         }
       }
-      if (JUSTIN_PATTERN.matcher(player.getName()).find()) {
+      if (IntaveControl.GOMME_MODE && JUSTIN_PATTERN.matcher(player.getName()).find()) {
         return true;
       }
       return false;
