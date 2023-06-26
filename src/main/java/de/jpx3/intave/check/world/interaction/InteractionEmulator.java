@@ -41,6 +41,7 @@ import org.bukkit.util.Vector;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static de.jpx3.intave.IntaveControl.DUMP_BLOCK_HITBOX_ON_RIGHT_CLICK;
 
@@ -377,7 +378,7 @@ public final class InteractionEmulator implements EventProcessor {
       clickedBlockLocation.clone().add(Direction.getFront(interaction.targetDirectionIndex()).directionVecAsVector());
     emulateItemInteraction(player, itemTypeInHand);
     if (clickedBlock != null) {
-      emulateInteractWithHandItem(player, clickedBlock, placementLocation, itemTypeInHand);
+      emulateInteractWithHandItem(player, clickedBlock, interaction.type(), placementLocation, itemTypeInHand);
       emulatePhysicalInteract(player, clickedBlock);
     }
     return EmulationResult.SUCCEEDED;
@@ -394,17 +395,19 @@ public final class InteractionEmulator implements EventProcessor {
   }
 
   private void emulateInteractWithHandItem(
-    Player player, Block clickedBlock, Location placementLocation, Material itemTypeInHand
+    Player player, Block clickedBlock,
+    InteractionType type,
+    Location placementLocation, Material itemTypeInHand
   ) {
     User user = userOf(player);
     ExtendedBlockStateCache blockStateAccess = user.blockStates();
     World world = player.getWorld();
     switch (itemTypeInHand) {
       case BUCKET: {
-        Material placementType =
-          VolatileBlockAccess.typeAccess(user, placementLocation); // placementLocation.getBlock().getType();
+        Material placementType = VolatileBlockAccess.typeAccess(user, placementLocation); // placementLocation.getBlock().getType();
+
         // remove liquid on location if exists
-        if (MaterialMagic.isLiquid(placementType)) {
+        if (MaterialMagic.isLiquid(placementType) && type == InteractionType.INTERACT) {
           // emulate
           if (WorldPermission.bukkitActionPermission(
             player,
@@ -427,12 +430,12 @@ public final class InteractionEmulator implements EventProcessor {
       case WATER_BUCKET:
       case LAVA_BUCKET: {
         Material placementType = VolatileBlockAccess.typeAccess(user, placementLocation);
-        boolean adventureMode =
-          user.meta().abilities().inGameMode(AbilityTracker.GameMode.ADVENTURE);
+        boolean adventureMode = user.meta().abilities().inGameMode(AbilityTracker.GameMode.ADVENTURE);
 
         // emulate
         if (placementType == Material.AIR
           && !adventureMode
+          && type == InteractionType.INTERACT
           && WorldPermission.bukkitActionPermission(
           player,
           BucketAction.EMPTY_BUCKET,
@@ -459,7 +462,13 @@ public final class InteractionEmulator implements EventProcessor {
     Material clickedType = BlockTypeAccess.typeAccess(block, player);
 
     if (DUMP_BLOCK_HITBOX_ON_RIGHT_CLICK) {
-      player.sendMessage(String.valueOf(blockStateAccess.collisionShapeAt(block.getX(), block.getY(), block.getZ())));
+      Material type = blockStateAccess.typeAt(block.getX(), block.getY(), block.getZ());
+      int variant = blockStateAccess.variantIndexAt(block.getX(), block.getY(), block.getZ());
+      BlockVariant properties = BlockVariantRegister.variantOf(type, variant);
+
+      String propertyString = "{"+properties.propertyNames().stream().map(s -> s + ": " + properties.propertyOf(s)).collect(Collectors.joining(", ")) +"}";
+
+      player.sendMessage(type + "/" + variant + "."+propertyString+" -> " + blockStateAccess.collisionShapeAt(block.getX(), block.getY(), block.getZ()));
     }
 
     switch (clickedType) {
