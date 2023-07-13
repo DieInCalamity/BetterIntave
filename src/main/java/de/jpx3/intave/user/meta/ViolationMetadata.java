@@ -15,11 +15,11 @@ public final class ViolationMetadata {
   public volatile boolean disableActiveTeleportBundleNextTick;
   public volatile boolean ignorePostTickMotionReset;
 
+  public double backtrackVL;
+  public long lastIncreaseBacktrackVL;
+
   public int detectionCounter;
   public long detectionCounterReset;
-
-  public double p99Level;
-  public long lastP99Violation;
 
   public Map<String, Map<String, Double>> violationLevel = Maps.newConcurrentMap();
   public Map<String, Map<String, Double>> violationLevelGainedCounter = Maps.newConcurrentMap();

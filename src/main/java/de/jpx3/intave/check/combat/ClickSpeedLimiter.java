@@ -148,7 +148,9 @@ public final class ClickSpeedLimiter extends MetaCheck<ClickSpeedLimiter.ClickSp
       }
 
       Violation violation = Violation.builderFor(ClickSpeedLimiter.class)
-        .forPlayer(player).withMessage("attacked too quickly").withDetails(sum + " c/s")
+        .forPlayer(player)
+        .withMessage("attacked too quickly")
+        .withDetails(sum + " c/s")
         .withVL(addedVL)
         .build();
       ViolationContext violationContext = Modules.violationProcessor().processViolation(violation);

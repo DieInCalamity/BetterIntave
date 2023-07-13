@@ -9,7 +9,7 @@ import de.jpx3.intave.executor.IntaveThreadFactory;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.tracker.entity.Entity;
-import de.jpx3.intave.share.ClientMathHelper;
+import de.jpx3.intave.share.ClientMath;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.MovementMetadata;
@@ -77,8 +77,8 @@ public class NeuralNetworkTesting extends MetaCheckPart<Heuristics, NeuralNetwor
     MovementMetadata movementData = user.meta().movement();
     //user.player().sendMessage(String.format("x=%.3f y=%.3f z=%.3f",
     //  target.position.posX, target.position.posY, target.position.posZ));
-    float lastPlayerYaw = ClientMathHelper.wrapAngleTo180_float(movementData.lastRotationYaw);
-    float playerYaw = ClientMathHelper.wrapAngleTo180_float(movementData.rotationYaw);
+    float lastPlayerYaw = ClientMath.wrapAngleTo180_float(movementData.lastRotationYaw);
+    float playerYaw = ClientMath.wrapAngleTo180_float(movementData.rotationYaw);
     float serverYaw = resolveYawRotation(target.position, movementData.lastPositionX, movementData.lastPositionZ);
 
     float expectedYawDelta = (serverYaw - lastPlayerYaw) % 360f;

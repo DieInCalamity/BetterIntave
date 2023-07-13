@@ -14,8 +14,6 @@ public final class v8Collider implements Collider {
   @Override
   public ColliderResult collide(User user, SimulationEnvironment environment, Motion motion, double positionX, double positionY, double positionZ, boolean inWeb) {
     Player player = user.player();
-//    MetadataBundle meta = user.meta();
-//    MovementMetadata movement = meta.movement();
     if (inWeb) {
       motion.motionX *= 0.25D;
       motion.motionY *= 0.05f;

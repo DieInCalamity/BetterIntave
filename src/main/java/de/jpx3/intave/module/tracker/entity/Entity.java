@@ -10,7 +10,7 @@ import de.jpx3.intave.math.Hypot;
 import de.jpx3.intave.module.feedback.FeedbackObserver;
 import de.jpx3.intave.module.feedback.PendingCountingFeedbackObserver;
 import de.jpx3.intave.share.BoundingBox;
-import de.jpx3.intave.share.ClientMathHelper;
+import de.jpx3.intave.share.ClientMath;
 import de.jpx3.intave.share.Position;
 import de.jpx3.intave.user.User;
 import org.bukkit.util.Vector;
@@ -185,9 +185,9 @@ public class Entity {
       newPosX = packet.getDoubles().read(0);
       newPosY = packet.getDoubles().read(1);
       newPosZ = packet.getDoubles().read(2);
-      immServerPosX = ClientMathHelper.positionLong(newPosX);
-      immServerPosY = ClientMathHelper.positionLong(newPosY);
-      immServerPosZ = ClientMathHelper.positionLong(newPosZ);
+      immServerPosX = ClientMath.positionLong(newPosX);
+      immServerPosY = ClientMath.positionLong(newPosY);
+      immServerPosZ = ClientMath.positionLong(newPosZ);
     } else {
       immServerPosX = packet.getIntegers().read(1);
       immServerPosY = packet.getIntegers().read(2);
@@ -224,9 +224,9 @@ public class Entity {
       newPosX = packet.getDoubles().read(0);
       newPosY = packet.getDoubles().read(1);
       newPosZ = packet.getDoubles().read(2);
-      serverPosX = ClientMathHelper.positionLong(newPosX);
-      serverPosY = ClientMathHelper.positionLong(newPosY);
-      serverPosZ = ClientMathHelper.positionLong(newPosZ);
+      serverPosX = ClientMath.positionLong(newPosX);
+      serverPosY = ClientMath.positionLong(newPosY);
+      serverPosZ = ClientMath.positionLong(newPosZ);
     } else {
       serverPosX = packet.getIntegers().read(1);
       serverPosY = packet.getIntegers().read(2);

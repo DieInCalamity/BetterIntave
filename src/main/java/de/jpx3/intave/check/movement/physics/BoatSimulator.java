@@ -10,7 +10,7 @@ import de.jpx3.intave.math.SinusCache;
 import de.jpx3.intave.player.collider.Colliders;
 import de.jpx3.intave.player.collider.complex.ColliderResult;
 import de.jpx3.intave.share.BoundingBox;
-import de.jpx3.intave.share.ClientMathHelper;
+import de.jpx3.intave.share.ClientMath;
 import de.jpx3.intave.share.Motion;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MetadataBundle;
@@ -21,8 +21,8 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 
-import static de.jpx3.intave.share.ClientMathHelper.ceil;
-import static de.jpx3.intave.share.ClientMathHelper.floor;
+import static de.jpx3.intave.share.ClientMath.ceil;
+import static de.jpx3.intave.share.ClientMath.floor;
 
 public final class BoatSimulator extends Simulator {
   @Override
@@ -195,12 +195,12 @@ public final class BoatSimulator extends Simulator {
     MovementMetadata movementMeta = user.meta().movement();
     BoundingBox axisalignedbb = BoundingBox.fromPosition(user, movementMeta, movementMeta.position());
     BoundingBox axisalignedbb1 = new BoundingBox(axisalignedbb.minX, axisalignedbb.minY - 0.001D, axisalignedbb.minZ, axisalignedbb.maxX, axisalignedbb.minY, axisalignedbb.maxZ);
-    int minX = ClientMathHelper.floor(axisalignedbb1.minX) - 1;
-    int maxX = ClientMathHelper.ceil(axisalignedbb1.maxX) + 1;
-    int minY = ClientMathHelper.floor(axisalignedbb1.minY) - 1;
-    int maxY = ClientMathHelper.ceil(axisalignedbb1.maxY) + 1;
-    int minZ = ClientMathHelper.floor(axisalignedbb1.minZ) - 1;
-    int maxZ = ClientMathHelper.ceil(axisalignedbb1.maxZ) + 1;
+    int minX = ClientMath.floor(axisalignedbb1.minX) - 1;
+    int maxX = ClientMath.ceil(axisalignedbb1.maxX) + 1;
+    int minY = ClientMath.floor(axisalignedbb1.minY) - 1;
+    int maxY = ClientMath.ceil(axisalignedbb1.maxY) + 1;
+    int minZ = ClientMath.floor(axisalignedbb1.minZ) - 1;
+    int maxZ = ClientMath.ceil(axisalignedbb1.maxZ) + 1;
     float slipperiness = 0.0F;
     int collisions = 0;
 
@@ -236,17 +236,18 @@ public final class BoatSimulator extends Simulator {
 
   @Override
   public void prepareNextTick(User user, SimulationEnvironment environment, double positionX, double positionY, double positionZ, double motionX, double motionY, double motionZ) {
-    Motion motionVector = environment.motion();
-    motionVector.setTo(motionX, motionY, motionZ);
+    Motion motion = environment.motion();
+    motion.setTo(motionX, motionY, motionZ);
     ViolationMetadata violationMetadata = user.meta().violationLevel();
 
     BoundingBox boundingBox = BoundingBox.fromPosition(user, environment, positionX, positionY, positionZ);
     environment.setBoundingBox(boundingBox);
 
     if (!violationMetadata.isInActiveTeleportBundle) {
-      environment.setBaseMotionX(motionVector.motionX);
-      environment.setBaseMotionY(motionVector.motionY);
-      environment.setBaseMotionZ(motionVector.motionZ);
+//      environment.setBaseMotionX(motion.motionX);
+//      environment.setBaseMotionY(motion.motionY);
+//      environment.setBaseMotionZ(motion.motionZ);
+      environment.setBaseMotion(motion);
     }
   }
 

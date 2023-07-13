@@ -26,6 +26,9 @@ import static com.comphenix.protocol.PacketType.Play.Server.TRANSACTION;
 import static de.jpx3.intave.module.feedback.FeedbackOptions.*;
 
 public final class FeedbackSender extends Module {
+
+  private boolean dumpFeedback;
+
   public static final short MIN_USER_KEY = 0;
   public static final short MAX_USER_KEY = 24000;
   public static final int PING_MASK = 0xf5550000;
@@ -34,6 +37,11 @@ public final class FeedbackSender extends Module {
   private static final long OPTIONAL_SENT_LIMIT = 200;
 
   private final ProtocolManager protocol = ProtocolLibrary.getProtocolManager();
+
+  @Override
+  public void enable() {
+    dumpFeedback = plugin.settings().getBoolean("logging.feedback-dump", false);
+  }
 
   public <T> void doubleSynchronize(
     Player player, PacketEvent event, T target,
@@ -232,6 +240,10 @@ public final class FeedbackSender extends Module {
         return -1;
       }
     }
+    if (counter < 0) {
+      user.kick("Error in feedback synchronization");
+      return -1;
+    }
     return counter;
   }
 
@@ -260,7 +272,7 @@ public final class FeedbackSender extends Module {
     boolean noPingMask = user.meta().protocol().noPingMask();
     PacketContainer packet;
     PacketContainer[] packetCache = noPingMask ? PACKET_CACHE_NO_PING_MASK : PACKET_CACHE;
-    packet = index >= packetCache.length ? null : packetCache[index];
+    packet = index >= packetCache.length || index < 0 ? null : packetCache[index];
     if (packet == null) {
       if (USE_PING_PONG_PACKETS) {
         packet = protocol.createPacket(PING);
@@ -278,6 +290,9 @@ public final class FeedbackSender extends Module {
       if (index < packetCache.length) {
         packetCache[index] = packet;
       }
+    }
+    if (dumpFeedback) {
+      Thread.dumpStack();
     }
     if (IntaveControl.DEBUG_FEEDBACK_PACKETS) {
 //      System.out.println("Received " + transactionIdentifier + "/" +transactionResponse.num() + " from " + player.getName());

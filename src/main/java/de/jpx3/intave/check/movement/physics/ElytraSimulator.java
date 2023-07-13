@@ -9,8 +9,8 @@ import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import static de.jpx3.intave.share.ClientMathHelper.cos;
-import static de.jpx3.intave.share.ClientMathHelper.sin;
+import static de.jpx3.intave.share.ClientMath.cos;
+import static de.jpx3.intave.share.ClientMath.sin;
 
 final class ElytraSimulator extends BaseSimulator {
   @Override

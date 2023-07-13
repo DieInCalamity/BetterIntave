@@ -4,8 +4,8 @@ import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.Motion;
 import org.bukkit.util.Vector;
 
-import static de.jpx3.intave.share.ClientMathHelper.cos;
-import static de.jpx3.intave.share.ClientMathHelper.sin;
+import static de.jpx3.intave.share.ClientMath.cos;
+import static de.jpx3.intave.share.ClientMath.sin;
 
 public final class TestSimulationEnvironment implements SimulationEnvironment {
   private double positionX, positionY, positionZ;

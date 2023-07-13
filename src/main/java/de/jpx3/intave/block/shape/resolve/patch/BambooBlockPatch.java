@@ -6,7 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import static de.jpx3.intave.share.ClientMathHelper.coordinateRandom;
+import static de.jpx3.intave.share.ClientMath.coordinateRandom;
 
 final class BambooBlockPatch extends BoundingBoxPatch {
   private static final BoundingBox LEAF = BoundingBox.originFromX16(6.5D, 0.0D, 6.5D, 9.5D, 16.0, 9.5D);

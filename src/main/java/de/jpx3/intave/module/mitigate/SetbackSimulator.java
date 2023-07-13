@@ -21,7 +21,7 @@ import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.player.Effects;
 import de.jpx3.intave.share.BlockPosition;
 import de.jpx3.intave.share.BoundingBox;
-import de.jpx3.intave.share.ClientMathHelper;
+import de.jpx3.intave.share.ClientMath;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.MetadataBundle;
@@ -338,7 +338,7 @@ public final class SetbackSimulator extends Module {
         double rotationVectorDistance = Math.sqrt(lookVector.getX() * lookVector.getX() + lookVector.getZ() * lookVector.getZ());
         double dist2 = Math.sqrt(motionX * motionX + motionZ * motionZ);
         double rotationVectorLength = Math.sqrt(lookVector.lengthSquared());
-        float pitchCosine = ClientMathHelper.cos(f);
+        float pitchCosine = ClientMath.cos(f);
         pitchCosine = (float) ((double) pitchCosine * (double) pitchCosine * Math.min(1.0D, rotationVectorLength / 0.4D));
         motionY += movementData.gravity * (-1 + pitchCosine * 0.75);
 
@@ -350,7 +350,7 @@ public final class SetbackSimulator extends Module {
         }
 
         if (f < 0.0F && rotationVectorDistance > 0.0D) {
-          double d9 = dist2 * (double) (-ClientMathHelper.sin(f)) * 0.04D;
+          double d9 = dist2 * (double) (-ClientMath.sin(f)) * 0.04D;
           motionY += d9 * 3.2D;
           motionX += -lookVector.getX() * d9 / rotationVectorDistance;
           motionZ += -lookVector.getZ() * d9 / rotationVectorDistance;
@@ -426,7 +426,7 @@ public final class SetbackSimulator extends Module {
   }
 
   private double limitMotionAxis(double axis) {
-    return ClientMathHelper.clamp_double(axis, -4.0, 4.0);
+    return ClientMath.clamp_double(axis, -4.0, 4.0);
   }
 
   private void teleport(Player player, Location teleportLocation) {

@@ -32,9 +32,9 @@ public class CubeIterator {
       return false;
     } else {
       this.x = this.index % this.width;
-      int i = this.index / this.width;
-      this.y = i % this.height;
-      this.z = i / this.height;
+      int dividedIndex = this.index / this.width;
+      this.y = dividedIndex % this.height;
+      this.z = dividedIndex / this.height;
       ++this.index;
       return true;
     }
@@ -53,16 +53,16 @@ public class CubeIterator {
   }
 
   public int nextType() {
-    int i = 0;
+    int onEdge = 0;
     if (this.x == 0 || this.x == this.width - 1) {
-      ++i;
+      ++onEdge;
     }
     if (this.y == 0 || this.y == this.height - 1) {
-      ++i;
+      ++onEdge;
     }
     if (this.z == 0 || this.z == this.depth - 1) {
-      ++i;
+      ++onEdge;
     }
-    return i;
+    return onEdge;
   }
 }

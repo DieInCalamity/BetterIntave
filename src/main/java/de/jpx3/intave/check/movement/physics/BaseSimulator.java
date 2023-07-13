@@ -1,5 +1,6 @@
 package de.jpx3.intave.check.movement.physics;
 
+import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.Nullable;
 import de.jpx3.intave.annotate.Relocate;
@@ -14,6 +15,7 @@ import de.jpx3.intave.block.physics.MaterialMagic;
 import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.block.type.MaterialSearch;
 import de.jpx3.intave.block.variant.BlockVariant;
+import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.player.Effects;
@@ -34,9 +36,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.Map;
 
-import static de.jpx3.intave.share.ClientMathHelper.clamp_double;
-import static de.jpx3.intave.share.ClientMathHelper.floor;
+import static de.jpx3.intave.share.ClientMath.clamp_double;
+import static de.jpx3.intave.share.ClientMath.floor;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_14;
 
 @Relocate
@@ -195,9 +199,9 @@ class BaseSimulator extends Simulator {
 
     if (onLadder) {
       float axisLimit = 0.15F;
-      context.motionX = ClientMathHelper.clamp_double(context.motionX, -axisLimit, axisLimit);
-      context.motionY = ClientMathHelper.clamp_double(context.motionY, -axisLimit, Integer.MAX_VALUE); // no positive limit
-      context.motionZ = ClientMathHelper.clamp_double(context.motionZ, -axisLimit, axisLimit);
+      context.motionX = ClientMath.clamp_double(context.motionX, -axisLimit, axisLimit);
+      context.motionY = ClientMath.clamp_double(context.motionY, -axisLimit, Integer.MAX_VALUE); // no positive limit
+      context.motionZ = ClientMath.clamp_double(context.motionZ, -axisLimit, axisLimit);
 //      if (context.motionY < -0.15D) {
 //        context.motionY = -0.15D;
 //      }
@@ -383,14 +387,13 @@ class BaseSimulator extends Simulator {
     World world = player.getWorld();
     MetadataBundle meta = user.meta();
     ViolationMetadata violationLevelData = meta.violationLevel();
-//    MovementMetadata movementData = meta.movement();
     ProtocolMetadata clientData = meta.protocol();
-    Motion motionVector = environment.motionProcessorContext();
-    motionVector.setTo(motionX, motionY, motionZ);
+    Motion motion = environment.motionProcessorContext();
+    motion.setTo(motionX, motionY, motionZ);
     Pose pose = environment.pose();
 
     if (environment.motionMultiplier() != null) {
-      motionVector.setTo(0, 0, 0);
+      motion.setNull();
       environment.resetMotionMultiplier();
     }
 
@@ -400,6 +403,7 @@ class BaseSimulator extends Simulator {
     boolean collidedHorizontally = environment.collidedHorizontally();
     double gravity = environment.gravity();
     double slipperiness;
+
     if (environment.lastOnGround()) {
       double blockPositionX = floor(environment.verifiedPositionX());
       double blockPositionY = floor(environment.verifiedPositionY() - environment.frictionPosSubtraction());
@@ -413,64 +417,47 @@ class BaseSimulator extends Simulator {
     environment.setBoundingBox(boundingBox);
 
     if (environment.inWeb()) {
-      motionVector.motionX = 0.0;
-      motionVector.motionY = 0.0;
-      motionVector.motionZ = 0.0;
-//      movementData.inWeb = false;
+      motion.setNull();
       environment.resetInWeb();
     }
 
     if (environment.motionXReset()) {
-      motionVector.motionX = 0.0;
+      motion.motionX = 0.0;
     }
     if (environment.motionZReset()) {
-      motionVector.motionZ = 0.0;
+      motion.motionZ = 0.0;
     }
 
-    simulateMovementOfCollidedBlocks(user, environment, motionVector, boundingBox);
+    simulateMovementOfCollidedBlocks(user, environment, motion, boundingBox);
     updateFallState(user, motionY, environment.onGround());
 
     if (inWater) {
-      simulateWaterAfter(user, environment, motionVector, gravity);
+      simulateWaterAfter(user, environment, motion, gravity);
     } else if (inLava) {
-      simulateLavaAfter(user, environment, motionVector, boundingBox, collidedHorizontally);
+      simulateLavaAfter(user, environment, motion, boundingBox, collidedHorizontally);
     } else if (!elytraFlying) {
-      simulateNormalAfter(user, environment, motionVector, gravity, slipperiness);
+      simulateNormalAfter(user, environment, motion, gravity, slipperiness);
     }
 
     if (clientData.combatUpdate()
       && MinecraftVersions.VER1_9_0.atOrAbove() /* todo: add scoreboard check */) {
-      performGlobalEntityPush(user, environment, motionVector, boundingBox);
+      performGlobalEntityPush(user, environment, motion, boundingBox);
     }
 
     if (!violationLevelData.isInActiveTeleportBundle) {
       if (violationLevelData.ignorePostTickMotionReset) {
         violationLevelData.ignorePostTickMotionReset = false;
-        //        player.sendMessage("Ignore physics motion reset " + motionVector);
+        //        player.sendMessage("Ignore physics motion reset " + motion);
       } else {
-        environment.setBaseMotionX(motionVector.motionX);
-        environment.setBaseMotionY(motionVector.motionY);
-        environment.setBaseMotionZ(motionVector.motionZ);
+        environment.setBaseMotion(motion);
       }
     }
 
     environment.increaseFlyingPacketTicks();
-//    movementData.pastEntityUse++;
     environment.increaseEntityUseTicks();
-
-//    if (movementData.pastPlayerAttackPhysics < 100) {
-//      movementData.pastPlayerAttackPhysics++;
-//    }
     environment.increasePlayerAttackTicks();
-
-//    if (movementData.pastPushedByWaterFlow < 100) {
-//      movementData.pastPushedByWaterFlow++;
-//    }
     environment.increasePushedByWaterFlowTicks();
 
-//    if (movementData.onGround) {
-//      movementData.physicsPacketRelinkFlyVL = 0;
-//    }
     if (environment.onGround()) {
       environment.resetPhysicsPacketRelinkFlyVL();
     }
@@ -478,17 +465,10 @@ class BaseSimulator extends Simulator {
     Material type = VolatileBlockAccess.typeAccess(user, player.getWorld(), positionX, positionY, positionZ);
     boolean climbingInPowderSnow = POWDER_SNOW != null && type == POWDER_SNOW && PowderSnowCollisionModifier.canWalkOnPowderSnow(player);
     if (climbingInPowderSnow) {
-//      movementData.pastInPowderSnow = 0;
       environment.resetPowderSnowTicks();
-    } else /*if (movementData.pastInPowderSnow < 100) {
-      movementData.pastInPowderSnow++;
-    }*/ {
+    } else {
       environment.increasePowderSnowTicks();
     }
-
-//    if (movementData.pastEdgeSneakTickGrants < 100) {
-//      movementData.pastEdgeSneakTickGrants++;
-//    }
     environment.increaseEdgeSneakTickGrants();
   }
 
@@ -511,7 +491,6 @@ class BaseSimulator extends Simulator {
     Player player = user.player();
     World world = player.getWorld();
     MetadataBundle meta = user.meta();
-//    MovementMetadata movementData = meta.movement();
     ProtocolMetadata clientData = meta.protocol();
 
     double positionX = environment.positionX();
@@ -539,12 +518,30 @@ class BaseSimulator extends Simulator {
       }
     } else {
       block = VolatileBlockAccess.typeAccess(user, world, blockCollisionPosX, blockCollisionPosY, blockCollisionPosZ);
+
+//      if (IntaveControl.ENABLE_MOVEMENT_DEBUGGER_COLLECTOR) {
+//        MovementMetadata movement = meta.movement();
+//        Map<String, Double> serverMovementDebugValues = movement.serverMovementDebugValues;
+//        serverMovementDebugValues.put("MSB", 3d);
+//        serverMovementDebugValues.put("MSBY", (double) blockCollisionPosY);
+//      }
+//      collisionType = 3;
     }
+//    System.out.println("block = " + block + ", type = " + collisionType + ", positionY = " + positionY + ", blockCollisionPosY = " + blockCollisionPosY);
 
     if (block == Material.AIR) {
       Material blockBelow = VolatileBlockAccess.typeAccess(user, world, blockCollisionPosX, blockCollisionPosY, blockCollisionPosZ);
       if (blockBelow.name().contains("FENCE") || blockBelow.name().contains("WALL")) {
         block = blockBelow;
+      }
+    }
+
+    if (IntaveControl.DEBUG_MOVEMENT_BLOCK_FALLEN_UPON) {
+      if (block != null) {
+        String name = block.name();
+        Synchronizer.synchronize(() -> {
+          player.sendMessage("Block fallen upon: " + name);
+        });
       }
     }
 
@@ -556,7 +553,7 @@ class BaseSimulator extends Simulator {
         BlockPhysics.blockLanded(
           user, block, motion.motionX, environment.baseMotionY(), motion.motionZ);
       if (collisionVector != null) {
-        motion.resetTo(collisionVector);
+        motion.setTo(collisionVector);
       } else {
         motion.motionY = 0.0;
       }
@@ -567,7 +564,7 @@ class BaseSimulator extends Simulator {
       Motion collisionVector =
         BlockPhysics.entityCollision(user, block, motion.motionX, motion.motionY, motion.motionZ);
       if (collisionVector != null) {
-        motion.resetTo(collisionVector);
+        motion.setTo(collisionVector);
       }
     }
 
@@ -595,7 +592,7 @@ class BaseSimulator extends Simulator {
             motion.motionX, motion.motionY, motion.motionZ
           );
           if (collisionMotion != null) {
-            motion.resetTo(collisionMotion);
+            motion.setTo(collisionMotion);
           }
         }
       }
@@ -623,12 +620,12 @@ class BaseSimulator extends Simulator {
     int blockX = 0, blockY = 0, blockZ = 0;
     double distance = Double.MAX_VALUE;
 
-    int startX = ClientMathHelper.floor(box.minX - 0.0000001) - 1;
-    int endX = ClientMathHelper.floor(box.maxX + 0.0000001) + 1;
-    int startY = ClientMathHelper.floor(box.minY - 0.0000001) - 1;
-    int endY = ClientMathHelper.floor(box.maxY + 0.0000001) + 1;
-    int startZ = ClientMathHelper.floor(box.minZ - 0.0000001) - 1;
-    int endZ = ClientMathHelper.floor(box.maxZ + 0.0000001) + 1;
+    int startX = ClientMath.floor(box.minX - 0.0000001) - 1;
+    int endX = ClientMath.floor(box.maxX + 0.0000001) + 1;
+    int startY = ClientMath.floor(box.minY - 0.0000001) - 1;
+    int endY = ClientMath.floor(box.maxY + 0.0000001) + 1;
+    int startZ = ClientMath.floor(box.minZ - 0.0000001) - 1;
+    int endZ = ClientMath.floor(box.maxZ + 0.0000001) + 1;
 
     double positionX = environment.positionX();
     double positionY = environment.positionY();
@@ -661,7 +658,13 @@ class BaseSimulator extends Simulator {
         blockZ = z;
         distance = distanceToCenter;
       }
-
+    }
+    if (IntaveControl.ENABLE_MOVEMENT_DEBUGGER_COLLECTOR) {
+      MovementMetadata movement = user.meta().movement();
+      Map<String, Double> serverMovementDebugValues = movement.serverMovementDebugValues;
+      serverMovementDebugValues.put("MSB", 1d);
+//      serverMovementDebugValues.put("MSBY", (double) blockY);
+      serverMovementDebugValues.put("MSBKY", (double) positionY);
     }
 
     // If we found a block we should check if we need to use the block below
@@ -692,9 +695,9 @@ class BaseSimulator extends Simulator {
     int blockX, int blockY, int blockZ,
     double entityX, double entityY, double entityZ
   ) {
-    double d0 = (double) blockX + 0.5D - entityX;
-    double d1 = (double) blockY + 0.5D - entityY;
-    double d2 = (double) blockZ + 0.5D - entityZ;
+    double d0 = blockX + 0.5 - entityX;
+    double d1 = blockY + 0.5 - entityY;
+    double d2 = blockZ + 0.5 - entityZ;
     return d0 * d0 + d1 * d1 + d2 * d2;
   }
 
@@ -708,41 +711,37 @@ class BaseSimulator extends Simulator {
     MetadataBundle meta = user.meta();
     ProtocolMetadata clientData = meta.protocol();
     double positionY = environment.positionY();
-    float f1;
+    float motionXZMultiplier;
     if (clientData.waterUpdate()) {
-      f1 = environment.isSprinting() ? 0.9f : 0.8f;
+      motionXZMultiplier = environment.isSprinting() ? 0.9f : 0.8f;
     } else {
-      f1 = 0.8f;
+      motionXZMultiplier = 0.8f;
     }
-    float f3 = Math.min(3.0f, Enchantments.resolveDepthStriderModifier(player));
+    float depthStriderMultiplier = Math.min(3.0f, Enchantments.resolveDepthStriderModifier(player));
     if (!environment.lastOnGround()) {
-      f3 *= 0.5F;
+      depthStriderMultiplier *= 0.5F;
     }
-    if (f3 > 0.0F) {
-      f1 += (0.54600006F - f1) * f3 / 3.0F;
+    if (depthStriderMultiplier > 0.0F) {
+      motionXZMultiplier += (0.54600006F - motionXZMultiplier) * depthStriderMultiplier / 3.0F;
     }
     if (Effects.dolphinEffectActive(player)) {
-      f1 = 0.96F;
+      motionXZMultiplier = 0.96F;
     }
-    motionVector.motionX *= f1;
-    motionVector.motionY *= 0.8f;
-    motionVector.motionZ *= f1;
+    motion.motionX *= motionXZMultiplier;
+    motion.motionY *= 0.8f;
+    motion.motionZ *= motionXZMultiplier;
     if (!clientData.waterUpdate()) {
-      motionVector.motionY -= 0.02D;
+      motion.motionY -= 0.02D;
     }
     if (clientData.waterUpdate() && !environment.isSprinting()) {
-      if (motionVector.motionY <= 0.0D
-        && Math.abs(motionVector.motionY - 0.005D) >= 0.003D
-        && Math.abs(motionVector.motionY - gravity / 16.0D) < 0.003D) {
-        motionVector.motionY = -0.003D;
+      if (motion.motionY <= 0.0D
+        && Math.abs(motion.motionY - 0.005D) >= 0.003D
+        && Math.abs(motion.motionY - gravity / 16.0D) < 0.003D) {
+        motion.motionY = -0.003D;
       } else {
-        motionVector.motionY -= gravity / 16.0D;
+        motion.motionY -= gravity / 16.0D;
       }
     }
-    //    if (movementData.collidedHorizontally &&
-    // MovementContextHelper.isOffsetPositionInLiquid(player, entityBoundingBox, x, y, z)) {
-    //      motionVector.motionY = 0.3;
-    //    }
   }
 
   private void simulateLavaAfter(
@@ -752,7 +751,6 @@ class BaseSimulator extends Simulator {
     BoundingBox boundingBox,
     boolean collidedHorizontally
   ) {
-//    MovementMetadata movementData = user.meta().movement();
     double positionY = environment.positionY();
     context.motionX *= 0.5D;
     context.motionY *= 0.5D;
@@ -774,19 +772,21 @@ class BaseSimulator extends Simulator {
   private void simulateNormalAfter(
     User user,
     SimulationEnvironment environment,
-    Motion context, double gravity, double slipperiness
+    Motion motion, double gravity, double slipperiness
   ) {
     Player player = user.player();
     if (Effects.levitationEffectActive(player)) {
       int levitationAmplifier = Effects.effectAmplifier(player, Effects.EFFECT_LEVITATION);
-      context.motionY += (0.05D * (double) (levitationAmplifier + 1) - context.motionY) * 0.2D;
+      motion.motionY += (0.05D * (double) (levitationAmplifier + 1) - motion.motionY) * 0.2D;
       environment.resetFallDistance();
     } else {
-      context.motionY -= gravity;
+      motion.motionY -= gravity;
     }
-    context.motionX *= slipperiness;
-    context.motionY *= 0.98f;
-    context.motionZ *= slipperiness;
+    motion.motionX *= slipperiness;
+    motion.motionY *= 0.98f;
+    motion.motionZ *= slipperiness;
+//    motion.multiply(slipperiness, 0.98f, slipperiness);
+//    motion.multiplyXZByFactor(slipperiness).multiplyYByFactor(0.98f);
   }
 
   private void performGlobalEntityPush(User user, SimulationEnvironment environment, Motion context, BoundingBox boundingBox) {
@@ -807,9 +807,9 @@ class BaseSimulator extends Simulator {
 //    MovementMetadata movementData = user.meta().movement();
     double xDistance = environment.positionX() - entity.position.posX;
     double zDistance = environment.positionZ() - entity.position.posZ;
-    double biggerDistance = ClientMathHelper.abs_max(xDistance, zDistance);
+    double biggerDistance = ClientMath.abs_max(xDistance, zDistance);
     if (biggerDistance >= (double) 0.01F) {
-      biggerDistance = ClientMathHelper.sqrt_double(biggerDistance);
+      biggerDistance = ClientMath.sqrt_double(biggerDistance);
       xDistance = xDistance / biggerDistance;
       zDistance = zDistance / biggerDistance;
       double pushFactor = 1.0D / biggerDistance;

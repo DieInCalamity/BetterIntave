@@ -14,6 +14,7 @@ public enum AttackNerfStrategy {
   @Deprecated
   HT_MEDIUM("ht/medium"),
   HT_LIGHT("ht/light"),
+  HT_SPOOF("ht/spoof"),
   GARBAGE_HITS("ht/jitter"),
   BLOCKING("dmg/blocking"),
   CRITICALS("dmg/criticals"),

@@ -9,6 +9,7 @@ import com.google.gson.JsonObject;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.annotate.DispatchTarget;
 import de.jpx3.intave.annotate.Relocate;
+import de.jpx3.intave.math.Occurrences;
 import de.jpx3.intave.module.feedback.DelayedPacket;
 import de.jpx3.intave.module.feedback.FeedbackQueue;
 import de.jpx3.intave.module.feedback.FeedbackRequest;
@@ -90,6 +91,10 @@ public final class ConnectionMetadata {
   private long lastMovementTimestamps;
   private final List<Long> movementLagSpikeHistory = new ArrayList<>();
 
+  private static final long DELAY_PURGE_INTERVAL = 1000 * 60;
+  public final Occurrences<Integer> attackDelays = new Occurrences<>(DELAY_PURGE_INTERVAL);
+  public final Occurrences<Integer> feedbackDelays = new Occurrences<>(DELAY_PURGE_INTERVAL);
+
   // labymod data
   public JsonObject labyModData = new JsonObject();
 
@@ -142,15 +147,28 @@ public final class ConnectionMetadata {
   private long transactionSum = 0;
   private long transactionNum = 0;
 
+  private long shortTransactionSum = 0;
+  private long shortTransactionNum = 0;
+  private long lastShortReset = System.currentTimeMillis();
+
   public void receivedTransactionAfter(long milliseconds) {
-    transactionSum += Math.min(milliseconds, 1000);
+    long cappedMillis = Math.min(milliseconds, 1000);
+    transactionSum += cappedMillis;
     transactionNum++;
+    shortTransactionSum += cappedMillis;
+    shortTransactionNum++;
     if (transactionNum > Short.MAX_VALUE / 8) {
       transactionSum /= 2;
       transactionNum /= 2;
     }
+    if (System.currentTimeMillis() - lastShortReset > 4000) {
+      shortTransactionSum /= 2;
+      shortTransactionNum /= 2;
+      lastShortReset = System.currentTimeMillis();
+    }
+    feedbackDelays.occurred(Math.min(40, (int) milliseconds / 50));
     if (IntaveControl.LATENCY_PING_AS_XP_LEVEL && transactionNum % 10 == 0) {
-      sendPacketWithExperience(player, (int) transactionPingAverage());
+      sendPacketWithExperience(player, (int) ((int) transactionPingAverage() * 1000 + shortTransactionPingAverage()));
     }
   }
 
@@ -164,6 +182,10 @@ public final class ConnectionMetadata {
 
   public long transactionPingAverage() {
     return transactionNum == 0 ? 0 : transactionSum / transactionNum;
+  }
+
+  public long shortTransactionPingAverage() {
+    return shortTransactionNum == 0 ? 0 : shortTransactionSum / shortTransactionNum;
   }
 
 //  public void receivedTransactionAfter(long milliseconds) {

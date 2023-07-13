@@ -1,6 +1,6 @@
 package de.jpx3.intave.version;
 
-import de.jpx3.intave.resource.LineCollector;
+import de.jpx3.intave.resource.BulkLineCollector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +49,7 @@ final class ProtocolVersionRangesCompiler {
     return new ProtocolVersionRanges(ranges);
   }
 
-  private static final Collector<String, ?, ProtocolVersionRanges> RESOURCE_COLLECTOR = LineCollector.withFinisher(ProtocolVersionRangesCompiler::apply);
+  private static final Collector<String, ?, ProtocolVersionRanges> RESOURCE_COLLECTOR = BulkLineCollector.withFinisher(ProtocolVersionRangesCompiler::apply);
 
   public static Collector<String, ?, ProtocolVersionRanges> resourceCollector() {
     return RESOURCE_COLLECTOR;

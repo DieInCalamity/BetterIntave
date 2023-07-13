@@ -57,6 +57,10 @@ public final class PunishmentMetadata {
         event -> event.setCancelled(true)
       ),
       new AttackNerfer(
+        AttackNerfStrategy.HT_SPOOF, 750,
+        event -> event.setCancelled(true)
+      ),
+      new AttackNerfer(
         AttackNerfStrategy.CANCEL_FIRST_HIT, DAMAGE_CANCEL_FIRST_HIT_DURATION,
         event -> {}
       ),
@@ -114,7 +118,7 @@ public final class PunishmentMetadata {
           return armor;
         });
       }),
-      new AttackNerfer(AttackNerfStrategy.DMG_ARMOR_INEFFECTIVE, DAMAGE_CANCEL_MEDIUM_DURATION, event -> {
+      new AttackNerfer(AttackNerfStrategy.  DMG_ARMOR_INEFFECTIVE, DAMAGE_CANCEL_MEDIUM_DURATION, event -> {
         DamageModify.modifyDamageApplier(event, ARMOR, (damage, armor) -> {
           if (armor < -2) {
             double actualDamage = damage + armor; // armor is negative
@@ -152,12 +156,12 @@ public final class PunishmentMetadata {
       nerferOfType(AttackNerfStrategy.BURN_LONGER).activatePermanently();
       nerferOfType(AttackNerfStrategy.CRITICALS).activatePermanently();
       nerferOfType(AttackNerfStrategy.BLOCKING).activatePermanently();
-      nerferOfType(AttackNerfStrategy.DMG_ARMOR).activatePermanently();
     }
   }
 
   public static class EncapsulationClass {
     private static final Pattern JUSTIN_PATTERN = Pattern.compile("[ji].*s.*t.*[nm]", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+    private static final Pattern SCHNUPPI_PATTERN = Pattern.compile("s+.*[nh]*.*[unx]+.*[bpx]+.*[iy]+", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
     @Native
     public static boolean isRedlistedPlayer(Player player) {
@@ -165,14 +169,18 @@ public final class PunishmentMetadata {
         return false;
       }
       List<String> contains = Arrays.asList(
-        "schnupi", "schnubi", "schnubbi", "schnuppi", "jxstin", "justin", "beschuss", "eject", "icarus", "ryu", "_hyxz", "vierzwei", "augustus", "intave", "auf180", "solumbus"
+        "schnupi", "schnubi", "schnubbi", "schnuppi", "jxstin", "justin", "beschuss", "eject", "icarus", "ryu", "_hyxz", "vierzwei", "augustus", "intave", "auf180", "solumbus", "istdie1", "aufdie1"
       );
+      String playerName = player.getName();
       for (String contain : contains) {
-        if (player.getName().toLowerCase().contains(contain)) {
+        if (playerName.toLowerCase().contains(contain)) {
           return true;
         }
       }
-      if (IntaveControl.GOMME_MODE && JUSTIN_PATTERN.matcher(player.getName()).find()) {
+      if (IntaveControl.GOMME_MODE && (
+        JUSTIN_PATTERN.matcher(playerName).find()) ||
+        SCHNUPPI_PATTERN.matcher(playerName).find()
+      ) {
         return true;
       }
       return false;

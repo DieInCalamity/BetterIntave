@@ -72,12 +72,6 @@ final class FileSpreadLayer implements Resource {
       setupSpreadFiles();
       copyMainToSpread();
     });
-//    OutputStream[] streams = new OutputStream[spread.length + 1];
-//    streams[0] = targetResource.writeStream();
-//    for (int i = 0; i < spread.length; i++) {
-//      streams[i + 1] = spread[i].writeStream();
-//    }
-//    return new OutputStreamMultiplexer(streams);
   }
 
   @Override

@@ -26,6 +26,7 @@ final class SlimePhysics implements BlockPhysic {
   }
 
   @Override
+  // SlimeBlock.bounceUp
   public Motion landed(User user, double motionX, double motionY, double motionZ) {
     MovementMetadata movementData = user.meta().movement();
     if (motionY < 0.0 && !movementData.sneaking) {
@@ -36,6 +37,7 @@ final class SlimePhysics implements BlockPhysic {
   }
 
   @Override
+  // SlimeBlock.stepOn
   public Motion entityCollidedWithBlock(User user, double motionX, double motionY, double motionZ) {
     MovementMetadata movementData = user.meta().movement();
     if (Math.abs(motionY) < 0.1D && !movementData.sneaking) {

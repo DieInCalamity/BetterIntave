@@ -90,6 +90,10 @@ public final class AttackDispatcher extends Module {
     if (entity == null) {
       return;
     }
+
+    int ticks = (int) entity.pendingFeedbackPackets();
+    connectionData.attackDelays.occurred(ticks);
+
     movementData.pastEntityUse = 0;
     if (action == EnumWrappers.EntityUseAction.ATTACK) {
       attackData.setLastAttackedEntityID(entityId);

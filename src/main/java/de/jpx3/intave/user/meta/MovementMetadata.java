@@ -47,9 +47,8 @@ import static com.comphenix.protocol.wrappers.WrappedAttributeModifier.Operation
 import static de.jpx3.intave.IntaveControl.REPLACE_JOAP_SETBACK_WITH_CM;
 import static de.jpx3.intave.check.movement.physics.MovementCharacteristics.resolveFriction;
 import static de.jpx3.intave.reflect.access.ReflectiveHandleAccess.handleOf;
-import static de.jpx3.intave.share.ClientMathHelper.*;
-import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_14;
-import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_15;
+import static de.jpx3.intave.share.ClientMath.*;
+import static de.jpx3.intave.user.meta.ProtocolMetadata.*;
 
 @Relocate
 public final class MovementMetadata implements SimulationEnvironment {
@@ -60,7 +59,8 @@ public final class MovementMetadata implements SimulationEnvironment {
   // superposition
   private final Superposition<Motion> velocitySuperposition;
   private final List<Superposition<?>> superpositions;
-  public final Map<String, Double> movementDebugValues = new HashMap<>();
+  public final Map<String, Double> serverMovementDebugValues = new HashMap<>();
+  public final Map<String, Double> clientMovementDebugValues = new HashMap<>();
   public boolean disabledFlying;
   public float width = 0.6f, height = 1.8f;
   public float stepHeight = 0.6f;
@@ -83,7 +83,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   public boolean sprinting, lastSprinting, /*sprintMove, lastSprintMove,*/ hasSprintSpeed, sneaking, lastSneaking;
   public int sprintSneakFaults;
   public boolean acceptSneakFaults = true;
-  public int sneakingTicks;
+  public int ticksSneaking;
   public float rotationYaw, rotationPitch;
   public float lastRotationYaw, lastRotationPitch;
   public long recordedMoves;
@@ -249,7 +249,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   public void setupDefaults() {
     ProtocolMetadata clientData = user.meta().protocol();
     int version = clientData.protocolVersion();
-    this.resetMotion = version <= 47 ? 0.005 : 0.003;
+    this.resetMotion = version <= VER_1_8 ? 0.005 : 0.003;
     this.frictionMultiplier = version <= VER_1_15 ? 0.16277136f : 0.16277137F;
     this.frictionPosSubtraction = version <= VER_1_15 ? 1.0 : 0.5000001;
     this.hasJumpFactor = version >= VER_1_15;
@@ -922,6 +922,11 @@ public final class MovementMetadata implements SimulationEnvironment {
   }
 
   @Override
+  public Motion baseMotion() {
+    return new Motion(baseMotionX, baseMotionY, baseMotionZ);
+  }
+
+  @Override
   public double baseMotionX() {
     return baseMotionX;
   }
@@ -934,6 +939,13 @@ public final class MovementMetadata implements SimulationEnvironment {
   @Override
   public double baseMotionZ() {
     return baseMotionZ;
+  }
+
+  @Override
+  public void setBaseMotion(Motion baseMotion) {
+    this.baseMotionX = baseMotion.motionX();
+    this.baseMotionY = baseMotion.motionY();
+    this.baseMotionZ = baseMotion.motionZ();
   }
 
   @Override

@@ -6,9 +6,11 @@ import de.jpx3.intave.module.nayoro.event.sink.EventSink;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.security.Key;
 
 public final class PlayerMoveEvent extends Event {
   private int flags;
+  private KeyCombination keys;
   private double x;
   private double y;
   private double z;
@@ -27,12 +29,14 @@ public final class PlayerMoveEvent extends Event {
   private static final double EPSILON = 1.0E-09;
 
   public PlayerMoveEvent(
+    float strafe, float forward,
     double lastX, double lastY, double lastZ,
     float lastYaw, float lastPitch,
     double x, double y, double z,
     float yaw, float pitch,
     boolean forceSave
   ) {
+    this.keys = KeyCombination.from(strafe, forward);
     this.x = x;
     this.y = y;
     this.z = z;
@@ -74,6 +78,7 @@ public final class PlayerMoveEvent extends Event {
     conditionalWriteDouble(out, z, Flag.Z);
     conditionalWriteFloat(out, yaw, Flag.YAW);
     conditionalWriteFloat(out, pitch, Flag.PITCH);
+    keys.write(out);
   }
 
   private void conditionalWriteDouble(DataOutput out, double value, int flag) throws IOException {
@@ -96,6 +101,7 @@ public final class PlayerMoveEvent extends Event {
     z = conditionalReadDouble(in, Flag.Z);
     yaw = conditionalReadFloat(in, Flag.YAW);
     pitch = conditionalReadFloat(in, Flag.PITCH);
+    keys = KeyCombination.read(in);
   }
 
   private double conditionalReadDouble(DataInput in, int flag) throws IOException {
@@ -220,6 +226,7 @@ public final class PlayerMoveEvent extends Event {
   }
 
   public static PlayerMoveEvent create(
+    float strafe, float forward,
     double lastX, double lastY, double lastZ,
     float lastYaw, float lastPitch,
     double x, double y, double z,
@@ -227,12 +234,69 @@ public final class PlayerMoveEvent extends Event {
     boolean forceSave
   ) {
     return new PlayerMoveEvent(
+      strafe, forward,
       lastX, lastY, lastZ,
       lastYaw, lastPitch,
       x, y, z,
       yaw, pitch,
       forceSave
     );
+  }
+
+  private enum KeyCombination {
+    NONE,
+    FORWARD,
+    BACKWARD,
+    LEFT,
+    RIGHT,
+    FORWARD_LEFT,
+    FORWARD_RIGHT,
+    BACKWARD_LEFT,
+    BACKWARD_RIGHT;
+
+    public static KeyCombination from(float strafe, float forward) {
+      if (forward > 0) {
+        if (strafe > 0) {
+          return FORWARD_RIGHT;
+        } else if (strafe < 0) {
+          return FORWARD_LEFT;
+        } else {
+          return FORWARD;
+        }
+      } else if (forward < 0) {
+        if (strafe > 0) {
+          return BACKWARD_RIGHT;
+        } else if (strafe < 0) {
+          return BACKWARD_LEFT;
+        } else {
+          return BACKWARD;
+        }
+      } else {
+        if (strafe > 0) {
+          return RIGHT;
+        } else if (strafe < 0) {
+          return LEFT;
+        } else {
+          return NONE;
+        }
+      }
+    }
+
+    public static KeyCombination read(DataInput in) {
+      try {
+        return values()[in.readByte()];
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    public void write(DataOutput out) {
+      try {
+        out.writeByte(ordinal());
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
 
   private static class Flag {

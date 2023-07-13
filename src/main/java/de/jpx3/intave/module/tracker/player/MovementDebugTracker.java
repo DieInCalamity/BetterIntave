@@ -29,7 +29,7 @@ public final class MovementDebugTracker extends Module implements PluginMessageL
     }
     User user = UserRepository.userOf(player);
     if (s.equals("intave:movdebug")) {
-      Map<String, Double> movementDebugValues = user.meta().movement().movementDebugValues;
+      Map<String, Double> movementDebugValues = user.meta().movement().clientMovementDebugValues;
       ByteBuf byteBuf = Unpooled.wrappedBuffer(bytes);
       int length = byteBuf.readInt();
       if (length > 100 || length < 0) {

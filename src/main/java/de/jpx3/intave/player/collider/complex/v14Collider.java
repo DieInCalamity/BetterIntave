@@ -40,8 +40,7 @@ public final class v14Collider implements Collider {
     double initialZ = motion.motionZ;
 
     boolean[] stepped = new boolean[1];
-    Motion collisionMotion = collide(user, environment, motion, stepped);
-    motion.resetTo(collisionMotion);
+    motion.setTo(motionAfterCollision(user, environment, motion, stepped));
 
     boolean collidedVertically = initialY != motion.motionY;
     boolean collidedHorizontally = initialX != motion.motionX || initialZ != motion.motionZ;
@@ -61,26 +60,78 @@ public final class v14Collider implements Collider {
     );
   }
 
-  private Motion collide(User user, SimulationEnvironment environment, Motion motion, boolean[] stepped) {
-    BoundingBox aabb = user.meta().movement().boundingBox();
-    BlockShape list = Collision.shape(user.player(), aabb.expand(motion));
-    Motion firstCollision = motion.length() == 0.0D ? motion : collideSingleBox(motion, aabb, list);
+  private boolean calculateBackOffFromEdge(User user, SimulationEnvironment environment, double length, Motion context) {
+    Player player = user.player();
+    BoundingBox boundingBox = environment.boundingBox();
+    double motionX = context.motionX;
+    double motionZ = context.motionZ;
+    boolean edgeSneak = false;
+    while (motionX != 0.0D
+      && Collision.nonePresent(player, boundingBox.offset(motionX, -length, 0.0D))) {
+      if (motionX < 0.05D && motionX >= -0.05D) {
+        motionX = 0.0D;
+      } else if (motionX > 0.0D) {
+        motionX -= 0.05D;
+      } else {
+        motionX += 0.05D;
+      }
+      edgeSneak = true;
+    }
+    while (motionZ != 0.0D
+      && Collision.nonePresent(player, boundingBox.offset(0.0D, -length, motionZ))) {
+      if (motionZ < 0.05D && motionZ >= -0.05D) {
+        motionZ = 0.0D;
+      } else if (motionZ > 0.0D) {
+        motionZ -= 0.05D;
+      } else {
+        motionZ += 0.05D;
+      }
+      edgeSneak = true;
+    }
+    while (motionX != 0.0D
+      && motionZ != 0.0D
+      && Collision.nonePresent(player, boundingBox.offset(motionX, -length, motionZ))) {
+      if (motionX < 0.05D && motionX >= -0.05D) {
+        motionX = 0.0D;
+      } else if (motionX > 0.0D) {
+        motionX -= 0.05D;
+      } else {
+        motionX += 0.05D;
+      }
+      edgeSneak = true;
+      if (motionZ < 0.05D && motionZ >= -0.05D) {
+        motionZ = 0.0D;
+      } else if (motionZ > 0.0D) {
+        motionZ -= 0.05D;
+      } else {
+        motionZ += 0.05D;
+      }
+    }
+    context.motionX = motionX;
+    context.motionZ = motionZ;
+    return edgeSneak;
+  }
+
+  private Motion motionAfterCollision(User user, SimulationEnvironment environment, Motion motion, boolean[] stepped) {
+    BoundingBox aabb = environment.boundingBox();
+    BlockShape collisionShape = Collision.shape(user.player(), aabb.expand(motion));
+    Motion firstCollision = motion.length() == 0.0D ? motion : collideSingleBox(motion, aabb, collisionShape);
     boolean xChange = motion.motionX != firstCollision.motionX;
     boolean yChange = motion.motionY != firstCollision.motionY;
     boolean zChange = motion.motionZ != firstCollision.motionZ;
-    boolean onGroundOrFalling = user.meta().movement().onGround() || yChange && motion.motionY < 0.0D;
+    boolean onGroundOrFalling = environment.onGround() || yChange && motion.motionY < 0.0D;
     if (environment.stepHeight() > 0.0F && onGroundOrFalling && (xChange || zChange)) {
-      Motion firstStep = collideSingleBox(new Motion(motion.motionX, environment.stepHeight(), motion.motionZ), aabb, list);
-      Motion secondStep = collideSingleBox(new Motion(0.0D, environment.stepHeight(), 0.0D), aabb.expand(motion.motionX, 0.0D, motion.motionZ), list);
+      Motion firstStep = collideSingleBox(new Motion(motion.motionX, environment.stepHeight(), motion.motionZ), aabb, collisionShape);
+      Motion secondStep = collideSingleBox(new Motion(0.0D, environment.stepHeight(), 0.0D), aabb.expand(motion.motionX, 0.0D, motion.motionZ), collisionShape);
       if (secondStep.motionY < environment.stepHeight()) {
-        Motion thirdStep = collideSingleBox(new Motion(motion.motionX, 0.0D, motion.motionZ), aabb.move(secondStep), list).add(secondStep);
+        Motion thirdStep = collideSingleBox(new Motion(motion.motionX, 0.0D, motion.motionZ), aabb.move(secondStep), collisionShape).add(secondStep);
         if (thirdStep.horizontalLengthSqr() > firstStep.horizontalLengthSqr()) {
           firstStep = thirdStep;
         }
       }
       if (firstStep.horizontalLengthSqr() > firstCollision.horizontalLengthSqr()) {
         stepped[0] = true;
-        return firstStep.add(collideSingleBox(new Motion(0.0D, -firstStep.motionY + motion.motionY, 0.0D), aabb.move(firstStep), list));
+        return firstStep.add(collideSingleBox(new Motion(0.0D, -firstStep.motionY + motion.motionY, 0.0D), aabb.move(firstStep), collisionShape));
       }
     }
     return firstCollision;
@@ -116,63 +167,5 @@ public final class v14Collider implements Collider {
       motionZ = collision.allowedOffset(Z_AXIS, playerBox, motionZ);
     }
     return new Motion(motionX, motionY, motionZ);
-  }
-
-  private boolean calculateBackOffFromEdge(User user, SimulationEnvironment environment, double length, Motion context) {
-    Player player = user.player();
-    BoundingBox boundingBox = environment.boundingBox();
-    double motionX = context.motionX;
-    double motionZ = context.motionZ;
-    boolean edgeSneak = false;
-    while (motionX != 0.0D
-      && Collision.nonePresent(player, boundingBox.offset(motionX, -length, 0.0D))) {
-      if (motionX < 0.05D && motionX >= -0.05D) {
-        motionX = 0.0D;
-        edgeSneak = true;
-      } else if (motionX > 0.0D) {
-        motionX -= 0.05D;
-        edgeSneak = true;
-      } else {
-        motionX += 0.05D;
-        edgeSneak = true;
-      }
-    }
-    while (motionZ != 0.0D
-      && Collision.nonePresent(player, boundingBox.offset(0.0D, -length, motionZ))) {
-      if (motionZ < 0.05D && motionZ >= -0.05D) {
-        motionZ = 0.0D;
-        edgeSneak = true;
-      } else if (motionZ > 0.0D) {
-        motionZ -= 0.05D;
-        edgeSneak = true;
-      } else {
-        motionZ += 0.05D;
-        edgeSneak = true;
-      }
-    }
-    while (motionX != 0.0D
-      && motionZ != 0.0D
-      && Collision.nonePresent(player, boundingBox.offset(motionX, -length, motionZ))) {
-      if (motionX < 0.05D && motionX >= -0.05D) {
-        motionX = 0.0D;
-        edgeSneak = true;
-      } else if (motionX > 0.0D) {
-        motionX -= 0.05D;
-        edgeSneak = true;
-      } else {
-        motionX += 0.05D;
-        edgeSneak = true;
-      }
-      if (motionZ < 0.05D && motionZ >= -0.05D) {
-        motionZ = 0.0D;
-      } else if (motionZ > 0.0D) {
-        motionZ -= 0.05D;
-      } else {
-        motionZ += 0.05D;
-      }
-    }
-    context.motionX = motionX;
-    context.motionZ = motionZ;
-    return edgeSneak;
   }
 }

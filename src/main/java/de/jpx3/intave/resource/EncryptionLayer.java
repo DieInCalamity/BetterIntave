@@ -121,7 +121,6 @@ final class EncryptionLayer implements Resource {
     if (!writeStreamSupported()) {
       throw new UnsupportedOperationException();
     }
-
     try {
       SecureRandom secureRandom = new SecureRandom();
       byte[] iv = new byte[12];

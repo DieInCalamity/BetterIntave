@@ -36,7 +36,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import static de.jpx3.intave.share.ClientMathHelper.floor;
+import static de.jpx3.intave.share.ClientMath.floor;
 
 @Relocate
 @DoNotFlowObfuscate
@@ -111,18 +111,6 @@ public final class Collision {
             // this should not happen too often
             resolve = CollisionModifiers.modified(user, playerBox, material, x, y, z, resolve, CollisionOrigin.MOTION_CALCULATION);
           }
-
-          // -338, 71, -567
-//          if (x == -339 && y == 71 && z == -568) {
-//            if (container == null) {
-//              container = containerSupplier.get();
-//            }
-//            accumulator.accept(container, BlockShapes.cubeAt(x, y, z));
-////            System.out.println("Added shape to accumulator "+accumulator.getClass().getSimpleName()+" at " + x + ", " + y + ", " + z);
-//            if (--collisionsRemaining <= 0) {
-//              return finisher.apply(container);
-//            }
-//          }
 
           // can only happen when the underlying block is air
           if (material == Material.AIR) {

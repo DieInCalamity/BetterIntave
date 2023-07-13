@@ -26,7 +26,6 @@ import de.jpx3.intave.check.world.interaction.InteractionEmulator;
 import de.jpx3.intave.check.world.interaction.InteractionType;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.klass.Lookup;
-import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketId;
@@ -223,7 +222,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
       return;
     }
 
-    if (protocol.pre8() &&
+    if (protocol.isPreMinecraft8() &&
       nullBlock &&
       direction == EnumWrappers.Direction.SOUTH &&
       playerDigType == RELEASE_USE_ITEM
@@ -646,9 +645,9 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
   private boolean interactionInHead(User user, Interaction interaction) {
     com.comphenix.protocol.wrappers.BlockPosition blockPosition = interaction.targetBlock();
     MovementMetadata movement = user.meta().movement();
-    double xDiff = blockPosition.getX() - ClientMathHelper.floor(movement.positionX);
-    double yDiff = blockPosition.getY() - ClientMathHelper.floor(movement.positionY + movement.eyeHeight());
-    double zDiff = blockPosition.getZ() - ClientMathHelper.floor(movement.positionZ);
+    double xDiff = blockPosition.getX() - ClientMath.floor(movement.positionX);
+    double yDiff = blockPosition.getY() - ClientMath.floor(movement.positionY + movement.eyeHeight());
+    double zDiff = blockPosition.getZ() - ClientMath.floor(movement.positionZ);
     return xDiff == 0 && yDiff == 0 && zDiff == 0;
   }
 

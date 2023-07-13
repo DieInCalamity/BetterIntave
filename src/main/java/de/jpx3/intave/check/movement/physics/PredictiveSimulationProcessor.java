@@ -17,6 +17,8 @@ import de.jpx3.intave.user.meta.ProtocolMetadata;
 
 import java.util.List;
 
+import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_8;
+
 @Relocate
 public final class PredictiveSimulationProcessor implements SimulationProcessor {
 
@@ -69,7 +71,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
 //    }
 
     Motion motion = movementData.motionProcessorContext.copy();
-    motion.resetTo(movementData);
+    motion.setToBaseMotionFrom(movementData);
     MovementConfiguration configuration = MovementConfiguration.select(
       forward, strafe,
       false, movementData.sprintingAllowed(),
@@ -169,7 +171,8 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     Timings.CHECK_PHYSICS_PROC_PRED_BIA.start();
     MovementMetadata movementData = user.meta().movement();
     InventoryMetadata inventoryData = user.meta().inventory();
-    Motion motionVector = movementData.motionProcessorContext;
+    ProtocolMetadata protocol = user.meta().protocol();
+    Motion motion = movementData.motionProcessorContext;
     double lastMotionX = movementData.baseMotionX;
     double lastMotionZ = movementData.baseMotionZ;
     boolean jumped = false;
@@ -197,7 +200,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
       movementData.physicsJumped = false;
       movementData.keyForward = -2;
       movementData.keyStrafe = -2;
-      motionVector.resetTo(movementData);
+      motion.setToBaseMotionFrom(movementData);
       Timings.CHECK_PHYSICS_PROC_BIA.stop();
       Timings.CHECK_PHYSICS_PROC_PRED_BIA.stop();
       return Simulation.invalid();
@@ -214,7 +217,8 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
       configuration = configuration.withActiveHand();
     }
     // reducing
-    if (!AttackDispatcher.REDUCING_DISABLED && movementData.sprintingAllowed() && movementData.pastPlayerAttackPhysics == 0) {
+    boolean sprintRequirement = user.protocolVersion() > VER_1_8 ? movementData.sprintingAllowed() : movementData.isSprinting();
+    if (!AttackDispatcher.REDUCING_DISABLED && sprintRequirement && movementData.pastPlayerAttackPhysics == 0) {
       configuration = configuration.withReducing();
     }
     // block omnisprint
@@ -234,11 +238,11 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     }
     movementData.physicsJumped = jumped;
 //    movementData.sprintMove = sprinting;
-    motionVector.resetTo(movementData);
+    motion.setTo(movementData.baseMotion());
     movementData.keyForward = configuration.forward();
     movementData.keyStrafe = configuration.strafe();
     movementData.refreshFriction(sprinting);
-    Simulation simulation = simulator.simulate(user, motionVector, movementData, configuration);
+    Simulation simulation = simulator.simulate(user, motion, movementData, configuration);
     Timings.CHECK_PHYSICS_PROC_PRED_BIA.stop();
     Timings.CHECK_PHYSICS_PROC_BIA.stop();
     return simulation;
@@ -306,7 +310,8 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     // keys
     configuration = configuration.withKeyPress(keyForward, keyStrafe);
     // reducing
-    if (!AttackDispatcher.REDUCING_DISABLED && movementData.sprintingAllowed() && user.meta().movement().pastPlayerAttackPhysics == 0) {
+    boolean sprintRequirement = user.protocolVersion() > VER_1_8 ? movementData.sprintingAllowed() : movementData.isSprinting();
+    if (!AttackDispatcher.REDUCING_DISABLED && sprintRequirement && user.meta().movement().pastPlayerAttackPhysics == 0) {
       configuration = configuration.withReducing();
     }
     boolean sprinting = movementData.sprintingAllowed();
@@ -342,7 +347,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     }
     movementData.physicsJumped = configuration.isJumping();
 //    movementData.sprintMove = configuration.isSprinting();
-    motion.resetTo(movementData);
+    motion.setToBaseMotionFrom(movementData);
     movementData.keyForward = configuration.forward();
     movementData.keyStrafe = configuration.strafe();
     movementData.refreshFriction(sprinting);
@@ -533,7 +538,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     MovementMetadata movementData = user.meta().movement();
     InventoryMetadata inventoryData = user.meta().inventory();
     Motion motion = movementData.motionProcessorContext;
-    motion.resetTo(movementData);
+    motion.setToBaseMotionFrom(movementData);
     Simulation simulation = simulator.simulate(
       user, motion, movementData, configuration
     );

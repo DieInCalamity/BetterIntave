@@ -15,7 +15,6 @@ import de.jpx3.intave.entity.EntityLookup;
 import de.jpx3.intave.entity.size.HitboxSize;
 import de.jpx3.intave.entity.type.EntityTypeData;
 import de.jpx3.intave.executor.Synchronizer;
-import de.jpx3.intave.executor.TaskTracker;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.feedback.EmptyFeedbackCallback;
@@ -33,11 +32,10 @@ import de.jpx3.intave.packet.reader.EntityMetadataReader;
 import de.jpx3.intave.packet.reader.PacketReaders;
 import de.jpx3.intave.player.fake.FakePlayer;
 import de.jpx3.intave.player.fake.IdentifierReserve;
-import de.jpx3.intave.share.ClientMathHelper;
+import de.jpx3.intave.share.ClientMath;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.*;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -46,7 +44,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -601,13 +598,13 @@ public final class EntityTracker extends Module {
     long serverPosZ;
 
     if (NEW_POSITION_PROCESSING_1_9) {
-      serverPosX = ClientMathHelper.positionLong(location.getX());
-      serverPosY = ClientMathHelper.positionLong(location.getY());
-      serverPosZ = ClientMathHelper.positionLong(location.getZ());
+      serverPosX = ClientMath.positionLong(location.getX());
+      serverPosY = ClientMath.positionLong(location.getY());
+      serverPosZ = ClientMath.positionLong(location.getZ());
     } else {
-      serverPosX = ClientMathHelper.floor(location.getX() * 32d);
-      serverPosY = ClientMathHelper.floor(location.getY() * 32d);
-      serverPosZ = ClientMathHelper.floor(location.getZ() * 32d);
+      serverPosX = ClientMath.floor(location.getX() * 32d);
+      serverPosY = ClientMath.floor(location.getY() * 32d);
+      serverPosZ = ClientMath.floor(location.getZ() * 32d);
     }
 
     EntityTypeData entityTypeData = entityTypeResolver.entityTypeDataOfBukkitEntity(bukkitEntity);
@@ -693,9 +690,9 @@ public final class EntityTracker extends Module {
     ConnectionMetadata synchronizeData = user.meta().connection();
 //    Map<Integer, WrappedEntity> entities = synchronizeData.entities();
     Entity entity = createEntityOf(entityId, entityTypeData, isPlayer);
-    entity.serverPosX = ClientMathHelper.positionLong(posX);
-    entity.serverPosY = ClientMathHelper.positionLong(posY);
-    entity.serverPosZ = ClientMathHelper.positionLong(posZ);
+    entity.serverPosX = ClientMath.positionLong(posX);
+    entity.serverPosY = ClientMath.positionLong(posY);
+    entity.serverPosZ = ClientMath.positionLong(posZ);
     entity.setPositionAndRotationSpawnMob(posX, posY, posZ, posY);
 //    entities.put(entityId, entity);
     synchronizeData.enterEntity(entity);

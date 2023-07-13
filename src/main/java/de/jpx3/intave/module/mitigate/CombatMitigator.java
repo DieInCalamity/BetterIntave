@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import static de.jpx3.intave.access.player.trust.TrustFactor.*;
+import static de.jpx3.intave.module.mitigate.AttackNerfStrategy.HT_SPOOF;
 
 public final class CombatMitigator extends Module {
 
@@ -195,6 +196,11 @@ public final class CombatMitigator extends Module {
   @Native
   private void notify(User user, AttackNerfer attackNerfer, String checkId, boolean hide) {
     if (!attackNerfer.active()) {
+      return;
+    }
+
+    // nope
+    if (attackNerfer.strategy() == HT_SPOOF) {
       return;
     }
 

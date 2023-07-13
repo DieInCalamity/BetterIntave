@@ -5,7 +5,7 @@ import org.bukkit.entity.Entity;
 
 public final class BlockPosition extends NativeVector {
   public static final BlockPosition ORIGIN = new BlockPosition(0, 0, 0);
-  private static final int NUM_X_BITS = 1 + ClientMathHelper.calculateLogBaseTwo(ClientMathHelper.roundUpToPowerOfTwo(30000000));
+  private static final int NUM_X_BITS = 1 + ClientMath.calculateLogBaseTwo(ClientMath.roundUpToPowerOfTwo(30000000));
   private static final int NUM_Z_BITS = NUM_X_BITS;
   private static final int NUM_Y_BITS = 64 - NUM_X_BITS - NUM_Z_BITS;
   private static final int Y_SHIFT = NUM_Z_BITS;

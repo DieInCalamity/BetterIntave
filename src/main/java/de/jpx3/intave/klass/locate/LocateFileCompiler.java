@@ -1,7 +1,7 @@
 package de.jpx3.intave.klass.locate;
 
 import de.jpx3.intave.IntaveLogger;
-import de.jpx3.intave.resource.LineCollector;
+import de.jpx3.intave.resource.BulkLineCollector;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -169,7 +169,7 @@ final class LocateFileCompiler {
     }
   }
 
-  private static final Collector<String, ?, Locations> RESOURCE_COLLECTOR = LineCollector.withFinisher(LocateFileCompiler::apply);
+  private static final Collector<String, ?, Locations> RESOURCE_COLLECTOR = BulkLineCollector.withFinisher(LocateFileCompiler::apply);
 
   public static Collector<String, ?, Locations> resourceCollector() {
     return RESOURCE_COLLECTOR;

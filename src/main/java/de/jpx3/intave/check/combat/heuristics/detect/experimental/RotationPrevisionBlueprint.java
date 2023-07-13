@@ -12,7 +12,7 @@ import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.tracker.entity.Entity;
-import de.jpx3.intave.share.ClientMathHelper;
+import de.jpx3.intave.share.ClientMath;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.AttackMetadata;
 import de.jpx3.intave.user.meta.MovementMetadata;
@@ -144,8 +144,8 @@ public abstract class RotationPrevisionBlueprint<M extends RotationPrevisionBlue
   }
 
   private RotationData createRotationData(MovementMetadata movementData, Entity target) {
-    float lastPlayerYaw = ClientMathHelper.wrapAngleTo180_float(movementData.lastRotationYaw);
-    float yaw = ClientMathHelper.wrapAngleTo180_float(movementData.rotationYaw);
+    float lastPlayerYaw = ClientMath.wrapAngleTo180_float(movementData.lastRotationYaw);
+    float yaw = ClientMath.wrapAngleTo180_float(movementData.rotationYaw);
     float yawDelta = MathHelper.noAbsDistanceInDegrees(yaw, lastPlayerYaw);
 
     float pitchDelta = Math.abs(movementData.rotationPitch - movementData.lastRotationPitch);

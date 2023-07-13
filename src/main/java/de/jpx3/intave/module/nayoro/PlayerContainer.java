@@ -10,11 +10,6 @@ import org.bukkit.GameMode;
 
 import java.util.function.Consumer;
 
-/**
- * Class generated using IntelliJ IDEA
- * Created by Richard Strunk 2022
- */
-
 public interface PlayerContainer {
   Environment environment();
   int id();

@@ -12,9 +12,6 @@ import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.user.meta.ViolationMetadata;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.AsyncPlayerChatPreviewEvent;
 
 import static java.lang.Math.abs;
 
@@ -184,7 +181,7 @@ public final class SimulationEvaluator {
     }
 
     // Sometimes shit happens
-    if (movement.sneakingTicks <= 1 && (movement.onGround() || movement.lastOnGround()) && movement.motionY() <= 0 && movement.lastSneaking) {
+    if (movement.ticksSneaking <= 1 && (movement.onGround() || movement.lastOnGround()) && movement.motionY() <= 0 && movement.lastSneaking) {
       verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, 0.08f);
     }
 
@@ -362,7 +359,7 @@ public final class SimulationEvaluator {
 //      player.sendMessage("Gave you " + (velocityDistance * 1.2 - distanceMoved) + " tolerance for velocity, plus extra " + velocityDistance + " for distance, " + distanceMoved + " for distance moved");
     }
 
-    if (movement.sneakingTicks <= 1 && movement.sneaking || movement.lastSneaking) {
+    if (movement.ticksSneaking <= 1 && movement.sneaking || movement.lastSneaking) {
       double limit = 0;
       if ((abs(movement.motionX()) < 0.08 || abs(movement.motionZ()) < 0.08) || (movement.sprinting && protocol.cavesAndCliffsUpdate())) {
         boolean smallMovement = abs(movement.motionX()) < 0.08 && abs(movement.motionZ()) < 0.08 && movement.onGround();

@@ -5,7 +5,7 @@ import org.bukkit.util.Vector;
 
 import java.io.Serializable;
 
-import static de.jpx3.intave.share.ClientMathHelper.floor;
+import static de.jpx3.intave.share.ClientMath.floor;
 
 public final class Position extends Vector implements Serializable {
   public Position() {

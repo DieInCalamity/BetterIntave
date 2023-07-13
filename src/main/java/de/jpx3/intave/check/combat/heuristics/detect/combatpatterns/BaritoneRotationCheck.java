@@ -7,7 +7,7 @@ import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
-import de.jpx3.intave.share.ClientMathHelper;
+import de.jpx3.intave.share.ClientMath;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.AttackMetadata;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
@@ -42,8 +42,8 @@ public final class BaritoneRotationCheck extends MetaCheckPart<Heuristics, Barit
     float yawSpeed = MathHelper.distanceInDegrees(movementData.rotationYaw, movementData.lastRotationYaw);
     float pitchSpeed = MathHelper.distanceInDegrees(movementData.rotationPitch, movementData.lastRotationPitch);
 
-    float rotationYaw = ClientMathHelper.wrapAngleTo180_float(movementData.rotationYaw);
-    float rotationPitch = ClientMathHelper.wrapAngleTo180_float(movementData.rotationPitch);
+    float rotationYaw = ClientMath.wrapAngleTo180_float(movementData.rotationYaw);
+    float rotationPitch = ClientMath.wrapAngleTo180_float(movementData.rotationPitch);
 
 //    player.sendMessage("Yaw: " + formatDouble(rotationYaw, 4) + "/" + formatDouble(yawSpeed, 4) + " Pitch: " + formatDouble(rotationPitch, 4) + "/" + formatDouble(pitchSpeed, 4));
   }

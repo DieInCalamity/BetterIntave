@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static de.jpx3.intave.share.ClientMathHelper.floor;
+import static de.jpx3.intave.share.ClientMath.floor;
 import static de.jpx3.intave.share.Direction.Axis.*;
 
 public abstract class Movement extends HeadRotationMovement {

@@ -68,6 +68,11 @@ public interface SimulationEnvironment {
   double baseMotionY();
   double baseMotionZ();
 
+  default void setBaseMotion(Motion baseMotion) {
+    setBaseMotionX(baseMotion.motionX());
+    setBaseMotionY(baseMotion.motionY());
+    setBaseMotionZ(baseMotion.motionZ());
+  }
   void setBaseMotionX(double baseMotionX);
   void setBaseMotionY(double baseMotionY);
   void setBaseMotionZ(double baseMotionZ);

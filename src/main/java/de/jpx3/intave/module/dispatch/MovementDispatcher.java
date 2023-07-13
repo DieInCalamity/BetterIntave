@@ -70,8 +70,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static de.jpx3.intave.IntaveControl.DEBUG_MOVEMENT_IGNORE;
+import static de.jpx3.intave.math.MathHelper.formatDouble;
 import static de.jpx3.intave.module.feedback.FeedbackOptions.SELF_SYNCHRONIZATION;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.VEHICLE_MOVE;
@@ -456,8 +458,8 @@ public final class MovementDispatcher extends Module {
     }
 
     double distance = MathHelper.distanceOf(
-        movementData.verifiedPositionX, movementData.verifiedPositionY, movementData.verifiedPositionZ,
-        movementData.positionX, movementData.positionY, movementData.positionZ
+      movementData.verifiedPositionX, movementData.verifiedPositionY, movementData.verifiedPositionZ,
+      movementData.positionX, movementData.positionY, movementData.positionZ
     );
     if (distance > 50) {
       if (DEBUG_MOVEMENT_IGNORE) {
@@ -469,9 +471,9 @@ public final class MovementDispatcher extends Module {
       String message = "sent unsafe position";
       String details = "moved " + MathHelper.formatDouble(distance, 2) + " blocks";
       Violation violation = Violation.builderFor(Physics.class)
-          .forPlayer(player).withMessage(message).withDetails(details)
-          .withVL(25)
-          .build();
+        .forPlayer(player).withMessage(message).withDetails(details)
+        .withVL(25)
+        .build();
       Modules.violationProcessor().processViolation(violation);
       return;
     }
@@ -497,15 +499,14 @@ public final class MovementDispatcher extends Module {
       return;
     }
 
-    if (
-        !movementData.isTeleportConfirmationPacket &&
-            movementData.canResetMotion &&
-            movementData.baseMotionX == 0 &&
-            movementData.baseMotionY == 0 &&
-            movementData.baseMotionZ == 0 &&
-            movementData.motionX() == 0 &&
-            movementData.motionY() == 0 &&
-            movementData.motionZ() == 0
+    if (!movementData.isTeleportConfirmationPacket &&
+      movementData.canResetMotion &&
+      movementData.baseMotionX == 0 &&
+      movementData.baseMotionY == 0 &&
+      movementData.baseMotionZ == 0 &&
+      movementData.motionX() == 0 &&
+      movementData.motionY() == 0 &&
+      movementData.motionZ() == 0
     ) {
       if (DEBUG_MOVEMENT_IGNORE) {
         player.sendMessage("Movement reset ignore");
@@ -741,12 +742,12 @@ public final class MovementDispatcher extends Module {
       movement.lastJump = System.currentTimeMillis();
     }
     if (movement.isSneaking()) {
-      movement.sneakingTicks++;
-      if (movement.sneakingTicks > 1) {
+      movement.ticksSneaking++;
+      if (movement.ticksSneaking > 1) {
         movement.lastSneakingTimestamps = System.currentTimeMillis();
       }
     } else {
-      movement.sneakingTicks = 0;
+      movement.ticksSneaking = 0;
     }
     movement.pastBlockPlacement++;
     inventoryData.pastSlotSwitch++;
@@ -796,8 +797,30 @@ public final class MovementDispatcher extends Module {
     updateSize(user);
     movement.externalKeyApply = false;
 
-    if (!movement.movementDebugValues.isEmpty()) {
-      movement.movementDebugValues.clear();
+    Map<String, Double> clientDebugData = movement.clientMovementDebugValues;
+    Map<String, Double> serverDebugData = movement.serverMovementDebugValues;
+
+    if (!clientDebugData.isEmpty() || !serverDebugData.isEmpty()) {
+      if (IntaveControl.MOVEMENT_DEBUGGER_COLLECTOR_POSTTICK_OUTPUT) {
+        String message = clientDebugData.entrySet().stream().map(entry -> {
+          String key1 = entry.getKey();
+          double value = entry.getValue();
+          return "C" + key1 + ":" + formatDouble(value, 4);
+        }).collect(Collectors.joining(" "));
+
+        message += " " + serverDebugData.entrySet().stream().map(entry -> {
+          String key1 = entry.getKey();
+          double value = entry.getValue();
+          return "S" + key1 + ":" + formatDouble(value, 4);
+        }).collect(Collectors.joining(" "));
+
+        String finalMessage = message;
+        Synchronizer.synchronize(() -> {
+          player.sendMessage(finalMessage);
+        });
+      }
+      clientDebugData.clear();
+      serverDebugData.clear();
     }
   }
 

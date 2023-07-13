@@ -809,6 +809,7 @@ public final class IntavePlugin extends JavaPlugin {
   }
 
   private void testMLLibrary() {
+    /*
     try {
       // load
       Class<DataFrame> dataFrameClass = DataFrame.class;
@@ -823,11 +824,11 @@ public final class IntavePlugin extends JavaPlugin {
         new OutputLayerBuilder(1, OutputFunction.LINEAR, Cost.MEAN_SQUARED_ERROR)
       );
 
-      try {
-        System.out.println(Loader.getCacheDir().getAbsolutePath());
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+//      try {
+//        System.out.println(Loader.getCacheDir().getAbsolutePath());
+//      } catch (IOException e) {
+//        throw new RuntimeException(e);
+//      }
 
       Class<openblas> openblasClass = openblas.class;
       int cblasLeft = openblas_nolapack.CblasLeft;
@@ -846,6 +847,7 @@ public final class IntavePlugin extends JavaPlugin {
       logger.error("MLP test failed");
       exception.printStackTrace();
     }
+    */
   }
 
   private void preventIncorrectStates() {

@@ -9,7 +9,7 @@ import de.jpx3.intave.module.tracker.entity.Entity.EntityPositionContext;
 import de.jpx3.intave.module.tracker.entity.EntityTracker;
 import de.jpx3.intave.player.fake.FakePlayer;
 import de.jpx3.intave.share.BoundingBox;
-import de.jpx3.intave.share.ClientMathHelper;
+import de.jpx3.intave.share.ClientMath;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import org.bukkit.entity.Player;
@@ -98,8 +98,8 @@ public final class AttackMetadata {
     double posX, double posZ
   ) {
     BoundingBox targetBoundingBox = Entity.entityBoundingBoxFrom(entityPositions, entity);
-    double bestTargetX = ClientMathHelper.clamp_double(posX, targetBoundingBox.minX, targetBoundingBox.maxX);
-    double bestTargetZ = ClientMathHelper.clamp_double(posZ, targetBoundingBox.minZ, targetBoundingBox.maxZ);
+    double bestTargetX = ClientMath.clamp_double(posX, targetBoundingBox.minX, targetBoundingBox.maxX);
+    double bestTargetZ = ClientMath.clamp_double(posZ, targetBoundingBox.minZ, targetBoundingBox.maxZ);
     double diffX = bestTargetX - posX;
     double diffZ = bestTargetZ - posZ;
     return (float) Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0f;

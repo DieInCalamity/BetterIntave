@@ -9,7 +9,7 @@ import java.util.function.IntPredicate;
 /**
  * Represents the client's MathHelper.
  */
-public final class ClientMathHelper {
+public final class ClientMath {
   /**
    * Though it looks like an array, this is really more like a mapping.  Key (index of this array) is the upper 5 bits
    * of the result of multiplying a 32-bit unsigned integer by the B(2, 5) De Bruijn sequence 0x077CB531.  Value (value

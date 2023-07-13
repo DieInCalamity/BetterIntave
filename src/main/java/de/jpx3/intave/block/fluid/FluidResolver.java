@@ -9,8 +9,8 @@ import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.Material;
 import org.bukkit.World;
 
-import static de.jpx3.intave.share.ClientMathHelper.ceil;
-import static de.jpx3.intave.share.ClientMathHelper.floor;
+import static de.jpx3.intave.share.ClientMath.ceil;
+import static de.jpx3.intave.share.ClientMath.floor;
 
 public abstract class FluidResolver {
   public final Fluid fluidAt(User user, double x, double y, double z) {

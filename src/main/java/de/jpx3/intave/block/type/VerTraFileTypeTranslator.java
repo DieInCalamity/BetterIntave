@@ -4,7 +4,7 @@ import com.comphenix.protocol.utility.MinecraftVersion;
 import com.google.common.collect.ImmutableSet;
 import de.jpx3.intave.access.IntaveResourceCompilationException;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.resource.LineCollector;
+import de.jpx3.intave.resource.BulkLineCollector;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
@@ -145,7 +145,7 @@ final class VerTraFileTypeTranslator {
     return haystack.indexOf(needle) + needle.length();
   }
 
-  private static final Collector<String, ?, TypeTranslations> RESOURCE_COLLECTOR = LineCollector.withFinisher(VerTraFileTypeTranslator::apply);
+  private static final Collector<String, ?, TypeTranslations> RESOURCE_COLLECTOR = BulkLineCollector.withFinisher(VerTraFileTypeTranslator::apply);
 
   public static Collector<String, ?, TypeTranslations> bulkLineCollector() {
     return RESOURCE_COLLECTOR;

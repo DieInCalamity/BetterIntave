@@ -2,10 +2,9 @@ package de.jpx3.intave.block.fluid;
 
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
-import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.klass.rewrite.PatchyLoadingInjector;
 import de.jpx3.intave.share.BoundingBox;
-import de.jpx3.intave.share.ClientMathHelper;
+import de.jpx3.intave.share.ClientMath;
 import de.jpx3.intave.user.User;
 import org.bukkit.Location;
 
@@ -52,7 +51,7 @@ public final class Fluids {
   }
 
   public static Fluid fluidAt(User user, double x, double y, double z) {
-    return engine.fluidAt(user, ClientMathHelper.floor(x), ClientMathHelper.floor(y), ClientMathHelper.floor(z));
+    return engine.fluidAt(user, ClientMath.floor(x), ClientMath.floor(y), ClientMath.floor(z));
   }
 
   public static boolean fluidStateEmpty(User user, double x, double y, double z) {

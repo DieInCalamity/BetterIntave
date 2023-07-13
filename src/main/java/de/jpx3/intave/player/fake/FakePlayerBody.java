@@ -10,7 +10,7 @@ import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.type.BlockTypeAccess;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.packet.PacketSender;
-import de.jpx3.intave.share.ClientMathHelper;
+import de.jpx3.intave.share.ClientMath;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -223,8 +223,8 @@ public abstract class FakePlayerBody extends FakePlayerIdentity {
   private static final double COORDINATE_COMPRESSION_FACTOR = 32.0D;
 
   private byte compressAxisUpdate(double coordinateTo, double coordinateFrom) {
-    double fixedTo = ClientMathHelper.floor(coordinateTo * COORDINATE_COMPRESSION_FACTOR);
-    double fixedFrom = ClientMathHelper.floor(coordinateFrom * COORDINATE_COMPRESSION_FACTOR);
+    double fixedTo = ClientMath.floor(coordinateTo * COORDINATE_COMPRESSION_FACTOR);
+    double fixedFrom = ClientMath.floor(coordinateFrom * COORDINATE_COMPRESSION_FACTOR);
     return (byte) (fixedTo - fixedFrom);
   }
 

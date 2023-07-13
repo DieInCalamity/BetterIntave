@@ -160,7 +160,7 @@ public final class ProtocolMetadata {
     return protocolVersion >= VER_1_9;
   }
 
-  public boolean pre8() {
+  public boolean isPreMinecraft8() {
     return protocolVersion < VER_1_8;
   }
 

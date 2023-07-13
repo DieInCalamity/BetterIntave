@@ -31,7 +31,7 @@ final class ModuleLoader {
     prepareModule("de.jpx3.intave.module.linker.nayoro.NayoroEventSubscriptionLinker", packetBoot);
 
     // feedback
-    prepareModule("de.jpx3.intave.module.feedback.FeedbackSender", defaultBoot);
+    prepareModule("de.jpx3.intave.module.feedback.FeedbackSender", lateBoot);
     prepareModule("de.jpx3.intave.module.feedback.FeedbackReceiver", defaultBoot);
     prepareModule("de.jpx3.intave.module.feedback.PacketDelayer", lateBoot);
 

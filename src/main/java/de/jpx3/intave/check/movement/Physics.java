@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
 import static de.jpx3.intave.diagnostic.message.MessageCategory.SIMFLT;
 import static de.jpx3.intave.diagnostic.message.MessageCategory.SIMFUL;
 import static de.jpx3.intave.math.MathHelper.*;
-import static de.jpx3.intave.share.ClientMathHelper.floor;
+import static de.jpx3.intave.share.ClientMath.floor;
 
 @Relocate
 public final class Physics extends Check {
@@ -571,7 +571,7 @@ public final class Physics extends Check {
         details += ", strict";
       }
 
-      double vl = violationLevelIncrease / (highToleranceMode() ? 75 : (violationLevelData.physicsVL >= 100 ? 20 : 50));
+      double vl = violationLevelIncrease / (violationLevelData.physicsVL >= 100 && !highToleranceMode() ? 20 : 50);
       Violation violation = Violation.builderFor(Physics.class)
         .forPlayer(player)
         .withMessage(message)
@@ -644,8 +644,7 @@ public final class Physics extends Check {
       }
     }
 
-    if (
-      setback && !protocol.combatUpdate() && simulation.wasSprinting()
+    if (setback && !protocol.combatUpdate() && simulation.wasSprinting()
       && System.currentTimeMillis() - movementData.lastSimulationSprintResetAttempt > 10_000
     ) {
       movementData.lastSimulationSprintResetAttempt = System.currentTimeMillis();
@@ -795,7 +794,7 @@ public final class Physics extends Check {
 //        }
 
       Map<String, Double> serverDebugData = simulation.collider().debugData();
-      Map<String, Double> clientDebugData = movementData.movementDebugValues;
+      Map<String, Double> clientDebugData = movementData.clientMovementDebugValues;
       if (!serverDebugData.isEmpty()) {
         debug += ChatColor.ITALIC + " " + serverDebugData.entrySet().stream().map(entry -> {
           String key1 = entry.getKey();

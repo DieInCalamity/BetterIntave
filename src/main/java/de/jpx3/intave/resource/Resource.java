@@ -33,10 +33,16 @@ public interface Resource extends LegacyResource {
     if (writeStreamSupported()) {
       try (OutputStream outputStream = writeStream()) {
         OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+        boolean first = true;
         for (String line : lines) {
+          if (first) {
+            first = false;
+          } else {
+            writer.write(System.lineSeparator());
+          }
           writer.write(line);
-          writer.write(System.lineSeparator());
         }
+        writer.flush();
       } catch (IOException exception) {
         throw new RuntimeException(exception);
       }

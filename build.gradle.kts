@@ -148,14 +148,8 @@ run {
   registerServerTask("1.15.2", 8)
   registerServerTask("1.16.5", 8)
   registerServerTask("1.17.1", 16)
-  registerServerTask("1.18", 17)
   registerServerTask("1.18.2", 17)
-//  registerServerTask("1.19", 17)
-//  registerServerTask("1.19.1", 17)
-//  registerServerTask("1.19.2", 17)
-//  registerServerTask("1.19.3", 17)
   registerServerTask("1.19.4", 17)
-  registerServerTask("1.20", 17)
   registerServerTask("1.20.1", 17)
 }
 

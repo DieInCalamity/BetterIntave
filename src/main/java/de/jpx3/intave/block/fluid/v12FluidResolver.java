@@ -16,8 +16,8 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import static de.jpx3.intave.share.ClientMathHelper.ceil;
-import static de.jpx3.intave.share.ClientMathHelper.floor;
+import static de.jpx3.intave.share.ClientMath.ceil;
+import static de.jpx3.intave.share.ClientMath.floor;
 
 final class v12FluidResolver extends FluidResolver {
   @Override

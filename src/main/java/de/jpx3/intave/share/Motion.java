@@ -31,6 +31,12 @@ public final class Motion {
     this.motionZ = z;
   }
 
+  public void setNull() {
+    this.motionX = 0.0;
+    this.motionY = 0.0;
+    this.motionZ = 0.0;
+  }
+
   public double motionX() {
     return motionX;
   }
@@ -41,6 +47,31 @@ public final class Motion {
 
   public double motionZ() {
     return motionZ;
+  }
+
+  public Motion multiply(double factor) {
+    motionX *= factor;
+    motionY *= factor;
+    motionZ *= factor;
+    return this;
+  }
+
+  public Motion multiplyXZByFactor(double factor) {
+    motionX *= factor;
+    motionZ *= factor;
+    return this;
+  }
+
+  public Motion multiplyYByFactor(double factor) {
+    motionY *= factor;
+    return this;
+  }
+
+  public Motion multiply(double x, double y, double z) {
+    motionX *= x;
+    motionY *= y;
+    motionZ *= z;
+    return this;
   }
 
   public Motion copy() {
@@ -74,11 +105,11 @@ public final class Motion {
     return add(other.motionX, other.motionY, other.motionZ);
   }
 
-  public void resetTo(Motion motion) {
+  public void setTo(Motion motion) {
     setTo(motion.motionX, motion.motionY, motion.motionZ);
   }
 
-  public void resetTo(SimulationEnvironment data) {
+  public void setToBaseMotionFrom(SimulationEnvironment data) {
     setTo(data.baseMotionX(), data.baseMotionY(), data.baseMotionZ());
   }
 

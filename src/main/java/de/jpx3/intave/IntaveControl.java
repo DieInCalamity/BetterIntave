@@ -23,7 +23,7 @@ public final class IntaveControl {
   public static final boolean RESET_HURT_TIME_ON_JOIN = true;
   public static final boolean IGNORE_CACHE_REFRESH_ON_SIMULATION_FAULT = false;
   public static final boolean SIBYL_DEBUG = false;
-  public static final boolean SIBYL_ALLOW_ALL = false;
+  public static final boolean SIBYL_ALLOW_ALL = true;
   public static final boolean ENABLE_MEMTRACE = false;
   public static final boolean NETTY_DUMP_ON_TIMEOUT = false;
   public static final boolean FILL_UFOE_STACKTRACE = false;
@@ -40,6 +40,7 @@ public final class IntaveControl {
   public static final boolean DEBUG_VARIANT_COMPILATION = false;
   public static final boolean DEBUG_ENTITY_TRACKING = false;
   public static final boolean DEBUG_ATTACK_DAMAGE_MODIFIERS = false;
+  public static final boolean DEBUG_MOVEMENT_BLOCK_FALLEN_UPON = false; // spams on testing
   public static final boolean GIVE_RIPTIDE_V_TRIDENT_ON_JOIN = false;
   public static final boolean DEBUG_FEEDBACK_PACKETS = false;
   public static final boolean DEBUG_ITEM_USAGE = false;
@@ -49,6 +50,7 @@ public final class IntaveControl {
   public static final boolean REPLACE_JOAP_SETBACK_WITH_CM = true;
   public static final boolean DISALLOW_ALL_BLOCK_PLACEMENTS = false;
   public static final boolean ENABLE_MOVEMENT_DEBUGGER_COLLECTOR = false;
+  public static final boolean MOVEMENT_DEBUGGER_COLLECTOR_POSTTICK_OUTPUT = false;
 
   public static final boolean USE_EXTERNAL_CONFIGURATION_FILE = true;
   public static final boolean GOMME_MODE = false;

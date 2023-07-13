@@ -20,7 +20,7 @@ class RecordEventSink extends EventSink {
   private final DataOutput dataOutput;
   private final Set<Integer> entities = new HashSet<>();
   private boolean setup = false;
-  private final Lock lock = new ReentrantLock();
+  private final Lock writeLock = new ReentrantLock();
 
   public RecordEventSink(Environment environment, DataOutput dataOutput) {
     this.environment = environment;
@@ -31,7 +31,7 @@ class RecordEventSink extends EventSink {
     if (!setup) {
       setup = true;
       try {
-        lock.lock();
+        writeLock.lock();
         dataOutput.writeUTF("INTAVE/SAMPLE");
         dataOutput.writeUTF(LicenseAccess.network());
         UUID id = UUID.randomUUID();
@@ -41,7 +41,7 @@ class RecordEventSink extends EventSink {
       } catch (IOException exception) {
         throw new RuntimeException(exception);
       } finally {
-        lock.unlock();
+        writeLock.unlock();
       }
       visit(new PlayerInitEvent(environment.mainPlayer()));
       visit(new PropertiesEvent(environment.properties()));
@@ -88,7 +88,7 @@ class RecordEventSink extends EventSink {
   public void visitAny(Event event) {
     setupIfNeeded();
     try {
-      lock.lock();
+      writeLock.lock();
       int duration = (int) Math.min(Short.MAX_VALUE, System.currentTimeMillis() - last);
       last = System.currentTimeMillis();
       dataOutput.writeShort(duration);
@@ -97,7 +97,7 @@ class RecordEventSink extends EventSink {
     } catch (IOException exception) {
       throw new IllegalStateException("Could not serialize event " + event.getClass().getName(), exception);
     } finally {
-      lock.unlock();
+      writeLock.unlock();
     }
   }
 
@@ -105,7 +105,7 @@ class RecordEventSink extends EventSink {
   public void close() {
     setupIfNeeded();
     try {
-      lock.lock();
+      writeLock.lock();
       dataOutput.writeShort(0);
       dataOutput.writeByte(-1);
       if (dataOutput instanceof Closeable) {
@@ -114,7 +114,7 @@ class RecordEventSink extends EventSink {
     } catch (IOException exception) {
       throw new IllegalStateException("Could not close data output", exception);
     } finally {
-      lock.unlock();
+      writeLock.unlock();
     }
   }
 }

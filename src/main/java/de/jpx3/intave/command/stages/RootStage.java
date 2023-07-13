@@ -22,12 +22,14 @@ import de.jpx3.intave.diagnostic.timings.Timings;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.library.Python;
 import de.jpx3.intave.library.python.PythonTask;
+import de.jpx3.intave.math.Occurrences;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.nayoro.Nayoro;
 import de.jpx3.intave.security.HashAccess;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.ConnectionMetadata;
 import de.jpx3.intave.user.storage.PlaytimeStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -550,6 +552,35 @@ public final class RootStage extends CommandStage {
       target = user.player();
     }
     user.player().sendMessage(ChatColor.RED + target.getName() + ChatColor.GRAY + " has a transaction-ping of " + ChatColor.RED + UserRepository.userOf(target).meta().connection().transactionPingAverage() + ChatColor.GRAY + "ms");
+  }
+
+
+  @SubCommand(
+    selectors = "atradist",
+    usage = "[<target>]",
+    description = "",
+    permission = "sibyl"
+  )
+  @Native
+  public void attackVsTransactionDistribution(User user, @Optional Player target) {
+    if (target == null) {
+      target = user.player();
+    }
+    User targetUser = UserRepository.userOf(target);
+    ConnectionMetadata connection = targetUser.meta().connection();
+    Occurrences<Integer> attackDelays = connection.attackDelays;
+    Occurrences<Integer> feedbackDelays = connection.feedbackDelays;
+    String preset = ChatColor.RED + "ATT/FBK for "+target.getName()+" mean(%s/%s) var(%s/%s)";
+    String message = String.format(preset,
+      formatDouble(attackDelays.mean(), 2), formatDouble(feedbackDelays.mean(), 2),
+      formatDouble(attackDelays.variance(), 2), formatDouble(feedbackDelays.variance(), 2)
+    );
+    user.player().sendMessage(message);
+
+    user.player().sendMessage("ATTACK DISTRIBUTION");
+    attackDelays.plotAsBarDiagram(4).forEach(user.player()::sendMessage);
+    user.player().sendMessage("FEEDBACK DISTRIBUTION");
+    feedbackDelays.plotAsBarDiagram(4).forEach(user.player()::sendMessage);
   }
 
   @SubCommand(

@@ -61,7 +61,7 @@ public final class PacketEventDispatch implements PacketEventSubscriber {
   }
 
   @PacketSubscription(
-    priority = ListenerPriority.NORMAL,
+    priority = ListenerPriority.HIGH,
     packetsIn = {
       FLYING, LOOK, POSITION, POSITION_LOOK, VEHICLE_MOVE
     }
@@ -80,7 +80,10 @@ public final class PacketEventDispatch implements PacketEventSubscriber {
     float pitch = movement.rotationPitch;
     float lastYaw = movement.lastRotationYaw;
     float lastPitch = movement.lastRotationPitch;
+    int keyStrafe = movement.keyStrafe;
+    int keyForward = movement.keyForward;
     PlayerMoveEvent movementEvent = PlayerMoveEvent.create(
+      keyStrafe, keyForward,
       x, y, z,
       yaw, pitch,
       lastX, lastY, lastZ,

@@ -79,8 +79,6 @@ final class LockingLayer implements Resource {
 
   private void lock() {
     try {
-//      System.out.println("Locking " + lockFile.getAbsolutePath());
-//      Thread.dumpStack();
       javaLock.lock();
       if (lockFile.exists() && System.currentTimeMillis() - lockFile.lastModified() > 5 * 60 * 1000) {
         try {
@@ -89,7 +87,6 @@ final class LockingLayer implements Resource {
       }
       int attemptsRemaining = 30 * 1000 / 50;
       while (lockFile.exists() && attemptsRemaining-- > 0) {
-//        System.out.println("Waiting for "+lockFile.getAbsolutePath()+" release... " + attemptsRemaining + "rem");
         try {
           Thread.sleep(ThreadLocalRandom.current().nextLong(25, 100));
         } catch (InterruptedException exception) {
@@ -111,8 +108,6 @@ final class LockingLayer implements Resource {
 
   private void unlock() {
     try {
-//      System.out.println("Unlocking " + lockFile.getAbsolutePath());
-//      Thread.dumpStack();
       javaLock.unlock();
       lock.close();
       lockChannel.close();

@@ -6,7 +6,7 @@ import de.jpx3.intave.block.variant.BlockVariant;
 import de.jpx3.intave.block.variant.BlockVariantRegister;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.share.BoundingBox;
-import de.jpx3.intave.share.ClientMathHelper;
+import de.jpx3.intave.share.ClientMath;
 import de.jpx3.intave.share.Direction;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -56,7 +56,7 @@ final class PointedDripstoneBlockPatch extends BoundingBoxPatch {
         selected = DEF_SHAPE;
     }
     float allowedOffset = 0.125f;
-    long randomCoordinate = ClientMathHelper.coordinateRandom(x, 0, z);
+    long randomCoordinate = ClientMath.coordinateRandom(x, 0, z);
     double offsetX = MathHelper.minmax(-allowedOffset, ((double) ((float) (randomCoordinate & 15L) / 15.0F) - 0.5D) * 0.5D, allowedOffset);
     double offsetZ = MathHelper.minmax(-allowedOffset, ((double) ((float) (randomCoordinate >> 8 & 15L) / 15.0F) - 0.5D) * 0.5D, allowedOffset);
     double offsetY = 0.0;

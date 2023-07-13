@@ -266,7 +266,7 @@ public enum Direction {
    * Get a Facing by it's index (0-5). The order is D-U-N-S-W-E. Named getFront for legacy reasons.
    */
   public static Direction getFront(int index) {
-    return VALUES[ClientMathHelper.abs_int(index % VALUES.length)];
+    return VALUES[ClientMath.abs_int(index % VALUES.length)];
   }
 
   /**
@@ -280,7 +280,7 @@ public enum Direction {
    * Get the Facing corresponding to the given angle (0-360). An angle of 0 is SOUTH, an angle of 90 would be WEST.
    */
   public static Direction fromAngle(double angle) {
-    return getHorizontal(ClientMathHelper.floor(angle / 90.0D + 0.5D) & 3);
+    return getHorizontal(ClientMath.floor(angle / 90.0D + 0.5D) & 3);
   }
 
   /**

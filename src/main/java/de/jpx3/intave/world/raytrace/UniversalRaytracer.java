@@ -11,7 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import static de.jpx3.intave.share.ClientMathHelper.floor;
+import static de.jpx3.intave.share.ClientMath.floor;
 import static de.jpx3.intave.share.Direction.*;
 
 public final class UniversalRaytracer implements Raytracer {

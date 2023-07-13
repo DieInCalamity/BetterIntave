@@ -64,8 +64,11 @@ public final class Nayoro extends Module {
     if (!COMBAT_SAMPLING) {
       return;
     }
+    if (PUBLISH_SAMPLES) {
+      IntaveLogger.logger().info("Intave will sample combat data and upload it anonymized to the our servers.");
+      IntaveLogger.logger().info("You can disable this anytime with the combat-sampling option in the config.");
+    }
     StartupTasks.add(this::enableGlobalRecording);
-
   }
 
   @Override

@@ -52,20 +52,20 @@ final class FileResource implements Resource {
   @Override
   public OutputStream writeStream() {
     try {
-      File file = new File(this.file.getAbsolutePath() + ".tmp");
-      if (!file.exists()) {
-        if (!file.createNewFile()) {
-          throw new IllegalStateException("Unable to create file " + file + ", exists: " + file.exists());
+      File tempFile = new File(this.file.getAbsolutePath() + ".tmp");
+      if (!tempFile.exists()) {
+        if (!tempFile.createNewFile()) {
+          throw new IllegalStateException("Unable to create tempFile " + tempFile + ", exists: " + tempFile.exists());
         }
       }
-      file.setReadable(true);
-      file.setWritable(true);
-      file.setExecutable(false);
-      OutputStream outputStream = Files.newOutputStream(file.toPath(), WRITE);
+      tempFile.setReadable(true);
+      tempFile.setWritable(true);
+      tempFile.setExecutable(false);
+      OutputStream outputStream = Files.newOutputStream(tempFile.toPath(), WRITE);
       outputStream = new BufferedOutputStream(outputStream, 1024 * 1024);
       outputStream = Resources.subscribeToClose(outputStream, () -> {
         try {
-          Files.move(file.toPath(), this.file.toPath(), REPLACE_EXISTING);
+          Files.move(tempFile.toPath(), this.file.toPath(), REPLACE_EXISTING);
         } catch (IOException exception) {
           throw new IllegalStateException(exception);
         }

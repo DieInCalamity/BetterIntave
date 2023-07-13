@@ -78,6 +78,10 @@ check:
         50: "intave internals sendnotify &c{player}&7/{trust-color}&7 is attacking suspiciously (hitbox)"
         100: "intave internals sendnotify &c{player}&7/{trust-color}&7 is attacking suspiciously #2 (hitbox)"
 
+      timeout:
+        50: "intave internals sendnotify &c{player}&7/{trust-color}&7 is attacking suspiciously (backtrack?)"
+        100: "intave internals sendnotify &c{player}&7/{trust-color}&7 is attacking suspiciously #2 (backtrack?)"
+
   interactionraytrace:
     enabled: true
     thresholds:
@@ -205,6 +209,9 @@ logging:
   fault-kicks: true
   # Verbose mode (ALL, MITIGATED, SELECTED)
   verbose-mode: MITIGATED
+
+  # debugging purposes, do not activate
+  #feedback-dump: false
 
 analytics:
   errorReporting: true
