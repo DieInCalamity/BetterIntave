@@ -651,7 +651,7 @@ class BaseSimulator extends Simulator {
       double distanceToCenter = distanceToCenter(x, y, z, positionX, positionY, positionZ);
       int comparison = compare(x, y, z, blockX, blockY, blockZ);
 
-      if (distanceToCenter < distance || distanceToCenter == distance || comparison < 0) {
+      if (distanceToCenter < distance || distanceToCenter == distance && comparison < 0) {
         block = VolatileBlockAccess.typeAccess(user, world, x, y, z);
         blockX = x;
         blockY = y;
@@ -673,7 +673,7 @@ class BaseSimulator extends Simulator {
       // Entity#getOnPos(float)
       boolean requiresBlockBelow = !block.name().contains("FENCE") && !block.name().contains("WALL");
       if (requiresBlockBelow) {
-        block = VolatileBlockAccess.typeAccess(user, world, blockX, blockY - 0.2, blockZ);
+        block = VolatileBlockAccess.typeAccess(user, world, blockX, ClientMath.floor(environment.positionY() - 0.2), blockZ);
       }
     }
 
