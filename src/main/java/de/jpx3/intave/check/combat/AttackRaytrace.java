@@ -42,6 +42,7 @@ import static de.jpx3.intave.math.MathHelper.formatDouble;
 import static de.jpx3.intave.module.linker.packet.ListenerPriority.HIGH;
 import static de.jpx3.intave.module.linker.packet.ListenerPriority.LOW;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
+import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DISPLAY_IN_ALL_VERBOSE_MODES;
 import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DONT_PROCESS_VIOSTAT;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_9;
 
@@ -216,7 +217,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     double normalTransactionPingAverage = connection.transactionPingAverage() / 50d;
     double largerTransactionPingAverage = Math.max(shortTransactionPingAverage, normalTransactionPingAverage);
 
-    double unroundedTicksOverLimit = pendingFeedbacks - Math.ceil((largerTransactionPingAverage * multiplier) + 1);
+    double unroundedTicksOverLimit = pendingFeedbacks - Math.ceil((largerTransactionPingAverage * multiplier)/* + 0.25*/);
     int ticksOverLimit = (int) Math.floor(unroundedTicksOverLimit);
 
     if (ticksOverLimit > 0) {
@@ -237,17 +238,21 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
       }
       if (violations.backtrackVL > 25) {
         violations.backtrackVL = 30;
-        //user.nerf(AttackNerfStrategy.HT_SPOOF, "internal");
 
         if (recentlyIncreased) {
           String entityName = attackedEntity.entityName();
           Violation violation = Violation.builderFor(AttackRaytrace.class)
             .forPlayer(player).withCustomThreshold("timeout")
-            .withVL(/*violations.backtrackVL / 6d*/0)
+            .withVL(0)
             .withMessage("attacked expired position of " + resolveArticle(entityName) + " " + entityName.toLowerCase(Locale.ROOT))
-            .withDetails(+pendingFeedbacks + "t attack, " + formatDouble(shortTransactionPingAverage, 2) + "*" + formatDouble(multiplier, 2) + "t latency")
+            .withDetails(pendingFeedbacks + "t attack, " + formatDouble(shortTransactionPingAverage, 2) + "*" + formatDouble(multiplier, 2) + "t latency")
+            .appendFlags(DISPLAY_IN_ALL_VERBOSE_MODES)
             .build();
-          Modules.violationProcessor().processViolation(violation);
+          ViolationContext violationContext = Modules.violationProcessor().processViolation(violation);
+          double after = violationContext.violationLevelAfter();
+          if (after > 10) {
+            user.nerf(AttackNerfStrategy.HT_SPOOF, "internal");
+          }
         }
       }
 //      Synchronizer.synchronize(() -> {

@@ -116,7 +116,7 @@ public final class SimulationEvaluator {
       }
     }
 
-    if (movement.receivedFlyingPacketIn(3) && differenceY > 0.001) {
+    if (movement.receivedFlyingPacketIn(3) && differenceY > 0.001 && protocol.combatUpdate() && movement.pastBlockPlacement > 10) {
       boolean inLiquid = movement.pastWaterMovement <= 10 || movement.inLava();
       int allowedPackets = Hypot.fast(movement.motionX(), movement.motionZ()) < 0.03 ? 3 : 1;
       if (inLiquid || movement.physicsPacketRelinkFlyVL++ <= allowedPackets) {

@@ -32,7 +32,7 @@ import java.util.function.Predicate;
 
 import static de.jpx3.intave.access.check.MitigationStrategy.SILENT;
 import static de.jpx3.intave.math.MathHelper.formatDouble;
-import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DISPLAY_IN_ALL_MODES;
+import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DISPLAY_IN_ALL_VERBOSE_MODES;
 import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DONT_PROCESS_VIOSTAT;
 
 public final class ViolationProcessor extends Module {
@@ -202,7 +202,7 @@ public final class ViolationProcessor extends Module {
 //        doVerbose = violationContext.violationLevelPassedPreventionActivation() && SELECTED_CHECKS.contains(checkName);
 //        break;
 //    }
-    if (verboseMode.doVerbose(violationContext) || violation.flagSet(DISPLAY_IN_ALL_MODES)) {
+    if (verboseMode.doVerbose(violationContext) || violation.flagSet(DISPLAY_IN_ALL_VERBOSE_MODES)) {
       broadcastVerbose(player, violationContext);
     }
     // console output

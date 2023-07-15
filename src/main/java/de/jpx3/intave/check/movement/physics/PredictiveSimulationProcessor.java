@@ -217,8 +217,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
       configuration = configuration.withActiveHand();
     }
     // reducing
-    boolean sprintRequirement = user.protocolVersion() > VER_1_8 ? movementData.sprintingAllowed() : movementData.isSprinting();
-    if (!AttackDispatcher.REDUCING_DISABLED && sprintRequirement && movementData.pastPlayerAttackPhysics == 0) {
+    if (!AttackDispatcher.REDUCING_DISABLED && movementData.sprintingAllowed() && movementData.pastPlayerAttackPhysics == 0) {
       configuration = configuration.withReducing();
     }
     // block omnisprint
@@ -310,8 +309,8 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     // keys
     configuration = configuration.withKeyPress(keyForward, keyStrafe);
     // reducing
-    boolean sprintRequirement = user.protocolVersion() > VER_1_8 ? movementData.sprintingAllowed() : movementData.isSprinting();
-    if (!AttackDispatcher.REDUCING_DISABLED && sprintRequirement && user.meta().movement().pastPlayerAttackPhysics == 0) {
+//    boolean sprintRequirement = user.protocolVersion() > VER_1_8 ? movementData.sprintingAllowed() : movementData.isSprinting();
+    if (!AttackDispatcher.REDUCING_DISABLED && movementData.sprintingAllowed() && user.meta().movement().pastPlayerAttackPhysics == 0) {
       configuration = configuration.withReducing();
     }
     boolean sprinting = movementData.sprintingAllowed();
@@ -421,7 +420,6 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
         if (useSuperpositions) {
           superposition.applyVariation(variationIndex);
         }
-//        boolean sprinting = movementData.sprintingAllowed();
         boolean[] sprintSelector;
         if (protocol.combatUpdate()) {
           sprintSelector = movementData.sprintingAllowed() || movementData.hasSprintSpeed ? /* surprisingly pessimistic */ PESSIMISTIC : NEVER;
@@ -442,6 +440,9 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
               if (attackReduce && (movementData.pastPlayerAttackPhysics >= 1 || AttackDispatcher.REDUCING_DISABLED)) {
                 continue;
               }
+//              if (attackReduce && !sprinting) {
+//                continue;
+//              }
               IterativeStudy.ATTACK_REDUCE_ITERATOR.run();
               for (boolean jumped : estimatedJump ? OPTIMISTIC : PESSIMISTIC) {
                 // Jumps are only allowed on the ground :(
