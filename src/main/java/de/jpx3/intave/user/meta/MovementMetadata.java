@@ -616,7 +616,8 @@ public final class MovementMetadata implements SimulationEnvironment {
     AbilityMetadata abilityData = meta.abilities();
     jumpMovementFactor = 0.02f;
     aiMoveSpeed = (float) abilityData.attributeValue("generic.movementSpeed", AbilityMetadata.EXCLUDE_SPRINT_MODIFIER);
-    if (lastSprinting) {
+    boolean factorAdditionRequired = meta.protocol().protocolVersion() >= 762 ? sprinting : lastSprinting;
+    if (factorAdditionRequired) {
       jumpMovementFactor = (float) ((double) jumpMovementFactor + (double) 0.02f * 0.3d);
     }
   }
