@@ -34,6 +34,6 @@ final class BambooBlockPatch extends BoundingBoxPatch {
   @Override
   public boolean appliesTo(Material material) {
     String name = material.name();
-    return name.contains("BAMBOO");
+    return name.contains("BAMBOO_BLOCK");
   }
 }
