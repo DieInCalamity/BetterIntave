@@ -70,27 +70,29 @@ final class PlayerUser implements User {
   private final Reference<Object> playerConnection;
   private final MetadataBundle metadata;
   private final PermissionCache permissionCache;
-  private Collider collider;
-  private SimpleCollider simpleCollider;
   private final List<MessageChannel> receivingUserChannels = new ArrayList<>();
   private final Map<MessageChannel, Predicate<Player>> channelConstraints = Maps.newEnumMap(MessageChannel.class);
   private final Map<Material, Material> typeTranslations = Maps.newEnumMap(Material.class);
-  private Map<Pose, HitboxSize> poseSizes;
   private final ExtendedBlockStateCache blockStateAccess;
+  private final long birth = System.currentTimeMillis();
+  private final Map<UUID, DisplayType> actionSubscriptions = GarbageCollector.watch(Maps.newConcurrentMap());
+  private final Map<DisplayType, String> actionDisplay = Maps.newConcurrentMap();
+  private final UserContext playerPlaceholderContext = UserContext.createFor(this);
+  private final PlayerContext playerContext;
+  private final PlayerStorage storage;
+  private final Lock storageSubscriptionLock = new ReentrantLock();
+  private final Queue<Reference<Runnable>> storageSubscriptionQueue = new ArrayDeque<>();
+  private Collider collider;
+  private SimpleCollider simpleCollider;
+  private Map<Pose, HitboxSize> poseSizes;
   private boolean ignoreNextInboundPacket;
   private boolean ignoreNextOutboundPacket;
   private CustomClientSupportConfig customClientConfig = CustomClientSupportConfig.createDefault();
-  private final long birth = System.currentTimeMillis();
-
   private String currentActionDisplay = "", overrideActionDisplay = "";
-  private final Map<UUID, DisplayType> actionSubscriptions = GarbageCollector.watch(Maps.newConcurrentMap());
-  private final Map<DisplayType, String> actionDisplay = Maps.newConcurrentMap();
   private UUID actionTarget = null;
-
-  private final UserContext playerPlaceholderContext = UserContext.createFor(this);
-  private final PlayerContext playerContext;
   private TrustFactor trustFactor = TrustFactor.DARK_RED;
-  private final PlayerStorage storage;
+  private boolean storageLoaded;
+  private boolean disconnectQueued = false;
 
   PlayerUser(Player player) {
     this.player = new WeakReference<>(player);
@@ -262,10 +264,6 @@ final class PlayerUser implements User {
     return storage;
   }
 
-  private boolean storageLoaded;
-  private final Lock storageSubscriptionLock = new ReentrantLock();
-  private final Queue<Reference<Runnable>> storageSubscriptionQueue = new ArrayDeque<>();
-
   @Override
   public void onStorageReady(Consumer<? super Storage> consumer) {
     try {
@@ -406,8 +404,7 @@ final class PlayerUser implements User {
 
   @Override
   public int latency() {
-    return (int) meta().connection().transactionPingAverage();
-    //return meta().connection().latency;
+    return (int) (meta().connection().transactionPingAverage() + 0.5);
   }
 
   @Override
@@ -504,8 +501,6 @@ final class PlayerUser implements User {
     }
   }
 
-  private boolean disconnectQueued = false;
-
   @Override
   public synchronized void kick(String reason) {
     if (disconnectQueued) {
@@ -572,7 +567,7 @@ final class PlayerUser implements User {
 
   @Override
   public void tracedTickFeedback(EmptyFeedbackCallback callback, FeedbackObserver tracker) {
-    Modules.feedback().tracedSingleSynchronize(player(), null,callback, tracker);
+    Modules.feedback().tracedSingleSynchronize(player(), null, callback, tracker);
   }
 
   @Override
