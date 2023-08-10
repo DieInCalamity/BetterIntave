@@ -8,6 +8,7 @@ import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.module.mitigate.HurttimeModifier;
 import de.jpx3.intave.player.DamageModify;
 import de.jpx3.intave.user.UserRepository;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
@@ -106,6 +107,12 @@ public final class PunishmentMetadata {
       }),
       new AttackNerfer(AttackNerfStrategy.BURN_LONGER, BURN_LONGER_DURATION, event -> {}),
       new AttackNerfer(AttackNerfStrategy.BLOCKING, BLOCKING_DAMAGE_CANCEL_DURATION, event -> {
+        Entity damaged = event.getEntity();
+        if (damaged instanceof Player) {
+          if (((Player) damaged).getInventory().getItemInMainHand().getType().name().toUpperCase().contains("SHIELD")) {
+            return;
+          }
+        }
         DamageModify.withNewDamageApplier(event, BLOCKING, current -> -0d);
       }, true),
       new AttackNerfer(AttackNerfStrategy.DMG_ARMOR, DAMAGE_CANCEL_LIGHT_DURATION, event -> {
