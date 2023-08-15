@@ -276,6 +276,9 @@ public final class PacketSubscriptionLinker extends Module {
       int packetEventParameterPosition = findParameterPosition(parameterTypes, PacketEvent.class);
       int packetTypeParameterPosition = findParameterPosition(parameterTypes, PacketType.class);
 
+//      System.out.println(target.getClass().getSimpleName() + " " +calledMethod.getName());
+//      System.out.println(playerParameterIndex + " " + userParameterPosition + " " + cancelableParameterPosition + " " + packetContainerParameterPosition + " " + packetReaderParameterPosition + " " + packetEventParameterPosition + " " + packetTypeParameterPosition);
+
       return (subscriber, event) -> {
         Player player = event.getPlayer();
 
@@ -311,7 +314,7 @@ public final class PacketSubscriptionLinker extends Module {
         }
 
         if (packetReader != null) {
-          packetReader.release();
+          packetReader.releaseSafe();
         }
       };
     }

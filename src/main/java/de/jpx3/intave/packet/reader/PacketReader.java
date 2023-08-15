@@ -5,4 +5,5 @@ import com.comphenix.protocol.events.PacketContainer;
 public interface PacketReader {
   void enter(PacketContainer packet);
   void release();
+  void releaseSafe();
 }
