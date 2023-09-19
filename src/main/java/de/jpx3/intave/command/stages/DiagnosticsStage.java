@@ -44,6 +44,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.bukkit.attribute.Attribute.GENERIC_MOVEMENT_SPEED;
+
 public final class DiagnosticsStage extends CommandStage {
   private static DiagnosticsStage singletonInstance;
   private final IntavePlugin plugin;
@@ -141,6 +143,33 @@ public final class DiagnosticsStage extends CommandStage {
       }
       player.teleport(player.getLocation().add(0, 0, 0));
     }, 20, 3);
+  }
+
+  @SubCommand(
+    selectors = "walkspeed",
+    usage = "",
+    description = "Set your walkspeed",
+    permission = "intave.command.diagnostics.performance"
+  )
+  public void walkSpeed(User user, @Optional Double speed, @Optional WalkSpeedMethod method) {
+    if (speed == null) {
+      speed = 0.1d;
+    }
+    if (method == null) {
+      method = WalkSpeedMethod.ATTRIBUTE;
+    }
+    Player player = user.player();
+
+    if (method == WalkSpeedMethod.ATTRIBUTE) {
+      player.getAttribute(GENERIC_MOVEMENT_SPEED).setBaseValue(speed);
+    } else {
+      player.setWalkSpeed(speed.floatValue());
+    }
+  }
+
+  public static enum WalkSpeedMethod {
+    DIRECT,
+    ATTRIBUTE
   }
 
   @SubCommand(

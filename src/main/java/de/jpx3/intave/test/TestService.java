@@ -13,6 +13,7 @@ import de.jpx3.intave.block.shape.resolve.BlockShapePipelineTests;
 import de.jpx3.intave.block.variant.BlockVariantTests;
 import de.jpx3.intave.check.EventProcessor;
 import de.jpx3.intave.check.movement.physics.SimulatorBasicTests;
+import de.jpx3.intave.entity.size.EntitySizeTests;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.klass.locate.ReferenceExistenceTests;
 import de.jpx3.intave.math.MathHelper;
@@ -162,6 +163,7 @@ public final class TestService implements EventProcessor {
       performTest(BlockShapeDrillTests.class);
       performTest(BlockShapePipelineTests.class);
       performTest(BlockShapeTests.class);
+      performTest(EntitySizeTests.class);
       performTest(StorageTests.class);
       performTest(ReaderTests.class);
 

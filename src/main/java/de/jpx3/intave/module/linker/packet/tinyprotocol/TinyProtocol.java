@@ -304,7 +304,7 @@ public class TinyProtocol {
    * @return A unique channel handler name.
    */
   protected String handlerName() {
-    return "tiny-" + plugin.getName() + "-" + ID.incrementAndGet();
+    return plugin.getName() + "/" + ID.incrementAndGet();
   }
 
   /**
@@ -397,7 +397,11 @@ public class TinyProtocol {
     }
 
     // See ChannelInjector in ProtocolLib, line 590
-    channel.eventLoop().execute(() -> channel.pipeline().remove(handlerName));
+    channel.eventLoop().execute(() -> {
+      try {
+        channel.pipeline().remove(handlerName);
+      } catch (Exception ignored) {}
+    });
   }
 
   /**

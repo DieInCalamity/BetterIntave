@@ -9,16 +9,16 @@ public final class EntityTypeData {
   private final HitboxSize hitBoxSize;
   private final int entityTypeId;
   private final boolean isLivingEntity;
-  public final int creationID;
+  public final int creationId;
   private boolean boat;
   private boolean shulker;
 
-  public EntityTypeData(String entityName, HitboxSize hitBoxSize, int entityTypeId, boolean isLivingEntity, int creationID) {
+  public EntityTypeData(String entityName, HitboxSize hitBoxSize, int entityTypeId, boolean isLivingEntity, int creationId) {
     this.entityName = entityName;
     this.hitBoxSize = hitBoxSize;
     this.entityTypeId = entityTypeId;
     this.isLivingEntity = isLivingEntity;
-    this.creationID = creationID;
+    this.creationId = creationId;
 
     String lowercaseName = entityName.toLowerCase(Locale.ROOT);
     switch (lowercaseName) {
