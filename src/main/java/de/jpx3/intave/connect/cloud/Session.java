@@ -1,5 +1,6 @@
 package de.jpx3.intave.connect.cloud;
 
+import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.connect.cloud.protocol.*;
 import de.jpx3.intave.connect.cloud.protocol.listener.Clientbound;
@@ -27,6 +28,7 @@ import java.util.function.Consumer;
 
 import static de.jpx3.intave.connect.cloud.protocol.Direction.CLIENTBOUND;
 import static de.jpx3.intave.connect.cloud.protocol.Direction.SERVERBOUND;
+import static io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public final class Session {
@@ -55,6 +57,7 @@ public final class Session {
     Bootstrap bootstrap = new Bootstrap()
       .group(group)
       .channel(NioSocketChannel.class)
+      .option(CONNECT_TIMEOUT_MILLIS, 5000)
       .handler(new ChannelInitializer<SocketChannel>() {
         @Override
         protected void initChannel(SocketChannel ch) throws Exception {
@@ -72,12 +75,13 @@ public final class Session {
     try {
       boolean connected = bootstrap.connect(shard.domain(), shard.port()).await().addListener(future -> {
         if (!future.isSuccess()) {
-          future.cause().printStackTrace();
+          IntaveLogger.logger().info("Failure connecting to cloud");
+//          future.cause().printStackTrace();
           return;
         }
         channel = ((ChannelFuture) future).channel();
         channel.closeFuture().addListener(future2 -> {
-          System.out.println("Connection closed forcefully");
+//          System.out.println("Connection closed forcefully");
           shutdownSubscribers.forEach(subscriber -> subscriber.accept(this));
           group.shutdownGracefully();
         });

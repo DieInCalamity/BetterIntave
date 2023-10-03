@@ -16,7 +16,7 @@ public final class CloudTrustfactorResolver implements TrustFactorResolver {
 
   @Override
   public void resolve(Player player, Consumer<TrustFactor> callback) {
-    cloud.trustfactorRequest(player.getUniqueId(), callback);
+    cloud.trustfactorRequest(player, callback);
   }
 
   @Override

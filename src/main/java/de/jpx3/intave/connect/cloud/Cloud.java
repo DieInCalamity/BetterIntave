@@ -130,14 +130,15 @@ public final class Cloud {
     sendPacket(new ServerboundPassNayoroPacket(Identity.from(player), buffer));
   }
 
-  public void trustfactorRequest(UUID id, Consumer<TrustFactor> callback) {
-    Request<TrustFactor> request = trustfactorRequests.get(id);
+  public void trustfactorRequest(Player player, Consumer<TrustFactor> callback) {
+    UUID key = player.getUniqueId();
+    Request<TrustFactor> request = trustfactorRequests.get(key);
     if (request == null) {
       request = new Request<>();
-      trustfactorRequests.put(id, request);
+      trustfactorRequests.put(key, request);
     }
     request.subscribe(callback);
-    sendPacket(new ServerboundRequestTrustfactorPacket(Identity.from(id)));
+    sendPacket(new ServerboundRequestTrustfactorPacket(Identity.from(player)));
   }
 
   public void serveTrustfactorRequest(Identity identity, TrustFactor trustFactor) {

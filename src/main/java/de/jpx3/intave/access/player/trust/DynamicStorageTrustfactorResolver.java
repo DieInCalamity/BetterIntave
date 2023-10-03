@@ -74,7 +74,6 @@ public final class DynamicStorageTrustfactorResolver implements TrustFactorResol
       long hoursAfk = playtimeStorage.minutesAfk() / 60;
 
       TrustFactor factor = TrustFactor.values()[classifier.predict(new double[] {hoursPlayed * 5, joins, hoursAfk})];
- 
       ViolationStorage violationStorage = playerStorage.storageOf(ViolationStorage.class);
       StorageViolationEvents violations = violationStorage.violations();
       for (StorageViolationEvent violation : violations) {
@@ -85,7 +84,6 @@ public final class DynamicStorageTrustfactorResolver implements TrustFactorResol
           factor = factor.unsafer();
         }
       }
-
       return factor;
     } catch (Exception exception) {
       exception.printStackTrace();

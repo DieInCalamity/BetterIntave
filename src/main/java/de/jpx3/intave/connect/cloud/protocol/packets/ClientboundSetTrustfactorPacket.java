@@ -7,8 +7,7 @@ import de.jpx3.intave.connect.cloud.protocol.Direction;
 import de.jpx3.intave.connect.cloud.protocol.Identity;
 import de.jpx3.intave.connect.cloud.protocol.JsonPacket;
 import de.jpx3.intave.connect.cloud.protocol.listener.Clientbound;
-
-import java.util.UUID;
+import org.bukkit.entity.Player;
 
 public final class ClientboundSetTrustfactorPacket extends JsonPacket<Clientbound> {
   private Identity id;
@@ -18,9 +17,9 @@ public final class ClientboundSetTrustfactorPacket extends JsonPacket<Clientboun
     super(Direction.CLIENTBOUND, "SET_TRUSTFACTOR", "1");
   }
 
-  public ClientboundSetTrustfactorPacket(UUID id, TrustFactor trustFactor) {
+  public ClientboundSetTrustfactorPacket(Player player, TrustFactor trustFactor) {
     super(Direction.CLIENTBOUND, "SET_TRUSTFACTOR", "1");
-    this.id = Identity.from(id);
+    this.id = Identity.from(player);
     this.trustFactor = trustFactor;
   }
 
