@@ -70,10 +70,12 @@ public final class AttributeTracker extends Module {
     AbilityMetadata abilities = user.meta().abilities();
     MovementMetadata movement = user.meta().movement();
     if (abilities.findAttribute(attribute.getAttributeKey()) != null) {
+//      System.out.println(attribute.getModifiers());
       List<WrappedAttributeModifier> modifiers = abilities.modifiersOf(attribute);
       modifiers.clear();
       movement.hasSprintSpeed = attribute.getModifiers().contains(MovementMetadata.SPRINTING_MODIFIER);
       modifiers.addAll(attribute.getModifiers());
+      abilities.modifyBaseValue(attribute.getAttributeKey(), attribute.getBaseValue());
     }
   }
 }

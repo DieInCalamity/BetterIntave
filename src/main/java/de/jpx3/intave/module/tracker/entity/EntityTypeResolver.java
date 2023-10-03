@@ -5,7 +5,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.FieldAccessException;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
@@ -15,10 +14,12 @@ import de.jpx3.intave.entity.size.HitboxSize;
 import de.jpx3.intave.entity.size.HitboxSizeAccess;
 import de.jpx3.intave.entity.type.EntityTypeData;
 import de.jpx3.intave.entity.type.EntityTypeDataAccessor;
+import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.klass.Lookup;
 import de.jpx3.intave.packet.reader.EntityReader;
 import de.jpx3.intave.packet.reader.PacketReaders;
 import de.jpx3.intave.reflect.access.ReflectiveHandleAccess;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -26,6 +27,8 @@ import org.bukkit.entity.Zombie;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static de.jpx3.intave.module.tracker.entity.EntityTypeResolver.AgeCategory.*;
 
@@ -99,13 +102,10 @@ public final class EntityTypeResolver {
         return new EntityTypeData("Invalid", HitboxSize.zero(), -2, false, 3);
       } else {
         EntityType entityType = packet.getEntityTypeModifier().read(0);
-        Class<? extends Entity> entityClass = entityType.getEntityClass();
+        Class<? extends Entity> entityClass = extractSubClassFromEntity(entityType.getEntityClass());
         String entityClassName = entityClass.getSimpleName();
-        if (IntaveControl.DISABLE_LICENSE_CHECK) {
-          // still necessary?
-//          IntaveLogger.logger().info("Unable to lookup hitbox for entity " + entityClassName);
-        }
-        return new EntityTypeData(entityClassName, HitboxSize.zero(), -2, false, 4);
+        HitboxSize size = HitboxSizeAccess.dimensionsOfNMSEntityClass(entityClass);
+        return new EntityTypeData(entityClassName, size, -2, false, 4);
       }
     }
   }
@@ -226,7 +226,7 @@ public final class EntityTypeResolver {
   }
 
   public HitboxSize hitBoxBoundariesByBukkitEntity(Entity bukkitEntity) {
-    return HitboxSizeAccess.dimensionsOf(bukkitEntity);
+    return HitboxSizeAccess.dimensionsOfBukkit(bukkitEntity);
   }
 
   public String entityNameByBukkitEntity(Entity entity) {
@@ -254,7 +254,7 @@ public final class EntityTypeResolver {
 
   private EntityTypeData entityTypeDataOfDataWatcher(WrappedDataWatcher dataWatcher, boolean isLivingEntity) {
     Object entity = entityOfDataWatcher(dataWatcher);
-    HitboxSize hitBoxSize = HitboxSizeAccess.dimensionsOf(entity);
+    HitboxSize hitBoxSize = HitboxSizeAccess.dimensionsOfNative(entity);
     String name = entityNameOf(entity);
     int entityTypeId = entityTypeIdOfDataWatcher(dataWatcher);
     return new EntityTypeData(name, hitBoxSize, entityTypeId, isLivingEntity, 7);
@@ -265,11 +265,39 @@ public final class EntityTypeResolver {
   }
 
   private String entityNameOf(Object entity) {
-    String entityName = entity.getClass().getSimpleName();
+    String entityName = extractSubClassFromEntity((Class<? extends Entity>) entity.getClass()).getSimpleName();
     if (entityName.startsWith("Entity")) {
       entityName = entityName.substring("Entity".length());
     }
     return entityName;
+  }
+
+  private static final Map<Class<? extends Entity>, Class<? extends Entity>> subClassCache = new ConcurrentHashMap<>();
+
+  // support custom entity classes
+  private static Class<? extends Entity> extractSubClassFromEntity(Class<? extends Entity> entityClass) {
+    if (entityClass == null) {
+      return null;
+    }
+    if (subClassCache.containsKey(entityClass)) {
+      return subClassCache.get(entityClass);
+    }
+    // support for custom shulker entity classes
+    Class<?> hierarchySearch = entityClass;
+    int attempts = 0;
+    while (!hierarchySearch.getPackage().getName().toLowerCase().startsWith("net.minecraft")) {
+      if (hierarchySearch.getSuperclass() == null) {
+        subClassCache.put(entityClass, (Class<? extends Entity>) hierarchySearch);
+        return entityClass;
+      }
+      hierarchySearch = hierarchySearch.getSuperclass();
+      if (attempts++ > 8) {
+        subClassCache.put(entityClass, (Class<? extends Entity>) hierarchySearch);
+        return entityClass;
+      }
+    }
+    subClassCache.put(entityClass, (Class<? extends Entity>) hierarchySearch);
+    return (Class<? extends Entity>) hierarchySearch;
   }
 
   private Object entityOfDataWatcher(WrappedDataWatcher dataWatcher) {

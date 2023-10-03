@@ -14,10 +14,12 @@ import de.jpx3.intave.block.shape.resolve.BlockShapePipelineTests;
 import de.jpx3.intave.block.variant.BlockVariantTests;
 import de.jpx3.intave.check.EventProcessor;
 import de.jpx3.intave.check.movement.physics.SimulatorBasicTests;
+import de.jpx3.intave.entity.size.EntitySizeTests;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.klass.locate.ReferenceExistenceTests;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.Modules;
+import de.jpx3.intave.module.feedback.FeedbackTests;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.module.player.StorageTests;
 import de.jpx3.intave.packet.reader.ReaderTests;
@@ -46,6 +48,7 @@ import static de.jpx3.intave.IntaveControl.USE_DEBUG_LOCATE_RESOURCE;
 
 @HighOrderService
 public final class TestService implements EventProcessor {
+  private static final boolean IS_TEST_RUN = "shutdown".equalsIgnoreCase(System.getProperty("intave.test.success"));
   private static final Resource environmentHashResource = Resources.fileCache("environmentHashes");
   private static final Map<String, Long> supportedEnvironments =
     environmentHashResource.collectLines(
@@ -163,7 +166,9 @@ public final class TestService implements EventProcessor {
       performTest(BlockShapeDrillTests.class);
       performTest(BlockShapePipelineTests.class);
       performTest(BlockShapeTests.class);
+      performTest(EntitySizeTests.class);
       performTest(StorageTests.class);
+      performTest(FeedbackTests.class);
       performTest(ReaderTests.class);
       performTest(FluidTests.class);
 
@@ -191,7 +196,7 @@ public final class TestService implements EventProcessor {
     } else {
       IntaveLogger.logger().info("All self-tests completed successfully.");
     }
-    if ("shutdown".equalsIgnoreCase(System.getProperty("intave.test.success"))) {
+    if (IS_TEST_RUN) {
       IntaveLogger.logger().info("Shutting down server due to test success");
       Bukkit.shutdown();
     }
@@ -217,12 +222,15 @@ public final class TestService implements EventProcessor {
   public boolean environmentKnown() {
 //    System.out.println("Environment hash: " + environmentHash);
 //    System.out.println("Supported environments: " + supportedEnvironments);
-    return supportedEnvironments.containsKey(environmentHash) && !USE_DEBUG_LOCATE_RESOURCE;
+    return supportedEnvironments.containsKey(environmentHash) && !IS_TEST_RUN && !USE_DEBUG_LOCATE_RESOURCE;
   }
 
   private static final long MILLIS_IN_A_MONTH = 1000L * 60L * 60L * 24L * 30L;
 
   public void dontCheckThisEnvironmentAgain() {
+    if (IS_TEST_RUN) {
+      return;
+    }
     long currentTimeMillis = System.currentTimeMillis();
     supportedEnvironments.put(environmentHash, currentTimeMillis);
     // delete system older than 1 month

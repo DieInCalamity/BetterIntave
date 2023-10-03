@@ -91,9 +91,9 @@ check:
   clickpatterns:
     enabled: true
     thresholds:
-      50: "intave internals sendnotify &c{player}&7/{trust-color}&7 is clicking statistically anomalously (auto-clicker)"
+      50: "intave internals sendnotify &c{player}&7/{trust-color}&7 is clicking statistically anomalous (auto-clicker)"
       100:
-        - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been removed for clicking statistically anomalously (auto-clicker)"
+        - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been removed for clicking statistically anomalous (auto-clicker)"
         - "intave internals kickip {player} &cYou have been kicked, as an account with your ip address was removed from the game"
         - "kick {player} &cYou have been removed from the game based on data that was collected by the anti-cheat"
 
@@ -114,8 +114,8 @@ check:
 
   protocolscanner:
     enabled: true
-    invokant: false
-    check_sent_slot_twice_vl: 100
+    # Sent slot twice VL, was a requested option
+    sst-vl: 100
     thresholds:
       50: "intave internals sendnotify &c{player}&7/{trust-color}&7 is sending invalid packets"
       100:
@@ -125,7 +125,7 @@ check:
 
   placementanalysis:
     enabled: true
-    check_timings: false
+    check-timings: false
     thresholds:
       50: "intave internals sendnotify &c{player}&7/{trust-color}&7 is placing blocks incorrectly"
       100:
@@ -214,8 +214,8 @@ logging:
   #feedback-dump: false
 
 analytics:
-  errorReporting: true
-  usageReporting: true
+  report-errors: true
+  report-usage: true
 
 layout:
   verbose: "{prefix} &c{player}&7/{trust-color}&7 {message} {details} (+{vladded} -> {vl})"

@@ -138,7 +138,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     List<Attack> pendingAttacks = meta.pendingAttacks;
     PacketContainer packet = event.getPacket();
     // Clear attacks if recently teleported
-    if (movement.lastTeleport == 0) {
+    if (movement.lastTeleport == 0 || movement.awaitTeleport) {
       pendingAttacks.clear();
     }
     // Apply flying packets (first boolean)

@@ -1,6 +1,7 @@
 package de.jpx3.intave.packet.reader;
 
 import com.comphenix.protocol.reflect.StructureModifier;
+import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.MovingObjectPositionBlock;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.Nullable;
@@ -39,7 +40,13 @@ public final class BlockInteractionReader extends BlockPositionReader {
       return movingObjectPositionBlock == null ? 255 : movingObjectPositionBlock.getDirection().ordinal();
     } else {
       Integer enumDirection = packet().getIntegers().readSafely(0);
-      return enumDirection == null ? packet().getDirections().readSafely(0).ordinal() : enumDirection;
+      if (enumDirection == null) {
+        EnumWrappers.Direction direction = packet()
+          .getDirections()
+          .readSafely(0);
+        return direction == null ? 255 : direction.ordinal();
+      }
+      return enumDirection;
     }
   }
 }

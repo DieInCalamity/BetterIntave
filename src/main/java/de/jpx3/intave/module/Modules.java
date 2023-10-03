@@ -30,8 +30,6 @@ public final class Modules {
 
   @Native
   public static void proceedBoot(BootSegment bootSegment) {
-//    System.out.println("Proceeding boot segment " + bootSegment + "...");
-//    System.out.println("Last took " + (System.currentTimeMillis() - lastBootSegment) + "ms");
     loader.loadRequests(bootSegment).forEach(pool::loadModule);
     pool.bootRequests(bootSegment).forEach(pool::enableModule);
     lastBootSegment = System.currentTimeMillis();

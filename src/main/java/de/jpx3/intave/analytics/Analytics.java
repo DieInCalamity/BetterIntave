@@ -107,10 +107,10 @@ public final class Analytics {
   }
 
   public boolean allowedErrorReporting() {
-    return configuration().getBoolean("analytics.errorReporting", true);
+    return configuration().getBoolean("analytics.report-errors", configuration().getBoolean("analytics.errorReporting", true));
   }
 
   public boolean allowedUsageReporting() {
-    return configuration().getBoolean("analytics.usageReporting", true);
+    return configuration().getBoolean("analytics.report-usage", configuration().getBoolean("analytics.usageReporting", true));
   }
 }

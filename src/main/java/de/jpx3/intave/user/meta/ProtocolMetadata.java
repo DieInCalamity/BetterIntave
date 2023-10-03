@@ -184,6 +184,10 @@ public final class ProtocolMetadata {
     return protocolVersion >= VER_1_15;
   }
 
+  public boolean sendsFacings() {
+    return protocolVersion <= VER_1_11_1;
+  }
+
   public boolean waterUpdate() {
     return protocolVersion >= VER_1_13;
   }

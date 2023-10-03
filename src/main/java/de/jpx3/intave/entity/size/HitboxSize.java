@@ -9,8 +9,8 @@ public final class HitboxSize {
     this.height = height;
   }
 
-  public static HitboxSize of(float width, float length) {
-    return new HitboxSize(width, length);
+  public static HitboxSize of(float width, float height) {
+    return new HitboxSize(width, height);
   }
 
   public static HitboxSize zero() {

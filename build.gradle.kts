@@ -11,8 +11,8 @@ plugins {
 
 val simpleName = "Intave"
 group = "de.jpx3"
-version = "14.6.5"
-description = "Cheat detection software, providing fair play"
+version = "14.6.7"
+description = "Automated cheat detection and prevention"
 
 /*
  * Dependencies

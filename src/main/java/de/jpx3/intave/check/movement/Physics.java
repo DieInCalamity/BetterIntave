@@ -667,7 +667,7 @@ public final class Physics extends Check {
     }
 
     if (movementData.inLava()) {
-      movementData.artificialFallDistance *= 0.5;
+      movementData.artificialFallDistance *= 0.5F;
     }
 
     GlobalStatisticsRecorder recorder = plugin.analytics().recorderOf(GlobalStatisticsRecorder.class);

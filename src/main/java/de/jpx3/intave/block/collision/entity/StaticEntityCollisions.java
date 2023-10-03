@@ -3,6 +3,7 @@ package de.jpx3.intave.block.collision.entity;
 import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.block.shape.BlockShapes;
 import de.jpx3.intave.entity.type.EntityTypeData;
+import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.user.User;

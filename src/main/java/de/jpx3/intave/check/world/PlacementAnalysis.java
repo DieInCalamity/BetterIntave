@@ -23,7 +23,7 @@ public final class PlacementAnalysis extends Check {
 
   @Native
   public void setupSubChecks() {
-    boolean useTimings = configuration().settings().boolBy("check_timings", true);
+    boolean useTimings = configuration().settings().boolBy("check-timings", configuration().settings().boolBy("check_timings", true));
 
     if (DISABLE_LICENSE_CHECK && !GOMME_MODE) {
       appendCheckPart(new Constraint(this));

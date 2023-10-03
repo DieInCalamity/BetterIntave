@@ -99,7 +99,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
       float facingY = -1;
       float facingZ = -1;
       StructureModifier<Float> floatsInPacket = packet.getFloat();
-      if (floatsInPacket.size() >= 3) {
+      if (floatsInPacket.size() >= 3 && user.meta().protocol().sendsFacings()) {
         facingX = floatsInPacket.read(0);
         facingY = floatsInPacket.read(1);
         facingZ = floatsInPacket.read(2);
@@ -437,7 +437,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
       float f = (float) (firstRaytraceResult.hitVec.xCoord - targetLocation.getX());
       float f1 = (float) (firstRaytraceResult.hitVec.yCoord - targetLocation.getY());
       float f2 = (float) (firstRaytraceResult.hitVec.zCoord - targetLocation.getZ());
-//      player.sendMessage("First " + f + " " + f1 + " " + f2);
+//      player.sendMessage("First " + compressAndDecompress(f) + " " + compressAndDecompress(f1) + " " + compressAndDecompress(f2));
 //      System.out.println("First " + firstRaytraceResult.hitVec + " -> " + targetLocation +  " " + compressAndDecompress(f) + " " + compressAndDecompress(f1) + " " + compressAndDecompress(f2));
       if (Math.abs(compressAndDecompress(f) - interaction.facingX()) > 0.01 ||
         Math.abs(compressAndDecompress(f1) - interaction.facingY()) > 0.01 ||
@@ -472,6 +472,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     if (failedFacingCheck && !user.meta().abilities().inGameModeIncludePending(CREATIVE)) {
 //      System.out.println("Failed facing check");
 //      System.out.println("Real " + interaction.facingX() + " " + interaction.facingY() + " " + interaction.facingZ());
+//      System.out.println("sent " + );
       violationMetadata.facingFailedCounter++;
     } else {
       violationMetadata.facingFailedCounter = 0;

@@ -18,7 +18,7 @@ public final class SentSlotTwice extends MetaCheckPart<ProtocolScanner, SentSlot
 
   public SentSlotTwice(ProtocolScanner parentCheck) {
     super(parentCheck, SentSlotTwiceMeta.class);
-    this.vl = parentCheck.configuration().settings().intBy("check_sent_slot_twice_vl", 100);
+    this.vl = parentCheck.configuration().settings().intBy("sst-vl", parentCheck.configuration().settings().intBy("check_sent_slot_twice_vl", 100));
   }
 
   @PacketSubscription(

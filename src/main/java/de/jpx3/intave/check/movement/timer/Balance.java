@@ -99,11 +99,11 @@ public final class Balance extends MetaCheckPart<Timer, Balance.BalanceMeta> {
         return;
       }
 
-      double value = TimeUnit.NANOSECONDS.toMillis(timerData.timerBalance) / 50d;
-      if (value < 0.01) {
-        value = 0.01;
+      double displayValue = TimeUnit.NANOSECONDS.toMillis(timerData.timerBalance) / 50d;
+      if (displayValue < 0.01) {
+        displayValue = 0.01;
       }
-      String balanceAsString = formatDouble(value, 2);
+      String balanceAsString = formatDouble(displayValue, 2);
       statisticApply(user, CheckStatistics::increaseFails);
       Violation violation = Violation.builderFor(Timer.class).forPlayer(player)
         .withMessage("moved too frequently").withDetails(balanceAsString + " ticks ahead")

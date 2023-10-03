@@ -15,6 +15,7 @@ import de.jpx3.intave.user.meta.EffectMetadata;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
+import static de.jpx3.intave.module.linker.packet.ListenerPriority.HIGH;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.ENTITY_EFFECT;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.REMOVE_ENTITY_EFFECT;
 
@@ -22,23 +23,6 @@ public final class EffectTracker extends Module {
   public static final int POTION_EFFECT_SPEED = 1;
   public static final int POTION_EFFECT_SLOWNESS = 2;
   public static final int POTION_EFFECT_JUMP_BOOST = 8;
-
-  @PacketSubscription(
-    priority = ListenerPriority.HIGH,
-    packetsOut = {
-      REMOVE_ENTITY_EFFECT
-    }
-  )
-  public void sentRemoveEffect(PacketEvent event) {
-    Player player = event.getPlayer();
-    PacketContainer packet = event.getPacket();
-    int entityId = packet.getIntegers().read(0);
-    if (entityId != player.getEntityId()) {
-      return;
-    }
-    PotionEffectType potionEffectType = effectIdOf(packet);
-    Modules.feedback().synchronize(player, potionEffectType, this::receiveEffectRemoval);
-  }
 
   private final boolean EFFECT_ACCESS = MinecraftVersions.VER1_9_0.atOrAbove();
 
@@ -51,18 +35,15 @@ public final class EffectTracker extends Module {
   }
 
   @PacketSubscription(
-    priority = ListenerPriority.HIGH,
-    packetsOut = {
-      ENTITY_EFFECT
-    }
+    priority = HIGH,
+    packetsOut = ENTITY_EFFECT
   )
-  public void sentEffect(PacketEvent event) {
-    Player player = event.getPlayer();
-    PacketContainer packet = event.getPacket();
-    EntityEffectReader reader = PacketReaders.readerOf(packet);
+  public void sentEffect(
+    User user, Player player,
+    EntityEffectReader reader
+  ) {
     int entityId = reader.entityId();
     if (entityId != player.getEntityId()) {
-      reader.release();
       return;
     }
     PotionEffectOutput effectOutput = new PotionEffectOutput(
@@ -70,8 +51,25 @@ public final class EffectTracker extends Module {
       reader.effectAmplifier(),
       reader.effectDuration()
     );
-    reader.release();
-    Modules.feedback().synchronize(player, effectOutput, this::receiveEffect);
+    user.tickFeedback(() -> receiveEffect(player, effectOutput));
+  }
+
+  @PacketSubscription(
+    priority = HIGH,
+    packetsOut = {
+      REMOVE_ENTITY_EFFECT
+    }
+  )
+  public void sentRemoveEffect(PacketEvent event) {
+    Player player = event.getPlayer();
+    User user = UserRepository.userOf(player);
+    PacketContainer packet = event.getPacket();
+    int entityId = packet.getIntegers().read(0);
+    if (entityId != player.getEntityId()) {
+      return;
+    }
+    PotionEffectType potionEffectType = effectIdOf(packet);
+    user.tickFeedback(() -> receiveEffectRemoval(player, potionEffectType));
   }
 
   private void receiveEffectRemoval(Player player, PotionEffectType potionEffectType) {
@@ -95,6 +93,11 @@ public final class EffectTracker extends Module {
 
     int effectAmplifier = effectOutput.potionEffectAmplifier;
     int effectDuration = effectOutput.potionEffectDuration;
+
+    boolean infiniteEffectsAllowed = user.meta().protocol().protocolVersion() >= 763;
+    if (effectDuration == -1 && infiniteEffectsAllowed) {
+      effectDuration = Integer.MAX_VALUE;
+    }
 
     switch (effectOutput.potionEffectType) {
       case POTION_EFFECT_SPEED: {

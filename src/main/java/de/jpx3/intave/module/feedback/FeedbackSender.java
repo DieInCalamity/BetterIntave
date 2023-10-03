@@ -272,18 +272,22 @@ public final class FeedbackSender extends Module {
     PacketContainer[] packetCache = noPingMask ? PACKET_CACHE_NO_PING_MASK : PACKET_CACHE;
     packet = index >= packetCache.length || index < 0 ? null : packetCache[index];
     if (packet == null) {
-      if (USE_PING_PONG_PACKETS) {
-        packet = protocol.createPacket(PING);
-        int sentId = id;
-        if (!noPingMask) {
-          sentId = sentId | PING_MASK;
+      try {
+        if (USE_PING_PONG_PACKETS) {
+          packet = protocol.createPacket(PING);
+          int sentId = id;
+          if (!noPingMask) {
+            sentId = sentId | PING_MASK;
+          }
+          packet.getIntegers().write(0, sentId);
+        } else {
+          packet = protocol.createPacket(TRANSACTION);
+          packet.getIntegers().write(0, 0);
+          packet.getShorts().write(0, id);
+          packet.getBooleans().write(0, false);
         }
-        packet.getIntegers().write(0, sentId);
-      } else {
-        packet = protocol.createPacket(TRANSACTION);
-        packet.getIntegers().write(0, 0);
-        packet.getShorts().write(0, id);
-        packet.getBooleans().write(0, false);
+      } catch (Exception exception) {
+        throw new IllegalStateException("Unable to create feedback packet", exception);
       }
       if (index < packetCache.length) {
         packetCache[index] = packet;

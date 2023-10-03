@@ -86,6 +86,10 @@ public final class InventoryMetadata {
     return item == null || item.getAmount() == 0 ? Material.AIR : item.getType();
   }
 
+  public boolean offhandItemPrimary() {
+    return ItemProperties.canItemBeUsed(player, offhandItem()) && !ItemProperties.canItemBeUsed(player, heldItem());
+  }
+
   public int handSlot() {
     return handSlot;
   }
@@ -106,10 +110,17 @@ public final class InventoryMetadata {
         return;
       }
       this.handActive = true;
-      this.foodItem = ItemProperties.foodConsumable(player, heldItemType());
+
+      if (offhandItemPrimary()) {
+        this.foodItem = ItemProperties.foodConsumable(player, offhandItemType());
+        this.activeItemType = offhandItemType();
+      } else {
+        this.foodItem = ItemProperties.foodConsumable(player, heldItemType());
+        this.activeItemType = heldItemType();
+      }
       this.pastItemUsageTransition = 0;
       this.handActiveTicks = 0;
-      this.activeItemType = heldItemType();
+
       if (IntaveControl.DEBUG_ITEM_USAGE) {
         Material activeItem = this.activeItemType;
         Synchronizer.synchronize(() -> {
