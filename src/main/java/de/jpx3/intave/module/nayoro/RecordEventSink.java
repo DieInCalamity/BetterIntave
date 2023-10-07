@@ -4,6 +4,7 @@ import de.jpx3.intave.module.nayoro.event.*;
 import de.jpx3.intave.module.nayoro.event.sink.EventSink;
 import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.security.LicenseAccess;
+import org.bukkit.entity.Player;
 
 import java.io.Closeable;
 import java.io.DataOutput;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -41,12 +43,24 @@ class RecordEventSink extends EventSink {
         dataOutput.writeLong(id.getMostSignificantBits());
         dataOutput.writeLong(id.getLeastSignificantBits());
         dataOutput.writeLong(System.currentTimeMillis());
-        int flags = 0;
+        AtomicInteger flags = new AtomicInteger();
         if (checkFullEventRead) {
-          flags |= EVENT_ZERO_BYTE_APPEND;
+          flags.updateAndGet(v -> v | EVENT_ZERO_BYTE_APPEND);
         }
-        flags |= MARKED_UNKNOWN;
-        dataOutput.writeInt(flags);
+
+        environment.mainPlayer().applyIfUserPresent(user -> {
+          Player player = user.player();
+          String playerName = player.getName().toLowerCase();
+          if (playerName.contains("jpx3") || playerName.contains("richy")) {
+            flags.getAndUpdate(v -> v | MARKED_LEGIT);
+            player.sendMessage("Hey Richy you are probably legit");
+          } else {
+            flags.getAndUpdate(v -> v | MARKED_CHEAT);
+            player.sendMessage("Hey Jirka you are probably cheating");
+          }
+        });
+        flags.updateAndGet(v -> v | MARKED_UNKNOWN);
+        dataOutput.writeInt(flags.get());
       } catch (IOException exception) {
         throw new RuntimeException(exception);
       } finally {

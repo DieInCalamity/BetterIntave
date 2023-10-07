@@ -780,7 +780,7 @@ public final class IntavePlugin extends JavaPlugin {
     GarbageCollector.setup();
     BackgroundExecutors.executeWhenever(this::clearIntegrityGarbage);
     BackgroundExecutors.executeWhenever(this::clearSaveFolderGarbage);
-    BackgroundExecutors.executeWhenever(this::clearUnusedSamples);
+//    BackgroundExecutors.executeWhenever(this::clearUnusedSamples);
     logger.performCompression();
 
     ViolationStorage.setup();

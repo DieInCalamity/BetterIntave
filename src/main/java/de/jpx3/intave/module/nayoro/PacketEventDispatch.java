@@ -19,6 +19,7 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.InventoryMetadata;
 import de.jpx3.intave.user.meta.MovementMetadata;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -111,8 +112,17 @@ public final class PacketEventDispatch implements PacketEventSubscriber {
     User user = UserRepository.userOf(player);
     int slot = event.getPacket().getIntegers().read(0);
     ItemStack item = player.getInventory().getItem(slot);
+    Material type;
+    int amount;
+    if (item != null) {
+      type = item.getType();
+      amount = item.getAmount();
+    } else {
+      type = Material.AIR;
+      amount = 0;
+    }
     SlotSwitchEvent slotSwitchEvent = SlotSwitchEvent.create(
-      slot, item.getType().name(), item.getAmount()
+      slot, type.name(), amount
     );
     reverseSink.accept(user, slotSwitchEvent::accept);
   }
