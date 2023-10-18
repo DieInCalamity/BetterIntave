@@ -8,15 +8,15 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.nio.ByteBuffer;
 
-public final class ServerboundConfirmEncryptionPacket extends BinaryPacket<Serverbound> {
+public final class ServerboundConfirmEncryption extends BinaryPacket<Serverbound> {
   private ByteBuffer encryptedSharedSecret;
   private ByteBuffer encryptedVerifyToken;
 
-  public ServerboundConfirmEncryptionPacket() {
+  public ServerboundConfirmEncryption() {
     super(Direction.SERVERBOUND, "CONFIRM_ENCRYPTION", "1");
   }
 
-  public ServerboundConfirmEncryptionPacket(byte[] encryptedSharedSecret, byte[] encryptedVerifyToken) {
+  public ServerboundConfirmEncryption(byte[] encryptedSharedSecret, byte[] encryptedVerifyToken) {
     super(Direction.SERVERBOUND, "CONFIRM_ENCRYPTION", "1");
     this.encryptedSharedSecret = ByteBuffer.wrap(encryptedSharedSecret);
     this.encryptedVerifyToken = ByteBuffer.wrap(encryptedVerifyToken);

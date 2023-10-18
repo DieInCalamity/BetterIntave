@@ -2,28 +2,29 @@ package de.jpx3.intave.connect.cloud.protocol.packets;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import de.jpx3.intave.connect.cloud.protocol.Direction;
 import de.jpx3.intave.connect.cloud.protocol.Identity;
 import de.jpx3.intave.connect.cloud.protocol.JsonPacket;
-import de.jpx3.intave.connect.cloud.protocol.listener.Clientbound;
+import de.jpx3.intave.connect.cloud.protocol.listener.Serverbound;
 
-import static de.jpx3.intave.connect.cloud.protocol.Direction.CLIENTBOUND;
+public final class ServerboundSampleCompleted extends JsonPacket<Serverbound> {
+  private Identity identity;
 
-public final class ClientboundCombatModifierPacket extends JsonPacket<Clientbound> {
-  private Identity id;
-  private String modifier;
-  private int duration;
+  public ServerboundSampleCompleted() {
+    super(Direction.SERVERBOUND,"SAMPLE_COMPLETED", "1");
+  }
 
-  public ClientboundCombatModifierPacket() {
-    super(CLIENTBOUND, "REQUEST_ALTERATION", "1");
+  public ServerboundSampleCompleted(Identity identity) {
+    this();
+    this.identity = identity;
   }
 
   @Override
   public void serialize(JsonWriter writer) {
     try {
       writer.beginObject();
-      writer.name("id").value(id.toString());
-      writer.name("modifier").value(modifier);
-      writer.name("duration").value(duration);
+      writer.name("id");
+      identity.serialize(writer);
       writer.endObject();
     } catch (Exception e) {
       e.printStackTrace();
@@ -37,13 +38,7 @@ public final class ClientboundCombatModifierPacket extends JsonPacket<Clientboun
       while (reader.hasNext()) {
         switch (reader.nextName()) {
           case "id":
-            id = Identity.from(reader);
-            break;
-          case "modifier":
-            modifier = reader.nextString();
-            break;
-          case "duration":
-            duration = reader.nextInt();
+            identity = Identity.from(reader);
             break;
         }
       }

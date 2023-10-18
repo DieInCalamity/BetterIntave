@@ -39,33 +39,33 @@ public final class StandardClientRetriever extends ChannelInboundHandlerAdapter 
   }
 
   @Override
-  public void onCloseConnection(ClientboundDisconnectPacket packet) {
+  public void onCloseConnection(ClientboundDisconnect packet) {
     System.out.println("Connection closed: " + packet.reason());
     session.close();
   }
 
   @Override
-  public void onClientHello(ClientboundHelloPacket packet) {
+  public void onClientHello(ClientboundHello packet) {
     throw new RuntimeException("Unexpected packet " + packet.name());
   }
 
   @Override
-  public void onKeepAlive(ClientboundKeepAlivePacket packet) {
+  public void onKeepAlive(ClientboundKeepAlive packet) {
     // do nothing
   }
 
   @Override
-  public void onSetTrustfactor(ClientboundSetTrustfactorPacket packet) {
+  public void onSetTrustfactor(ClientboundSetTrustfactor packet) {
     session.serveTrustfactorRequest(packet.id(), packet.trustFactor());
   }
 
   @Override
-  public void onDownloadStorage(ClientboundDownloadStoragePacket packet) {
+  public void onDownloadStorage(ClientboundDownloadStorage packet) {
     session.serveStorageRequest(packet.id(), packet.data());
   }
 
   @Override
-  public void onLogReceive(ClientboundLogReceivePacket packet) {
+  public void onLogReceive(ClientboundLogReceive packet) {
     session.serverUploadPlayerLogsRequest(packet.id(), packet.packetNonceResult(), packet.logId());
   }
 
@@ -75,7 +75,7 @@ public final class StandardClientRetriever extends ChannelInboundHandlerAdapter 
   }
 
   @Override
-  public void onViolation(ClientboundViolationPacket packet) {
+  public void onViolation(ClientboundViolation packet) {
     Identity id = packet.id();
     String name = id.name();
     UUID uuid = id.id();

@@ -19,6 +19,7 @@ import de.jpx3.intave.connect.cloud.request.Request;
 import de.jpx3.intave.executor.BackgroundExecutors;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.executor.TaskTracker;
+import de.jpx3.intave.module.nayoro.Classifier;
 import de.jpx3.intave.resource.Resource;
 import de.jpx3.intave.resource.Resources;
 import org.bukkit.Bukkit;
@@ -42,6 +43,7 @@ public final class Cloud {
   private final Map<UUID, Request<TrustFactor>> trustfactorRequests = new HashMap<>();
   private final Map<UUID, Request<ByteBuffer>> storageRequests = new HashMap<>();
   private final Map<Integer, Request<String>> uploadLogRequests = new HashMap<>();
+  private final Map<UUID, Request<Classifier>> sampleTransmissionRequests = new HashMap<>();
   private CloudConfig cloudConfig;
   private int taskId;
 
@@ -173,8 +175,26 @@ public final class Cloud {
     }
   }
 
+  public void requestSampleTransmission(Player player, Consumer<Classifier> callbackIfAccepted) {
+    UUID id = player.getUniqueId();
+    Request<Classifier> request = sampleTransmissionRequests.get(id);
+    if (request == null) {
+      request = new Request<>();
+      sampleTransmissionRequests.put(id, request);
+    }
+    request.subscribe(callbackIfAccepted);
+    sendPacket(new ServerboundSampleTransmissionRequest(Identity.from(player)));
+  }
+
+  public void serveSampleTransmissionRequest(Identity identity, boolean allowed, Classifier classifier) {
+    Request<Classifier> request = sampleTransmissionRequests.remove(identity.id());
+    if (request != null && allowed) {
+      request.publish(classifier);
+    }
+  }
+
   public void uploadSample(Player player, ByteBuffer buffer) {
-    sendPacket(new ServerboundPassNayoroPacket(Identity.from(player), buffer));
+    sendPacket(new ServerboundPassNayoro(Identity.from(player), buffer));
   }
 
   public void uploadPlayerLogs(Player player, int nonce, List<String> logs, Consumer<String> callback) {
@@ -184,7 +204,7 @@ public final class Cloud {
       uploadLogRequests.put(nonce, request);
     }
     request.subscribe(callback);
-    sendPacket(new ServerboundUploadLogsPacket(Identity.from(player), nonce, logs));
+    sendPacket(new ServerboundUploadLogs(Identity.from(player), nonce, logs));
   }
 
   public void serveUploadPlayerLogs(Identity identity, int nonce, String logId) {
@@ -202,7 +222,7 @@ public final class Cloud {
       trustfactorRequests.put(key, request);
     }
     request.subscribe(callback);
-    sendPacket(new ServerboundRequestTrustfactorPacket(Identity.from(player)));
+    sendPacket(new ServerboundRequestTrustfactor(Identity.from(player)));
   }
 
   public void serveTrustfactorRequest(Identity identity, TrustFactor trustFactor) {
@@ -219,7 +239,7 @@ public final class Cloud {
       storageRequests.put(id, request);
     }
     request.subscribe(callback);
-    sendPacket(new ServerboundRequestStoragePacket(Identity.from(id)));
+    sendPacket(new ServerboundRequestStorage(Identity.from(id)));
   }
 
   public void serveStorageRequest(Identity identity, ByteBuffer buffer) {
@@ -230,7 +250,7 @@ public final class Cloud {
   }
 
   public void saveStorage(UUID id, ByteBuffer buffer) {
-    sendPacket(new ServerboundUploadStoragePacket(Identity.from(id), buffer));
+    sendPacket(new ServerboundUploadStorage(Identity.from(id), buffer));
   }
 
   public boolean isEnabled() {

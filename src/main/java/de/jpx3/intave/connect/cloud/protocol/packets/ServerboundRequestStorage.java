@@ -8,14 +8,14 @@ import de.jpx3.intave.connect.cloud.protocol.JsonPacket;
 
 import static de.jpx3.intave.connect.cloud.protocol.Direction.SERVERBOUND;
 
-public final class ServerboundRequestStoragePacket extends JsonPacket<Serverbound> {
+public final class ServerboundRequestStorage extends JsonPacket<Serverbound> {
   private Identity id;
 
-  public ServerboundRequestStoragePacket() {
+  public ServerboundRequestStorage() {
     super(SERVERBOUND, "REQUEST_STORAGE", "1");
   }
 
-  public ServerboundRequestStoragePacket(Identity id) {
+  public ServerboundRequestStorage(Identity id) {
     super(SERVERBOUND, "REQUEST_STORAGE", "1");
     this.id = id;
   }

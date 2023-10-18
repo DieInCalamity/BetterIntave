@@ -10,7 +10,7 @@ import java.io.DataOutput;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 
-public final class ClientboundDownloadStoragePacket extends BinaryPacket<Clientbound> {
+public final class ClientboundDownloadStorage extends BinaryPacket<Clientbound> {
   private static final ThreadLocal<MessageDigest> digest =
     ThreadLocal.withInitial(() -> {
       try {
@@ -23,11 +23,11 @@ public final class ClientboundDownloadStoragePacket extends BinaryPacket<Clientb
   private Identity id;
   private ByteBuffer data;
 
-  public ClientboundDownloadStoragePacket() {
+  public ClientboundDownloadStorage() {
     super(Direction.CLIENTBOUND, "SET_STORAGE", "1");
   }
 
-  public ClientboundDownloadStoragePacket(Identity id, ByteBuffer data) {
+  public ClientboundDownloadStorage(Identity id, ByteBuffer data) {
     super(Direction.CLIENTBOUND, "SET_STORAGE", "1");
     this.id = id;
     this.data = data;

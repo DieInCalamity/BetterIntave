@@ -8,18 +8,18 @@ import de.jpx3.intave.connect.cloud.protocol.listener.Clientbound;
 
 import static de.jpx3.intave.connect.cloud.protocol.Direction.CLIENTBOUND;
 
-public final class ClientboundViolationPacket extends JsonPacket<Clientbound> {
+public final class ClientboundViolation extends JsonPacket<Clientbound> {
   private Identity id;
   private String check;
   private String message;
   private String details;
   private int vl;
 
-  public ClientboundViolationPacket() {
+  public ClientboundViolation() {
     super(CLIENTBOUND, "VIOLATION", "1");
   }
 
-  public ClientboundViolationPacket(Identity id, String check, String message, String details, int vl) {
+  public ClientboundViolation(Identity id, String check, String message, String details, int vl) {
     super(CLIENTBOUND, "VIOLATION", "1");
     this.id = id;
     this.check = check;

@@ -9,10 +9,10 @@ import java.io.IOException;
 
 import static de.jpx3.intave.connect.cloud.protocol.Direction.SERVERBOUND;
 
-public final class ServerboundKeepAlivePacket extends BinaryPacket<Serverbound> {
+public final class ServerboundKeepAlive extends BinaryPacket<Serverbound> {
   private long time;
 
-  public ServerboundKeepAlivePacket() {
+  public ServerboundKeepAlive() {
     super(SERVERBOUND, "KEEP_ALIVE", "1");
   }
 

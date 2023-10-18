@@ -7,10 +7,10 @@ import de.jpx3.intave.connect.cloud.protocol.listener.Clientbound;
 
 import static de.jpx3.intave.connect.cloud.protocol.Direction.CLIENTBOUND;
 
-public final class ClientboundDisconnectPacket extends JsonPacket<Clientbound> {
+public final class ClientboundDisconnect extends JsonPacket<Clientbound> {
   private String reason;
 
-  public ClientboundDisconnectPacket() {
+  public ClientboundDisconnect() {
     super(CLIENTBOUND, "DISCONNECT", "1");
   }
 

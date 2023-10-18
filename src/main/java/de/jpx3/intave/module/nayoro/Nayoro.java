@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.cleanup.GarbageCollector;
+import de.jpx3.intave.connect.cloud.Cloud;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.executor.TaskTracker;
 import de.jpx3.intave.module.Module;
@@ -37,6 +38,7 @@ import java.util.zip.InflaterInputStream;
 
 import static de.jpx3.intave.module.dispatch.AttackDispatcher.COMBAT_SAMPLING;
 import static de.jpx3.intave.module.nayoro.OperationalMode.CLOUD_STORAGE;
+import static de.jpx3.intave.module.nayoro.OperationalMode.CLOUD_TRANSMISSION;
 
 public final class Nayoro extends Module {
   private static final Resource SAMPLE_UPLOAD_STATUS = Resources.localServiceCacheResource("samples/status", "sample-status", TimeUnit.DAYS.toMillis(1));
@@ -71,49 +73,8 @@ public final class Nayoro extends Module {
   @Override
   public void disable() {
     disableGlobalRecording();
-//    uploadSamples();
     deleteAllSamples();
     Modules.linker().packetEvents().removeSubscriptionsOf(packetEventDispatch);
-  }
-
-  public void enableGlobalRecording() {
-    try {
-      globalRecordingLock.lock();
-      if (globalRecording) {
-        return;
-      }
-      globalRecording = true;
-      globalRecordingTaskId = Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, () -> {
-        Bukkit.getOnlinePlayers().forEach(player -> {
-          User user = UserRepository.userOf(player);
-          if (recordingActiveFor(user) && (System.currentTimeMillis() - lastRecording.get(user).get()) > (1000 * 45)) {
-            Synchronizer.synchronize(() -> {
-              disableRecordingFor(user);
-              enableRecordingFor(user, Classifier.UNKNOWN);
-            });
-          }
-        });
-      }, 20 * GLOBAL_SCHEDULE_INTERVAL, 20 * GLOBAL_SCHEDULE_INTERVAL);
-      Synchronizer.synchronize(() -> {
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-          User user = UserRepository.userOf(onlinePlayer);
-          enableRecordingFor(user, Classifier.UNKNOWN);
-        }
-      });
-      TaskTracker.begun(globalRecordingTaskId);
-    } finally {
-      globalRecordingLock.unlock();
-    }
-  }
-
-  private String asReadableBytes(long bytes) {
-    String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
-    int unit = 0;
-    while (bytes > 1024) {
-      bytes /= 1024;
-      unit++;
-    }
-    return bytes + units[unit];
   }
 
   public void deleteAllSamples() {
@@ -149,9 +110,13 @@ public final class Nayoro extends Module {
 
   @BukkitEventSubscription
   public void on(PlayerJoinEvent join) {
-    User user = UserRepository.userOf(join.getPlayer());
-    if (globalRecording) {
-      enableRecordingFor(user, Classifier.UNKNOWN);
+    Player player = join.getPlayer();
+    User user = UserRepository.userOf(player);
+    Cloud cloud = IntavePlugin.singletonInstance().cloud();
+    if (cloud.available()) {
+      cloud.requestSampleTransmission(player, classifier -> {
+        enableRecordingFor(user, classifier, CLOUD_TRANSMISSION);
+      });
     }
   }
 
@@ -163,23 +128,23 @@ public final class Nayoro extends Module {
     }
   }
 
-  public synchronized void enableRecordingFor(User user, Classifier classifier) {
+  public synchronized void enableRecordingFor(User user, Classifier classifier, OperationalMode mode) {
     localRecordingLock.lock();
     try {
+      if (!Bukkit.isPrimaryThread()) {
+        Synchronizer.synchronize(() -> enableRecordingFor(user, classifier, mode));
+        return;
+      }
       if (!COMBAT_SAMPLING || recordingActiveFor(user)) {
         return;
       }
-      if (!Bukkit.isPrimaryThread()) {
-        Synchronizer.synchronize(() -> enableRecordingFor(user, classifier));
-        return;
-      }
+      recording.get(user).set(true);
       Sample sample = new Sample();
       samples.put(user.id(), sample);
-      OutputStream output = writeStreamFor(user.player(), sample);
+      OutputStream output = writeStreamFor(user.player(), sample, mode);
       RecordEventSink recordEventSink = new RecordEventSink(new LiveEnvironment(user), new DataOutputStream(output), classifier);
       eventSinks.get(user).add(recordEventSink);
       lastRecording.get(user).set(System.currentTimeMillis());
-      recording.get(user).set(true);
     } finally {
       localRecordingLock.unlock();
     }
@@ -188,13 +153,14 @@ public final class Nayoro extends Module {
   public synchronized void disableRecordingFor(User user) {
     localRecordingLock.lock();
     try {
-      if (!COMBAT_SAMPLING || !recordingActiveFor(user)) {
-        return;
-      }
       if (!Bukkit.isPrimaryThread()) {
         Synchronizer.synchronize(() -> disableRecordingFor(user));
         return;
       }
+      if (!COMBAT_SAMPLING || !recordingActiveFor(user)) {
+        return;
+      }
+      recording.get(user).set(false);
       List<EventSink> remove = eventSinks.get(user).stream()
         .filter(eventSink -> eventSink instanceof RecordEventSink)
         .peek(EventSink::close)
@@ -204,14 +170,13 @@ public final class Nayoro extends Module {
       if (!MODE.keepCopyOfSamples()) {
         sample.delete();
       }
-      recording.get(user).set(false);
     } finally {
       localRecordingLock.unlock();
     }
   }
 
-  public OutputStream writeStreamFor(Player player, Sample sample) {
-    switch (MODE) {
+  public OutputStream writeStreamFor(Player player, Sample sample, OperationalMode mode) {
+    switch (mode) {
       case DISABLE:
         return new OutputStream() {
           @Override
@@ -219,7 +184,7 @@ public final class Nayoro extends Module {
         };
       case CLOUD_STORAGE:
       case CLOUD_TRANSMISSION:
-        boolean store = MODE == CLOUD_STORAGE;
+        boolean store = mode == CLOUD_STORAGE;
         return new BufferedOutputStream(new OutputStream() {
           @Override
           public void write(int b) {
@@ -245,7 +210,7 @@ public final class Nayoro extends Module {
     }
   }
 
-  public boolean recordingActiveFor(User user) {
+  public synchronized boolean recordingActiveFor(User user) {
     if (!COMBAT_SAMPLING) {
       return false;
     }

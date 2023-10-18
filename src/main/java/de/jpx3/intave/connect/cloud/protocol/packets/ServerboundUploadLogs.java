@@ -11,17 +11,17 @@ import java.io.DataOutput;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ServerboundUploadLogsPacket extends BinaryPacket<Serverbound> {
+public final class ServerboundUploadLogs extends BinaryPacket<Serverbound> {
   private int packetNonce;
   private Identity identity;
   private List<String> logs = new ArrayList<>();
   private Type type;
 
-  public ServerboundUploadLogsPacket() {
+  public ServerboundUploadLogs() {
     super(Direction.SERVERBOUND, "UPLOAD_LOG", "1");
   }
 
-  public ServerboundUploadLogsPacket(Identity identity, int packetNonce, List<String> logs) {
+  public ServerboundUploadLogs(Identity identity, int packetNonce, List<String> logs) {
     this();
     this.packetNonce = packetNonce;
     this.identity = identity;

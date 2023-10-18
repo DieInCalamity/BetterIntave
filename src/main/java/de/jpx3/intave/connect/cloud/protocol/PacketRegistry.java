@@ -13,23 +13,26 @@ public final class PacketRegistry {
   private static final Map<Direction, Map<String, PacketSpecification>> specifications = Maps.newEnumMap(Direction.class);
 
   static {
-    registerClientbound(ClientboundDisconnectPacket.class);
-    registerClientbound(ClientboundCombatModifierPacket.class);
-    registerClientbound(ClientboundDownloadStoragePacket.class);
-    registerClientbound(ClientboundHelloPacket.class);
-    registerClientbound(ClientboundSetTrustfactorPacket.class);
-    registerClientbound(ClientboundViolationPacket.class);
-    registerClientbound(ClientboundKeepAlivePacket.class);
-    registerClientbound(ClientboundLogReceivePacket.class);
+    registerClientbound(ClientboundDisconnect.class);
+    registerClientbound(ClientboundCombatModifier.class);
+    registerClientbound(ClientboundDownloadStorage.class);
+    registerClientbound(ClientboundHello.class);
+    registerClientbound(ClientboundSetTrustfactor.class);
+    registerClientbound(ClientboundViolation.class);
+    registerClientbound(ClientboundKeepAlive.class);
+    registerClientbound(ClientboundLogReceive.class);
+    registerClientbound(ClientboundSampleTransmissionAcknowledgement.class);
 
-    registerServerbound(ServerboundConfirmEncryptionPacket.class);
-    registerServerbound(ServerboundHelloPacket.class);
-    registerServerbound(ServerboundPassNayoroPacket.class);
-    registerServerbound(ServerboundRequestStoragePacket.class);
-    registerServerbound(ServerboundRequestTrustfactorPacket.class);
-    registerServerbound(ServerboundUploadStoragePacket.class);
-    registerServerbound(ServerboundKeepAlivePacket.class);
-    registerServerbound(ServerboundUploadLogsPacket.class);
+    registerServerbound(ServerboundConfirmEncryption.class);
+    registerServerbound(ServerboundHello.class);
+    registerServerbound(ServerboundPassNayoro.class);
+    registerServerbound(ServerboundRequestStorage.class);
+    registerServerbound(ServerboundRequestTrustfactor.class);
+    registerServerbound(ServerboundUploadStorage.class);
+    registerServerbound(ServerboundKeepAlive.class);
+    registerServerbound(ServerboundUploadLogs.class);
+    registerServerbound(ServerboundSampleTransmissionRequest.class);
+    registerServerbound(ServerboundSampleCompleted.class);
   }
   
   private static void registerClientbound(Class<? extends Packet<?>> packetClass) {

@@ -3,15 +3,14 @@ package de.jpx3.intave.connect.cloud.protocol.pipeline;
 import de.jpx3.intave.connect.cloud.Session;
 import de.jpx3.intave.connect.cloud.protocol.*;
 import de.jpx3.intave.connect.cloud.protocol.listener.Clientbound;
-import de.jpx3.intave.connect.cloud.protocol.packets.ClientboundHelloPacket;
-import de.jpx3.intave.connect.cloud.protocol.packets.ServerboundConfirmEncryptionPacket;
-import de.jpx3.intave.connect.cloud.protocol.packets.ServerboundHelloPacket;
+import de.jpx3.intave.connect.cloud.protocol.packets.ClientboundHello;
+import de.jpx3.intave.connect.cloud.protocol.packets.ServerboundConfirmEncryption;
+import de.jpx3.intave.connect.cloud.protocol.packets.ServerboundHello;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.security.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +30,7 @@ public final class HandshakeReceiver extends ChannelInboundHandlerAdapter implem
   @Override
   public void channelActive(ChannelHandlerContext ctx) {
     Shard shard = session.shard();
-    ServerboundHelloPacket serverHelloPacket = ServerboundHelloPacket.builder()
+    ServerboundHello serverHelloPacket = ServerboundHello.builder()
       .token(shard == null ? new Token(new byte[0], 0) : shard.token())
       .supportedEncryptionAlgorithms(Security.getAlgorithms("Cipher").stream().filter(s -> s.startsWith("AES")).collect(Collectors.toList()))
       .supportedEncryptionKeySizes(Collections.singletonList(128))
@@ -46,7 +45,7 @@ public final class HandshakeReceiver extends ChannelInboundHandlerAdapter implem
   @Override
   public void channelRead(ChannelHandlerContext ctx, Object object) {
     Packet<?> packet = (Packet<?>) object;
-    if (!(packet instanceof ClientboundHelloPacket)) {
+    if (!(packet instanceof ClientboundHello)) {
       //noinspection unchecked
       session.receivePacketLater((Packet<Clientbound>) packet);
       return;
@@ -69,7 +68,7 @@ public final class HandshakeReceiver extends ChannelInboundHandlerAdapter implem
   }
 
   @Override
-  public void onClientHello(ClientboundHelloPacket packet) {
+  public void onClientHello(ClientboundHello packet) {
     ProtocolSpecification protocol = session.protocol();
     protocol.overrideAvailablePackets(CLIENTBOUND, new HashSet<>(packet.clientboundPackets()));
     protocol.overrideAvailablePackets(SERVERBOUND, new HashSet<>(packet.serverboundPackets()));
@@ -95,10 +94,10 @@ public final class HandshakeReceiver extends ChannelInboundHandlerAdapter implem
     session.setVerifyBytes(packet.verifyToken());
   }
 
-  private ServerboundConfirmEncryptionPacket buildConfirmEncryptionPacket() {
+  private ServerboundConfirmEncryption buildConfirmEncryptionPacket() {
     byte[] sharedSecretEncrypted = encryptRSAChunked(session.primaryKey().getEncoded());
     byte[] verifyBytesEncrypted = encryptRSAChunked(session.verifyBytes());
-    return new ServerboundConfirmEncryptionPacket(sharedSecretEncrypted, verifyBytesEncrypted);
+    return new ServerboundConfirmEncryption(sharedSecretEncrypted, verifyBytesEncrypted);
   }
 
   private byte[] encryptRSAChunked(byte[] bytes) {

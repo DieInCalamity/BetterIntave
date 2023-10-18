@@ -8,12 +8,12 @@ import de.jpx3.intave.connect.cloud.protocol.listener.Clientbound;
 import java.io.DataInput;
 import java.io.DataOutput;
 
-public final class ClientboundLogReceivePacket extends BinaryPacket<Clientbound> {
+public final class ClientboundLogReceive extends BinaryPacket<Clientbound> {
   private int packetNonceResult;
   private Identity id;
   private String logId;
 
-  public ClientboundLogReceivePacket() {
+  public ClientboundLogReceive() {
     super(Direction.CLIENTBOUND, "RECEIVE_LOG", "1");
   }
 

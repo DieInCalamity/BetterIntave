@@ -5,7 +5,7 @@ import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.connect.cloud.protocol.*;
 import de.jpx3.intave.connect.cloud.protocol.listener.Clientbound;
 import de.jpx3.intave.connect.cloud.protocol.listener.Serverbound;
-import de.jpx3.intave.connect.cloud.protocol.packets.ServerboundKeepAlivePacket;
+import de.jpx3.intave.connect.cloud.protocol.packets.ServerboundKeepAlive;
 import de.jpx3.intave.connect.cloud.protocol.pipeline.*;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -102,8 +102,8 @@ public final class Session {
   }
 
   public void keepAliveTick() {
-    if (canSend(ServerboundKeepAlivePacket.class)) {
-      send(new ServerboundKeepAlivePacket());
+    if (canSend(ServerboundKeepAlive.class)) {
+      send(new ServerboundKeepAlive());
     }
   }
 

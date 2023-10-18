@@ -9,15 +9,15 @@ import de.jpx3.intave.connect.cloud.protocol.JsonPacket;
 import de.jpx3.intave.connect.cloud.protocol.listener.Clientbound;
 import org.bukkit.entity.Player;
 
-public final class ClientboundSetTrustfactorPacket extends JsonPacket<Clientbound> {
+public final class ClientboundSetTrustfactor extends JsonPacket<Clientbound> {
   private Identity id;
   private TrustFactor trustFactor;
 
-  public ClientboundSetTrustfactorPacket() {
+  public ClientboundSetTrustfactor() {
     super(Direction.CLIENTBOUND, "SET_TRUSTFACTOR", "1");
   }
 
-  public ClientboundSetTrustfactorPacket(Player player, TrustFactor trustFactor) {
+  public ClientboundSetTrustfactor(Player player, TrustFactor trustFactor) {
     super(Direction.CLIENTBOUND, "SET_TRUSTFACTOR", "1");
     this.id = Identity.from(player);
     this.trustFactor = trustFactor;

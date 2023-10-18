@@ -15,7 +15,7 @@ import java.util.List;
 
 import static de.jpx3.intave.connect.cloud.protocol.Direction.CLIENTBOUND;
 
-public final class ClientboundHelloPacket extends BinaryPacket<Clientbound> {
+public final class ClientboundHello extends BinaryPacket<Clientbound> {
   private List<String> clientboundPackets = new ArrayList<>();
   private List<String> serverboundPackets = new ArrayList<>();
   private String encryptionAlgorithm;
@@ -25,11 +25,11 @@ public final class ClientboundHelloPacket extends BinaryPacket<Clientbound> {
   private PublicKey publicKey;
   private byte[] verifyToken;
 
-  public ClientboundHelloPacket() {
+  public ClientboundHello() {
     super(CLIENTBOUND, "HELLO", "0");
   }
 
-  public ClientboundHelloPacket(
+  public ClientboundHello(
     Token token,
     List<String> clientboundPackets,
     List<String> serverboundPackets,

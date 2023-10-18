@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import static de.jpx3.intave.connect.cloud.protocol.Direction.SERVERBOUND;
 
-public final class ServerboundHelloPacket extends BinaryPacket<Serverbound> {
+public final class ServerboundHello extends BinaryPacket<Serverbound> {
   private Token shardToken;
   private List<String> supportedEncryptionAlgorithms = new ArrayList<>();
   private List<Integer> supportedEncryptionKeySizes = new ArrayList<>();
@@ -21,11 +21,11 @@ public final class ServerboundHelloPacket extends BinaryPacket<Serverbound> {
   private final Map<String, PacketSpecification> clientboundProtocol = new HashMap<>();
   private final Map<String, PacketSpecification> serverboundProtocol = new HashMap<>();
 
-  public ServerboundHelloPacket() {
+  public ServerboundHello() {
     super(SERVERBOUND, "HELLO", "0");
   }
 
-  public ServerboundHelloPacket(
+  public ServerboundHello(
     Token token,
     List<String> supportedEncryptionAlgorithms, List<Integer> supportedEncryptionKeySizes,
     List<String> supportedCompressionAlgorithms, List<String> supportedHMACAlgorithms,
@@ -154,7 +154,7 @@ public final class ServerboundHelloPacket extends BinaryPacket<Serverbound> {
       return this;
     }
 
-    public ServerboundHelloPacket build() {
+    public ServerboundHello build() {
       if (token == null) {
         throw new IllegalStateException("token is null");
       }
@@ -176,7 +176,7 @@ public final class ServerboundHelloPacket extends BinaryPacket<Serverbound> {
       if (serverboundProtocol.isEmpty()) {
         throw new IllegalStateException("serverboundProtocol is empty");
       }
-      return new ServerboundHelloPacket(
+      return new ServerboundHello(
         token,
         supportedEncryptionAlgorithms, supportedEncryptionKeySizes,
         supportedCompressionAlgorithms, supportedHMACAlgorithms,

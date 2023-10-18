@@ -9,10 +9,10 @@ import java.io.IOException;
 
 import static de.jpx3.intave.connect.cloud.protocol.Direction.CLIENTBOUND;
 
-public final class ClientboundKeepAlivePacket extends BinaryPacket<Clientbound> {
+public final class ClientboundKeepAlive extends BinaryPacket<Clientbound> {
   private long returnTime;
 
-  public ClientboundKeepAlivePacket() {
+  public ClientboundKeepAlive() {
     super(CLIENTBOUND, "KEEP_ALIVE", "1");
   }
 

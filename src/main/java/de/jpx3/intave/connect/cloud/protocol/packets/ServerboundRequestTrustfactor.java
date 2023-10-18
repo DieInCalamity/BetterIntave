@@ -8,14 +8,14 @@ import de.jpx3.intave.connect.cloud.protocol.JsonPacket;
 
 import static de.jpx3.intave.connect.cloud.protocol.Direction.SERVERBOUND;
 
-public final class ServerboundRequestTrustfactorPacket extends JsonPacket<Serverbound> {
+public final class ServerboundRequestTrustfactor extends JsonPacket<Serverbound> {
   private Identity id;
 
-  public ServerboundRequestTrustfactorPacket() {
+  public ServerboundRequestTrustfactor() {
     super(SERVERBOUND, "REQUEST_TRUSTFACTOR", "1");
   }
 
-  public ServerboundRequestTrustfactorPacket(Identity id) {
+  public ServerboundRequestTrustfactor(Identity id) {
     super(SERVERBOUND, "REQUEST_TRUSTFACTOR", "1");
     this.id = id;
   }
