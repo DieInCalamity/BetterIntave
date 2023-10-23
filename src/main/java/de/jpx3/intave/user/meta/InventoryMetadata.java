@@ -39,6 +39,7 @@ public final class InventoryMetadata {
   private volatile boolean handActive;
   private final Lock handActiveLock = new ReentrantLock();
   private Material activeItemType;
+  private List<String> items = new ArrayList<>();
   private boolean foodItem;
 
   public InventoryMetadata(Player player) {
@@ -196,6 +197,8 @@ public final class InventoryMetadata {
     if (!inventoryOpen && clientData.supportsInventoryAchievementPacket()) {
       this.forceInventoryOnClickOpen = true;
     }
+//    player.sendMessage("Inventory is now " + (inventoryOpen ? "open" : "closed"));
+
 //    deactivateHand();
     releaseItemNextTick();
     this.inventoryOpen = inventoryOpen;
@@ -225,6 +228,14 @@ public final class InventoryMetadata {
       }
     }
     return false;
+  }
+
+  public List<String> items() {
+    return items;
+  }
+
+  public void setItems(List<String> items) {
+    this.items = items;
   }
 
   public static class SlotSwitchData {

@@ -3,10 +3,7 @@ package de.jpx3.intave.check.other;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.check.Check;
 import de.jpx3.intave.check.CheckViolationLevelDecrementer;
-import de.jpx3.intave.check.other.inventoryclickanalysis.InventoryClickDelayAnalyzer;
-import de.jpx3.intave.check.other.inventoryclickanalysis.InventoryClickNotOpenCheck;
-import de.jpx3.intave.check.other.inventoryclickanalysis.InventoryClickOnMoveCheck;
-import de.jpx3.intave.check.other.inventoryclickanalysis.InventoryClickPacketDelayAnalyzer;
+import de.jpx3.intave.check.other.inventoryclickanalysis.*;
 
 public final class InventoryClickAnalysis extends Check {
   public static final double MAX_VL_DECREMENT_PER_SECOND = 1;
@@ -21,9 +18,10 @@ public final class InventoryClickAnalysis extends Check {
   }
 
   private void setupCheckParts() {
-    appendCheckPart(new InventoryClickOnMoveCheck(this));
-    appendCheckPart(new InventoryClickNotOpenCheck(this));
-    appendCheckPart(new InventoryClickDelayAnalyzer(this, highToleranceMode));
-    appendCheckPart(new InventoryClickPacketDelayAnalyzer(this));
+    appendCheckPart(new OnMoveCheck(this));
+    appendCheckPart(new NotOpenCheck(this));
+    appendCheckPart(new DelayAnalyzer(this, highToleranceMode));
+    appendCheckPart(new PacketDelayAnalyzer(this));
+    appendCheckPart(new AutoTotem(this));
   }
 }

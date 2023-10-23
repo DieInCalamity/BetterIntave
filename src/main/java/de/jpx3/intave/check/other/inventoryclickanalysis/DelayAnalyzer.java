@@ -30,14 +30,14 @@ import java.util.List;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.WINDOW_CLICK;
 import static de.jpx3.intave.module.mitigate.AttackNerfStrategy.*;
 
-public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryClickAnalysis, InventoryClickDelayAnalyzer.ClickDelayMeta> {
+public final class DelayAnalyzer extends MetaCheckPart<InventoryClickAnalysis, DelayAnalyzer.ClickDelayMeta> {
   private static final boolean MODERN_WINDOW_CLICK = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
 
   private final IntavePlugin plugin;
   private final boolean highToleranceMode;
   private final Class<?> clickType;
 
-  public InventoryClickDelayAnalyzer(InventoryClickAnalysis parentCheck, boolean highToleranceMode) {
+  public DelayAnalyzer(InventoryClickAnalysis parentCheck, boolean highToleranceMode) {
     super(parentCheck, ClickDelayMeta.class);
     this.highToleranceMode = highToleranceMode;
     this.plugin = IntavePlugin.singletonInstance();

@@ -11,8 +11,8 @@ import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
-public final class InventoryClickPacketDelayAnalyzer extends MetaCheckPart<InventoryClickAnalysis, InventoryClickPacketDelayAnalyzer.TimingData> {
-  public InventoryClickPacketDelayAnalyzer(InventoryClickAnalysis parentCheck) {
+public final class PacketDelayAnalyzer extends MetaCheckPart<InventoryClickAnalysis, PacketDelayAnalyzer.TimingData> {
+  public PacketDelayAnalyzer(InventoryClickAnalysis parentCheck) {
     super(parentCheck, TimingData.class);
   }
 

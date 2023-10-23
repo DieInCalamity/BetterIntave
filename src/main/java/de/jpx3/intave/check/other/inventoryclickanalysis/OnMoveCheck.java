@@ -17,10 +17,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
-public final class InventoryClickOnMoveCheck extends CheckPart<InventoryClickAnalysis> {
+public final class OnMoveCheck extends CheckPart<InventoryClickAnalysis> {
   private final IntavePlugin plugin;
 
-  public InventoryClickOnMoveCheck(InventoryClickAnalysis parentCheck) {
+  public OnMoveCheck(InventoryClickAnalysis parentCheck) {
     super(parentCheck);
     plugin = IntavePlugin.singletonInstance();
   }
