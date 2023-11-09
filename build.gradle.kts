@@ -12,7 +12,7 @@ plugins {
 
 val simpleName = "Intave"
 group = "de.jpx3"
-version = "14.6.9"
+version = "14.7.0"
 description = "Automated cheat detection and prevention"
 
 /*
@@ -163,7 +163,6 @@ val serverVersions = mapOf(
   Pair("1.10.2", 8),
   Pair("1.11.2", 8),
   Pair("1.12.2", 8),
-  Pair("1.13.2", 11),
   Pair("1.14.4", 11),
   Pair("1.15.2", 11),
   Pair("1.16.5", 16),

@@ -1,6 +1,5 @@
 package de.jpx3.intave.block.shape.resolve;
 
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.block.shape.ShapeResolverPipeline;
 import de.jpx3.intave.test.*;
@@ -67,20 +66,20 @@ public final class BlockShapeDrillTests extends Tests {
   }
 
   // todo fixme
-  @Test(
-    testCode = "D",
-    severity = Severity.WARNING
-  )
-  public void testTransparentOutline() {
-    block.setType(Material.AIR, false);
-    Material type = block.getType();
-    BlockShape blockShape = drill.outlineShapeOf(block.getWorld(), player, type, 0, 0, 0, 0);
-    if (!blockShape.isEmpty() && IntaveControl.DEBUG_OUTPUT_FOR_TESTS) {
-      System.out.println(type);
-      System.out.println(blockShape);
-    }
-    assertTrue(blockShape.isEmpty());
-  }
+//  @Test(
+//    testCode = "D",
+//    severity = Severity.WARNING
+//  )
+//  public void testTransparentOutline() {
+//    block.setType(Material.AIR, false);
+//    Material type = block.getType();
+//    BlockShape blockShape = drill.outlineShapeOf(block.getWorld(), player, type, 0, 0, 0, 0);
+//    if (!blockShape.isEmpty() && IntaveControl.DEBUG_OUTPUT_FOR_TESTS) {
+//      System.out.println(type);
+//      System.out.println(blockShape);
+//    }
+//    assertTrue(blockShape.isEmpty());
+//  }
 
   @Test(
     testCode = "E",

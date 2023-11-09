@@ -505,7 +505,7 @@ public final class Physics extends Check {
         if (!Collision.blockInsideBorder(player.getWorld(), blockPositionX, blockPositionZ)) {
           colliderName = "world border";
         } else {
-          String prefix = (currentlyInOverride ? "emulated" : "") + " " + (altered ? "altered" : "") + " ";
+          String prefix = (currentlyInOverride ? "emulated " : "") + (altered ? "altered " : "");
           Material type = VolatileBlockAccess.typeAccess(user, block.getLocation());
           String typeName = shortenTypeName(type);
           colliderName = prefix + typeName + " block";

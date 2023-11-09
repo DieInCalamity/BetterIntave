@@ -197,8 +197,6 @@ public final class InventoryMetadata {
     if (!inventoryOpen && clientData.supportsInventoryAchievementPacket()) {
       this.forceInventoryOnClickOpen = true;
     }
-//    player.sendMessage("Inventory is now " + (inventoryOpen ? "open" : "closed"));
-
 //    deactivateHand();
     releaseItemNextTick();
     this.inventoryOpen = inventoryOpen;
