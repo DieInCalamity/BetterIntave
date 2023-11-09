@@ -1,12 +1,22 @@
 package de.jpx3.intave.command.stages;
 
+import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.command.CommandStage;
+import de.jpx3.intave.command.Optional;
 import de.jpx3.intave.command.SubCommand;
 import de.jpx3.intave.connect.cloud.Cloud;
 import de.jpx3.intave.connect.cloud.protocol.Shard;
+import de.jpx3.intave.module.Modules;
+import de.jpx3.intave.module.nayoro.Classifier;
+import de.jpx3.intave.module.nayoro.Nayoro;
+import de.jpx3.intave.module.nayoro.OperationalMode;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserRepository;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.Map;
 
@@ -44,6 +54,44 @@ public final class CloudStage extends CommandStage {
       Shard shard = entry.getKey();
       boolean connected = entry.getValue();
       commandSender.sendMessage(IntavePlugin.prefix() + ChatColor.GRAY + "Shard " + ChatColor.GREEN + shard.name() + ChatColor.GRAY + " is " + (connected ? ChatColor.GREEN + "CONNECTED" : ChatColor.RED + "DISCONNECTED") + ChatColor.GRAY + " (" + ChatColor.GREEN + formatBytes(receivedBytes.get(shard)) + ChatColor.GRAY + " received, " + ChatColor.GREEN + formatBytes(sentBytes.get(shard)) + ChatColor.GRAY + " sent)");
+    }
+  }
+
+  @SubCommand(
+    selectors = "record",
+    usage = "[<target>] [<classifier>] [<scenario/cheat>]",
+    permission = "intave.command",
+    description = "Record players"
+  )
+  @Native
+  public void recordCommand(User user, @Optional Player target, @Optional Classifier classifier, @Optional String scenario) {
+    Nayoro nayoro = Modules.nayoro();
+    Player player = user.player();
+    if (IntaveControl.GOMME_MODE || !IntaveControl.DISABLE_LICENSE_CHECK && !IntavePlugin.singletonInstance().sibyl().isAuthenticated(player)) {
+      player.sendMessage(ChatColor.RED + "This command is not available");
+      return;
+    }
+    if (target == null) {
+      target = user.player();
+    }
+    User targetUser = UserRepository.userOf(target);
+    if (nayoro.recordingActiveFor(targetUser)) {
+      nayoro.disableRecordingFor(targetUser);
+      player.sendMessage(ChatColor.RED + "Recording disabled for " + target.getName());
+    } else {
+      if (scenario == null) {
+        user.player().sendMessage(ChatColor.RED + "Please specify a scenario");
+        return;
+      }
+      if (classifier == null || classifier == Classifier.UNKNOWN) {
+        user.player().sendMessage(ChatColor.RED + "Please specify a valid classifier (CHEAT or LEGIT)");
+        return;
+      }
+      Cloud cloud = IntavePlugin.singletonInstance().cloud();
+      cloud.requestSampleTransmission(target, classifier, scenario, targetUser.meta().protocol().versionString(), classifier1 -> {
+        nayoro.enableRecordingFor(targetUser, classifier, OperationalMode.CLOUD_STORAGE);
+        player.sendMessage(ChatColor.GREEN + "Recording with label \"" + classifier + "\"/"+scenario+" granted by cloud.");
+      });
     }
   }
 

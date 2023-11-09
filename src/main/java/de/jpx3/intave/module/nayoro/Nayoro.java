@@ -187,7 +187,7 @@ public final class Nayoro extends Module {
         };
       case CLOUD_STORAGE:
       case CLOUD_TRANSMISSION:
-        boolean store = mode == CLOUD_STORAGE;
+        boolean storage = mode == CLOUD_STORAGE;
         return new ManualBufferedOutputStream(new OutputStream() {
           @Override
           public void write(int b) {
@@ -202,15 +202,12 @@ public final class Nayoro extends Module {
           @Override
           public void write(byte @NotNull [] b, int off, int len) {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            outputStream.write(1);
-            outputStream.write(b, off, len);
 //            outputStream.write(1);
-
+            outputStream.write(b, off, len);
             byte[] writeStream = outputStream.toByteArray();
             ByteBuffer buffer = ByteBuffer.wrap(writeStream);
             IntavePlugin plugin = IntavePlugin.singletonInstance();
-            plugin.cloud().uploadSample(player, buffer/*, store*/);
-            System.out.println("Uploaded " + writeStream.length + " sample bytes");
+            plugin.cloud().uploadSample(player, buffer);
           }
 
           @Override

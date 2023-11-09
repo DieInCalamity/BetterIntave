@@ -19,19 +19,19 @@ public abstract class Packet<E extends PacketListener> implements Serializable {
     listener.onSelect(this);
   }
 
-  public Direction direction() {
+  public final Direction direction() {
     return direction;
   }
 
-  public String name() {
+  public final String name() {
     return name;
   }
 
-  public String version() {
+  public final String version() {
     return version;
   }
 
-  public TransferMode transferMode() {
+  public final TransferMode transferMode() {
     return mode;
   }
 }

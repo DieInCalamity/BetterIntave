@@ -6,9 +6,16 @@ import de.jpx3.intave.connect.cloud.protocol.Direction;
 import de.jpx3.intave.connect.cloud.protocol.Identity;
 import de.jpx3.intave.connect.cloud.protocol.JsonPacket;
 import de.jpx3.intave.connect.cloud.protocol.listener.Serverbound;
+import de.jpx3.intave.module.nayoro.Classifier;
 
 public final class ServerboundSampleTransmissionRequest extends JsonPacket<Serverbound> {
 	private Identity identity;
+
+	// -- only when recording --
+	private Classifier classifier;
+	private String scenarioOrCheat;
+	private String version;
+	// -- only when recording --
 
 	public ServerboundSampleTransmissionRequest() {
 		super(Direction.SERVERBOUND, "SAMPLE_TRANSMISSION_REQUEST", "1");
@@ -17,6 +24,13 @@ public final class ServerboundSampleTransmissionRequest extends JsonPacket<Serve
 	public ServerboundSampleTransmissionRequest(Identity identity) {
 		this();
 		this.identity = identity;
+	}
+
+	public ServerboundSampleTransmissionRequest(Identity identity, Classifier classifier, String scenarioOrCheat, String version) {
+		this(identity);
+		this.classifier = classifier;
+		this.scenarioOrCheat = scenarioOrCheat;
+		this.version = version;
 	}
 
 	public Identity identity() {
@@ -29,6 +43,18 @@ public final class ServerboundSampleTransmissionRequest extends JsonPacket<Serve
 			writer.beginObject();
 			writer.name("id");
 			identity.serialize(writer);
+			if (classifier != null) {
+				writer.name("classifier");
+				writer.value(classifier.name());
+			}
+			if (scenarioOrCheat != null) {
+				writer.name("scenario");
+				writer.value(scenarioOrCheat);
+			}
+			if (version != null) {
+				writer.name("version");
+				writer.value(version);
+			}
 			writer.endObject();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -44,11 +70,24 @@ public final class ServerboundSampleTransmissionRequest extends JsonPacket<Serve
 					case "id":
 						identity = Identity.from(reader);
 						break;
+					case "scenario":
+						scenarioOrCheat = reader.nextString();
+						break;
+					case "classifier":
+						classifier = Classifier.valueOf(reader.nextString());
+						break;
+					case "version":
+						version = reader.nextString();
+						break;
 				}
 			}
 			reader.endObject();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public boolean isRecording() {
+		return classifier != null && scenarioOrCheat != null && version != null;
 	}
 }

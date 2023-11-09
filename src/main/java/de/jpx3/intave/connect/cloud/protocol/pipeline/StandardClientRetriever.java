@@ -93,17 +93,21 @@ public final class StandardClientRetriever extends ChannelInboundHandlerAdapter 
     if (player == null) {
       return;
     }
-    IntavePlugin intave = IntavePlugin.singletonInstance();
-    CheckService checks = intave.checks();
-    Check check = checks.searchCheck(packet.check());
-    Violation violation = Violation.builderFor(check.getClass())
-      .forPlayer(player)
-      .withCustomThreshold(packet.threshold())
-      .withMessage(packet.message())
-      .withDetails(packet.details())
-      .withVL(packet.vl())
-      .build();
-    ViolationProcessor violationProcessor = Modules.violationProcessor();
-    violationProcessor.processViolation(violation);
+    try {
+      IntavePlugin intave = IntavePlugin.singletonInstance();
+      CheckService checks = intave.checks();
+      Check check = checks.searchCheck(packet.check());
+      Violation violation = Violation.builderFor(check.getClass())
+        .forPlayer(player)
+        .withCustomThreshold(packet.threshold())
+        .withMessage(packet.message())
+        .withDetails(packet.details())
+        .withVL(packet.vl())
+        .build();
+      ViolationProcessor violationProcessor = Modules.violationProcessor();
+      violationProcessor.processViolation(violation);
+    } catch (Exception exception) {
+      exception.printStackTrace();
+    }
   }
 }

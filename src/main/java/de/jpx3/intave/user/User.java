@@ -112,10 +112,10 @@ public interface User {
   boolean hasPlayer();
 
   /**
-   * Tick-synchronization aka. feedback
+   * Tick-synchronization aka. feedback.
    * Sends a transaction packet immediately, callback is triggered when response is received.
-   * If sent whilst an outbound packet is in outbound queue, the callback is in the correct inbound packet order.
-   * Can't be replayed or intermediately dropped by the client.
+   * If sent whilst an outbound packet is in outbound queue, the callback is in the correct inbound packet order - before.
+   * Can't be replayed or dropped by the client.
    *
    * @param callback the callback
    */

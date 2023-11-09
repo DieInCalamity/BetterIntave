@@ -59,4 +59,10 @@ public final class ManualBufferedOutputStream extends FilterOutputStream {
     }
   }
 
+  @Override
+  public void close() throws IOException {
+    out.write(buffer, 0, position);
+    position = 0;
+    super.close();
+  }
 }
