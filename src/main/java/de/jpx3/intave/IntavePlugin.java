@@ -323,10 +323,6 @@ public final class IntavePlugin extends JavaPlugin {
 
         String response = "";
 
-        /*
-         * this is our new protection against proxy-based attacks
-         */
-
         String licenseInfo;
         String hashOfJarFile;
         String secretKey;

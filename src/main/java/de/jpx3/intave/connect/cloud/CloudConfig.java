@@ -1,6 +1,5 @@
 package de.jpx3.intave.connect.cloud;
 
-import de.jpx3.intave.IntaveControl;
 import org.bukkit.configuration.ConfigurationSection;
 
 public final class CloudConfig {
@@ -17,7 +16,7 @@ public final class CloudConfig {
 
   public static CloudConfig from(ConfigurationSection section) {
     // enabled by default
-    boolean enabled = section == null ? !IntaveControl.GOMME_MODE : section.getBoolean("enabled", !IntaveControl.GOMME_MODE);
+    boolean enabled = section == null || section.getBoolean("enabled", true);
     ConfigurationSection featuresSection = section == null ? null : section.getConfigurationSection("features");
     boolean cloudStorage = featuresSection == null || featuresSection.getBoolean("storage", featuresSection.getBoolean("cloud-storage", true));
     boolean cloudTrustFactor = featuresSection == null || featuresSection.getBoolean("trustfactor", featuresSection.getBoolean("cloud-trustfactor", true));

@@ -148,11 +148,13 @@ public final class Cloud {
   private void setTrustAndStorage() {
     IntaveAccess access = IntaveAccessor.unsafeAccess();
     CloudConfig.CloudFeatures features = cloudConfig.features();
-    if (features.cloudTrustfactorEnabled()) {
-      access.setTrustFactorResolver(new DefaultForwardingPermissionTrustFactorResolver(new CloudTrustfactorResolver(this)));
-    }
-    if (features.cloudStorageEnabled()) {
-      access.setStorageGateway(new CloudStorageGateaway(this));
+    if (!IntaveControl.GOMME_MODE) {
+      if (features.cloudTrustfactorEnabled()) {
+        access.setTrustFactorResolver(new DefaultForwardingPermissionTrustFactorResolver(new CloudTrustfactorResolver(this)));
+      }
+      if (features.cloudStorageEnabled()) {
+        access.setStorageGateway(new CloudStorageGateaway(this));
+      }
     }
   }
 

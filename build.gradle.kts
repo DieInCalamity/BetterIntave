@@ -12,7 +12,7 @@ plugins {
 
 val simpleName = "Intave"
 group = "de.jpx3"
-version = "14.7.2"
+version = "14.7.3"
 description = "Automated cheat detection and prevention"
 
 /*
@@ -144,6 +144,27 @@ tasks.register<RunServer>("authtest") {
     }
   )
 }
+
+tasks.register<RunServer>("gommetest") {
+  group = "intave"
+  dependsOn(tasks.build)
+  buildConfigFieldSafe("boolean", "GOMME", "true")
+  dumpBuildConfig()
+
+  pluginJars.from("build/libs/$simpleName.jar")
+  minecraftVersion("1.8.8")
+  runDirectory(File("runs/gommetest"))
+  jvmArgs("-Dcom.mojang.eula.agree=true")
+//  jvmArgs("-Dintave.test.success=shutdown")
+  javaLauncher.set(
+    project.javaToolchains.launcherFor {
+      // Sets the JDK version for the Minecraft server, Intave is still built using Java
+      // 1.8
+      languageVersion.set(JavaLanguageVersion.of(8))
+    }
+  )
+}
+
 
 tasks.register<RunServer>("authtest_1.20.1") {
   group = "intave"

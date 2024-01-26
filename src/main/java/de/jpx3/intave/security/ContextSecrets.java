@@ -1,7 +1,6 @@
 package de.jpx3.intave.security;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.access.IntaveInternalException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -12,6 +11,7 @@ import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 
 public final class ContextSecrets {
   private static final Map<String, String> mapping = new HashMap<>();
+  private static final Map<String, String> defaults = new HashMap<>();
 
   public static void setup() {
     if (GOMME_MODE) {
@@ -22,7 +22,8 @@ public final class ContextSecrets {
       }
       File configFile = new File(dataFolder, "secrets.yml");
       if (!configFile.exists()) {
-        throw new IntaveInternalException("Secret file required");
+//        throw new IntaveInternalException("Secret file required");
+
       }
       YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(configFile);
       for (Map.Entry<String, Object> entry : yamlConfiguration.getValues(true).entrySet()) {
@@ -31,11 +32,12 @@ public final class ContextSecrets {
         mapping.put(key, String.valueOf(value));
       }
     }
+    defaults.put("cache-directory", System.getProperty("user.home"));
   }
 
   public static String secret(String key) {
     if (GOMME_MODE) {
-      return mapping.getOrDefault(key.toLowerCase(), "null");
+      return mapping.getOrDefault(key.toLowerCase(), defaults.getOrDefault(key, "null"));
     }
     return "null";
   }

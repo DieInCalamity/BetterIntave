@@ -622,7 +622,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     if (clientData.flyingPacketsAreSent()) {
       return attackRaytraceMeta.flyingPacketCounter > 0 ? 0.13f : 0.1f;
     } else {
-      return movement.pastFlyingPacketAccurate <= 1 ? 0.1f : 0f;
+      return 0.13f;
     }
   }
 
