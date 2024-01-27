@@ -155,7 +155,6 @@ public final class FeedbackSender extends Module {
     }
     User user = UserRepository.userOf(player);
     if (!user.hasPlayer()) {
-      System.out.println("not sending");
       return;
     }
     boolean append = false;
