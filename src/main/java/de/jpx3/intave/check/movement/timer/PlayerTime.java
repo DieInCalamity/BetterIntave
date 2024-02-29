@@ -50,6 +50,10 @@ public class PlayerTime extends MetaCheckPart<Timer, PlayerTime.PlayerTimeMeta> 
     decrementer = parentCheck.decrementer();
   }
 
+  private void sendTransactionsToIdle() {
+
+  }
+
   @PacketSubscription(
     priority = ListenerPriority.HIGHEST,
     packetsOut = {

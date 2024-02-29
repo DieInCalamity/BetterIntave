@@ -31,6 +31,7 @@ check:
       # Can help reduce item-related false positives
       reset-item-usage: true
       # Can help reduce inventory-related false positives
+      # Set this value to "SILENT" to close inventory in silent mitigation mode
       close-inventory: true
       # Can help reduce ghost-block related false positives
       refresh-nearby-blocks: true

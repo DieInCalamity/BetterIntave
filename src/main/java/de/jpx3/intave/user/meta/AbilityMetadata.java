@@ -207,7 +207,8 @@ public final class AbilityMetadata {
   }
 
   public void setWalkSpeed(float walkSpeed) {
-    modifyBaseValue("generic.movementSpeed", walkSpeed);
+// "walkspeed" is just baseline value for fov, not actual speed
+//    modifyBaseValue("generic.movementSpeed", walkSpeed);
   }
 
   public void setFlySpeed(float flySpeed) {

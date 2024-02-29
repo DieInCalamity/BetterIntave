@@ -7,7 +7,6 @@ import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ViaVersionAdapter;
-import de.jpx3.intave.check.movement.timer.Balance;
 import de.jpx3.intave.diagnostic.LatencyStudy;
 import de.jpx3.intave.executor.TaskTracker;
 import de.jpx3.intave.module.Module;
@@ -152,6 +151,9 @@ public final class FeedbackReceiver extends Module {
 
     if (IntaveControl.DEBUG_FEEDBACK_PACKETS) {
       System.out.println("Received " + userKey + "/" +response.num() + " from " + player.getName());
+//      Synchronizer.synchronize(() -> {
+//        player.sendMessage("Received " + userKey + "/" +response.num());
+//      });
     }
 
     FeedbackRequest<?> poll = feedbackQueue.poll();

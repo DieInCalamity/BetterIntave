@@ -481,7 +481,11 @@ public final class MovementDispatcher extends Module {
       return;
     }
 
-    connectionData.movementPassedForNFS = true;
+    if (!connectionData.nextFeedbackSubscribers.isEmpty()) {
+      connectionData.movementPassedForNFS = true;
+    }
+
+//    System.out.println("Received movement");
 
     if (!movementData.isTeleportConfirmationPacket) {
       timerCheck.receiveMovement(event);
@@ -635,7 +639,6 @@ public final class MovementDispatcher extends Module {
 
     if (!vehicleMove && !movement.awaitTeleport && !movement.awaitOutgoingTeleport && !movement.invalidMovement && !movement.dropPostTickMotionProcessing) {
       if (claimsToBeOnGround != movement.onGround) {
-//        player.sendMessage(ChatColor.RED + "Ground state mismatch fact:" + movement.onGround + " client:" + claimsToBeOnGround);
         if (movement.artificialFallDistance > 0.1 && !movement.onGround && claimsToBeOnGround) {
           Violation violation = Violation.builderFor(Physics.class)
             .forPlayer(player)

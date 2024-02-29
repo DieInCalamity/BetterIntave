@@ -92,6 +92,7 @@ public final class Physics extends Check {
   private final boolean highToleranceMode;
   private final boolean resetItemUsage;
   private final boolean closeInventory;
+  private final boolean closeInventorySilentMode;
   private final boolean refreshNearbyBlocks;
 
   public Physics(IntavePlugin plugin) {
@@ -103,11 +104,15 @@ public final class Physics extends Check {
     this.highToleranceMode = settings.boolBy("high-tolerance", false);
     if (settings.has("on-detection")) {
       this.resetItemUsage = settings.boolBy("on-detection.reset-item-usage", true);
-      this.closeInventory = settings.boolBy("on-detection.close-inventory", true);
+      String inventoryCloseMode = settings.stringBy("on-detection.close-inventory", "true");
+      this.closeInventory = inventoryCloseMode.equalsIgnoreCase("true") || inventoryCloseMode.equalsIgnoreCase("silent");
+      this.closeInventorySilentMode = inventoryCloseMode.equalsIgnoreCase("silent");
       this.refreshNearbyBlocks = settings.boolBy("on-detection.refresh-nearby-blocks", true);
     } else {
       this.resetItemUsage = settings.boolBy("reset-item-usage", true);
-      this.closeInventory = settings.boolBy("close-inventory-on-detection", true);
+      String inventoryCloseMode = settings.stringBy("close-inventory", "true");
+      this.closeInventory = inventoryCloseMode.equalsIgnoreCase("true") || inventoryCloseMode.equalsIgnoreCase("silent");
+      this.closeInventorySilentMode = inventoryCloseMode.equalsIgnoreCase("silent");
       this.refreshNearbyBlocks = settings.boolBy("refresh-nearby-blocks-on-detection", true);
     }
 
@@ -690,7 +695,10 @@ public final class Physics extends Check {
           break;
         case SILENT:
           setback = false;
-          manualOverrideDistance = 1.25;
+          manualOverrideDistance = 1.5;
+          if (violationLevelAfter > 20 && closeInventorySilentMode && user.meta().inventory().inventoryOpen()) {
+            player.closeInventory();
+          }
           break;
       }
 
