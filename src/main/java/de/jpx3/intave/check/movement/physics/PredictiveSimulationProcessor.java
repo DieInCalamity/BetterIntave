@@ -5,7 +5,6 @@ import de.jpx3.intave.diagnostic.IterativeStudy;
 import de.jpx3.intave.diagnostic.KeyPressStudy;
 import de.jpx3.intave.diagnostic.timings.Timings;
 import de.jpx3.intave.math.Hypot;
-import de.jpx3.intave.module.dispatch.AttackDispatcher;
 import de.jpx3.intave.module.feedback.Superposition;
 import de.jpx3.intave.player.ItemProperties;
 import de.jpx3.intave.share.Motion;
@@ -72,8 +71,8 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     Motion motion = movementData.motionProcessorContext.copy();
     motion.setToBaseMotionFrom(movementData);
     MovementConfiguration configuration = MovementConfiguration.select(
-      forward, strafe,
-      false, movementData.sprintingAllowed(),
+      forward, strafe, 0,
+      movementData.sprintingAllowed(),
       jumped, meta.inventory().handActive()
     );
     Simulation simulate = simulator.simulate(user, motion, movementData, configuration);
@@ -144,16 +143,17 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     MetadataBundle meta = user.meta();
     MovementMetadata movementData = meta.movement();
     InventoryMetadata inventoryData = meta.inventory();
-    if (movementData.pastPlayerAttackPhysics == 0 && simulationStack.sprinted()/*movementData.sprinting*/ && !simulationStack.reduced()) {
-      movementData.ignoredAttackReduce = true;
-    }
+//    if (movementData.pastPlayerReduceAttackPhysics == 0 && simulationStack.sprinted()/*movementData.sprinting*/ && !simulationStack.reduced()) {
+//      movementData.ignoredAttackReduce = true;
+//    }
     /* misplaced - please solve this otherwise */
     boolean movementSuggestsHandIsActive = simulationStack.handActive();
     boolean packetsSuggestsHandIsActive = inventoryData.handActive();
     if (packetsSuggestsHandIsActive && !movementSuggestsHandIsActive) {
       boolean releaseHandConditions = Hypot.fast(movementData.motionX(), movementData.motionZ()) > 0.3 || movementData.lastTeleport >= 2;
       boolean itemIsBow = ItemProperties.isBow(meta.inventory().activeItemType()) || ItemProperties.isBow(meta.inventory().offhandItemType());
-      if (releaseHandConditions && (!itemIsBow || inventoryData.handActiveTicks > 3) && itemUsageReset) {
+      boolean viaVersionBlockReplacement = meta.protocol().viaVersionShieldBlockReplacement();
+      if (releaseHandConditions && (!itemIsBow || (inventoryData.handActiveTicks > 3 && !viaVersionBlockReplacement)) && itemUsageReset) {
         meta.inventory().releaseItemNextTick();
       }
     }
@@ -170,7 +170,6 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     Timings.CHECK_PHYSICS_PROC_PRED_BIA.start();
     MovementMetadata movementData = user.meta().movement();
     InventoryMetadata inventoryData = user.meta().inventory();
-    ProtocolMetadata protocol = user.meta().protocol();
     Motion motion = movementData.motionProcessorContext;
     double lastMotionX = movementData.baseMotionX;
     double lastMotionZ = movementData.baseMotionZ;
@@ -216,12 +215,10 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
       configuration = configuration.withActiveHand();
     }
     // reducing
-    if (!AttackDispatcher.REDUCING_DISABLED /*&& movementData.sprintingAllowed()*/ && movementData.pastPlayerAttackPhysics == 0) {
-      configuration = configuration.withReducing();
-    }
+    configuration = configuration.withReducing(movementData.reduceTicks);
     // block omnisprint
     if (sprinting && configuration.forward() != 1) {
-      configuration = configuration.withoutKeypress();
+      configuration = configuration.withoutSprinting();
     } else if (sprinting) {
       if (movementData.isSneaking() && !configuration.isJumping()) {
         configuration = configuration.withoutSprinting();
@@ -235,7 +232,6 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
       configuration = configuration.withoutKeypress();
     }
     movementData.physicsJumped = jumped;
-//    movementData.sprintMove = sprinting;
     motion.setTo(movementData.baseMotion());
     movementData.keyForward = configuration.forward();
     movementData.keyStrafe = configuration.strafe();
@@ -308,10 +304,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     // keys
     configuration = configuration.withKeyPress(keyForward, keyStrafe);
     // reducing
-//    boolean sprintRequirement = user.protocolVersion() > VER_1_8 ? movementData.sprintingAllowed() : movementData.isSprinting();
-    if (!AttackDispatcher.REDUCING_DISABLED/* && movementData.sprintingAllowed()*/ && user.meta().movement().pastPlayerAttackPhysics == 0) {
-      configuration = configuration.withReducing();
-    }
+    configuration = configuration.withReducing(movementData.reduceTicks);
     boolean sprinting = movementData.sprintingAllowed();
     // jump
     if (movementData.lastOnGround && !movementData.denyJump()) {
@@ -373,7 +366,8 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     boolean inWater = movementData.inWater();
     boolean lastOnGround = movementData.lastOnGround();
     boolean estimatedJump = Math.abs(movementData.motionY() - (1 - user.sizeOf(movementData.pose()).height() % 1)) < 1e-5 || Math.abs(movementData.motionY() - movementData.jumpMotion()) < 0.0001;
-    boolean skipUseItem = (!protocol.sprintWhenHandActive() && movementData.sprinting) || !inventoryData.usableItemInEitherHand();
+    boolean skipUseItem = (!protocol.sprintWhenHandActive() && movementData.sprinting && !protocol.viaVersionShieldBlockReplacement())
+      || !inventoryData.usableItemInEitherHand();
     // dont require use item for bows
     boolean requireUseItem = !protocol.combatUpdate() && inventoryData.handActive() && inventoryData.pastHotBarSlotChange > 20
       && (inventoryData.heldItem() == null || inventoryData.heldItem().getType() != Material.BOW)
@@ -439,13 +433,11 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
               continue;
             }
             IterativeStudy.USE_ITEM_ITERATOR.run();
-            for (boolean attackReduce : PESSIMISTIC) {
-              if (attackReduce && (movementData.pastPlayerAttackPhysics >= 1 || AttackDispatcher.REDUCING_DISABLED)) {
+            boolean reducingRequired = !protocol.combatUpdate();
+            for (int reduceIndex = 0; reduceIndex <= movementData.reduceTicks ; reduceIndex++) {
+              if (reducingRequired && reduceIndex != movementData.reduceTicks) {
                 continue;
               }
-//              if (attackReduce && sprinting && movementData.lastSprinting) {
-//                continue;
-//              }
               IterativeStudy.ATTACK_REDUCE_ITERATOR.run();
               for (boolean jumped : estimatedJump ? OPTIMISTIC : PESSIMISTIC) {
                 // Jumps are only allowed on the ground :(
@@ -479,7 +471,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
                   }
                   iterativeRuns++;
                   MovementConfiguration movementConfiguration = MovementConfiguration.select(
-                    keyForward, keyStrafe, attackReduce, sprinting, jumped, useItemState
+                    keyForward, keyStrafe, reduceIndex, sprinting, jumped, useItemState
                   );
                   Simulation simulation = simulateAndAppend(
                     user, simulator,

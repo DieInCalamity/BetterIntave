@@ -284,7 +284,7 @@ public final class SimulationEvaluator {
     double distance = MathHelper.resolveHorizontalDistance(predictedX, predictedZ, motionX, motionZ);
     boolean pushedByWaterFlow = movement.pastPushedByWaterFlow <= 20;
     double horizontalLegitimateDeviation;
-    if (movement.pastPlayerAttackPhysics <= 1) {
+    if (movement.pastPlayerReduceAttackPhysics <= 1) {
       horizontalLegitimateDeviation = 0.005;
     } else {
       horizontalLegitimateDeviation = 0.0007;

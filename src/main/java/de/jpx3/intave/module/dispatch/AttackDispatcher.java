@@ -85,7 +85,12 @@ public final class AttackDispatcher extends Module {
     }
     InventoryMetadata inventoryData = user.meta().inventory();
     ItemStack itemStack = inventoryData.heldItem();
-    boolean knockbackEnchantment = itemStack != null && itemStack.containsEnchantment(Enchantment.KNOCKBACK);
+
+    double f = user.meta().abilities().attributeValue("generic.attackDamage");
+    double f1 = itemStack == null ? 0 : Math.max(itemStack.getEnchantmentLevel(Enchantment.DAMAGE_ARTHROPODS), itemStack.getEnchantmentLevel(Enchantment.DAMAGE_UNDEAD));
+    double itemKnockback = itemStack == null ? 0 : itemStack.getEnchantmentLevel(Enchantment.KNOCKBACK);
+    boolean isSprinting = movementData.isSprinting();
+
     Entity entity = connectionData.entityBy(entityId);
     if (entity == null) {
       return;
@@ -97,14 +102,13 @@ public final class AttackDispatcher extends Module {
     movementData.pastEntityUse = 0;
     if (action == EnumWrappers.EntityUseAction.ATTACK) {
       attackData.setLastAttackedEntityID(entityId);
-      if (entity.isPlayer) {
-//        Synchronizer.synchronize(() -> {
-//          player.sendMessage(ChatColor.RED + "Attacked " + entity.entityId() + " (" + entity.entityName() + ")");
-//        });
-        movementData.pastPlayerAttackPhysics = 0;
-        if (!REDUCING_DISABLED && knockbackEnchantment) {
-          movementData.baseMotionX *= 0.6;
-          movementData.baseMotionZ *= 0.6;
+      // Sprinting will be set to zero after the first reduce in the tick, does not apply to knockback
+      boolean limitedToOneAttack = itemKnockback == 0;
+
+      if (entity.isPlayer && (f > 0 || f1 > 0) && (isSprinting || itemKnockback > 0)) {
+        movementData.pastPlayerReduceAttackPhysics = 0;
+        if (movementData.reduceTicks == 0 || !limitedToOneAttack) {
+          movementData.reduceTicks++;
         }
       }
       FakePlayer fakePlayer = attackData.fakePlayer();

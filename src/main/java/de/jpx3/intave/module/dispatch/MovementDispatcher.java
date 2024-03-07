@@ -766,6 +766,7 @@ public final class MovementDispatcher extends Module {
     } else {
       movement.waterTicks = 0;
     }
+    movement.reduceTicks = 0;
     movement.ignoredAttackReduce = false;
     if (hasMovement || hasRotation) {
       movement.pastExternalVelocity++;
