@@ -88,14 +88,14 @@ public final class Fluctuation extends MetaCheckPart<ClickPatterns, Fluctuation.
         }
 
         // If the spike array reached the required sample size, we are going to check if the variance of the timestamps is balanced
-        if (meta.spikeTimestamps.size() >= 3) {
+        if (meta.spikeTimestamps.size() >= 4) {
             double std = standardDeviationOf(meta.spikeTimestamps);
             meta.spikeTimestamps.clear();
-            if (std < 4000) {
-                if (++meta.vl > 1) {
+            if (std < 3000) {
+                if (++meta.vl > 3) {
                     parentCheck().makeDetection(
                             player,
-                            "balanced spike timestamps",
+                            "balanced fluctuation",
                             "std:" + formatDouble(std, 3),
                             meta.vl > 8 ? 1 : 0
                     );
@@ -107,14 +107,14 @@ public final class Fluctuation extends MetaCheckPart<ClickPatterns, Fluctuation.
         }
 
         // If the drop array reached the required sample size, we are going to check if the variance of the timestamps is balanced
-        if (meta.dropTimestamps.size() >= 3) {
+        if (meta.dropTimestamps.size() >= 4) {
             double std = standardDeviationOf(meta.dropTimestamps);
             meta.dropTimestamps.clear();
-            if (std < 4000) {
-                if (++meta.vl > 1) {
+            if (std < 3000) {
+                if (++meta.vl > 3) {
                     parentCheck().makeDetection(
                             player,
-                            "balanced drop timestamps",
+                            "balanced fluctuation",
                             "std:" + formatDouble(std, 3),
                             meta.vl > 8 ? 1 : 0
                     );
