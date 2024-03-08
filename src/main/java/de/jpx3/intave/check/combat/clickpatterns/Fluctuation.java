@@ -73,12 +73,12 @@ public final class Fluctuation extends MetaCheckPart<ClickPatterns, Fluctuation.
             double cps = cpsOf(attacks);
 
             double difference = cps - meta.lastCPS;
-            if (difference > 0.5) {
+            if (difference > 0.6) {
                 meta.spikes++;
                 meta.spikeTimestamps.add(System.currentTimeMillis());
             }
 
-            if (difference < -0.5) {
+            if (difference < -0.6) {
                 meta.drops++;
                 meta.dropTimestamps.add(System.currentTimeMillis());
             }
@@ -88,15 +88,14 @@ public final class Fluctuation extends MetaCheckPart<ClickPatterns, Fluctuation.
         }
 
         // If the spike array reached the required sample size, we are going to check if the variance of the timestamps is balanced
-        if (meta.spikeTimestamps.size() >= 3) {
+        if (meta.spikeTimestamps.size() >= 4) {
             double std = standardDeviationOf(meta.spikeTimestamps);
             meta.spikeTimestamps.clear();
-            // After days of testing, the long 6000 is pretty solid for a middle-graph between false positives and detection
-            if (std < 6000) {
-                if (++meta.vl > 1) {
+            if (std < 3000) {
+                if (++meta.vl > 3) {
                     parentCheck().makeDetection(
                             player,
-                            "balanced spike timestamps",
+                            "balanced fluctuation",
                             "std:" + formatDouble(std, 3),
                             meta.vl > 8 ? 1 : 0
                     );
@@ -108,15 +107,14 @@ public final class Fluctuation extends MetaCheckPart<ClickPatterns, Fluctuation.
         }
 
         // If the drop array reached the required sample size, we are going to check if the variance of the timestamps is balanced
-        if (meta.dropTimestamps.size() >= 3) {
+        if (meta.dropTimestamps.size() >= 4) {
             double std = standardDeviationOf(meta.dropTimestamps);
             meta.dropTimestamps.clear();
-            // After days of testing, the long 6000 is pretty solid for a middle-graph between false positives and detection
-            if (std < 6000) {
-                if (++meta.vl > 1) {
+            if (std < 3000) {
+                if (++meta.vl > 3) {
                     parentCheck().makeDetection(
                             player,
-                            "balanced drop timestamps",
+                            "balanced fluctuation",
                             "std:" + formatDouble(std, 3),
                             meta.vl > 8 ? 1 : 0
                     );
