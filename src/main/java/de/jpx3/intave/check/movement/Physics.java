@@ -479,7 +479,7 @@ public final class Physics extends Check {
         movementData.endMotionYOverride = true;
         movementData.endMotionYOverrideValue = predictedY;
       }
-      if (Math.abs(receivedMotionZ) > 0.12) {
+      if (Math.abs(receivedMotionZ) > 0.15) {
         movementData.endMotionZOverride = true;
         movementData.endMotionZOverrideValue = predictedZ;
       }
