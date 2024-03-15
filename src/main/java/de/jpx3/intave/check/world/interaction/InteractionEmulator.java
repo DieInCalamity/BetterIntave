@@ -103,6 +103,10 @@ public final class InteractionEmulator implements EventProcessor {
   }
 
   public EmulationResult emulate(Interaction interaction) {
+    if (interaction.hasBeenEmulated()) {
+      return EmulationResult.FAILED_NON_CRITICAL;
+    }
+    interaction.setEmulated();
     Player player = interaction.player();
     InteractionType interactionType = interaction.type();
 //    player.sendMessage("Emulating " + interactionType);

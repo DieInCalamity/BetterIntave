@@ -25,6 +25,7 @@ public final class Interaction {
   private boolean entered = false;
 
   private boolean sendPacket = true;
+  private boolean hasBeenEmulated = false;
 
   private MovingObjectPosition raytraceResult;
 
@@ -110,6 +111,14 @@ public final class Interaction {
 
   public void doNotSendPacket() {
     sendPacket = false;
+  }
+
+  public boolean hasBeenEmulated() {
+    return hasBeenEmulated;
+  }
+
+  public void setEmulated() {
+    hasBeenEmulated = true;
   }
 
   public boolean hasFacing() {

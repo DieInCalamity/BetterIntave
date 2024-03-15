@@ -449,6 +449,9 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
             if (requireUseItem && !useItemState) {
               continue;
             }
+            if (sprinting && useItemState) {
+              continue;
+            }
             IterativeStudy.USE_ITEM_ITERATOR.run();
             boolean canExpectCorrectReduce = !protocol.combatUpdate() && movementData.pastVelocity > 1 && movementData.motion().horizontalLength() > 0.2;
             boolean enforceCorrectReduction = movementData.forceCorrectReduce && canExpectCorrectReduce;

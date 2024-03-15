@@ -478,10 +478,10 @@ public final class Physics extends Check {
       movementData.endMotionYOverrideValue = predictedY;
     }
 
-    boolean expectProblems = user.meta().movement().pastElytraFlying <= 2;
+    boolean expectProblems = movementData.pastElytraFlying <= 2 || movementData.pastWaterMovement <= 2;
 
-    if (distance > 0.01 && !expectProblems && (verticalViolationIncrease > 0.1 || horizontalViolationIncrease > 0.1)) {
-      if (Math.abs(receivedMotionX) > 0.15) {
+    if (distance > 0.01 && !expectProblems && (verticalViolationIncrease > 5 || horizontalViolationIncrease > 5)) {
+      if (Math.abs(receivedMotionX) > 0.15 && differenceX > 0.025) {
         movementData.endMotionXOverride = true;
         movementData.endMotionXOverrideValue = predictedX * 0.98;
       }
@@ -489,7 +489,7 @@ public final class Physics extends Check {
         movementData.endMotionYOverride = true;
         movementData.endMotionYOverrideValue = (predictedY - 0.08) * 0.98;
       }
-      if (Math.abs(receivedMotionZ) > 0.15) {
+      if (Math.abs(receivedMotionZ) > 0.15 && differenceZ > 0.025) {
         movementData.endMotionZOverride = true;
         movementData.endMotionZOverrideValue = predictedZ * 0.98;
       }
