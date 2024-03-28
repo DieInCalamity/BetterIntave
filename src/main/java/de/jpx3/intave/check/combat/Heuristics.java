@@ -307,13 +307,21 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
       } else {
         identifier = resolveIdentifier(activeAnomalies);
       }
-      String threshold = "thresholds.on-premise";
-      String message = "is fighting computer-like";
-      String details = "on-premise, id:"+ identifier;
+      String threshold = "confidence-thresholds." + overallActiveConfidence.output();
+      String message = "is fighting suspiciously";
+      String confidenceName = overallActiveConfidence.confidenceName();
+      String confidenceSymbol = overallActiveConfidence.output();
+      String confidence = confidenceName + " (" + confidenceSymbol + ")";
+      String typeName = findDominantTypeIn(activeAnomalies).typeName();
+      String details = "on-premise id " + identifier + " at " + confidenceName.toUpperCase();
+
       Violation violation = Violation.builderFor(Heuristics.class)
         .forPlayer(player).withMessage(message).withDetails(details)
         .withCustomThreshold(threshold).withVL(25)
         .withPlaceholder("identifier", identifier)
+        .withPlaceholder("confidence", confidence)
+        .withPlaceholder("confidence-name", confidenceName)
+        .withPlaceholder("confidence-symbol", confidenceSymbol)
         .build();
       Modules.violationProcessor().processViolation(violation);
     }
