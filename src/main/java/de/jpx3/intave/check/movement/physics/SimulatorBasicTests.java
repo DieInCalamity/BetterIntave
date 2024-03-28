@@ -60,7 +60,7 @@ public final class SimulatorBasicTests extends Tests {
           return waterflow;
         case "simplifiedCollider":
           return simpleCollider;
-        case "blockStates":
+        case "blockCache":
           return plane;
         case "protocolVersion":
           return 47;

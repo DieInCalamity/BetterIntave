@@ -66,6 +66,8 @@ final class BlockStateReplacementCache<K> {
         locked.remove(location);
       }
     }
+    // remove locked entries that are older than 10 seconds
+    locked.entrySet().removeIf(entry -> System.currentTimeMillis() - entry.getValue() > 10000L);
   }
 
   public void chunkReset(int chunkXMinPos, int chunkXMaxPos, int chunkZMinPos, int chunkZMaxPos) {
