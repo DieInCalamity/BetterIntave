@@ -47,6 +47,7 @@ import de.jpx3.intave.executor.TaskTracker;
 import de.jpx3.intave.klass.locate.Locate;
 import de.jpx3.intave.library.Libraries;
 import de.jpx3.intave.library.asm.Frame;
+import de.jpx3.intave.library.pledge.TickEnd;
 import de.jpx3.intave.math.SinusCache;
 import de.jpx3.intave.metric.Metrics;
 import de.jpx3.intave.metric.ServerHealth;
@@ -164,6 +165,8 @@ public final class IntavePlugin extends JavaPlugin {
     System.setProperty("org.bytedeco.javacpp.cachedir", integrityFolder().getAbsolutePath());
 
     Libraries.setupLibraries();
+
+    TickEnd.start();
 
     configService = new ConfigurationService();
     configService.init();
