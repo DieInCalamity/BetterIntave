@@ -1,6 +1,7 @@
 package de.jpx3.intave.check.movement.timer;
 
 import com.comphenix.protocol.events.PacketEvent;
+import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.annotate.DispatchTarget;
 import de.jpx3.intave.check.CheckStatistics;
 import de.jpx3.intave.check.CheckViolationLevelDecrementer;
@@ -19,7 +20,10 @@ import de.jpx3.intave.module.violation.Violation;
 import de.jpx3.intave.module.violation.ViolationContext;
 import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -52,6 +56,19 @@ public class PlayerTime extends MetaCheckPart<Timer, PlayerTime.PlayerTimeMeta> 
     decrementer = parentCheck.decrementer();
     blinkLimitTicks = parentCheck.blinkLimit();
     toleranceTicks = parentCheck.timerTolerance();
+
+    Bukkit.getScheduler().runTaskTimer(IntavePlugin.singletonInstance(), () -> {
+      UserRepository.applyOnAll(user -> {
+        ConnectionMetadata connectionData = user.meta().connection();
+        PlayerTimeMeta checkMeta = metaOf(user);
+        Modules.feedback().synchronize(user.player(), System.nanoTime(), (unused, time) -> {
+          connectionData.queueToNextTransaction(() -> {
+            checkMeta.time = Math.max(checkMeta.time, checkMeta.limitToBeApplied);
+            checkMeta.queuedLimit = time;
+          });
+        }, FeedbackOptions.SELF_SYNCHRONIZATION);
+      });
+    }, 0, 1);
   }
 
   @PacketSubscription(
@@ -109,38 +126,17 @@ public class PlayerTime extends MetaCheckPart<Timer, PlayerTime.PlayerTimeMeta> 
     ConnectionMetadata connectionData = bundle.connection();
     MovementMetadata movementData = bundle.movement();
     AbilityMetadata abilityData = user.meta().abilities();
-    user.tracedTickFeedback(() -> {
-      connectionData.queueToNextTransaction(() -> {
-        checkMeta.time = Math.max(checkMeta.time, checkMeta.limitToBeApplied - 1_000_000);
-        checkMeta.queuedLimit = checkMeta.lastSentTransaction;
-      });
-    }, new FeedbackObserver() {
-      @Override
-      public void sent(FeedbackRequest<?> request) {
-        checkMeta.lastSentTransaction = System.nanoTime();
-      }
-
-      @Override
-      public void received(FeedbackRequest<?> request) {
-        // ignore
-      }
-
-      @Override
-      public void failed() {
-        // ignore
-      }
-    }, FeedbackOptions.SELF_SYNCHRONIZATION);
     // Exclude players in certain states such as creative, spectator or teleport
     // We also have to check if the player received the initial join packet due to proxies doing weird things
     if (!checkMeta.gameJoinReceived || movementData.lastTeleport == 0
       || abilityData.inGameModeIncludePending(AbilityTracker.GameMode.CREATIVE) || abilityData.ignoringMovementPackets() || user.meta().movement().isInVehicle()) {
       return;
     }
-    checkMeta.time += 49_950_000; // allow constant 0.05ms clock error = give 1s every 2000s (33min)
+    checkMeta.time += 50_000_000; // allow constant 0.05ms clock error = give 1s every 2000s (33min)
     checkMeta.limitToBeApplied = checkMeta.queuedLimit;
     long diff = checkMeta.time - System.nanoTime();
 //    ChatColor color = diff > 10_000_000 ? ChatColor.RED : ChatColor.GRAY;
-//    player.sendMessage(color + "" + ((double)diff / 1_000_000L) + "ms ");
+//    player.sendMessage(color + "" + diff  + "ms ");
 //    player.setLevel(Math.max(0, (int) (diff / 1_000_000L) + 100000));
     statisticApply(user, CheckStatistics::increaseTotal);
 
@@ -148,8 +144,9 @@ public class PlayerTime extends MetaCheckPart<Timer, PlayerTime.PlayerTimeMeta> 
 //      player.sendMessage("diff: " + diff);
 //    }
 
-    int limit = System.currentTimeMillis() - movementData.lastMovement > 30_000 ? 150_000_000 : toleranceTicks * 50_000_000;
+    int limit = 15_000_000;
     if ((diff > limit) && !user.meta().movement().isInVehicle()) {
+      player.sendMessage("diff: " + diff);
       double displayValue = diff / (50 * 1_000_000f);
       if (displayValue < 0.01) {
         displayValue = 0.01;
@@ -158,7 +155,7 @@ public class PlayerTime extends MetaCheckPart<Timer, PlayerTime.PlayerTimeMeta> 
       Violation violation = Violation.builderFor(Timer.class).forPlayer(player)
         .withMessage("moved too frequently")
         .withDetails(balanceAsString + " ticks ahead")
-        .withVL(Math.min(displayValue, 4))
+        .withVL(10)
         .build();
       ViolationContext violationContext = Modules.violationProcessor().processViolation(violation);
       if (violationContext.shouldCounterThreat()) {
@@ -168,7 +165,7 @@ public class PlayerTime extends MetaCheckPart<Timer, PlayerTime.PlayerTimeMeta> 
         statisticApply(user, CheckStatistics::increaseFails);
         Modules.mitigate().movement().emulationSetBack(player, setback, 3, 2, false);
       }
-      checkMeta.time -= 1_250_000;
+      checkMeta.time -= 5_000_000;
       return;
     } else if (System.currentTimeMillis() - checkMeta.lastTimerFlag > 10000) {
       decrementer.decrement(user, 0.005);
