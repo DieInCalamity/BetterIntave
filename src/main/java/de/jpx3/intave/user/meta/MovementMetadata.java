@@ -361,9 +361,9 @@ public final class MovementMetadata implements SimulationEnvironment {
         updateMovementMetaData();
       }
     }
-//    if (!user.meta().protocol().trailsAndTailsUpdate()) {
-    compileSpecialBlocks();
-//    }
+    if (!user.meta().protocol().trailsAndTailsUpdate()) {
+      compileSpecialBlocks();
+    }
     lastRotationYaw = rotationYaw;
     lastRotationPitch = rotationPitch;
     if (hasRotation) {

@@ -5,6 +5,7 @@ import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.connect.sibyl.SibylMessageTransmitter;
+import de.jpx3.intave.diagnostic.natives.NativeCheck;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.Module;
@@ -197,7 +198,12 @@ public final class CombatMitigator extends Module {
   }
 
   @Native
-  private void notify(User user, AttackNerfer attackNerfer, String checkId, boolean hide) {
+  private static void notify(User user, AttackNerfer attackNerfer, String checkId, boolean hide) {
+    if (NativeCheck.checkActive()) {
+      return;
+    }
+    IntavePlugin plugin = IntavePlugin.singletonInstance();
+
     if (!attackNerfer.active()) {
       return;
     }
@@ -248,5 +254,11 @@ public final class CombatMitigator extends Module {
         SibylMessageTransmitter.sendMessage(authenticatedPlayer, message);
       }
     }
+  }
+
+  static {
+    NativeCheck.registerNative(() -> {
+      notify(null, null, "00", true);
+    });
   }
 }

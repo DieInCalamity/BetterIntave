@@ -970,6 +970,11 @@ public final class Physics extends Check {
       if (violationLevelData.physicsInvalidMovementsInRow > 0.1) {
         debug += ChatColor.ITALIC + " ivm:" + formatDouble(violationLevelData.physicsInvalidMovementsInRow, 2) + chatColor;
       }
+
+//      if (movementData.friction() < 0.08) {
+//        debug += ChatColor.ITALIC +  " fric:" + formatDouble(movementData.friction(), 2) + "@" + movementData.frictionMaterial() + chatColor;
+//      }
+
       if (violationLevelData.physicsOffset > 0.5) {
         debug += " off:" + ChatColor.YELLOW + formatDouble(violationLevelData.physicsOffset, 2) + chatColor;
       } else if (violationLevelData.physicsOffset > 0.1) {
@@ -983,8 +988,6 @@ public final class Physics extends Check {
       if (!horizontalTags.isEmpty()) {
         debug += "; H" + horizontalTags.stream().map(EvaluationTag::toString).map(String::toLowerCase).distinct().collect(Collectors.joining(","));
       }
-
-//      debug += " fric:" + formatDouble(movementData.friction(), 2) + "@" + movementData.frictionMaterial();
 
 //      if (Math.abs(movementData.motionY()) > 0.01) {
 //        debug += simulation.configuration() + " ";
@@ -1022,6 +1025,9 @@ public final class Physics extends Check {
         }).collect(Collectors.joining(" ")) + chatColor;
       }
 
+//      if (violationLevelIncrease > 0) {
+//        player.sendMessage("Expected " + formatPosition(predictedX, predictedY, predictedZ) + " received " + formatPosition(receivedMotionX, receivedMotionY, receivedMotionZ));
+//      }
 
 //      List<String> tags = new ArrayList<>();
 //      tags.add("d:" + (movementData.recentlyEncounteredFlyingPacket(1) ? "~" + formatDouble(distance, 6) : formatDouble(distance, 6)));

@@ -154,6 +154,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
 
       Interaction interaction =
         new Interaction(
+          interactionMeta.nextInteractionId++,
           packet.shallowClone(),
           player.getWorld(), player,
           blockPosition, enumDirection, type,
@@ -164,7 +165,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
           handSlot, null, facingX, facingY, facingZ
         );
 
-      boolean mustPostValidate = interactionMeta.remainingBlockStart > 0;
+      boolean mustPostValidate = interactionMeta.remainingBlockStart > 0;// || !interactionMeta.interactionList.isEmpty();
       PreprocessResult result = mustPostValidate ? PreprocessResult.ENFORCE_ROUTING : preprocessInteraction(interaction);
 
       switch (result) {
@@ -298,8 +299,9 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     }
 
     Interaction interaction = new Interaction(
-      packet.shallowClone(), player.getWorld(), player, blockPosition, enumDirection,
-      type,
+      interactionMeta.nextInteractionId++,
+      packet.shallowClone(), player.getWorld(), player,
+      blockPosition, enumDirection, type,
       heldItemType, heldItemStack, EnumWrappers.Hand.MAIN_HAND, playerDigType,
       Float.NaN, Float.NaN, Float.NaN
     );
@@ -308,7 +310,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
       interactionMeta.remainingBlockStart = 0;
     }
 
-    boolean enforceRouting = interactionMeta.remainingBlockStart > 0;
+    boolean enforceRouting = interactionMeta.remainingBlockStart > 0;// || !interactionMeta.interactionList.isEmpty();
     PreprocessResult preprocess = enforceRouting ? PreprocessResult.ENFORCE_ROUTING : preprocessInteraction(interaction);
 
     if (IntaveControl.DEBUG_INTERACTION) {
@@ -362,6 +364,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     playerLocation.setPitch(movementData.rotationPitch);
     Location playerLocationmdf = playerLocation.clone();
     playerLocationmdf.setYaw(movementData.lastRotationYaw);
+    player.sendMessage(String.valueOf(interactionList.size()));
     for (Interaction interaction : interactionList) {
       processInteraction(interaction, playerLocation.clone(), playerLocationmdf.clone());
     }
@@ -1256,6 +1259,9 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     public long remainingBlockStart = 0;
     public double speculativePositionsUsed = 0;
     public long lastSpeculativePositionReset = 0;
+
+    public long nextInteractionId;
+    public long lastProcessedInteractionId;
 
     public long lastInteractionFlag = 0;
   }

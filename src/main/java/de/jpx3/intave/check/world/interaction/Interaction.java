@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public final class Interaction {
+  private final long interactionId;
   private final PacketContainer thePacket;
   private final World world;
   private final Player player;
@@ -30,7 +31,7 @@ public final class Interaction {
   private MovingObjectPosition raytraceResult;
 
   public Interaction(
-    PacketContainer thePacket,
+    long interactionId, PacketContainer thePacket,
     World world, Player player,
     BlockPosition targetBlock, int targetDirection,
     InteractionType type,
@@ -38,6 +39,7 @@ public final class Interaction {
     EnumWrappers.Hand hand, EnumWrappers.PlayerDigType digType,
     float facingX, float facingY, float facingZ
   ) {
+    this.interactionId = interactionId;
     this.thePacket = thePacket;
     this.world = world;
     this.player = player;
@@ -51,6 +53,10 @@ public final class Interaction {
     this.facingX = facingX;
     this.facingY = facingY;
     this.facingZ = facingZ;
+  }
+
+  public long interactionId() {
+    return interactionId;
   }
 
   public PacketContainer thePacket() {
