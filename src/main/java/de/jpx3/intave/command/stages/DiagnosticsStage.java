@@ -361,6 +361,28 @@ public final class DiagnosticsStage extends CommandStage {
   }
 
   @SubCommand(
+    selectors = "flyingswitch",
+    usage = "",
+    description = "Spam teleport yourself",
+    permission = "intave.command.diagnostics.performance"
+  )
+  public void flyingSwitch(User user) {
+    Player player = user.player();
+    player.sendMessage(ChatColor.RED + "Logout to stop");
+
+    int[] id = {0};
+    id[0] = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+      if (!player.isOnline()) {
+        Bukkit.getScheduler().cancelTask(id[0]);
+        return;
+      }
+      boolean canFly = player.getAllowFlight();
+      Synchronizer.synchronizeDelayed(() -> player.setAllowFlight(!canFly), 40);
+      player.sendMessage(IntavePlugin.prefix() + "Flying will be " + ChatColor.RED + (!canFly ? "enabled" : "disabled") + ChatColor.GRAY + " in 2 seconds");
+    }, 20, 20 * 10);
+  }
+
+  @SubCommand(
     selectors = "walkspeed",
     usage = "",
     description = "Set your walkspeed",

@@ -238,6 +238,10 @@ public final class MovementMetadata implements SimulationEnvironment {
   private Entity vehicle;
   private boolean vehicleCanBeRidden;
   private double attachMoveDistance;
+  // Flight disallow protection
+  public int criticalFlyingDisallowStacks;
+  public boolean criticalFlyingDisallowWasTeleported;
+  public double criticalEnterPosX, criticalEnterPosY, criticalEnterPosZ;
   private volatile Location verifiedLocation;
 
   public MovementMetadata(Player player, User user) {

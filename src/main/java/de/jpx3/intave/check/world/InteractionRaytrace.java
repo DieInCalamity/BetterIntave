@@ -410,7 +410,6 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     playerLocation.setPitch(movementData.rotationPitch);
     Location playerLocationmdf = playerLocation.clone();
     playerLocationmdf.setYaw(movementData.lastRotationYaw);
-//    player.sendMessage(String.valueOf(interactionList.size()));
     for (Interaction interaction : interactionList) {
       processInteraction(interaction, playerLocation.clone(), playerLocationmdf.clone());
     }
@@ -446,20 +445,14 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     InteractionMeta interactionMeta = metaOf(user);
     if (interactionMeta.speculativeInteraction != null) {
       Interaction speculativeInteraction = interactionMeta.speculativeInteraction;
+      interactionMeta.speculativeInteraction = null;
       if (isAnimation) {
-        com.comphenix.protocol.wrappers.BlockPosition targetBlock = speculativeInteraction.targetBlock();
-//        lockedBlocks.get(user).add(new BlockPosition(
-//          targetBlock.getX(),
-//          targetBlock.getY(),
-//          targetBlock.getZ()
-//        ));
         if (IntaveControl.DEBUG_INTERACTION) {
           user.player().sendMessage(ChatColor.GREEN + "Speculative interaction succeeded, emulated: " + speculativeInteraction.hasBeenEmulated() + "/" + speculativeInteraction.wasPlacementEmulated());
         }
-        // all ok
-        interactionMeta.speculativeInteraction = null;
+        // all ok, nothing to do
       } else {
-        interactionMeta.speculativeInteraction = null;
+        // placement but no animation, undo
         if (IntaveControl.DEBUG_INTERACTION) {
           user.player().sendMessage(ChatColor.RED + "Speculative interaction failed, emulated: " + speculativeInteraction.hasBeenEmulated() + "/" + speculativeInteraction.wasPlacementEmulated());
         }

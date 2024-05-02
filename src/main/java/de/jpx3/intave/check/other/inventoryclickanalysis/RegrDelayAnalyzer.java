@@ -48,7 +48,10 @@ public class RegrDelayAnalyzer extends MetaCheckPart<InventoryClickAnalysis, Reg
       meta.lastWindowOpenTimestamp = System.currentTimeMillis();
       meta.lastClickedTimestamp = System.currentTimeMillis();
       meta.firstClickTimestamp = 0;
-      meta.lastSlot = 22;
+      if (!meta.windowOpen) {
+        meta.lastSlot = 22;
+      }
+      meta.windowOpen = true;
     });
   }
 
@@ -94,6 +97,7 @@ public class RegrDelayAnalyzer extends MetaCheckPart<InventoryClickAnalysis, Reg
     User user = userOf(player);
     ClickDelayMeta meta = metaOf(user);
 
+    meta.windowOpen = false;
 //    player.sendMessage("Click history: " + meta.clickHistory.size() + " entries");
 
     if (meta.distanceTime.isEmpty() || meta.slotTime.isEmpty()) {
@@ -439,6 +443,7 @@ public class RegrDelayAnalyzer extends MetaCheckPart<InventoryClickAnalysis, Reg
     private int lastContainerId = -1;
     private long lastClickedTimestamp = 0;
     private long firstClickTimestamp = 0;
+    private boolean windowOpen = false;
     private long lastWindowOpenTimestamp = 0;
 
     private List<double[]> distanceTime = new ArrayList<>();
