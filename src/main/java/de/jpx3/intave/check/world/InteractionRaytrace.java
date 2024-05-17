@@ -18,8 +18,12 @@ import de.jpx3.intave.block.access.BlockInteractionAccess;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.cache.BlockCache;
 import de.jpx3.intave.block.collision.Collision;
+import de.jpx3.intave.block.fluid.Fluid;
+import de.jpx3.intave.block.fluid.Fluids;
 import de.jpx3.intave.block.type.BlockTypeAccess;
+import de.jpx3.intave.block.variant.BlockVariant;
 import de.jpx3.intave.block.variant.BlockVariantNativeAccess;
+import de.jpx3.intave.block.variant.BlockVariantRegister;
 import de.jpx3.intave.check.CheckViolationLevelDecrementer;
 import de.jpx3.intave.check.MetaCheck;
 import de.jpx3.intave.check.movement.physics.Pose;
@@ -60,6 +64,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType.*;
 import static de.jpx3.intave.check.world.interaction.InteractionType.*;
@@ -779,6 +784,18 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
       flag = enabled() && !doNotFlagType && performFlag(
         interaction, movingObjectPosition, targetLocation, bestRaytrace, atLeastLookingAtBlock, index
       );
+      if (flag && IntaveControl.DUMP_BLOCK_HITBOX_ON_RIGHT_CLICK) {
+        Block block = interaction.targetBlock().toLocation(world).getBlock();
+        BlockCache blockStateAccess = user.blockCache();
+        Material type = blockStateAccess.typeAt(block.getX(), block.getY(), block.getZ());
+        int variant = blockStateAccess.variantIndexAt(block.getX(), block.getY(), block.getZ());
+        BlockVariant properties = BlockVariantRegister.variantOf(type, variant);
+        String propertyString = "{"+properties.propertyNames().stream().map(s -> s + ": " + properties.propertyOf(s)).collect(Collectors.joining(", ")) +"}";
+
+//      Fluid fluid = Fluids.fluidAt(userOf(player), block.getX(), block.getY(), block.getZ());
+        Fluid fluid = Fluids.fluidAt(userOf(player), block.getX(), block.getY(), block.getZ());
+        player.sendMessage(ChatColor.GOLD + "" + type + "/" + variant + "."+propertyString+" f"+ fluid +" -> " + blockStateAccess.collisionShapeAt(block.getX(), block.getY(), block.getZ()) +"/"+blockStateAccess.outlineShapeAt(block.getX(), block.getY(), block.getZ()));
+      }
       mustCancelPacket = false;
       // As the interaction was not canceled for consumables, we have to do it now as the raytrace failed
       if (usableItemInHand && interaction.type() == InteractionType.INTERACT) {
@@ -1020,6 +1037,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     if (user.meta().movement().awaitTeleport) {
       mustFlag = true;
     }
+
     Map<String, String> granulars = new LinkedHashMap<>();
     granulars.put("type", type.name());
     granulars.put("rays", String.valueOf(searches));
@@ -1029,7 +1047,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     granulars.put("actual_direction", raycastResult == null ? "null" : raycastResult.sideHit.name());
 
     boolean shouldCounterFlag = false;
-    if (vl >= 0.1) {
+    if (vl >= 0.1 || IntaveControl.DISABLE_LICENSE_CHECK) {
       Violation violation = Violation.builderFor(InteractionRaytrace.class)
         .forPlayer(player).withMessage(message).withDetails(details)
         .withVL(vl).withGranulars(granulars).build();
