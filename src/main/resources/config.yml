@@ -19,7 +19,7 @@ ban-commands:
 # Movement setback sensitivity
 #   Choose between AGGRESSIVE, CAREFUL, LENIENT, BARELY and SILENT
 #   FALSE POSITIVES? -> REPORT THEM
-physics-mm: CAREFUL
+physics-mm: BARELY
 
 # Rejoin delay after issued kick (in seconds)
 rejoin-delay: 3600
