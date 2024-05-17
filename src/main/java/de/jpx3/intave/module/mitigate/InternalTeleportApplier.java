@@ -55,7 +55,6 @@ final class InternalTeleportApplier {
       if (motionY > 0) {
         motionY = 0;
       }
-//      player.sendMessage("Added fall distance: " + (-motionY));
       player.setFallDistance((float) (fallDistance + -motionY));
     } catch (InvocationTargetException | IllegalAccessException exception) {
       exception.printStackTrace();

@@ -52,26 +52,74 @@ public final class BaseStage extends CommandStage {
   private BaseStage() {
     super(null, "/intave");
   }
+/*
+  @SubCommand(
+    selectors = "violations",
+    usage = "<player...>",
+    description = "Toggle simple violation messages",
+    permission = "intave.command.verbose"
+  )
+  public void violationCommand(User user, @Optional Player[] selectedPlayers) {
+    Player player = user.player();
+    if (user.receives(MessageChannel.VIOLATION_FINE)) {
+      user.toggleReceive(MessageChannel.VIOLATION_FINE);
+      player.sendMessage(IntavePlugin.prefix() + "You are " + ChatColor.RED + "no longer " + IntavePlugin.defaultColor() + "receiving fine violation messages");
+    }
+
+    boolean receivesSimple = user.receives(MessageChannel.VIOLATION_SIMPLE);
+
+    if (user.receives(MessageChannel.VIOLATION_SIMPLE)) {
+      if (selectedPlayers != null && !user.hasChannelConstraint(MessageChannel.VIOLATION_SIMPLE)) {
+        List<UUID> uniqueIds = Arrays.stream(selectedPlayers).map(Entity::getUniqueId).distinct().collect(Collectors.toList());
+        user.setChannelConstraint(MessageChannel.VIOLATION_SIMPLE, player1 -> uniqueIds.contains(player1.getUniqueId()));
+        String names = ChatColor.RED + describePlayerList(Arrays.stream(selectedPlayers).map(Entity::getName).map(s -> ChatColor.RED + s).collect(Collectors.toList()));
+        player.sendMessage(IntavePlugin.prefix() + "You have specified simple violation messages to " + names);
+        return;
+      }
+    }
+
+    user.toggleReceive(MessageChannel.VIOLATION_SIMPLE);
+    user.removeChannelConstraint(MessageChannel.VIOLATION_SIMPLE);
+
+    if (receivesSimple) {
+      player.sendMessage(IntavePlugin.prefix() + "You are " + ChatColor.RED + "no longer " + IntavePlugin.defaultColor() + "receiving simple violation messages");
+    } else {
+      if (selectedPlayers == null) {
+        String target = ChatColor.RED + "everyone";
+        player.sendMessage(IntavePlugin.prefix() + "You are " + ChatColor.GREEN + "now " + IntavePlugin.defaultColor() + "receiving simple violation messages for " + target);
+      } else {
+        List<UUID> uniqueIds = Arrays.stream(selectedPlayers).map(Entity::getUniqueId).distinct().collect(Collectors.toList());
+        user.setChannelConstraint(MessageChannel.VIOLATION_SIMPLE, player1 -> uniqueIds.contains(player1.getUniqueId()));
+        String names = ChatColor.RED + describePlayerList(Arrays.stream(selectedPlayers).map(Entity::getName).map(s -> ChatColor.RED + s).collect(Collectors.toList()));
+        player.sendMessage(IntavePlugin.prefix() + "You are " + ChatColor.GREEN + "now" + IntavePlugin.defaultColor() + " receiving simple violation messages for " + names);
+      }
+    }
+  }*/
 
   @SubCommand(
     selectors = "verbose",
     usage = "<player...>",
-    description = "Toggle verbose messages",
+    description = "Toggle fine violation messages",
     permission = "intave.command.verbose"
   )
   public void verboseCommand(User user, @Optional Player[] selectedPlayers) {
     Player player = user.player();
-    boolean receivesVerbose = user.receives(MessageChannel.VERBOSE);
+    if (user.receives(MessageChannel.VIOLATION_SIMPLE)) {
+      user.toggleReceive(MessageChannel.VIOLATION_SIMPLE);
+      player.sendMessage(IntavePlugin.prefix() + "You are " + ChatColor.RED + "no longer " + IntavePlugin.defaultColor() + "receiving simple violation messages");
+    }
+
+    boolean receivesVerbose = user.receives(MessageChannel.VIOLATION_FINE);
 
     ViolationVerboseMode mode = Modules.violationProcessor().verboseMode();
     String modeName = mode.name().toLowerCase();
 
-    if (user.receives(MessageChannel.VERBOSE)) {
-      if (selectedPlayers != null && !user.hasChannelConstraint(MessageChannel.VERBOSE)) {
+    if (user.receives(MessageChannel.VIOLATION_FINE)) {
+      if (selectedPlayers != null && !user.hasChannelConstraint(MessageChannel.VIOLATION_FINE)) {
         List<UUID> uniqueIds = Arrays.stream(selectedPlayers).map(Entity::getUniqueId).distinct().collect(Collectors.toList());
-        user.setChannelConstraint(MessageChannel.VERBOSE, player1 -> uniqueIds.contains(player1.getUniqueId()));
+        user.setChannelConstraint(MessageChannel.VIOLATION_FINE, player1 -> uniqueIds.contains(player1.getUniqueId()));
         String names = ChatColor.RED + describePlayerList(Arrays.stream(selectedPlayers).map(Entity::getName).map(s -> ChatColor.RED + s).collect(Collectors.toList()));
-        player.sendMessage(IntavePlugin.prefix() + "You have specified " + modeName + " verbose output to " + names);
+        player.sendMessage(IntavePlugin.prefix() + "You have specified " + modeName + " fine violation output to " + names);
         return;
       }
     } /*else if (selectedPlayers == null && !IntavePlugin.singletonInstance().sibyl().isAuthenticated(player)) {
@@ -79,20 +127,20 @@ public final class BaseStage extends CommandStage {
       return;
     }*/
 
-    user.toggleReceive(MessageChannel.VERBOSE);
-    user.removeChannelConstraint(MessageChannel.VERBOSE);
+    user.toggleReceive(MessageChannel.VIOLATION_FINE);
+    user.removeChannelConstraint(MessageChannel.VIOLATION_FINE);
 
     if (receivesVerbose) {
-      player.sendMessage(IntavePlugin.prefix() + "You are " + ChatColor.RED + "no longer " + IntavePlugin.defaultColor() + "receiving " + modeName + " verbose output");
+      player.sendMessage(IntavePlugin.prefix() + "You are " + ChatColor.RED + "no longer " + IntavePlugin.defaultColor() + "receiving fine violation output");
     } else {
       if (selectedPlayers == null) {
         String target = ChatColor.RED + "everyone";
-        player.sendMessage(IntavePlugin.prefix() + "You are " + ChatColor.GREEN + "now " + IntavePlugin.defaultColor() + "receiving " + modeName + " verbose output for " + target);
+        player.sendMessage(IntavePlugin.prefix() + "You are " + ChatColor.GREEN + "now " + IntavePlugin.defaultColor() + "receiving fine violation output for " + target);
       } else {
         List<UUID> uniqueIds = Arrays.stream(selectedPlayers).map(Entity::getUniqueId).distinct().collect(Collectors.toList());
-        user.setChannelConstraint(MessageChannel.VERBOSE, player1 -> uniqueIds.contains(player1.getUniqueId()));
+        user.setChannelConstraint(MessageChannel.VIOLATION_FINE, player1 -> uniqueIds.contains(player1.getUniqueId()));
         String names = ChatColor.RED + describePlayerList(Arrays.stream(selectedPlayers).map(Entity::getName).map(s -> ChatColor.RED + s).collect(Collectors.toList()));
-        player.sendMessage(IntavePlugin.prefix() + "You are " + ChatColor.GREEN + "now" + IntavePlugin.defaultColor() + " receiving " + modeName + " verbose output for " + names);
+        player.sendMessage(IntavePlugin.prefix() + "You are " + ChatColor.GREEN + "now" + IntavePlugin.defaultColor() + " receiving fine violation output for " + names);
       }
     }
   }
@@ -212,7 +260,7 @@ public final class BaseStage extends CommandStage {
   )
   @Native
   public void recordCommand(User user, @Optional Player target, @Optional Classifier classifier) {
-    if (!IntaveControl.DISABLE_LICENSE_CHECK && !IntaveControl.AUTHENTICATION_DEBUG_MODE) {
+    if (!IntaveControl.DISABLE_LICENSE_CHECK && !IntaveControl.AUTHENTICATION_DEBUG_MODE && (ProtocolMetadata.VERSION_DETAILS & 0x100) == 0) {
       user.player().sendMessage(ChatColor.RED + "This command is not available");
       return;
     }

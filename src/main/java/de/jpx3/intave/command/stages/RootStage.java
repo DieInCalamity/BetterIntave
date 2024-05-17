@@ -19,7 +19,6 @@ import de.jpx3.intave.command.SubCommand;
 import de.jpx3.intave.diagnostic.*;
 import de.jpx3.intave.diagnostic.timings.Timing;
 import de.jpx3.intave.diagnostic.timings.Timings;
-import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.library.Python;
 import de.jpx3.intave.library.python.PythonTask;
 import de.jpx3.intave.math.Occurrences;
@@ -30,7 +29,6 @@ import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.ConnectionMetadata;
-import de.jpx3.intave.user.storage.PlaytimeStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -339,42 +337,6 @@ public final class RootStage extends CommandStage {
   public void outputAttackLatencies(User user) {
     Player player = user.player();
     player.sendMessage("The average attack latency is " + formatDouble(LatencyStudy.attackLatency(), 2) + " ticks");
-  }
-
-  @SubCommand(
-    selectors = "storagetrace",
-    usage = "",
-    description = "",
-    permission = "sibyl"
-  )
-  @Native
-  public void storageTrace(User user) {
-    Player player = user.player();
-    player.sendMessage("You are now in storage trace mode");
-    PlaytimeStorage storage = user.storageOf(PlaytimeStorage.class);
-    storage.setDebugTag();
-    Synchronizer.synchronize(() -> {
-      player.sendMessage("Your storage-tag is " + storage.readTag());
-    });
-  }
-
-  @SubCommand(
-    selectors = "playtime",
-    usage = "[<target>]",
-    description = "",
-    permission = "sibyl"
-  )
-  @Native
-  public void playtimeOf(User user, @Optional Player target) {
-    Player player = user.player();
-    Player targetPlayer = target == null ? player : target;
-    User targetUser = UserRepository.userOf(targetPlayer);
-    PlaytimeStorage storage = targetUser.storageOf(PlaytimeStorage.class);
-    long minutesPlayed = storage.minutesPlayed();
-    long minutesAfk = storage.minutesAfk();
-    Synchronizer.synchronize(() -> {
-      player.sendMessage("The player " + targetPlayer.getName() + " has played for " + minutesPlayed + " minutes and was afk for " + minutesAfk + " minutes");
-    });
   }
 
   @SubCommand(

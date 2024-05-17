@@ -73,6 +73,7 @@ public class ChestLootProvider extends Module {
       Synchronizer.synchronizeDelayed(() -> {
         // clear player inventory
         player.getInventory().clear();
+        player.getInventory().setArmorContents(new ItemStack[4]);
       }, 20);
     }
   }

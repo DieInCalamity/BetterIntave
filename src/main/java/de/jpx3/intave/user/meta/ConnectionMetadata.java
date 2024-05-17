@@ -105,6 +105,8 @@ public final class ConnectionMetadata {
 
   public long feedbackFaults = 0;
 
+  public int nextWindowOpenSlots = 0;
+
   // Lag identification
   private long lastMovementTimestamps;
   private final List<Long> movementLagSpikeHistory = new ArrayList<>();

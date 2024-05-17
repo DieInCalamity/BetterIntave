@@ -13,21 +13,18 @@ public final class WindowClickEvent extends Event {
   private int button;
   private int actionNumber;
   private int mode;
-  private String itemName;
-  private int itemAmount;
+  private String unused = "";
+  private int connectionStability;
   private long timestamp;
 
   public WindowClickEvent() {
   }
 
   public WindowClickEvent(
-    int windowId,
-    int slot,
-    int button,
-    int actionNumber,
+    int windowId, int slot,
+    int button, int actionNumber,
     int mode,
-    String itemName,
-    int itemAmount,
+    String unused, int connectionStability,
     long timestamp
   ) {
     this.windowId = windowId;
@@ -35,9 +32,15 @@ public final class WindowClickEvent extends Event {
     this.button = button;
     this.actionNumber = actionNumber;
     this.mode = mode;
-    this.itemName = itemName;
-    this.itemAmount = itemAmount;
+    this.unused = unused;
+    this.connectionStability = connectionStability;
     this.timestamp = timestamp;
+  }
+
+  public static WindowClickEvent create(
+    int container, int slot, int inventoryClickType, int button, int mode
+  ) {
+    return new WindowClickEvent(container, slot, button, inventoryClickType, mode, "null", 0, System.currentTimeMillis());
   }
 
   @Override
@@ -47,8 +50,8 @@ public final class WindowClickEvent extends Event {
     out.writeInt(button);
     out.writeInt(actionNumber);
     out.writeInt(mode);
-    out.writeUTF(itemName);
-    out.writeInt(itemAmount);
+    out.writeUTF(unused);
+    out.writeInt(connectionStability);
     out.writeLong(timestamp);
   }
 
@@ -59,8 +62,8 @@ public final class WindowClickEvent extends Event {
     button = in.readInt();
     actionNumber = in.readInt();
     mode = in.readInt();
-    itemName = in.readUTF();
-    itemAmount = in.readInt();
+    unused = in.readUTF();
+    connectionStability = in.readInt();
     timestamp = in.readLong();
   }
 

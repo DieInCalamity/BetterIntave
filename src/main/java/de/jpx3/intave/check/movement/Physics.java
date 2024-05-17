@@ -29,6 +29,7 @@ import de.jpx3.intave.check.CheckViolationLevelDecrementer;
 import de.jpx3.intave.check.movement.physics.*;
 import de.jpx3.intave.check.movement.physics.eval.EvaluationTag;
 import de.jpx3.intave.connect.sibyl.SibylBroadcast;
+import de.jpx3.intave.connect.upload.RealtimedataUplink;
 import de.jpx3.intave.diagnostic.message.DebugBroadcast;
 import de.jpx3.intave.diagnostic.message.MessageSeverity;
 import de.jpx3.intave.diagnostic.timings.Timings;
@@ -425,6 +426,11 @@ public final class Physics extends Check {
     violationLevelData.physicsOffset -= movementData.receivedFlyingPacketIn(2) && movementData.motion().length() < 0.1 ? Math.min(0.03, biasedDistance) : 0;
     violationLevelData.physicsOffset -= violationLevelData.physicsOffset > 0.6 ? 0.002 : 0.001;
     violationLevelData.physicsOffset -= movementData.pastElytraFlying < 3 ? 0.025 : 0;
+
+    if (IntaveControl.GOMME_MODE && RealtimedataUplink.isEnabled("pysxeval")) {
+      // REAL TIME PHYSICS DATA COLLECTION
+
+    }
 
     // clamp the offset
     if (violationLevelData.physicsOffset > 1.0) {

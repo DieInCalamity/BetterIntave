@@ -11,8 +11,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public final class MessageFormatter {
-  public static String resolveVerboseMessage(Player player, PlaceholderContext placeholderContext) {
-    String messageLayout = resolveLayout("verbose");
+  public static String resolveVerboseMessage(
+    Player player, PlaceholderContext placeholderContext, ViolationOutputMode violationOutputMode
+  ) {
+    String messageLayout = resolveLayout(violationOutputMode.layoutPath());
     User user = UserRepository.userOf(player);
     String output = Placeholders.replacePlaceholders(
       messageLayout,

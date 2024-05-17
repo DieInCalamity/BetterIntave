@@ -104,7 +104,7 @@ public class RegrDelayAnalyzer extends MetaCheckPart<InventoryClickAnalysis, Reg
       return;
     }
 
-    double[][] movement = slotsMovement(user);
+//    double[][] movement = slotsMovement(user);
     // x move, y move, x velocity, y velocity
     // send message
 //    for (double[] doubles : movement) {

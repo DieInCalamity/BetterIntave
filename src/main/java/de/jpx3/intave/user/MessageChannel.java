@@ -6,7 +6,8 @@ package de.jpx3.intave.user;
  */
 
 public enum MessageChannel {
-  VERBOSE("intave.command.verbose", false),
+  VIOLATION_SIMPLE("intave.command.verbose", false),
+  VIOLATION_FINE("intave.command.verbose", false),
   NOTIFY("intave.command.notify", true),
   COMBAT_MODIFIERS("intave.command.combatmodifiers", false),
   DEBUG_TELEPORT("intave.command.verbose", false),

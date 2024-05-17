@@ -45,10 +45,11 @@ public final class ViolationProcessor extends Module {
 
   @Override
   public void enable() {
-    String verboseMode = plugin.settings().getString("logging.verbose-mode", ViolationVerboseMode.MITIGATED.name());
+    String verboseMode = plugin.settings().getString("logging.verbose-mode",
+      plugin.settings().getString("logging.violation-output-mode", ViolationVerboseMode.MITIGATED.name()));
+
     try {
       this.verboseMode = ViolationVerboseMode.valueOf(verboseMode);
-//      IntaveLogger.logger().info("Displaying " + verboseMode.toLowerCase() + " violations");
     } catch (Exception exception) {
       IntaveLogger.logger().warn("Invalid verbose mode '" + verboseMode + "' in settings. Using default value '" + this.verboseMode.name() + "'");
       this.verboseMode = ViolationVerboseMode.MITIGATED;
@@ -366,28 +367,30 @@ public final class ViolationProcessor extends Module {
     }
   }
 
-  private static final MessageChannel VERBOSE_MESSAGE_CHANNEL = MessageChannel.VERBOSE;
+  private static final List<MessageChannel> VERBOSE_MESSAGE_CHANNELS =
+    Arrays.asList(MessageChannel.VIOLATION_FINE/*, MessageChannel.VIOLATION_SIMPLE*/);
 
   public void broadcastVerbose(Player target, ViolationContext violationContext) {
-    Collection<Player> receivers = MessageChannelSubscriptions.receiverOf(VERBOSE_MESSAGE_CHANNEL);
-    if (receivers.isEmpty()) {
-      return;
-    }
-    PlaceholderContext violationPlaceholder = violationContext.violation().placeholder();
-    PlaceholderContext violationContextPlaceholder = violationContext.placeholder(DetailScope.FULL);
-
-    Map<String, String> granular = violationContext.violation().granular();
-    String message = MessageFormatter.resolveVerboseMessage(
-      target, violationPlaceholder.merge(violationContextPlaceholder)
-    );
-    for (Player receiver : receivers) {
-      User receiverUser = UserRepository.userOf(receiver);
-      if (!receiverUser.receives(VERBOSE_MESSAGE_CHANNEL)) {
-        continue;
+    for (MessageChannel verboseMessageChannel : VERBOSE_MESSAGE_CHANNELS) {
+      Collection<Player> receivers = MessageChannelSubscriptions.receiverOf(verboseMessageChannel);
+      if (receivers.isEmpty()) {
+        return;
       }
-      Predicate<Player> constraint = receiverUser.channelPlayerConstraint(VERBOSE_MESSAGE_CHANNEL);
-      if (constraint == null || constraint.test(target)) {
-        synchronizedMessage(receiver, message, granular);
+      PlaceholderContext violationPlaceholder = violationContext.violation().placeholder();
+      PlaceholderContext violationContextPlaceholder = violationContext.placeholder(DetailScope.FULL);
+      Map<String, String> granular = violationContext.violation().granular();
+      String message = MessageFormatter.resolveVerboseMessage(
+        target, violationPlaceholder.merge(violationContextPlaceholder), verboseMessageChannel == MessageChannel.VIOLATION_SIMPLE ? ViolationOutputMode.SIMPLE : ViolationOutputMode.FINE
+      );
+      for (Player receiver : receivers) {
+        User receiverUser = UserRepository.userOf(receiver);
+        if (!receiverUser.receives(verboseMessageChannel)) {
+          continue;
+        }
+        Predicate<Player> constraint = receiverUser.channelPlayerConstraint(verboseMessageChannel);
+        if (constraint == null || constraint.test(target)) {
+          synchronizedMessage(receiver, message, granular);
+        }
       }
     }
   }

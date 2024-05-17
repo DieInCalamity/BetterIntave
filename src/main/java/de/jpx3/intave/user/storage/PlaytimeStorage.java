@@ -75,6 +75,10 @@ public final class PlaytimeStorage implements Storage {
     this.debugTagBits = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
   }
 
+  public void removeDebugTag() {
+    this.debugTagBits = 0;
+  }
+
   public int readTag() {
     return (int) debugTagBits;
   }

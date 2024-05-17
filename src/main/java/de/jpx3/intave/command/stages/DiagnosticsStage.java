@@ -24,6 +24,7 @@ import de.jpx3.intave.cleanup.GarbageCollector;
 import de.jpx3.intave.command.CommandStage;
 import de.jpx3.intave.command.Optional;
 import de.jpx3.intave.command.SubCommand;
+import de.jpx3.intave.connect.upload.RealtimedataUplink;
 import de.jpx3.intave.diagnostic.PacketSynchronizations;
 import de.jpx3.intave.diagnostic.timings.Timing;
 import de.jpx3.intave.diagnostic.timings.Timings;
@@ -151,6 +152,68 @@ public final class DiagnosticsStage extends CommandStage {
       }
     } else {
       user.player().sendMessage(IntavePlugin.prefix() + ChatColor.RED + "Currently unavailable");
+    }
+  }
+
+  @SubCommand(
+    selectors = "rtdupt",
+    usage = "",
+    description = "Realtime data uplink toggle",
+    permission = "intave.command.diagnostics.performance"
+  )
+  public void rtdupt(User user, Mode mode) {
+    if (!IntaveControl.GOMME_MODE) {
+      user.player().sendMessage(IntavePlugin.prefix() + ChatColor.RED + "Sorry, this feature is not available for public use");
+      return;
+    }
+    String name = mode.typeName();
+    boolean isEnabled = RealtimedataUplink.isEnabled(name);
+    if (isEnabled) {
+      user.player().sendMessage(IntavePlugin.prefix() + ChatColor.RED + "Disabled " + name);
+      user.player().sendMessage(IntavePlugin.prefix() + ChatColor.RED + "");
+    } else {
+      user.player().sendMessage(IntavePlugin.prefix() + ChatColor.GREEN + "Enabled " + name);
+    }
+    RealtimedataUplink.setType(name);
+  }
+
+  private enum Mode {
+    PHYSICS_EVAL("pxeval")
+
+    ;
+
+    private String name;
+
+    private Mode(String name) {
+      this.name = name;
+    }
+
+    public String typeName() {
+      return this.name;
+    }
+  }
+
+  @SubCommand(
+    selectors = "trustmap",
+    usage = "",
+    permission = "sibyl"
+  )
+  @Native
+  public void trustfactorMap(User user) {
+    Map<TrustFactor, AtomicLong> trustfactorDistribution = new HashMap<>();
+    for (Player player : Bukkit.getOnlinePlayers()) {
+      if (UserRepository.hasUser(player)) {
+        TrustFactor trustFactor = UserRepository.userOf(player).trustFactor();
+        trustfactorDistribution
+          .computeIfAbsent(trustFactor, x -> new AtomicLong())
+          .incrementAndGet();
+      }
+    }
+    Player player = user.player();
+    player.sendMessage(ChatColor.GRAY + "Trustfactor distribution:");
+    for (TrustFactor value : TrustFactor.values()) {
+      long count = trustfactorDistribution.getOrDefault(value, new AtomicLong()).get();
+      player.sendMessage((count > 0 ? ChatColor.RED + "" + count : ChatColor.GRAY + "0") + ChatColor.GRAY + "x " + value.chatColor() + value.name());
     }
   }
 
