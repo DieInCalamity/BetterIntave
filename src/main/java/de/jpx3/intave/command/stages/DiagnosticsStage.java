@@ -16,6 +16,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.check.Check;
 import de.jpx3.intave.check.CheckStatistics;
@@ -46,6 +47,7 @@ import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.ConnectionMetadata;
 import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.user.meta.PunishmentMetadata;
+import de.jpx3.intave.user.storage.PlaytimeStorage;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -72,6 +74,7 @@ import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import static org.bukkit.attribute.Attribute.GENERIC_MOVEMENT_SPEED;
@@ -233,6 +236,46 @@ public final class DiagnosticsStage extends CommandStage {
       }
     });
     player.sendMessage(ChatColor.RED + "Added ntracing");
+  }
+
+  @SubCommand(
+    selectors = "storagetrace",
+    usage = "",
+    description = "",
+    permission = "sibyl"
+  )
+  public void storageTrace(User user) {
+    Player player = user.player();
+    PlaytimeStorage storage = user.storageOf(PlaytimeStorage.class);
+    if (storage.readTag() != 0) {
+      player.sendMessage("Removing storage-tag");
+      storage.removeDebugTag();
+      return;
+    }
+    player.sendMessage("You are now in storage trace mode");
+    storage.setDebugTag();
+    Synchronizer.synchronize(() -> {
+      player.sendMessage("Your storage-tag is " + storage.readTag());
+    });
+  }
+
+  @SubCommand(
+    selectors = "playtime",
+    usage = "[<target>]",
+    description = "",
+    permission = "sibyl"
+  )
+  @Native
+  public void playtimeOf(User user, @Optional Player target) {
+    Player player = user.player();
+    Player targetPlayer = target == null ? player : target;
+    User targetUser = UserRepository.userOf(targetPlayer);
+    PlaytimeStorage storage = targetUser.storageOf(PlaytimeStorage.class);
+    long minutesPlayed = storage.minutesPlayed();
+    long minutesAfk = storage.minutesAfk();
+    Synchronizer.synchronize(() -> {
+      player.sendMessage("The player " + targetPlayer.getName() + " has played for " + minutesPlayed + " minutes and was afk for " + minutesAfk + " minutes");
+    });
   }
 
   @SubCommand(
