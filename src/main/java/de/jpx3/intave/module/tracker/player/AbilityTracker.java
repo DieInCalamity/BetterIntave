@@ -1,25 +1,21 @@
 package de.jpx3.intave.module.tracker.player;
 
 import com.comphenix.protocol.events.PacketEvent;
-import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
-import de.jpx3.intave.module.linker.packet.PacketId;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.packet.reader.AbilityInReader;
 import de.jpx3.intave.packet.reader.AbilityOutReader;
 import de.jpx3.intave.packet.reader.EntityReader;
 import de.jpx3.intave.packet.reader.GameStateChangeReader;
-import de.jpx3.intave.user.MessageChannel;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.AbilityMetadata;
 import de.jpx3.intave.user.meta.MetadataBundle;
 import de.jpx3.intave.user.meta.MovementMetadata;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
+import org.bukkit.Location;
 
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
-import static de.jpx3.intave.module.linker.packet.PacketId.Server.POSITION;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.ABILITIES_IN;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
 import static de.jpx3.intave.packet.reader.GameStateChangeReader.GameState.CHANGE_GAME_MODE;
 
@@ -69,20 +65,29 @@ public final class AbilityTracker extends Module {
     boolean allowedFlight = reader.flyingAllowed();
     boolean critical = abilityData.allowFlying() && !allowedFlight;
 
-    if (critical && movement.criticalFlyingDisallowStacks++ == 1) {
-      movement.criticalFlyingDisallowWasTeleported = movement.awaitTeleport || movement.awaitOutgoingTeleport;
-      movement.criticalEnterPosX = movement.verifiedPositionX;
-      movement.criticalEnterPosY = movement.verifiedPositionY;
-      movement.criticalEnterPosZ = movement.verifiedPositionZ;
+    if (critical && movement.lastTeleport < 20) {
+      // Teleport again to force transaction synchronization
+      Synchronizer.synchronizeDelayed(() -> {
+        MovementMetadata moovement = user.meta().movement();
+        if (moovement.criticalFlyingDisallowStacks > 0) {
+          Location position = moovement.verifiedLocation().clone();
+          position.setWorld(user.player().getWorld());
+          user.player().teleport(position);
+        }
+      }, 20);
     }
-
+    if (critical) {
+      movement.criticalFlyingDisallowStacks++;
+    }
     user.packetTickFeedback(event, () -> {
-      if (critical) {
-        movement.criticalFlyingDisallowStacks = Math.max(0, movement.criticalFlyingDisallowStacks - 1);
-      }
       abilityData.setWalkSpeed(walkingSpeed);
       abilityData.setFlySpeed(flyingSpeed);
       abilityData.setAllowFlying(allowedFlight);
+      if (critical) {
+        if (movement.criticalFlyingDisallowStacks > 0) {
+          movement.criticalFlyingDisallowStacks--;
+        }
+      }
     });
   }
 
@@ -91,39 +96,7 @@ public final class AbilityTracker extends Module {
   )
   public void outgoingPositionUpdate(User user) {
     MovementMetadata movementData = user.meta().movement();
-    if (movementData.criticalFlyingDisallowStacks > 0) {
-      movementData.criticalFlyingDisallowWasTeleported = true;
-    }
-  }
 
-  @PacketSubscription(
-    priority = ListenerPriority.HIGH,
-    packetsIn = {FLYING, PacketId.Client.POSITION, LOOK, POSITION_LOOK}
-  )
-  public void incomingFlyingUpdate(User user, Player player) {
-    MovementMetadata movementData = user.meta().movement();
-    if (movementData.criticalFlyingDisallowStacks > 0 && !movementData.criticalFlyingDisallowWasTeleported) {
-      double deltaX = movementData.verifiedPositionX - movementData.criticalEnterPosX;
-      double deltaY = movementData.verifiedPositionY - movementData.criticalEnterPosY;
-      double deltaZ = movementData.verifiedPositionZ - movementData.criticalEnterPosZ;
-      double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
-      if (distance > 4) {
-        if (user.receives(MessageChannel.DEBUG_TELEPORT)) {
-          player.sendMessage(IntavePlugin.prefix() + "Pseudo-Teleport to " + player.getLocation().getBlockX() + " " + player.getLocation().getBlockY() + " " + player.getLocation().getBlockZ() + " " + " for " + ChatColor.RED + " critical flying disallow protection");
-        }
-//        player.teleport(1
-//          new Location(
-//            player.getWorld(),
-//            movementData.verifiedPositionX,
-//            movementData.verifiedPositionY,
-//            movementData.verifiedPositionZ,
-//            player.getLocation().getYaw(),
-//            player.getLocation().getPitch()
-//          ), PlayerTeleportEvent.TeleportCause.UNKNOWN
-//        );
-        movementData.criticalFlyingDisallowStacks = 0;
-      }
-    }
   }
 
   @PacketSubscription(
