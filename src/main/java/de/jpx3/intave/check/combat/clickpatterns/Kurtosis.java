@@ -53,8 +53,8 @@ public final class Kurtosis extends MetaCheckPart<ClickPatterns, Kurtosis.Kurtos
     // If the attacks queue reached the buffer length, Intave will calculate the kurtosis and check if the kurtosis (german: wölbung) is too low
     if (attacks.size() >= BUFFER_LENGTH) {
       double kurtosis = kurtosisOf(attacks) / 1000d;
-      if (kurtosis < 5) {
-        if (++meta.vl > 30) {
+      if (kurtosis < 6) {
+        if (++meta.vl > 20) {
           parentCheck().makeDetection(player, "kurtosis", "h:" + ((int) kurtosis), meta.vl > 24 ? 5 : 2.5);
           attacks.clear();
         }
