@@ -86,6 +86,16 @@ final class BlockStateReplacementCache<K> {
     }
   }
 
+  public boolean hasOverridesInBounds(int chunkXMinPos, int chunkXMaxPos, int chunkZMinPos, int chunkZMaxPos) {
+    for (Position location : located.keySet()) {
+      if (location.getX() >= chunkXMinPos && location.getX() < chunkXMaxPos &&
+        location.getZ() >= chunkZMinPos && location.getZ() < chunkZMaxPos) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public void clear() {
     locked.clear();
     located.clear();

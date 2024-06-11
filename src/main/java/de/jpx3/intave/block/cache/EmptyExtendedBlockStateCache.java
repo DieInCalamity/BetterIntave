@@ -68,6 +68,11 @@ final class EmptyExtendedBlockStateCache implements BlockCache {
   }
 
   @Override
+  public boolean hasOverridesInBounds(int chunkXMinPos, int chunkXMaxPos, int chunkZMinPos, int chunkZMaxPos) {
+    return false;
+  }
+
+  @Override
   public boolean currentlyInOverride(int posX, int posY, int posZ) {
     return false;
   }

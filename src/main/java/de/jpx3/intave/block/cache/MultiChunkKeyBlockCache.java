@@ -220,6 +220,11 @@ final class MultiChunkKeyBlockCache implements BlockCache {
   }
 
   @Override
+  public boolean hasOverridesInBounds(int chunkXMinPos, int chunkXMaxPos, int chunkZMinPos, int chunkZMaxPos) {
+    return replacementCache.hasOverridesInBounds(chunkXMinPos, chunkXMaxPos, chunkZMinPos, chunkZMaxPos);
+  }
+
+  @Override
   public boolean currentlyInOverride(int posX, int posY, int posZ) {
     long key = bigKey(posX, posY, posZ);
     return replacementCache.contains(key);

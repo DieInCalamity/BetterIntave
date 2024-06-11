@@ -34,7 +34,7 @@ public final class FeedbackSender extends Module {
   public static final int PING_MASK = 0xf5550000;
   private static final boolean USE_PING_PONG_PACKETS = MinecraftVersions.VER1_17_0.atOrAbove();
   private static final long OPTIONAL_PENDING_LIMIT = 20;
-  private static final long OPTIONAL_SENT_LIMIT = 200;
+  private static final long OPTIONAL_SENT_LIMIT = 150;
 
   private final ProtocolManager protocol = ProtocolLibrary.getProtocolManager();
   private boolean dumpFeedback;
@@ -194,7 +194,7 @@ public final class FeedbackSender extends Module {
       append = tooManyPending || sentTooManyRecently;
     }
     if (matches(APPEND, options)) {
-      append = true;//pendingTransactions(userOf(player)) > 0;
+      append = true;
     }
     if (append) {
       appendRequest(player, target, callback, options);

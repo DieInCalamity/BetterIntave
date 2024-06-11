@@ -15,6 +15,7 @@ import de.jpx3.intave.module.linker.packet.Engine;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.packet.reader.*;
+import de.jpx3.intave.share.Position;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.MovementMetadata;
@@ -30,8 +31,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType.*;
-import static de.jpx3.intave.module.feedback.FeedbackOptions.APPEND_ON_OVERFLOW;
-import static de.jpx3.intave.module.feedback.FeedbackOptions.SELF_SYNCHRONIZATION;
+import static de.jpx3.intave.module.feedback.FeedbackOptions.*;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
 
@@ -50,14 +50,29 @@ public final class BlockUpdateTracker extends Module {
     if (xCoordinates.length != zCoordinates.length) {
       throw new IllegalStateException();
     }
-    user.tickFeedback(
-      () -> {
-        for (int k = 0; k < xCoordinates.length; k++) {
-          BlockUpdateTracker.this.chunkInvalidate(player, xCoordinates[k], zCoordinates[k]);
-        }
-      },
-      APPEND_ON_OVERFLOW | SELF_SYNCHRONIZATION
-    );
+    if (xCoordinates.length > 1) {
+      user.tickFeedback(
+        () -> {
+          for (int k = 0; k < xCoordinates.length; k++) {
+            BlockUpdateTracker.this.chunkInvalidate(player, xCoordinates[k], zCoordinates[k]);
+          }
+        },
+        APPEND_ON_OVERFLOW | SELF_SYNCHRONIZATION
+      );
+    } else {
+      int chunkX = xCoordinates[0], chunkZ = zCoordinates[0];
+      Position position = user.meta().movement().position();
+      int playerChunkX = position.chunkX(), playerChunkZ = position.chunkZ();
+      double distance = Math.sqrt(
+        NumberConversions.square(playerChunkX - chunkX) +
+          NumberConversions.square(playerChunkZ - chunkZ)
+      );
+      boolean relevant = distance <= 4 || user.blockCache().hasOverridesInBounds(chunkX << 4, (chunkX + 1) << 4, chunkZ << 4, (chunkZ + 1) << 4);
+      user.tickFeedback(
+        () -> BlockUpdateTracker.this.chunkInvalidate(player, chunkX, chunkZ),
+        (relevant ? APPEND_ON_OVERFLOW : APPEND) | SELF_SYNCHRONIZATION
+      );
+    }
   }
 
   private void chunkInvalidate(Player player, int chunkX, int chunkZ) {

@@ -137,6 +137,17 @@ public interface BlockCache {
   void invalidateOverridesInBounds(int chunkXMinPos, int chunkXMaxPos, int chunkZMinPos, int chunkZMaxPos);
 
   /**
+   * Check if there are any overrides in the specified chunk boundaries
+   *
+   * @param chunkXMinPos the min chunk x boundary
+   * @param chunkXMaxPos the max chunk x boundary
+   * @param chunkZMinPos the min chunk z boundary
+   * @param chunkZMaxPos the max chunk z boundary
+   * @return whether there are any overrides in the specified chunk boundaries
+   */
+  boolean hasOverridesInBounds(int chunkXMinPos, int chunkXMaxPos, int chunkZMinPos, int chunkZMaxPos);
+
+  /**
    * Invalidate all caches
    */
   void invalidateAll();

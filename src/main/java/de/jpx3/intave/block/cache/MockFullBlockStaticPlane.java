@@ -133,4 +133,9 @@ public final class MockFullBlockStaticPlane implements BlockCache {
   public void invalidateOverridesInBounds(int chunkXMinPos, int chunkXMaxPos, int chunkZMinPos, int chunkZMaxPos) {
 
   }
+
+  @Override
+  public boolean hasOverridesInBounds(int chunkXMinPos, int chunkXMaxPos, int chunkZMinPos, int chunkZMaxPos) {
+    return false;
+  }
 }
