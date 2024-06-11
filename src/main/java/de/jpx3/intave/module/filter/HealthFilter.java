@@ -13,6 +13,7 @@ import de.jpx3.intave.packet.reader.PacketReaders;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Wither;
 
 import java.util.List;
 
@@ -40,11 +41,7 @@ public final class HealthFilter extends Filter {
     PacketContainer packet = event.getPacket();
     EntityMetadataReader reader = PacketReaders.readerOf(packet);
     Entity entity = reader.entityBy(event);
-    if (entity == null) {
-      reader.release();
-      return;
-    }
-    if (entity instanceof EnderDragon) {
+    if (entity == null || entity instanceof EnderDragon || entity instanceof Wither) {
       reader.release();
       return;
     }
