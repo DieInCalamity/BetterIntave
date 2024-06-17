@@ -1,5 +1,7 @@
 package de.jpx3.intave.module;
 
+import de.jpx3.intave.IntaveControl;
+
 final class ModuleSettings {
   private final BootSegment bootSegment;
   private final Requirement requirement;
@@ -65,7 +67,7 @@ final class ModuleSettings {
     }
 
     public Builder requireProtocolLib4() {
-      return withRequirement(Requirements.protocolLib4());
+      return withRequirement(Requirements.protocolLib4().or(() -> IntaveControl.GOMME_MODE));
     }
 
     public Builder withRequirement(Requirement requirement) {

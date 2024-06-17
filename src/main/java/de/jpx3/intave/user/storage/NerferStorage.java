@@ -84,4 +84,21 @@ public final class NerferStorage implements Storage {
   public int version() {
     return 2;
   }
+
+  @Override
+  public boolean sameContentsAs(Storage other) {
+    if (!(other instanceof NerferStorage)) {
+      return false;
+    }
+    NerferStorage otherStorage = (NerferStorage) other;
+    if (nerfers.size() != otherStorage.nerfers.size()) {
+      return false;
+    }
+    for (Map.Entry<String, Long> entry : nerfers.entrySet()) {
+      if (!entry.getValue().equals(otherStorage.nerfers.get(entry.getKey()))) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

@@ -22,7 +22,7 @@ public class ShortTermViolationStorage implements Storage {
         output.writeDouble(threshold.getValue());
       }
     }
-    output.writeLong(System.currentTimeMillis());
+    output.writeLong(issuedAt = System.currentTimeMillis());
   }
 
   @Override
@@ -37,6 +37,7 @@ public class ShortTermViolationStorage implements Storage {
       }
       violations.put(violation, thresholds);
     }
+    issuedAt = input.readLong();
   }
 
   public void setViolation(String check, String threshold, double value) {
@@ -62,6 +63,23 @@ public class ShortTermViolationStorage implements Storage {
 
   @Override
   public int version() {
-    return 0;
+    return 1;
+  }
+
+  @Override
+  public boolean sameContentsAs(Storage other) {
+    if (!(other instanceof ShortTermViolationStorage)) {
+      return false;
+    }
+    ShortTermViolationStorage otherStorage = (ShortTermViolationStorage) other;
+    if (violations.size() != otherStorage.violations.size()) {
+      return false;
+    }
+    for (Map.Entry<String, Map<String, Double>> entry : violations.entrySet()) {
+      if (!entry.getValue().equals(otherStorage.violations.get(entry.getKey()))) {
+        return false;
+      }
+    }
+    return issuedAt == otherStorage.issuedAt;
   }
 }

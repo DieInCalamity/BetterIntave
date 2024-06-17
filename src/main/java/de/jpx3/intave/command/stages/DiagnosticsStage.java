@@ -305,7 +305,7 @@ public final class DiagnosticsStage extends CommandStage {
     selectors = "storagetrace",
     usage = "",
     description = "",
-    permission = "sibyl"
+    permission = "intave.command.diagnostics.performance"
   )
   public void storageTrace(User user) {
     Player player = user.player();

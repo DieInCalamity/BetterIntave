@@ -48,7 +48,7 @@ public final class MiscBukkitEvents extends Module {
     } else {
       if (version.typeClassifier() == IntaveVersion.Status.OUTDATED) {
         long duration = System.currentTimeMillis() - version.release();
-        String durationAsString = DurationTranslator.translateDuration(duration);
+        String durationAsString = DurationTranslator.translateHours(duration);
 
         sendPrefixedMessage(ChatColor.RED + "This server is running an outdated version of Intave (" + durationAsString + " old)", player);
         if (!Bukkit.getPluginManager().isPluginEnabled("IntaveBootstrap")) {

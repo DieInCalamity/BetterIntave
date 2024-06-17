@@ -955,7 +955,7 @@ public final class IntavePlugin extends JavaPlugin {
       logger().info(ChatColor.YELLOW + "This version of Intave is not listed in the official version index");
     } else {
       long duration = System.currentTimeMillis() - version.release();
-      String durationAsString = DurationTranslator.translateDuration(duration);
+      String durationAsString = DurationTranslator.translateHours(duration);
 
       String infoMessage = "";
       switch (version.typeClassifier()) {

@@ -99,4 +99,23 @@ public final class PlayerStorage implements Storage {
   public int version() {
     return STORAGE_VERSION;
   }
+
+  @Override
+  public boolean sameContentsAs(Storage other) {
+    if (!(other instanceof PlayerStorage)) {
+      return false;
+    }
+    PlayerStorage storage = (PlayerStorage) other;
+    return storage.id.equals(id) && storage.creation == creation && storage.sameContentsAs(this);
+  }
+
+  public boolean sameContentsAs(PlayerStorage storage) {
+    for (Storage child : storageList.values()) {
+      Storage other = storage.storageList.get(child.id());
+      if (other == null || !child.sameContentsAs(other)) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

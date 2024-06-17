@@ -9,7 +9,7 @@ import de.jpx3.intave.test.*;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserFactory;
 import de.jpx3.intave.user.UserRepository;
-import de.jpx3.intave.user.storage.Storage;
+import de.jpx3.intave.user.storage.*;
 import org.bukkit.entity.Player;
 
 import java.nio.ByteBuffer;
@@ -155,6 +155,57 @@ public final class StorageTests extends Tests {
     assertEquals(mockStorage.data(), 5);
   }
 
+  @Test(
+    testCode = "D",
+    severity = Severity.ERROR
+  )
+  public void testSerialization() {
+    UUID playerId = UUID.randomUUID();
+    PlayerStorage storage = Storages.emptyPlayerStorageFor(playerId);
+    PlaytimeStorage playtimeStorage = storage.storageOf(PlaytimeStorage.class);
+    playtimeStorage.incrementMinutesPlayedBy(531);
+    playtimeStorage.setDebugTag();
+    LongTermViolationStorage violationStorage = storage.storageOf(LongTermViolationStorage.class);
+    violationStorage.noteViolation("attackraytrace", 500);
+    violationStorage.noteViolation("physics", 800);
+    HeuristicsStorage heuristicsStorage = storage.storageOf(HeuristicsStorage.class);
+    heuristicsStorage.confidenceNote(103);
+    NerferStorage nerferStorage = storage.storageOf(NerferStorage.class);
+    nerferStorage.addNerfer("CC", System.currentTimeMillis() + 5_000);
+    nerferStorage.addNerfer("DD", System.currentTimeMillis() + 10_000);
+    AccountDataStorage accountDataStorage = storage.storageOf(AccountDataStorage.class);
+    accountDataStorage.setVerified();
+    accountDataStorage.setBlocked();
+    FeedbackAnalysisStorage feedbackAnalysisStorage = storage.storageOf(FeedbackAnalysisStorage.class);
+    long[] counts = new long[100];
+    for (int i = 0; i < counts.length; i++) {
+      counts[i] = ThreadLocalRandom.current().nextLong(6, 800);
+    }
+    feedbackAnalysisStorage.setCounts(counts);
+    feedbackAnalysisStorage.setAccumulatedLatencies(counts);
+    ViolationBufferStorage violationBufferStorage = storage.storageOf(ViolationBufferStorage.class);
+    violationBufferStorage.trySpendPoint("physics", 8000, 2);
+    LatencyStorage latencyStorage = storage.storageOf(LatencyStorage.class);
+    latencyStorage.backtrackVL = 64;
+    latencyStorage.buckets = 100;
+    latencyStorage.latencyBuckets = new long[100];
+    latencyStorage.lastUpdate = System.currentTimeMillis();
+    for (int i = 0; i < latencyStorage.latencyBuckets.length; i++) {
+      latencyStorage.latencyBuckets[i] = ThreadLocalRandom.current().nextLong(6, 800);
+    }
+    ShortTermViolationStorage shortTermViolationStorage = storage.storageOf(ShortTermViolationStorage.class);
+    shortTermViolationStorage.setViolation("physics", "404", 8000);
+
+    ByteBuffer buffer = StorageIOProcessor.outputFrom(storage);
+
+    PlayerStorage storage1 = Storages.emptyPlayerStorageFor(playerId);
+    StorageIOProcessor.inputTo(storage1, buffer);
+
+    if (!storage1.sameContentsAs((Storage) storage)) {
+      fail("Storage serialization failed");
+    }
+  }
+
   @After
   public void teardown() {
     UserRepository.unregisterUser(player);
@@ -176,6 +227,15 @@ public final class StorageTests extends Tests {
     @Override
     public int version() {
       return 0;
+    }
+
+    @Override
+    public boolean sameContentsAs(Storage other) {
+      if (!(other instanceof MockStorage)) {
+        return false;
+      }
+      MockStorage otherStorage = (MockStorage) other;
+      return otherStorage.data == data;
     }
 
     public int data() {

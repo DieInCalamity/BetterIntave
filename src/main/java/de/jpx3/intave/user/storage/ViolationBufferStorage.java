@@ -25,6 +25,7 @@ public class ViolationBufferStorage implements Storage {
       String checkName = input.readUTF();
       CheckBufferStorage buffer = new CheckBufferStorage(checkName);
       buffer.readFrom(input);
+      buffers.add(buffer);
     }
   }
 
@@ -95,6 +96,23 @@ public class ViolationBufferStorage implements Storage {
     return 0;
   }
 
+  @Override
+  public boolean sameContentsAs(Storage other) {
+    if (!(other instanceof ViolationBufferStorage)) {
+      return false;
+    }
+    ViolationBufferStorage otherBuffer = (ViolationBufferStorage) other;
+    if (otherBuffer.buffers.size() != buffers.size()) {
+      return false;
+    }
+    for (int i = 0; i < buffers.size(); i++) {
+      if (!buffers.get(i).sameContentsAs(otherBuffer.buffers.get(i))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   private CheckBufferStorage prepareBuffer(String checkName) {
     CheckBufferStorage buffer = getBuffer(checkName);
     if (buffer == null) {
@@ -139,6 +157,18 @@ public class ViolationBufferStorage implements Storage {
       burstPoints = input.readLong();
       __reserved4__ = input.readLong();
       __reserved5__ = input.readLong();
+    }
+
+    @Override
+    public boolean sameContentsAs(Storage other) {
+      if (!(other instanceof CheckBufferStorage)) {
+        return false;
+      }
+      CheckBufferStorage otherBuffer = (CheckBufferStorage) other;
+      return otherBuffer.checkName.equals(checkName) && otherBuffer.availablePoints == availablePoints &&
+        otherBuffer.lastPointReset == lastPointReset && otherBuffer.lastPointChange == lastPointChange &&
+        otherBuffer.RESERVED == RESERVED && otherBuffer.burstPoints == burstPoints &&
+        otherBuffer.__reserved4__ == __reserved4__ && otherBuffer.__reserved5__ == __reserved5__;
     }
 
     public void addPoints(int points) {

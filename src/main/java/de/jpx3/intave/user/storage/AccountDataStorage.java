@@ -51,4 +51,13 @@ public final class AccountDataStorage implements Storage {
   public int version() {
     return 1;
   }
+
+  @Override
+  public boolean sameContentsAs(Storage other) {
+    if (!(other instanceof AccountDataStorage)) {
+      return false;
+    }
+    AccountDataStorage otherStorage = (AccountDataStorage) other;
+    return blocked == otherStorage.blocked && blockedSince == otherStorage.blockedSince && verified == otherStorage.verified;
+  }
 }

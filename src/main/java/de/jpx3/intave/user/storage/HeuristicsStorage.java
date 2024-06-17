@@ -55,4 +55,13 @@ public final class HeuristicsStorage implements Storage {
   public int version() {
     return 1;
   }
+
+  @Override
+  public boolean sameContentsAs(Storage other) {
+    if (other instanceof HeuristicsStorage) {
+      HeuristicsStorage otherStorage = (HeuristicsStorage) other;
+      return confidence == otherStorage.confidence && timeOfSave == otherStorage.timeOfSave && read == otherStorage.read;
+    }
+    return false;
+  }
 }

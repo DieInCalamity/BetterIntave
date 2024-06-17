@@ -30,6 +30,7 @@ public final class PacketRegistry {
     registerServerbound(ServerboundConfirmEncryption.class);
     registerServerbound(ServerboundHello.class);
     registerServerbound(ServerboundPassNayoro.class);
+    registerServerbound(ServerboundPlayerPlayStateChange.class);
     registerServerbound(ServerboundRequestStorage.class);
     registerServerbound(ServerboundRequestTrustfactor.class);
     registerServerbound(ServerboundUploadStorage.class);
@@ -51,6 +52,9 @@ public final class PacketRegistry {
     try {
       Packet<?> packet = packetClass.newInstance();
       String packetName = packet.name();
+      if (direction != packet.direction()) {
+        throw new IllegalArgumentException("Packet " + packetName + " has wrong direction");
+      }
       PacketSpecification packetSpecification = PacketSpecification.from(packet);
       nameByPacket.computeIfAbsent(direction, x -> new HashMap<>()).put(packetClass, packetName);
       packetByName.computeIfAbsent(direction, x -> new HashMap<>()).put(packetName, packetClass);

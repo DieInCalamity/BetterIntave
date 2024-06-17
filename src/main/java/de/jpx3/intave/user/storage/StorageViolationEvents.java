@@ -120,6 +120,17 @@ public class StorageViolationEvents implements Storage, Iterable<StorageViolatio
     }
   }
 
+  @Override
+  public boolean sameContentsAs(Storage other) {
+    if (!(other instanceof StorageViolationEvents)) {
+      return false;
+    }
+    StorageViolationEvents otherEvents = (StorageViolationEvents) other;
+    return size() == otherEvents.size() && stream().allMatch(
+      event -> otherEvents.stream().anyMatch(event::sameContentsAs)
+    );
+  }
+
   public void add(StorageViolationEvent event) {
     parent.add(event);
   }

@@ -132,6 +132,15 @@ public final class LongTermViolationStorage implements Storage {
     return 1;
   }
 
+  @Override
+  public boolean sameContentsAs(Storage other) {
+    if (!(other instanceof LongTermViolationStorage)) {
+      return false;
+    }
+    LongTermViolationStorage otherStorage = (LongTermViolationStorage) other;
+    return otherStorage.interestingViolations.sameContentsAs(interestingViolations);
+  }
+
   public StorageViolationEvents violations() {
     return interestingViolations;
   }

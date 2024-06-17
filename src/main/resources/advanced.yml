@@ -235,6 +235,7 @@ compatibility:
 
   # Enable if scoreboards are sometimes not visible
   ignore-scoreboard-packets: false
+
 command:
   hide: true
   reroute:

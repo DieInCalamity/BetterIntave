@@ -54,6 +54,21 @@ public class StorageViolationEvent implements Storage {
     timestamp = input.readLong();
   }
 
+  @Override
+  public boolean sameContentsAs(Storage other) {
+    if (!(other instanceof StorageViolationEvent)) {
+      return false;
+    }
+    StorageViolationEvent otherEvent = (StorageViolationEvent) other;
+    return (
+      checkName.equals(otherEvent.checkName) &&
+      details.equals(otherEvent.details) &&
+      intaveVersion.equals(otherEvent.intaveVersion) &&
+      violationLevel == otherEvent.violationLevel &&
+      timestamp == otherEvent.timestamp
+    );
+  }
+
   public String checkName() {
     return checkName;
   }

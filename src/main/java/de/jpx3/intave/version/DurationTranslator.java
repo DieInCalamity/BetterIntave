@@ -3,7 +3,31 @@ package de.jpx3.intave.version;
 import java.util.concurrent.TimeUnit;
 
 public final class DurationTranslator {
-  public static String translateDuration(long duration) {
+  public static String translateMinutes(long duration) {
+    if (duration <= 0) {
+      return "invalid";
+    }
+    int minutes = (int) (duration / (1000 * 60));
+    int hours = minutes / 60;
+    minutes = minutes % 60;
+    String firstType = stringifyType(TimeUnit.HOURS, hours);
+    String secondType = stringifyType(TimeUnit.MINUTES, minutes);
+    if (secondType.isEmpty()) {
+      secondType = "0 minutes";
+    }
+    String output;
+    if (hours >= 24) {
+      output = firstType;
+    } else {
+      output = firstType + (firstType.isEmpty() ? "" : " and ") + secondType;
+    }
+    if (output.trim().isEmpty()) {
+      output = "a few minutes";
+    }
+    return output;
+  }
+
+  public static String translateHours(long duration) {
     if (duration <= 0) {
       return "invalid";
     }

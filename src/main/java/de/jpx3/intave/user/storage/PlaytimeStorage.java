@@ -71,6 +71,15 @@ public final class PlaytimeStorage implements Storage {
     return 1;
   }
 
+  @Override
+  public boolean sameContentsAs(Storage other) {
+    if (!(other instanceof PlaytimeStorage)) {
+      return false;
+    }
+    PlaytimeStorage otherStorage = (PlaytimeStorage) other;
+    return otherStorage.totalJoins == totalJoins && otherStorage.minutesPlayed == minutesPlayed && otherStorage.minutesAfk == minutesAfk && otherStorage.firstSight == firstSight && otherStorage.debugTagBits == debugTagBits && otherStorage._reserved2 == _reserved2 && otherStorage._reserved3 == _reserved3 && otherStorage._reserved4 == _reserved4 && otherStorage._reserved5 == _reserved5 && otherStorage._reserved6 == _reserved6;
+  }
+
   public void setDebugTag() {
     this.debugTagBits = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
   }

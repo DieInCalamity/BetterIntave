@@ -12,4 +12,6 @@ public interface Storage {
   default int version() {
     return -1;
   }
+
+  boolean sameContentsAs(Storage other);
 }

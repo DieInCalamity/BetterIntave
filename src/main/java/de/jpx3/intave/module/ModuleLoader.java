@@ -23,7 +23,7 @@ final class ModuleLoader {
       .bootAt(BootSegment.STAGE_6)
       .build();
     ModuleSettings defaultBoot = ModuleSettings.builder().requireProtocolLib().bootUsually().build();
-    ModuleSettings defaultBootRequireProto4 = ModuleSettings.builder().requireProtocolLib4().bootUsually().build();
+//    ModuleSettings defaultBootRequireProto4 = ModuleSettings.builder().requireProtocolLib4().bootUsually().build();
     ModuleSettings lateBoot = ModuleSettings.builder().requireProtocolLib().bootAfterIntave().build();
 
     // linker
@@ -41,6 +41,7 @@ final class ModuleLoader {
     prepareModule("de.jpx3.intave.module.tracker.player.AbilityTracker", defaultBoot);
     prepareModule("de.jpx3.intave.module.tracker.player.AttributeTracker", defaultBoot);
     prepareModule("de.jpx3.intave.module.tracker.player.ConnectionTracker", defaultBoot);
+    prepareModule("de.jpx3.intave.module.tracker.player.CloudStateNotify", defaultBoot);
     prepareModule("de.jpx3.intave.module.tracker.player.EffectTracker", defaultBoot);
     prepareModule("de.jpx3.intave.module.tracker.player.InventoryTracker", defaultBoot);
     prepareModule("de.jpx3.intave.module.tracker.player.ItemCrashTracker", defaultBoot);
@@ -50,7 +51,7 @@ final class ModuleLoader {
     prepareModule("de.jpx3.intave.module.tracker.player.PacketLogging", defaultBoot);
     prepareModule("de.jpx3.intave.module.tracker.entity.EntityTracker", lateBoot);
     prepareModule("de.jpx3.intave.module.tracker.entity.LazyEntityCollisionService", defaultBoot);
-    prepareModule("de.jpx3.intave.module.tracker.entity.EntityCollisionDisabler", defaultBootRequireProto4);
+    prepareModule("de.jpx3.intave.module.tracker.entity.EntityCollisionDisabler", defaultBoot);
     prepareModule("de.jpx3.intave.module.tracker.block.BlockUpdateTracker", defaultBoot);
 
     // mitigate

@@ -17,6 +17,7 @@ import de.jpx3.intave.connect.cloud.protocol.Shard;
 import de.jpx3.intave.connect.cloud.protocol.Token;
 import de.jpx3.intave.connect.cloud.protocol.listener.Serverbound;
 import de.jpx3.intave.connect.cloud.protocol.packets.*;
+import de.jpx3.intave.connect.cloud.protocol.packets.ServerboundPlayerPlayStateChange.PlayState;
 import de.jpx3.intave.connect.cloud.request.CloudStorageGateaway;
 import de.jpx3.intave.connect.cloud.request.CloudTrustfactorResolver;
 import de.jpx3.intave.connect.cloud.request.Request;
@@ -42,6 +43,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @HighOrderService
 public final class Cloud {
@@ -245,6 +247,9 @@ public final class Cloud {
         if (session.canSend(packet)) {
           session.send(packet);
           sent = true;
+          if (IntaveControl.AUTHENTICATION_DEBUG_MODE) {
+            IntaveLogger.logger().info("Sent packet " + packet.name() + " to " + session.shard());
+          }
           break;
         }
       }
@@ -362,6 +367,18 @@ public final class Cloud {
 
   public void saveStorage(UUID id, ByteBuffer buffer) {
     sendPacket(new ServerboundUploadStorage(Identity.from(id), buffer));
+  }
+
+  public void playerStateChange(
+    Player player, UUID gameId, boolean online, List<UUID> interacted
+  ) {
+    if (!available()) {
+      return;
+    }
+    sendPacket(ServerboundPlayerPlayStateChange.from(
+      Identity.from(player), online ? PlayState.JOIN : PlayState.LEAVE, gameId,
+      interacted.stream().map(Identity::from).collect(Collectors.toList())
+    ));
   }
 
   public boolean isEnabled() {
