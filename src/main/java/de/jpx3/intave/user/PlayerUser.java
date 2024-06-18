@@ -51,6 +51,7 @@ import de.jpx3.intave.user.storage.Storages;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import java.lang.ref.Reference;
@@ -153,6 +154,9 @@ final class PlayerUser implements User {
     Player player = player();
     LogTransmittor logTransmittor = IntavePlugin.singletonInstance().logTransmittor();
     ProtocolMetadata clientData = meta().protocol();
+    if (hasDisabledLogs()) {
+      logTransmittor.addPlayerLog(player, "[SYSTEM] Disabled logs");
+    }
     logTransmittor.addPlayerLog(player, "(JOIN) " + player.getName() + " joined game "+IntavePlugin.gameId()+" with version " + clientData.versionString() + "/" + clientData.protocolVersion() + " and locale " + clientData.locale());
     if (!ConsoleOutput.CLIENT_VERSION_DEBUG) {
       return;
@@ -163,6 +167,16 @@ final class PlayerUser implements User {
     }
     string += " and locale " + clientData.locale();
     IntaveLogger.logger().info(string);
+  }
+
+  private Boolean disabledCache = null;
+
+  private boolean hasDisabledLogs() {
+    if (disabledCache != null) {
+      return disabledCache;
+    }
+    ConfigurationSection featuresSection = IntavePlugin.singletonInstance().settings().getConfigurationSection("cloud.features");
+    return disabledCache = !featuresSection.getBoolean("logs", featuresSection.getBoolean("cloud-logs", true));
   }
 
   @Override
