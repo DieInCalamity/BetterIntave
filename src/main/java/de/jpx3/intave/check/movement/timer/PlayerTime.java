@@ -135,7 +135,7 @@ public class PlayerTime extends MetaCheckPart<Timer, PlayerTime.PlayerTimeMeta> 
 
 //    player.sendMessage((bad ? ChatColor.RED : ChatColor.GRAY) + " " + (diff / (50 * 1_000_000f)) + " / " + (experimentalLimit / (50 * 1_000_000f)));
 
-    int limit = 20_000_000;
+    int limit = 40_000_000;
     if ((diff > limit) && !user.meta().movement().isInVehicle()) {
       double displayValue = diff / (50 * 1_000_000f);
       if (displayValue < 0.01) {
