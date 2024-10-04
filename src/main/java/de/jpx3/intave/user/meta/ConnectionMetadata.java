@@ -33,7 +33,7 @@ public final class ConnectionMetadata {
   private final Map<Long, Queue<FeedbackRequest<?>>> transactionOptionalAppendMap = Maps.newConcurrentMap();
   private final Map<Integer, Entity> entitiesById = Maps.newConcurrentMap();
   private final Map<Integer, Integer> entityVehicles = Maps.newConcurrentMap();
-  private final Map<Integer, Integer> entityMounts = Maps.newConcurrentMap();
+  private final Map<Integer, Set<Integer>> entityMounts = Maps.newConcurrentMap();
 
   private final Set<Integer> entityIds = new HashSet<>();
   private final List<Entity> synchronizedEntities = Lists.newCopyOnWriteArrayList();
@@ -303,13 +303,19 @@ public final class ConnectionMetadata {
 
   public void noteMount(int entityId, int vehicleId) {
     entityVehicles.put(entityId, vehicleId);
-    entityMounts.put(vehicleId, entityId);
+    entityMounts.computeIfAbsent(vehicleId, k -> new HashSet<>()).add(entityId);
   }
 
   public void noteDismount(int entityId) {
     Integer vehicleId = entityVehicles.remove(entityId);
     if (vehicleId != null) {
-      entityMounts.remove(vehicleId);
+      Set<Integer> mounts = entityMounts.get(vehicleId);
+      if (mounts != null) {
+        mounts.remove(entityId);
+        if (mounts.isEmpty()) {
+          entityMounts.remove(vehicleId);
+        }
+      }
     }
   }
 
@@ -317,8 +323,8 @@ public final class ConnectionMetadata {
     return entityVehicles.get(entityId);
   }
 
-  public Integer sittingOn(int entityId) {
-    return entityMounts.get(entityId);
+  public List<Integer> sittingOn(int entityId) {
+    return entityMounts.get(entityId) == null ? Collections.emptyList() : new ArrayList<>(entityMounts.get(entityId));
   }
 
   @Deprecated
@@ -341,7 +347,6 @@ public final class ConnectionMetadata {
   public Entity markForDeletion(int entityId) {
     Entity old = entitiesById.put(entityId, Entity.destroyedEntity());
     entityIds.remove(entityId);
-
     // we will not override the entity collection, as it would require a lot of performance and seems quite redundant in the first place
 //    for (int i = 0, entitiesSize = entities.size(); i < entitiesSize; i++) {
 //      EntityShade entity = entities.get(i);
@@ -349,10 +354,8 @@ public final class ConnectionMetadata {
 //        entities.set(i, EntityShade.destroyedEntity());
 //      }
 //    }
-
     // using removeIf requires the least amount of locking and array modifications for CopyOnWriteArrayLists
 //    entities.removeIf(entity -> entity.entityId() == entityId);
-
     return old;
   }
 

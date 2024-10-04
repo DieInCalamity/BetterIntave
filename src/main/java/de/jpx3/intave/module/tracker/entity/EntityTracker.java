@@ -6,7 +6,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import de.jpx3.intave.IntaveControl;
-import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.adapter.MinecraftVersions;
@@ -37,6 +36,7 @@ import de.jpx3.intave.share.ClientMath;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.*;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -82,19 +82,16 @@ public final class EntityTracker extends Module {
       .withEntityAdditionListener(this::nayoroEntitySpawn)
       .withEntityRemovalListener(this::nayoroEntityDespawn)
       .build();
-//    this.tickedEntitySelector = new PeriodicTickedEntitySelector(50);
   }
 
   @Override
   public void enable() {
     coverageSelector.enableTask();
-//    tickedEntitySelector.enableTask();
   }
 
   @Override
   public void disable() {
     coverageSelector.disableTask();
-//    tickedEntitySelector.disableTask();
   }
 
   @PacketSubscription(
@@ -106,74 +103,110 @@ public final class EntityTracker extends Module {
   public void sendAttachEntityPacket(PacketEvent event) {
     PacketContainer packet = event.getPacket();
     Player player = event.getPlayer();
+    User user = UserRepository.userOf(player);
     if (event.getPacketType() == PacketType.Play.Server.MOUNT) {
       //1.9+ servers
-      int[] entityIDs = event.getPacket().getIntegerArrays().read(0);
-      int vehicleEntityID = packet.getIntegers().read(0);
-
-      for (int entityID : entityIDs) {
-        processAttachEntity(player, entityID, vehicleEntityID);
+      int vehicleId = packet.getIntegers().read(0);
+      Entity vehicle = UserRepository.userOf(player).meta().connection().entityBy(vehicleId);
+      int[] newPassengers = event.getPacket().getIntegerArrays().read(0);
+      List<Entity> oldPassengers = vehicle.passengers();
+      List<Integer> toAdd = new ArrayList<>();
+      List<Integer> toRemove = new ArrayList<>();
+      for (int passengerId : newPassengers) {
+        boolean b = true;
+        for (Entity entity : oldPassengers) {
+          if (entity.entityId() == passengerId) {
+            b = false;
+            break;
+          }
+        }
+        if (b) {
+          toAdd.add(passengerId);
+        }
       }
-    } else if (event.getPacketType() == PacketType.Play.Server.ATTACH_ENTITY && !NEW_POSITION_PROCESSING_1_9) {
-      // TODO: check if "&& !NEW_POSITION_PROCESSING_1_9" is useless
+      for (Entity passenger : oldPassengers) {
+        boolean b = true;
+        for (int id : newPassengers) {
+          if (id == passenger.entityId()) {
+            b = false;
+            break;
+          }
+        }
+        if (b) {
+          toRemove.add(passenger.entityId());
+        }
+      }
+      for (Integer passengerRemoval : toRemove) {
+        detachEntity(user, vehicleId, passengerRemoval);
+      }
+      for (Integer passengerAddition : toAdd) {
+        attachEntity(user, vehicleId, passengerAddition);
+      }
+    } else if (event.getPacketType() == PacketType.Play.Server.ATTACH_ENTITY) {
       // 1.8 servers
-      int type = packet.getIntegers().read(0);
-      if (type == 0) {
-        int entityID = packet.getIntegers().read(1);
-        int vehicleEntityID = packet.getIntegers().read(2);
-        processAttachEntity(player, entityID, vehicleEntityID);
+      int isLeash = packet.getIntegers().read(0);
+      if (isLeash == 0) {
+        int passengerId = packet.getIntegers().read(1);
+        int vehicleId = packet.getIntegers().read(2);
+        if (vehicleId == -1) {
+          detachEntity(user, -1, passengerId);
+        } else {
+          attachEntity(user, vehicleId, passengerId);
+        }
       }
     }
   }
 
-  private void processAttachEntity(Player player, int entityID, int vehicleEntityID) {
-    User user = UserRepository.userOf(player);
-    MetadataBundle metadataBundle = user.meta();
-    MovementMetadata movementData = metadataBundle.movement();
-    ConnectionMetadata connection = metadataBundle.connection();
-//    Map<Integer, WrappedEntity> entities = connection.entities();
-    Entity sittingEntity = connection.entityBy(entityID);
-
-    if (sittingEntity != null) {
-      // Another entity
-      if (vehicleEntityID == -1) {
-        // when an entity dismounts
-        user.tickFeedback(() -> {
-          sittingEntity.unmountFromEntity();
-          connection.noteDismount(entityID);
-        });
-      } else {
-        // mounts on entity
-        Entity sittingOnEntity = connection.entityBy(vehicleEntityID);
-        if (sittingOnEntity != null) {
-          user.tickFeedback(() -> {
-            sittingEntity.mountToEntity(sittingOnEntity);
-            connection.noteMount(entityID, vehicleEntityID);
-          });
-        } else {
-          if (IntaveControl.DISABLE_LICENSE_CHECK) {
-            IntaveLogger.logger().error(String.format("mounted On Entity with id %d could not be found", vehicleEntityID));
-          }
-        }
-      }
-    } else if (entityID == player.getEntityId()) {
-      // The Player
-      // ID -1 => undo attachment
-      tryCreateVehicleEntity(user, vehicleEntityID);
-      Entity target = connection.entityBy(vehicleEntityID);
-      if (target == null) {
-        target = Entity.destroyedEntity();
-      }
-      Entity finalTarget = target;
-      user.tickFeedback(() -> {
-        if (movementData.isInVehicle()) {
-          movementData.dismountRidingEntity("Override", false);
-        }
-        if (finalTarget != null && !(finalTarget instanceof Entity.Destroyed)) {
-          movementData.setVehicle(finalTarget);
-        }
-      });
+  private void attachEntity(User observer, int vehicleId, int passengerId) {
+    ConnectionMetadata connection = observer.meta().connection();
+    tryCreateVehicleEntity(observer, vehicleId);
+    Entity vehicle = connection.entityBy(vehicleId);
+    Entity passenger = connection.entityBy(passengerId);
+    boolean passengerIsObserver = passenger == null && passengerId == observer.player().getEntityId();
+    if (vehicle == null || vehicle == Entity.destroyedEntity()) {
+      return;
     }
+    if (IntaveControl.DEBUG_MOUNTING) {
+      Bukkit.broadcastMessage("ATTACH " + passengerId + " to " + vehicleId);
+    }
+    observer.tickFeedback(() -> {
+      if (passenger != null) {
+        vehicle.addPassenger(passenger);
+        passenger.mountToEntity(vehicle);
+      }
+      connection.noteMount(passengerId, vehicleId);
+      if (passengerIsObserver) {
+        MovementMetadata movement = observer.meta().movement();
+        if (movement.isInVehicle()) {
+          movement.dismountRidingEntity("Override");
+        }
+        movement.setVehicle(vehicle);
+      }
+    });
+  }
+
+  private void detachEntity(User observer, int vehicleId, int passengerId) {
+    ConnectionMetadata connection = observer.meta().connection();
+    Entity passenger = connection.entityBy(passengerId);
+    boolean passengerIsObserver = passengerId == observer.player().getEntityId();
+    if (passenger == null && !passengerIsObserver) {
+      return;
+    }
+    if (IntaveControl.DEBUG_MOUNTING) {
+      Bukkit.broadcastMessage("DETACH " + passengerId + " from " + vehicleId);
+    }
+    Entity vehicle = passengerIsObserver ? observer.meta().movement().vehicle() : passenger.vehicle();
+    observer.tickFeedback(() -> {
+      if (!passengerIsObserver) {
+        vehicle.removePassenger(passenger);
+        passenger.unmountFromEntity();
+      }
+      connection.noteDismount(passengerId);
+      if (passengerIsObserver) {
+        MovementMetadata movement = observer.meta().movement();
+        movement.dismountRidingEntity("Dismount");
+      }
+    });
   }
 
   private void tryCreateVehicleEntity(User user, int entityID) {
@@ -415,8 +448,8 @@ public final class EntityTracker extends Module {
     }
 
     if (NEW_POSITION_PROCESSING_1_9) {
-      Integer sitter = connection.sittingOn(entityId);
-      if (sitter != null) {
+      List<Integer> sitters = connection.sittingOn(entityId);
+      for (Integer sitter : sitters) {
         Entity sitterEntity = connection.entityBy(sitter);
         if (sitterEntity != null) {
           sitterEntity.unmountFromEntity();
@@ -439,15 +472,15 @@ public final class EntityTracker extends Module {
   @PacketSubscription(
     priority = ListenerPriority.HIGHEST,
     packetsIn = {
-      POSITION, POSITION_LOOK, LOOK, FLYING
+      POSITION, POSITION_LOOK, LOOK, FLYING, STEER_VEHICLE
     }
   )
   public void receiveMovement(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
     ConnectionMetadata synchronizeData = user.meta().connection();
-    MovementMetadata movementData = user.meta().movement();
-    if (movementData.lastTeleport == 0) {
+    MovementMetadata movement = user.meta().movement();
+    if (movement.lastTeleport == 0) {
       return;
     }
     for (Entity entity : synchronizeData.entities()) {
@@ -455,6 +488,24 @@ public final class EntityTracker extends Module {
       entity.onUpdate();
       if (entity.tracingEnabled() && ticksAfterPositionChange > 0) {
         nayoroEntityPositionUpdate(player, entity);
+      }
+
+      if (movement.isRiding(entity.entityId()) && !MinecraftVersions.VER1_9_0.atOrAbove()) {
+        double originalX = entity.position.newPosX;
+        double originalY = entity.position.newPosY;
+        double originalZ = entity.position.newPosZ;
+        if (Math.abs(originalX) < 0.1 && Math.abs(originalY) < 0.1 && Math.abs(originalZ) < 0.1) {
+          originalX = entity.position.posX;
+          originalY = entity.position.posY;
+          originalZ = entity.position.posZ;
+        }
+        movement.positionX = movement.verifiedPositionX = movement.lastPositionX = originalX;
+        movement.positionY = movement.verifiedPositionY = movement.lastPositionY = originalY;
+        movement.positionZ = movement.verifiedPositionZ = movement.lastPositionZ = originalZ;
+        movement.verifiedPositionOrigin = "Riding pos sync (1.8)";
+        movement.setBaseMotionX(0);
+        movement.setBaseMotionY(0);
+        movement.setBaseMotionZ(0);
       }
     }
   }

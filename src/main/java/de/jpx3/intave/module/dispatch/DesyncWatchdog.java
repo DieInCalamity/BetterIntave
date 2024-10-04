@@ -101,11 +101,14 @@ public final class DesyncWatchdog extends Module {
     private final Position serverPosition;
     private final Position intaveAcceptedPosition;
     private final Position prefilteredPendingPosition;
+    private boolean inVehicle;
 
     public PositionBundle(
       Position serverPosition,
       Position intaveAcceptedPosition,
-      Position prefilteredPendingPosition) {
+      Position prefilteredPendingPosition,
+      boolean inVehicle
+    ) {
       this.serverPosition = serverPosition;
       this.intaveAcceptedPosition = intaveAcceptedPosition;
       this.prefilteredPendingPosition = prefilteredPendingPosition;
@@ -121,6 +124,10 @@ public final class DesyncWatchdog extends Module {
 
     public Position prefilteredPendingPosition() {
       return prefilteredPendingPosition;
+    }
+
+    public boolean inVehicle() {
+      return inVehicle;
     }
 
     public boolean serverAndIntaveAcceptedPositionDesynced() {
@@ -139,6 +146,9 @@ public final class DesyncWatchdog extends Module {
     }
 
     public boolean anyDesynced() {
+      if (inVehicle) {
+        return false;
+      }
       return serverAndIntaveAcceptedPositionDesynced() ||
         serverAndPrefilteredPendingPositionDesynced() ||
         intaveAcceptedAndPrefilteredPendingPositionDesynced();
@@ -149,7 +159,8 @@ public final class DesyncWatchdog extends Module {
     return new PositionBundle(
       serverPositionOf(user),
       intaveAcceptedPositionOf(user),
-      prefilteredPendingPositionOf(user)
+      prefilteredPendingPositionOf(user),
+      user.meta().movement().isInVehicle()
     );
   }
 

@@ -17,6 +17,9 @@ import de.jpx3.intave.user.User;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Entity {
   /*
   Dead entities are used to identify recently removed entities.
@@ -59,7 +62,8 @@ public class Entity {
   public int ticksAlive;
   public final boolean isPlayer;
   private int deathTime;
-  private Entity mountedOnEntity;
+  private Entity vehicle;
+  private List<Entity> passengers = new ArrayList<>();
   private BoundingBox boundingBox;
   private boolean enabledResponseTracing;
   private boolean ticked;
@@ -438,20 +442,36 @@ public class Entity {
     return !this.dead && (this.health > 0.0f || Float.isNaN(this.health));
   }
 
+  public List<Entity> passengers() {
+    return passengers;
+  }
+
+  public void clearPassengers() {
+    passengers.clear();
+  }
+
+  public void addPassenger(Entity entity) {
+    passengers.add(entity);
+  }
+
+  public void removePassenger(Entity passenger) {
+    passengers.remove(passenger);
+  }
+
   public void mountToEntity(Entity mountedOnEntity) {
-    this.mountedOnEntity = mountedOnEntity;
+    this.vehicle = mountedOnEntity;
   }
 
   public void unmountFromEntity() {
-    mountedOnEntity = null;
+    vehicle = null;
   }
 
-  public Entity mountedEntity() {
-    return mountedOnEntity;
+  public Entity vehicle() {
+    return vehicle;
   }
 
   public boolean isInVehicle() {
-    return mountedOnEntity != null;
+    return vehicle != null;
   }
 
   public boolean tracingEnabled() {
@@ -548,5 +568,16 @@ public class Entity {
     @Override
     void onLivingUpdate() {
     }
+  }
+
+  @Override
+  public String toString() {
+    if (this == DESTROYED_ENTITY) {
+      return "Destroyed";
+    }
+    if (typeData == null) {
+      return "E[" + entityId + "]";
+    }
+    return "E[" + entityId + "/" + typeData.name() + "]";
   }
 }

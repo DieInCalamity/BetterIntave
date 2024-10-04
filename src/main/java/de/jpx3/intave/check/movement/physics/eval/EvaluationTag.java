@@ -4,6 +4,7 @@ import de.jpx3.intave.annotate.KeepEnumInternalNames;
 
 @KeepEnumInternalNames
 public enum EvaluationTag {
+  ATTACH,
   BOAT,
   COLLISION_INACCURACY,
   FIREWORK,
@@ -22,4 +23,5 @@ public enum EvaluationTag {
   ELYTRA,
   VELOCITY_FLYING_INACCURACY,
   WATERFLOW,
+  ;
 }

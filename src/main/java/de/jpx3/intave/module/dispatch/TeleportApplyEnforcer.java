@@ -405,6 +405,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     movementData.verifiedPositionX = positionX;
     movementData.verifiedPositionY = positionY;
     movementData.verifiedPositionZ = positionZ;
+    movementData.verifiedPositionOrigin = "Teleport";
 
     movementData.baseMotionX = 0.0;
     movementData.baseMotionY = 0.0;

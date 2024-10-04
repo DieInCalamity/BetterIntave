@@ -67,6 +67,7 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -113,7 +114,7 @@ public final class MovementDispatcher extends Module {
     Location fromLocation = event.getFrom();
     Location toLocation = event.getTo();
     World world = toLocation.getWorld();
-    double teleportDistance = toLocation.distance(fromLocation);
+    double teleportDistance = toLocation.getWorld() != player.getWorld() ? Double.MAX_VALUE : toLocation.distance(fromLocation);
 //    System.out.println("Teleport distance: " + teleportDistance);
     if (toLocation.getWorld() != player.getWorld() || teleportDistance > 8) {
 //      MovementMetadata movement = user.meta().movement();
@@ -189,7 +190,7 @@ public final class MovementDispatcher extends Module {
       bb = BoundingBox.fromPosition(user, movement, fixedLocation).grow(0.1);
     }
 
-    // B: if clear of blocks, move up 1 block
+    // B: if clear of blocks, move up 0.55 block
     baseShifts = 5;
     bb = BoundingBox.fromPosition(user, movement, fixedLocation);
     while (fixedLocation.getY() < WorldHeight.UPPER_WORLD_LIMIT && baseShifts-- > 0 && Collision.unsafeNonePresent(world, user.player(), bb)) {
@@ -373,7 +374,7 @@ public final class MovementDispatcher extends Module {
     if (hasMovement || movementData.isInVehicle() || movementData.inRespawnScreen) {
       movementData.lastPositionUpdate = 0;
     } else if (++movementData.lastPositionUpdate > 20 && FaultKicks.MISSING_POSITION_UPDATE && !user.justJoined() && !user.trustFactor().atLeast(TrustFactor.BYPASS)) {
-      user.kick("Missing position update");
+      user.kick("Missing position update " + movementData.vehicle());
     }
 
     // fix only works for 1.8
@@ -469,10 +470,15 @@ public final class MovementDispatcher extends Module {
       Modules.mitigate().movement().emulationSetBack(player, vector, 10, false);
       String message = "sent unsafe position";
       String details = "moved " + MathHelper.formatDouble(distance, 2) + " blocks";
+      Map<String, String> granulars = new HashMap<>();
+      granulars.put("DIST", MathHelper.formatDouble(distance, 2));
+      granulars.put("FROM", movementData.verifiedPositionX + " " + movementData.verifiedPositionY + " " + movementData.verifiedPositionZ);
+      granulars.put("FROM_ORIGIN", movementData.verifiedPositionOrigin);
+      granulars.put("TO", movementData.positionX + " " + movementData.positionY + " " + movementData.positionZ);
+      granulars.put("MOTION", movementData.baseMotionX + " " + movementData.baseMotionY + " " + movementData.baseMotionZ);
       Violation violation = Violation.builderFor(Physics.class)
         .forPlayer(player).withMessage(message).withDetails(details)
-        .withVL(25)
-        .build();
+        .withGranulars(granulars).withVL(25).build();
       Modules.violationProcessor().processViolation(violation);
       return;
     }
@@ -543,6 +549,15 @@ public final class MovementDispatcher extends Module {
       if (interactionRaytraceCheck.receiveMovement(event)) {
         movementData.compileSpecialBlocks();
         movementData.recheckWebStateFromLastTick();
+      }
+
+      // I have neither the time or the energy for a proper fix
+      if (movementData.motion().length() > 0.5 && movementData.detachVehicleTicks < 2) {
+        movementData.setBaseMotionX(0);
+        movementData.setBaseMotionY(0);
+        movementData.setBaseMotionZ(0);
+        movementData.physicsResetMotionX = true;
+        movementData.physicsResetMotionZ = true;
       }
 
       if (hasMovement || hasRotation) {
@@ -698,6 +713,7 @@ public final class MovementDispatcher extends Module {
       movement.verifiedPositionX = movement.positionX;
       movement.verifiedPositionY = movement.positionY;
       movement.verifiedPositionZ = movement.positionZ;
+      movement.verifiedPositionOrigin = "Vehicle rotation only, blind copy from current";
       return;
     }
 
@@ -861,6 +877,7 @@ public final class MovementDispatcher extends Module {
       movement.verifiedPositionX = movement.positionX;
       movement.verifiedPositionY = movement.positionY;
       movement.verifiedPositionZ = movement.positionZ;
+      movement.verifiedPositionOrigin = "Verification push";
     }
 
     if (inventoryData.handActive()) {
@@ -930,12 +947,14 @@ public final class MovementDispatcher extends Module {
       user.kick("Invalid key input");
       return;
     }
+//    System.out.println("Steering the vehicle: " + strafeKey + " " + forwardKey);
     Boolean jumping = packet.getBooleans().read(0);
     movementData.externalKeyApply = true;
     movementData.clientStrafeKey = strafeKey;
     movementData.clientForwardKey = forwardKey;
     movementData.clientPressedJump = jumping;
   }
+
 
   @PacketSubscription(
     engine = Engine.ASYNC_INTERNAL,

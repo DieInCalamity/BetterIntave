@@ -86,6 +86,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   public Motion motionProcessorContext = new Motion();
   public Vector lookVector = new Vector();
   public double verifiedPositionX, verifiedPositionY, verifiedPositionZ;
+  public String verifiedPositionOrigin;
   public double lastPositionX, lastPositionY, lastPositionZ;
   public double positionX, positionY, positionZ;
   public boolean sprinting, lastSprinting, /*sprintMove, lastSprintMove,*/
@@ -310,6 +311,7 @@ public final class MovementMetadata implements SimulationEnvironment {
     verifiedPositionX = positionX;
     verifiedPositionY = positionY;
     verifiedPositionZ = positionZ;
+    verifiedPositionOrigin = "initial";
     updateSize();
   }
 
@@ -1133,8 +1135,16 @@ public final class MovementMetadata implements SimulationEnvironment {
     return vehicle != null;
   }
 
+  public Entity vehicle() {
+    return vehicle;
+  }
+
   public boolean isInRidingVehicle() {
     return vehicle != null && vehicleCanBeRidden;
+  }
+
+  public boolean isRiding(int entityId) {
+    return vehicle != null && vehicle.entityId() == entityId;
   }
 
   public Entity ridingEntity() {
@@ -1441,7 +1451,7 @@ public final class MovementMetadata implements SimulationEnvironment {
     if (this.attachVehicleTicks > 1) {
       return 0;
     }
-    return attachMoveDistance * 2;
+    return attachMoveDistance * 1.25;
   }
 
   public void setVehicle(Entity ridingEntity) {

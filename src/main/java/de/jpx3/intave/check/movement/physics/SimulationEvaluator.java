@@ -6,6 +6,7 @@ import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.check.movement.physics.eval.EvaluationTag;
 import de.jpx3.intave.math.Hypot;
 import de.jpx3.intave.math.MathHelper;
+import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MetadataBundle;
@@ -156,12 +157,12 @@ public final class SimulationEvaluator {
     if (collidedWithBoat && !movement.isInVehicle() && movement.motionY() < 0.605) {
       if (movement.enforceBoatStep) {
         if (movement.motionY() < 0.1) {
-          verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, 10);
+          verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, 1);
           tags.add(EvaluationTag.BOAT);
         }
         movement.enforceBoatStep = false;
       } else if (movement.baseMotionY < 0) {
-        verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, 10);
+        verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, 1);
         if (movement.motionY() > movement.jumpMotion()) {
           movement.enforceBoatStep = true;
         }
@@ -211,9 +212,22 @@ public final class SimulationEvaluator {
       tags.add(EvaluationTag.WATERFLOW);
     }
 
-//    if (movement.attachVehicleTicks <= 1 && Math.abs(receivedMotionY - 0.35) < 0.1) {
-//      verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, movement.estimatedAttachMovement());
-//    }
+    if (movement.attachVehicleTicks <= 1 && movement.isInVehicle()) {
+      Entity vehicle = movement.vehicle();
+      BoundingBox grownBoatBox = vehicle.boundingBox().grow(0.5);
+      BoundingBox nextPlayerBox = BoundingBox.fromPosition(
+        user, movement, movement.positionX, movement.positionY, movement.positionZ
+      );
+      BoundingBox currentPlayerBox = movement.boundingBox();
+      boolean attachAllowed = grownBoatBox.intersectsWith(nextPlayerBox) || grownBoatBox.intersectsWith(currentPlayerBox);
+      double moveToAttachMoveDelta = abs(movement.motion().length() - distanceMoved);
+      boolean movementInLineWithDistance = moveToAttachMoveDelta < 0.5;
+//      player.sendMessage(attachAllowed + " " + movementInLineWithDistance + " " + moveToAttachMoveDelta);
+      if (attachAllowed && movementInLineWithDistance) {
+        verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, 5);
+        tags.add(EvaluationTag.ATTACH);
+      }
+    }
 
     if (movement.detachVehicleTicks <= 2 && Math.abs(movement.motionY()) < 0.1) {
       verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, 0.3);
@@ -413,9 +427,25 @@ public final class SimulationEvaluator {
       tags.add(EvaluationTag.RIPTIDE);
     }
 
-//    if (movement.attachVehicleTicks <= 1) {
-//      horizontalLegitimateDeviation = Math.max(horizontalLegitimateDeviation, movement.estimatedAttachMovement());
-//    }
+    if (movement.attachVehicleTicks <= 1 && movement.isInVehicle()) {
+      Entity vehicle = movement.vehicle();
+      BoundingBox grownBoatBox = vehicle.boundingBox().grow(0.5);
+      BoundingBox nextPlayerBox = BoundingBox.fromPosition(
+        user, movement, movement.positionX, movement.positionY, movement.positionZ
+      );
+      BoundingBox currentPlayerBox = movement.boundingBox();
+      boolean attachAllowed = grownBoatBox.intersectsWith(nextPlayerBox) || grownBoatBox.intersectsWith(currentPlayerBox);
+      double moveToAttachMoveDelta = abs(movement.motion().length() - distanceMoved);
+      boolean movementInLineWithDistance = moveToAttachMoveDelta < 0.5;
+      if (attachAllowed && movementInLineWithDistance) {
+        horizontalLegitimateDeviation = Math.max(horizontalLegitimateDeviation, 5);
+        tags.add(EvaluationTag.ATTACH);
+        if (distance > 0.1) {
+          movement.physicsResetMotionX = true;
+          movement.physicsResetMotionZ = true;
+        }
+      }
+    }
 
     boolean recentlySentFlying = movement.receivedFlyingPacketIn(2);
     double baseMoveSpeed = movement.baseMoveSpeed();
