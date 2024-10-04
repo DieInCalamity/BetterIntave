@@ -27,7 +27,7 @@ public final class ForwardingPacketAdapter extends WeakReferencePacketAdapter {
     PacketType packetType,
     Collection<FilteringPacketAdapter> targetList
   ) {
-    super(plugin, ListenerPriority.LOWEST, packetType);
+    super(plugin, ListenerPriority.LOWEST, new PacketType[]{packetType}, ALLOW_ASYNC_SENDING);
     this.targetList = targetList;
   }
 

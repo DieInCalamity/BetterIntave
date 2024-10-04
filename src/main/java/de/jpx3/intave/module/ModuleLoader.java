@@ -70,7 +70,7 @@ final class ModuleLoader {
     // misc
     prepareModule("de.jpx3.intave.module.nayoro.Nayoro", defaultBoot);
     prepareModule("de.jpx3.intave.module.event.CustomEvents", defaultBoot);
-    prepareModule("de.jpx3.intave.module.patcher.PacketResynchronizer", defaultBoot);
+//    prepareModule("de.jpx3.intave.module.patcher.PacketResynchronizer", defaultBoot);
     prepareModule("de.jpx3.intave.module.patcher.ChunkAccessPatcher", defaultBoot);
     prepareModule("de.jpx3.intave.module.violation.ViolationProcessor", lateBoot);
     prepareModule("de.jpx3.intave.module.violation.ShortTermViolationRecovery", lateBoot);

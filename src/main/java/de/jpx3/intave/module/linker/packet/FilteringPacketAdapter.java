@@ -36,8 +36,9 @@ public final class FilteringPacketAdapter extends WeakReferencePacketAdapter imp
     SubscriptionInstanceProvider<User, ?, PacketEventSubscriber> subscriber,
     ListenerPriority priority, PacketType[] packetTypes,
     String methodName, PacketSubscriptionMethodExecutor executor,
-    boolean ignoreCancelled) {
-    super(plugin, priority.toProtocolLibPriority(), packetTypes);
+    boolean ignoreCancelled
+  ) {
+    super(plugin, priority.toProtocolLibPriority(), packetTypes, ALLOW_ASYNC_SENDING);
     this.subscriber = subscriber;
     this.methodName = methodName;
     this.priority = priority;

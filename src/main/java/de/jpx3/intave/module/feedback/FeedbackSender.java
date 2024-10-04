@@ -10,6 +10,7 @@ import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.Nullable;
 import de.jpx3.intave.executor.Synchronizer;
+import de.jpx3.intave.klass.trace.Caller;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.packet.PacketSender;
@@ -22,6 +23,7 @@ import org.bukkit.entity.Player;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 import static com.comphenix.protocol.PacketType.Play.Server.*;
@@ -34,6 +36,7 @@ public final class FeedbackSender extends Module {
   private static final boolean USE_PING_PONG_PACKETS = MinecraftVersions.VER1_17_0.atOrAbove();
   private static final long OPTIONAL_PENDING_LIMIT = 20;
   private static final long OPTIONAL_SENT_LIMIT = 150;
+  private static long WARNINGS_LEFT = 500;
 
   private static final long bootTime = System.currentTimeMillis();
   public static IdGeneratorMode activeGenerator = IdGeneratorMode.highestCompatibility();
@@ -117,22 +120,32 @@ public final class FeedbackSender extends Module {
         Synchronizer.synchronize(() -> tracedDoubleSynchronize(player, encapsulate, target, firstCallback, secondCallback, firstTracker, secondTracker, options));
         return;
       } else if (isInInvalidThread()) {
-        IntaveLogger.logger().error("We can't perform tick-validation on thread " + Thread.currentThread().getName());
-        Thread.dumpStack();
-        firstCallback.success(player, target);
-        secondCallback.success(player, target);
-        return;
+        if (WARNINGS_LEFT-- > 0) {
+          IntaveLogger.logger().info("Async packet sent from "+Caller.pluginInfo(true)+" on thread " + Thread.currentThread().getName());
+          IntaveLogger.logger().info("It is highly recommended to only send packets on the main thread.");
+          Thread.dumpStack();
+        }
+//        Thread.dumpStack();
+//        firstCallback.success(player, target);
+//        secondCallback.success(player, target);
+//        return;
       }
     }
     User user = UserRepository.userOf(player);
     if (!user.hasPlayer()) {
       return;
     }
-    tracedSingleSynchronize(player, target, firstCallback, firstTracker, options);
-    user.ignoreNextOutboundPacket();
-    PacketSender.sendServerPacket(player, encapsulate.shallowClone());
-    user.receiveNextOutboundPacketAgain();
-    tracedSingleSynchronize(player, target, secondCallback, secondTracker, options);
+    ReentrantLock lock = userLock(user);
+    try {
+      lock.lock();
+      tracedSingleSynchronize(player, target, firstCallback, firstTracker, options);
+      user.ignoreNextOutboundPacket();
+      PacketSender.sendServerPacket(player, encapsulate.shallowClone());
+      user.receiveNextOutboundPacketAgain();
+      tracedSingleSynchronize(player, target, secondCallback, secondTracker, options);
+    } finally {
+      lock.unlock();
+    }
   }
 
   private final Map<String, Boolean> cache = new ConcurrentHashMap<>();
@@ -200,32 +213,43 @@ public final class FeedbackSender extends Module {
         Synchronizer.synchronize(() -> tracedSingleSynchronize(player, target, callback, tracker, options));
         return;
       } else if (isInInvalidThread()) {
-        IntaveLogger.logger().error("We can't perform tick-validation on thread " + Thread.currentThread().getName());
-        Thread.dumpStack();
-        callback.success(player, target);
-        return;
+//        IntaveLogger.logger().error("We can't perform tick-validation on thread " + Thread.currentThread().getName());
+//        Thread.dumpStack();
+//        callback.success(player, target);
+//        return;
+        if (WARNINGS_LEFT-- > 0) {
+          IntaveLogger.logger().info("Async packet sent from "+Caller.pluginInfo(true)+" on thread " + Thread.currentThread().getName());
+          IntaveLogger.logger().info("It is highly recommended to only send packets on the main thread.");
+          Thread.dumpStack();
+        }
       }
     }
-    User user = UserRepository.userOf(player);
-    if (!user.hasPlayer()) {
-      return;
+    ReentrantLock lock = userLock(userOf(player));
+    try {
+      lock.lock();
+      User user = UserRepository.userOf(player);
+      if (!user.hasPlayer()) {
+        return;
+      }
+      boolean append = false;
+      if (matches(APPEND_ON_OVERFLOW, options)) {
+        boolean tooManyPending = pendingTransactions(userOf(player)) > OPTIONAL_PENDING_LIMIT;
+        boolean sentTooManyRecently = user.meta().connection().transactionPacketCounter > OPTIONAL_SENT_LIMIT;
+        append = tooManyPending || sentTooManyRecently;
+      }
+      if (matches(APPEND, options)) {
+        append = true;
+      }
+      if (append) {
+        appendRequest(player, target, callback, options);
+        return;
+      }
+      countTransactionPacket(player);
+      FeedbackRequest<T> request = createRequest(player, target, callback, tracker, options);
+      performRequest(player, request, toBundle);
+    } finally {
+      lock.unlock();
     }
-    boolean append = false;
-    if (matches(APPEND_ON_OVERFLOW, options)) {
-      boolean tooManyPending = pendingTransactions(userOf(player)) > OPTIONAL_PENDING_LIMIT;
-      boolean sentTooManyRecently = user.meta().connection().transactionPacketCounter > OPTIONAL_SENT_LIMIT;
-      append = tooManyPending || sentTooManyRecently;
-    }
-    if (matches(APPEND, options)) {
-      append = true;
-    }
-    if (append) {
-      appendRequest(player, target, callback, options);
-      return;
-    }
-    countTransactionPacket(player);
-    FeedbackRequest<T> request = createRequest(player, target, callback, tracker, options);
-    performRequest(player, request, toBundle);
   }
 
   private static final Object FALLBACK_OBJECT = new Object();
@@ -374,6 +398,10 @@ public final class FeedbackSender extends Module {
       PacketSender.sendServerPacket(receiver, packet);
     }
     request.sent();
+  }
+
+  private static ReentrantLock userLock(User user) {
+    return user.meta().connection().feedbackLock;
   }
 
   private static long pendingTransactions(User user) {

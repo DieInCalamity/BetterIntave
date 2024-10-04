@@ -25,11 +25,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Relocate
 public final class ConnectionMetadata {
   private final Player player;
   private final FeedbackQueue feedbackQueue = new FeedbackQueue();
+  public final ReentrantLock feedbackLock = new ReentrantLock();
   private final Map<Long, Queue<FeedbackRequest<?>>> transactionOptionalAppendMap = Maps.newConcurrentMap();
   private final Map<Integer, Entity> entitiesById = Maps.newConcurrentMap();
   private final Map<Integer, Integer> entityVehicles = Maps.newConcurrentMap();
