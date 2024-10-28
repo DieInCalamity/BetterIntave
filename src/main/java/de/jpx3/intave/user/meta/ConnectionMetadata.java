@@ -68,6 +68,7 @@ public final class ConnectionMetadata {
   public int generatorRunningNum = 0;
 
   public int windowClickId;
+  public int transactionKeepAliveInvalidOrderVL;
 
   public enum DecoySide {
     FIRST_IS_DECOY,
@@ -184,7 +185,7 @@ public final class ConnectionMetadata {
     transactionNum++;
     shortTransactionSum += cappedMillis;
     shortTransactionNum++;
-    if (transactionNum > Short.MAX_VALUE / 8) {
+    if (transactionNum > 4096) {
       transactionSum /= 2;
       transactionNum /= 2;
     }

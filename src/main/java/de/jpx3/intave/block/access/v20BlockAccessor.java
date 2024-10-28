@@ -100,6 +100,7 @@ public final class v20BlockAccessor implements BlockAccessor {
   private Object airBlockDataCache;
   private boolean airBlockDataFailed = false;
 
+  @PatchyAutoTranslation
   private Object airBlockData() {
     if (airBlockDataFailed) {
       return Blocks.a.getBlockData();

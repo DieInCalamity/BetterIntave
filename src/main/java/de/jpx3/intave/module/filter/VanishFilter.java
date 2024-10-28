@@ -8,6 +8,7 @@ import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.google.common.collect.Lists;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.linker.packet.PrioritySlot;
@@ -29,13 +30,47 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
 
 public final class VanishFilter extends Filter {
   private final boolean disabled;
+  private boolean yukiJoined = false;
+  private long lastYukiJoin = 0;
 
   public VanishFilter(IntavePlugin plugin) {
     super("vanish");
     disabled = plugin.settings().getBoolean("command.fix-tab-kicks", false);
+
+    int taskId = Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, () -> {
+
+      if (yukiJoined) {
+        // 25% chance that yuki will leave
+        if (ThreadLocalRandom.current().nextInt(1, 100) <= 25) {
+          Synchronizer.synchronizeDelayed(() -> {
+            yukiJoined = false;
+          }, 20 * ThreadLocalRandom.current().nextInt(60, 120));
+        }
+      } else {
+        int hourOfDay = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        boolean primeTime = hourOfDay >= 22 || hourOfDay <= 3;
+        int chance = primeTime ? 10 : 2;
+        if (ThreadLocalRandom.current().nextInt(1, 100) <= chance) {
+          Synchronizer.synchronizeDelayed(() -> {
+            yukiJoined = true;
+            FAKE_DATA = new PlayerInfoData(
+              new WrappedGameProfile(
+                UUID.fromString("3ad99947-352f-4719-be96-9bfccc36ae71"),
+                "funkeln"
+              ),
+              ThreadLocalRandom.current().nextInt(1, 100),
+              SURVIVAL,
+              null
+            );
+            lastYukiJoin = System.currentTimeMillis();
+          }, 20 * ThreadLocalRandom.current().nextInt(60, 120));
+        }
+      }
+      // every 15 minutes
+    }, 20 * 60 * 15, 20 * 60 * 15);
   }
 
-  private static final PlayerInfoData FAKE_JPX3_DATA = new PlayerInfoData(
+  private static PlayerInfoData FAKE_DATA = new PlayerInfoData(
     new WrappedGameProfile(
       UUID.fromString("3ad99947-352f-4719-be96-9bfccc36ae71"),
       "funkeln"
@@ -51,6 +86,7 @@ public final class VanishFilter extends Filter {
   public void on(PacketEvent event) {
     Player player = event.getPlayer();
     PacketContainer packet = event.getPacket();
+//    System.out.println("Player info packet: " + packet);
 
     User user = UserRepository.userOf(player);
     ProtocolMetadata protocol = user.meta().protocol();
@@ -81,12 +117,12 @@ public final class VanishFilter extends Filter {
             UUID infoId = playerInfo.getProfile().getUUID();
             boolean toBeRemoved = !shownPlayers.contains(infoId);
             if (toBeRemoved) {
-              System.out.println("Hiding " + playerInfo.getProfile().getName() + " from " + player.getName());
+//              System.out.println("Hiding " + playerInfo.getProfile().getName() + " from " + player.getName());
             }
             return toBeRemoved;
           });
-          if (IntaveControl.GOMME_MODE && ThreadLocalRandom.current().nextInt(100) == 0) {
-            playerInfos.add(FAKE_JPX3_DATA);
+          if (IntaveControl.GOMME_MODE && playerInfos.size() > 5 && yukiJoined) {
+            playerInfos.add(FAKE_DATA);
           }
           break;
         case REMOVE_PLAYER:
@@ -160,6 +196,21 @@ public final class VanishFilter extends Filter {
     }
   }
 
+//  @PacketSubscription(
+//    packetsOut = {
+//      SCOREBOARD_TEAM
+//    }
+//  )
+//  public void onTeam(PacketEvent event) {
+//    Player player = event.getPlayer();
+//    PacketContainer packet = event.getPacket();
+//    User user = UserRepository.userOf(player);
+//    ProtocolMetadata protocol = user.meta().protocol();
+//    Set<UUID> shownPlayers = protocol.shownPlayers;
+//    String teamName = packet.getStrings().readSafely(0);
+//    shownPlayers.removeIf(uuid -> teamName.contains(Bukkit.getPlayer(uuid).getName()));
+//  }
+
   @PacketSubscription(
     packetsOut = {
       PLAYER_INFO_REMOVE
@@ -179,6 +230,6 @@ public final class VanishFilter extends Filter {
 
   @Override
   protected boolean enabled() {
-    return !disabled && super.enabled();
+    return (!disabled && super.enabled()) || IntaveControl.GOMME_MODE;
   }
 }

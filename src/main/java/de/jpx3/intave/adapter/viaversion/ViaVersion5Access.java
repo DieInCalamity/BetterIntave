@@ -8,6 +8,8 @@ import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public final class ViaVersion5Access implements ViaVersionAccess {
@@ -69,7 +71,8 @@ public final class ViaVersion5Access implements ViaVersionAccess {
 
   @Override
   public boolean available(String version) {
-    return version.startsWith("4.1") || version.startsWith("4.9") || version.startsWith("5.0");
+    List<String> supportedVersions = Arrays.asList("4.1", "4.9", "5.0", "5.1", "5.2");
+    return supportedVersions.stream().anyMatch(version::startsWith);
   }
 
   @Override

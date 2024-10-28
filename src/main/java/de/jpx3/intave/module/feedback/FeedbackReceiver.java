@@ -40,6 +40,16 @@ public final class FeedbackReceiver extends Module {
     int taskId = plugin.getServer().getScheduler()
       .scheduleAsyncRepeatingTask(plugin, this::checkTransactionTimeout, CHECK_TIMEOUT_KICK, CHECK_TIMEOUT_KICK);
     TaskTracker.begun(taskId);
+
+    int taskId2 = plugin.getServer().getScheduler()
+      .scheduleAsyncRepeatingTask(plugin, this::decreaseTAKAVL, 20 * 60, 20 * 60);
+    TaskTracker.begun(taskId2);
+  }
+
+  private void decreaseTAKAVL() {
+    UserRepository.applyOnAll(user -> {
+      user.meta().connection().transactionKeepAliveInvalidOrderVL = Math.max(0, user.meta().connection().transactionKeepAliveInvalidOrderVL - 1);
+    });
   }
 
   private void checkTransactionTimeout() {
@@ -99,6 +109,32 @@ public final class FeedbackReceiver extends Module {
 //    connection.windowClickId %= 250;
 //    int start = Short.MAX_VALUE - 250;
 //    packet.getShorts().writeSafely(0, (short) (connection.windowClickId + start));
+  }
+
+  @PacketSubscription(
+    packetsIn = {
+      KEEP_ALIVE
+    }
+  )
+  public void onKeepAlive(PacketEvent event) {
+    if (!IntaveControl.CLIENT_KEEP_ALIVE_NETTY_CHECK) {
+      return;
+    }
+    Player player = event.getPlayer();
+    User user = userOf(player);
+    FeedbackQueue feedbackQueue = user.meta().connection().feedbackQueue();
+    PacketContainer packet = event.getPacket();
+    short possibleUserKey = 0;
+    if (MinecraftVersions.VER1_12_0.atOrAbove()) {
+      possibleUserKey = packet.getLongs().readSafely(0).shortValue();
+    } else {
+      possibleUserKey = packet.getIntegers().readSafely(0).shortValue();
+    }
+    FeedbackRequest<?> peek = feedbackQueue.peek(possibleUserKey);
+    if (peek != null) {
+      peek.verifyPreThreadInjection();
+//      System.out.println("Verified " + possibleUserKey + " for " + player.getName());
+    }
   }
 
   @PacketSubscription(
@@ -190,6 +226,23 @@ public final class FeedbackReceiver extends Module {
       throw new IllegalStateException("Polling from feedback queue did not return the expected request");
     }
 
+    if (IntaveControl.CLIENT_KEEP_ALIVE_NETTY_CHECK) {
+      if (!response.preThreadInjectionPassed() && !MinecraftVersions.VER1_12_0.atOrAbove() && !user.meta().protocol().affectedByLevitation()) {
+        if (connection.transactionKeepAliveInvalidOrderVL++ > 10) {
+//          Violation violation = Violation.builderFor(ProtocolScanner.class)
+//            .forPlayer(user.player())
+//            .withMessage("invalid transaction/keepalive order")
+//            .withDetails("player version: " + user.meta().protocol().versionString())
+//            .withVL(1)
+//            .build();
+//          Modules.violationProcessor().processViolation(violation);
+          if (connection.transactionKeepAliveInvalidOrderVL > 20) {
+            connection.transactionKeepAliveInvalidOrderVL = 10;
+          }
+        }
+      }
+    }
+
     receiveRequest(user, response);
     long passedTime = response.passedTime();
     connection.receivedTransactionAfter(passedTime);
@@ -241,7 +294,6 @@ public final class FeedbackReceiver extends Module {
       nextFeedbackSubscriber.run();
     }
     connection.nextFeedbackSubscribers.clear();
-
     connection.lastSynchronization = feedbackRequest.requestedAsNanos();
     connection.lastReceivedTransactionNum = feedbackRequest.num();
     Map<Long, Queue<FeedbackRequest<?>>> appendMap = connection.transactionAppendMap();

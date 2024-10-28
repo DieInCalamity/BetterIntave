@@ -38,6 +38,7 @@ public final class Filters extends Module {
   private void linkEnabled() {
     for (Filter filter : filters) {
       if (filter.enabled()) {
+//        System.out.println("Linking filter " + filter.getClass().getSimpleName());
         Modules.linker().bukkitEvents().registerEventsIn(filter);
         Modules.linker().packetEvents().linkSubscriptionsIn(filter);
       }

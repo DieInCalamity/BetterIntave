@@ -75,6 +75,7 @@ public final class IntaveControl {
   public static final boolean ENABLE_MOVEMENT_DEBUGGER_COLLECTOR = false;
   public static final boolean MOVEMENT_DEBUGGER_COLLECTOR_POSTTICK_OUTPUT = false;
   public static final boolean AUTHENTICATION_DEBUG_MODE = AUTHTEST;
+  public static final boolean CLIENT_KEEP_ALIVE_NETTY_CHECK = false;
 
   public static final OperationalMode SAMPLE_OPERATIONAL_MODE = GOMME ? /*GOMME_UPLOAD*/CLOUD_STORAGE : (PRODUCTION ? CLOUD_STORAGE : LOCAL_STORAGE);
 

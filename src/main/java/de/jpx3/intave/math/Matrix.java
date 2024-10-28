@@ -1,6 +1,7 @@
 package de.jpx3.intave.math;
 
 import java.util.Arrays;
+import java.util.function.DoubleToIntFunction;
 
 public class Matrix {
   private double[][] elements;
@@ -282,5 +283,25 @@ public class Matrix {
       }
     }
     return builder.toString();
+  }
+
+  public double sum() {
+    double sum = 0.0D;
+    for (int i = 0; i < rows(); i++) {
+      for (int j = 0; j < columns(); j++) {
+        sum += get(i, j);
+      }
+    }
+    return sum;
+  }
+
+  public int[][] toIntTable(DoubleToIntFunction converter) {
+    int[][] table = new int[rows()][columns()];
+    for (int i = 0; i < rows(); i++) {
+      for (int j = 0; j < columns(); j++) {
+        table[i][j] = converter.applyAsInt(get(i, j));
+      }
+    }
+    return table;
   }
 }

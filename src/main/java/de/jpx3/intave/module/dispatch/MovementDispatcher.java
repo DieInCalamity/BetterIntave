@@ -466,6 +466,7 @@ public final class MovementDispatcher extends Module {
         IntavePlugin.singletonInstance().logTransmittor().addPlayerLog(player, "(DEBUG/MOVEMENTIGNORE) Distance movement ignore: " + distance);
       }
       logging.logSystemMessage(user, () -> "MOVEMENT REJECTED: Distance over limit: " + distance);
+      movementData.dropPostTickMotionProcessing = true;
       event.setCancelled(true);
       Vector vector = new Vector(movementData.baseMotionX, movementData.baseMotionY, movementData.baseMotionZ);
       Modules.mitigate().movement().emulationSetBack(player, vector, 10, false);
@@ -519,6 +520,7 @@ public final class MovementDispatcher extends Module {
         IntavePlugin.singletonInstance().logTransmittor().addPlayerLog(player, "(DEBUG/MOVEMENTIGNORE) Teleport bundle movement ignore");
       }
       logging.logSystemMessage(user, () -> "MOVEMENT IGNORED: Teleport bundle movement ignore");
+      movementData.dropPostTickMotionProcessing = true;
       event.setCancelled(true);
       return;
     }

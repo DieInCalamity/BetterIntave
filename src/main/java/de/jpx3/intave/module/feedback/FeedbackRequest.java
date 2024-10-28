@@ -15,6 +15,8 @@ public class FeedbackRequest<T> {
   private final long created;
   private final int options;
 
+  private boolean preThreadInjectionPassed = false;
+
   FeedbackRequest(
     FeedbackCallback<T> callback,
     FeedbackObserver observer,
@@ -64,6 +66,14 @@ public class FeedbackRequest<T> {
 
   long num() {
     return key;
+  }
+
+  public boolean preThreadInjectionPassed() {
+    return preThreadInjectionPassed;
+  }
+
+  public void verifyPreThreadInjection() {
+    preThreadInjectionPassed = true;
   }
 
   public long requestedAsNanos() {

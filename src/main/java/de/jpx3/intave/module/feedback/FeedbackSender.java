@@ -398,6 +398,15 @@ public final class FeedbackSender extends Module {
       PacketSender.sendServerPacket(receiver, packet);
     }
     request.sent();
+    if (IntaveControl.CLIENT_KEEP_ALIVE_NETTY_CHECK) {
+      PacketContainer keepAlivePacket = protocol.createPacket(KEEP_ALIVE);
+      if (MinecraftVersions.VER1_12_0.atOrAbove()) {
+        keepAlivePacket.getLongs().write(0, (long) request.userKey());
+      } else {
+        keepAlivePacket.getIntegers().write(0, (int) request.userKey());
+      }
+      PacketSender.sendServerPacket(receiver, keepAlivePacket);
+    }
   }
 
   private static ReentrantLock userLock(User user) {
