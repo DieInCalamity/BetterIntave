@@ -32,7 +32,7 @@ jobs:
     needs: build
     container:
       image: registry.lennoxlotl.dev/intave/obfuscation-lite:1.0.1
-      options: "--entrypoint sh"
+      options: "--entrypoint sh --workdir /app"
       credentials:
         username: ${{ secrets.INTAVE_REGISTRY_USERNAME }}
         password: ${{ secrets.INTAVE_REGISTRY_PASSWORD }}
@@ -44,6 +44,6 @@ jobs:
           path: app/io/input.jar
       - name: Run ZKM
         shell: sh
+        working-directory: /app
         run: |
-          cd app
           ./start.sh
