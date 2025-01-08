@@ -1459,6 +1459,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   }
 
   public void setVehicle(Entity ridingEntity) {
+    System.out.println("Setting vehicle to " + ridingEntity);
     this.attachVehicleTicks = 0;
     this.invalidVehiclePositionTicks = 0;
     this.attachMoveDistance = ridingEntity.distanceTo(lastPosition());

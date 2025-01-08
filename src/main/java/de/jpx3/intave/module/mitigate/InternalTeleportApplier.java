@@ -65,9 +65,9 @@ final class InternalTeleportApplier {
       double posZ = dest.getZ();
       if (WITHOUT_SET) {
         applier.teleport(player, posX, posY, posZ, yaw, pitch, rFlags);
-      } if (WEIRD_BOOLEAN_IN_INVOKE) {
+      } else if (WEIRD_BOOLEAN_IN_INVOKE) {
         internalTeleportMethod.invoke(playerConnection, posX, posY, posZ, yaw, pitch, rFlags, false);
-      } else {
+      } else if (!WITHOUT_SET) {
         internalTeleportMethod.invoke(playerConnection, posX, posY, posZ, yaw, pitch, rFlags);
       }
       if (motionY > 0) {

@@ -314,8 +314,9 @@ public final class MovementDispatcher extends Module {
 
     PacketType packetType = event.getPacketType();
     boolean vehicleMove = packetType == PacketType.Play.Client.VEHICLE_MOVE;
-    boolean hasMovement = vehicleMove || packet.getBooleans().read(1);
-    boolean hasRotation = vehicleMove || packet.getBooleans().read(2);
+    boolean containsCollision = MinecraftVersions.VER1_21_4.atOrAbove();
+    boolean hasMovement = vehicleMove || packet.getBooleans().read(containsCollision ? 2 : 1);
+    boolean hasRotation = vehicleMove || packet.getBooleans().read(containsCollision ? 3 : 2);
 
     if (movementData.isInVehicle() && !vehicleMove && hasRotation && !hasMovement) {
       movementData.applyGroundInformationToPacket(packet);
@@ -728,8 +729,9 @@ public final class MovementDispatcher extends Module {
 
     PacketType packetType = event.getPacketType();
     boolean vehicleMove = packetType == PacketType.Play.Client.VEHICLE_MOVE;
-    boolean hasMovement = vehicleMove || packet.getBooleans().read(1);
-    boolean hasRotation = vehicleMove || packet.getBooleans().read(2);
+    boolean containsCollision = MinecraftVersions.VER1_21_4.atOrAbove();
+    boolean hasMovement = vehicleMove || packet.getBooleans().read(containsCollision ? 2 : 1);
+    boolean hasRotation = vehicleMove || packet.getBooleans().read(containsCollision ? 3 : 2);
     boolean claimsToBeOnGround = vehicleMove ? player.isOnGround() : packet.getBooleans().read(0);
 
     for (Superposition<?> superposition : movement.superpositions()) {
@@ -970,22 +972,22 @@ public final class MovementDispatcher extends Module {
     }
   )
   public void receiveClientKeys(PacketEvent event) {
-    Player player = event.getPlayer();
-    User user = UserRepository.userOf(player);
-    MovementMetadata movementData = user.meta().movement();
-    PacketContainer packet = event.getPacket();
-    int strafeKey = (int) (packet.getFloat().read(0) / 0.98f);
-    int forwardKey = (int) (packet.getFloat().read(1) / 0.98f);
-    if ((Math.abs(strafeKey) > 1 || Math.abs(forwardKey) > 1) && FaultKicks.INVALID_KEY_INPUT) {
-      user.kick("Invalid key input");
-      return;
-    }
-//    System.out.println("Steering the vehicle: " + strafeKey + " " + forwardKey);
-    Boolean jumping = packet.getBooleans().read(0);
-    movementData.externalKeyApply = true;
-    movementData.clientStrafeKey = strafeKey;
-    movementData.clientForwardKey = forwardKey;
-    movementData.clientPressedJump = jumping;
+//    Player player = event.getPlayer();
+//    User user = UserRepository.userOf(player);
+//    MovementMetadata movementData = user.meta().movement();
+//    PacketContainer packet = event.getPacket();
+//    int strafeKey = (int) (packet.getFloat().read(0) / 0.98f);
+//    int forwardKey = (int) (packet.getFloat().read(1) / 0.98f);
+//    if ((Math.abs(strafeKey) > 1 || Math.abs(forwardKey) > 1) && FaultKicks.INVALID_KEY_INPUT) {
+//      user.kick("Invalid key input");
+//      return;
+//    }
+////    System.out.println("Steering the vehicle: " + strafeKey + " " + forwardKey);
+//    Boolean jumping = packet.getBooleans().read(0);
+//    movementData.externalKeyApply = true;
+//    movementData.clientStrafeKey = strafeKey;
+//    movementData.clientForwardKey = forwardKey;
+//    movementData.clientPressedJump = jumping;
   }
 
 

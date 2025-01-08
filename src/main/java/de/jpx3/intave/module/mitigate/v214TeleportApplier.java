@@ -13,6 +13,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Set;
 
+@PatchyAutoTranslation
 class v214TeleportApplier implements TeleportApplier {
   private final Method internalTeleportMethod;
 
@@ -31,13 +32,14 @@ class v214TeleportApplier implements TeleportApplier {
   @Override
   @PatchyAutoTranslation
   public void teleport(Player player, double posX, double posY, double posZ, float yaw, float pitch, Set<?> relatives) {
-    User user = UserRepository.userOf(player);
-    if (!user.hasPlayer()) {
-      return;
-    }
-    Object playerConnection = user.playerConnection();
     try {
-      internalTeleportMethod.invoke(playerConnection, new PositionMoveRotation(new Vec3D(posX, posY, posZ), Vec3D.a, yaw, pitch), relatives);
+      User user = UserRepository.userOf(player);
+      if (!user.hasPlayer()) {
+        return;
+      }
+      Object playerConnection = user.playerConnection();
+      PositionMoveRotation rotation = new PositionMoveRotation(new Vec3D(posX, posY, posZ), new Vec3D(0, 0, 0), yaw, pitch);
+      internalTeleportMethod.invoke(playerConnection, rotation, relatives);
     } catch (InvocationTargetException | IllegalAccessException e) {
       e.printStackTrace();
     }

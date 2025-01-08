@@ -11,7 +11,7 @@ import static de.jpx3.intave.module.nayoro.OperationalMode.LOCAL_STORAGE;
 
 public final class IntaveControl {
   public static final boolean APPLY_GLOBAL_LOW_TRUSTFACTOR = false;
-  public static final boolean DEBUG_MOVEMENT = false;
+  public static final boolean DEBUG_MOVEMENT = true;
   public static final boolean DEBUG_EMULATION = false;
   public static final boolean DEBUG_HEURISTICS = false;
   public static final boolean DEBUG_INTERACTION = false;
@@ -53,7 +53,7 @@ public final class IntaveControl {
   public static final boolean DEBUG_GRAYLIST = false;
   public static final boolean DEBUG_BLUELIST = false;
   public static final boolean DEBUG_CMS = false;
-  public static final boolean USE_DEBUG_LOCATE_RESOURCE = false;
+  public static final boolean USE_DEBUG_LOCATE_RESOURCE = true;
   public static final boolean USE_DEBUG_TRUSTFACTOR_RESOURCE = false;
   public static final boolean USE_DEBUG_SCRIPT_RESOURCES = false;
   public static final boolean DEBUG_OUTPUT_FOR_TESTS = false;

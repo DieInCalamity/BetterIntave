@@ -1,5 +1,6 @@
 package de.jpx3.intave.module.dispatch;
 
+import com.comphenix.protocol.events.InternalStructure;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
@@ -64,10 +65,10 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
   }
 
   @PacketSubscription(
-    priority = ListenerPriority.LOW,
-    packetsOut = {
-      POSITION
-    }
+      priority = ListenerPriority.LOW,
+      packetsOut = {
+          POSITION
+      }
   )
   public void receiveOutgoingTeleport(PacketEvent event) {
     Player player = event.getPlayer();
@@ -76,12 +77,27 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     MovementMetadata movementData = user.meta().movement();
 
     StructureModifier<Double> doubles = packet.getDoubles();
-    Double positionX = doubles.read(0);
-    Double positionY = doubles.read(1);
-    Double positionZ = doubles.read(2);
+    Double positionX;
+    Double positionY;
+    Double positionZ;
     StructureModifier<Float> floats = packet.getFloat();
-    Float yaw = floats.read(0);
-    Float pitch = floats.read(1);
+    Float yaw;
+    Float pitch;
+    if (MinecraftVersions.VER1_21_4.atOrAbove()) {
+      InternalStructure posRot = packet.getStructures().read(0);
+      Vector position = posRot.getVectors().read(0);
+      positionX = position.getX();
+      positionY = position.getY();
+      positionZ = position.getZ();
+      yaw = posRot.getFloat().read(0);
+      pitch = posRot.getFloat().read(1);
+    } else {
+      positionX = doubles.read(0);
+      positionY = doubles.read(1);
+      positionZ = doubles.read(2);
+      yaw = floats.read(0);
+      pitch = floats.read(1);
+    }
 
     Set<TeleportFlag> flags = TeleportFlag.flagsFrom(packet);
     boolean relativeX = flags.contains(TeleportFlag.X);
@@ -159,9 +175,9 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
      */
     if (!user.meta().protocol().outdatedClient() && teleportFeedbackSyncEnforcement) {
       user.doubleTickFeedback(
-        event,
-        () -> movementData.transactionTeleportAllow = true,
-        () -> movementData.transactionTeleportAllow = false
+          event,
+          () -> movementData.transactionTeleportAllow = true,
+          () -> movementData.transactionTeleportAllow = false
       );
     } else {
       movementData.transactionTeleportAllow = true;
@@ -176,10 +192,10 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
   }
 
   @PacketSubscription(
-    priority = ListenerPriority.NORMAL,
-    packetsIn = {
-      TELEPORT_ACCEPT
-    }
+      priority = ListenerPriority.NORMAL,
+      packetsIn = {
+          TELEPORT_ACCEPT
+      }
   )
   public void receiveTeleportAccept(PacketEvent event) {
     Player player = event.getPlayer();
@@ -201,10 +217,10 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
   }
 
   @PacketSubscription(
-    priority = ListenerPriority.HIGH,
-    packetsIn = {
-      BLOCK_DIG
-    }
+      priority = ListenerPriority.HIGH,
+      packetsIn = {
+          BLOCK_DIG
+      }
   )
   public void clientClickUpdate(PacketEvent event) {
     if (!IntaveControl.TELEPORT_FAR_AWAY_ON_Q_PRESS) {
@@ -256,7 +272,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
         }
         Synchronizer.synchronize(() -> {
           Location location = movementData.teleportLocation.clone();
-          if (System.currentTimeMillis() - movementData.lastRescueAttempt > 5000 && !MaterialMagic.blocksMovement(VolatileBlockAccess.typeAccess(user, location.clone().add(0, 1,0)))) {
+          if (System.currentTimeMillis() - movementData.lastRescueAttempt > 5000 && !MaterialMagic.blocksMovement(VolatileBlockAccess.typeAccess(user, location.clone().add(0, 1, 0)))) {
             Material material = VolatileBlockAccess.typeAccess(user, location);
             int limit = 100;
             while (limit-- > 0 && ((material.isBlock() && material != Material.AIR) || MaterialMagic.blocksMovement(material))) {
@@ -287,7 +303,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
           teleportLocation = player.getLocation();
         }
         Location location = teleportLocation.clone();
-        if (System.currentTimeMillis() - movementData.lastRescueAttempt > 5000 && !MaterialMagic.blocksMovement(VolatileBlockAccess.typeAccess(user, location.clone().add(0, 1,0)))) {
+        if (System.currentTimeMillis() - movementData.lastRescueAttempt > 5000 && !MaterialMagic.blocksMovement(VolatileBlockAccess.typeAccess(user, location.clone().add(0, 1, 0)))) {
           Material material = VolatileBlockAccess.typeAccess(user, location);
           int limit = 100;
           while (limit-- > 0 && ((material.isBlock() && material != Material.AIR) || MaterialMagic.blocksMovement(material))) {
@@ -331,8 +347,8 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
       }
     } else {
       double positionDeviation = MathHelper.distanceOf(
-        positionX, positionY, positionZ,
-        teleportLocation.getX(), teleportLocation.getY(), teleportLocation.getZ()
+          positionX, positionY, positionZ,
+          teleportLocation.getX(), teleportLocation.getY(), teleportLocation.getZ()
       );
       if (IntaveControl.DEBUG_TELEPORT_LOCKS) {
         String position = MathHelper.formatPosition(positionX, positionY, positionZ);
@@ -367,10 +383,10 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
       isTeleport = validPosition;
       if (user.receives(MessageChannel.DEBUG_TELEPORT)) {
         player.sendMessage(
-          IntavePlugin.prefix() + "Movement " + (isTeleport ? "matched" : "did not match")
-            + " teleport request to " + MathHelper.formatPosition(teleportLocation) +
-            " (dev: " + positionDeviation + ", rrot: " + movementData.expectTeleportWithRotation +
-            ", tra: "+movementData.transactionTeleportAllow+")"
+            IntavePlugin.prefix() + "Movement " + (isTeleport ? "matched" : "did not match")
+                + " teleport request to " + MathHelper.formatPosition(teleportLocation) +
+                " (dev: " + positionDeviation + ", rrot: " + movementData.expectTeleportWithRotation +
+                ", tra: " + movementData.transactionTeleportAllow + ")"
         );
       }
     }
@@ -385,8 +401,8 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
       releaseAwaitTeleportLock(player);
       applyPositionConfirmationUpdate(player, positionX, positionY, positionZ);
       double teleportLength = MathHelper.resolveHorizontalDistance(
-        movementData.lastPositionX, movementData.lastPositionZ,
-        teleportLocation.getX(), teleportLocation.getZ()
+          movementData.lastPositionX, movementData.lastPositionZ,
+          teleportLocation.getX(), teleportLocation.getZ()
       );
       if (teleportLength > 20) {
         movementData.pastLongTeleport = 0;
@@ -404,8 +420,8 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
   }
 
   private void applyPositionConfirmationUpdate(
-    Player player,
-    double positionX, double positionY, double positionZ
+      Player player,
+      double positionX, double positionY, double positionZ
   ) {
     User user = UserRepository.userOf(player);
     MovementMetadata movementData = user.meta().movement();
