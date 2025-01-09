@@ -1,30 +1,31 @@
 package de.jpx3.intave.packet.reader;
 
-import com.comphenix.protocol.events.InternalStructure;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.packet.TeleportFlag;
-import org.bukkit.util.Vector;
+import de.jpx3.intave.packet.Relative;
+import de.jpx3.intave.packet.converter.PosMoveRotConverter;
+import de.jpx3.intave.share.Motion;
+import de.jpx3.intave.share.Position;
+import de.jpx3.intave.share.PositionMoveRotation;
+import de.jpx3.intave.share.Rotation;
 
 import java.util.Set;
 
 public final class PlayerTeleportReader extends AbstractPacketReader {
   private final static boolean VECTOR_ENCAPSULATION = MinecraftVersions.VER1_21_4.atOrAbove();
+  private PositionMoveRotation positionMoveRotation;
+  private boolean mod;
 
   public double positionX() {
     if (VECTOR_ENCAPSULATION) {
-      InternalStructure posRot = packet().getStructures().read(0);
-      Vector position = posRot.getVectors().read(0);
-      return position.getX();
+      return internalPosMoveRotation().position().getX();
     }
     return packet().getDoubles().read(0);
   }
 
   public void setPositionX(double x) {
     if (VECTOR_ENCAPSULATION) {
-      InternalStructure posRot = packet().getStructures().read(0);
-      Vector position = posRot.getVectors().read(0);
-      position.setX(x);
-      posRot.getVectors().write(0, position);
+      internalPosMoveRotation().position().setX(x);
+      mod = true;
     } else {
       packet().getDoubles().write(0, x);
     }
@@ -32,19 +33,15 @@ public final class PlayerTeleportReader extends AbstractPacketReader {
 
   public double positionY() {
     if (VECTOR_ENCAPSULATION) {
-      InternalStructure posRot = packet().getStructures().read(0);
-      Vector position = posRot.getVectors().read(0);
-      return position.getY();
+      return internalPosMoveRotation().position().getY();
     }
     return packet().getDoubles().read(1);
   }
 
   public void setPositionY(double y) {
     if (VECTOR_ENCAPSULATION) {
-      InternalStructure posRot = packet().getStructures().read(0);
-      Vector position = posRot.getVectors().read(0);
-      position.setY(y);
-      posRot.getVectors().write(0, position);
+      internalPosMoveRotation().position().setY(y);
+      mod = true;
     } else {
       packet().getDoubles().write(1, y);
     }
@@ -52,36 +49,36 @@ public final class PlayerTeleportReader extends AbstractPacketReader {
 
   public double positionZ() {
     if (VECTOR_ENCAPSULATION) {
-      InternalStructure posRot = packet().getStructures().read(0);
-      Vector position = posRot.getVectors().read(0);
-      return position.getZ();
+      return internalPosMoveRotation().position().getZ();
     }
     return packet().getDoubles().read(2);
   }
 
   public void setPositionZ(double z) {
     if (VECTOR_ENCAPSULATION) {
-      InternalStructure posRot = packet().getStructures().read(0);
-      Vector position = posRot.getVectors().read(0);
-      position.setZ(z);
-      posRot.getVectors().write(0, position);
+      internalPosMoveRotation().position().setZ(z);
+      mod = true;
     } else {
       packet().getDoubles().write(2, z);
     }
   }
 
+  public Position position() {
+    mod = true;
+    return internalPosMoveRotation().position();
+  }
+
   public float yaw() {
     if (VECTOR_ENCAPSULATION) {
-      InternalStructure posRot = packet().getStructures().read(0);
-      return posRot.getFloat().read(0);
+      return internalPosMoveRotation().rotation().yaw();
     }
     return packet().getFloat().read(0);
   }
 
   public void setYaw(float yaw) {
     if (VECTOR_ENCAPSULATION) {
-      InternalStructure posRot = packet().getStructures().read(0);
-      posRot.getFloat().write(0, yaw);
+      internalPosMoveRotation().rotation().setYaw(yaw);
+      mod = true;
     } else {
       packet().getFloat().write(0, yaw);
     }
@@ -89,26 +86,137 @@ public final class PlayerTeleportReader extends AbstractPacketReader {
 
   public float pitch() {
     if (VECTOR_ENCAPSULATION) {
-      InternalStructure posRot = packet().getStructures().read(0);
-      return posRot.getFloat().read(1);
+      return internalPosMoveRotation().rotation().pitch();
     }
     return packet().getFloat().read(1);
   }
 
   public void setPitch(float pitch) {
     if (VECTOR_ENCAPSULATION) {
-      InternalStructure posRot = packet().getStructures().read(0);
-      posRot.getFloat().write(1, pitch);
+      internalPosMoveRotation().rotation().setPitch(pitch);
+      mod = true;
     } else {
       packet().getFloat().write(1, pitch);
     }
   }
 
-  public Set<TeleportFlag> flags() {
-    return TeleportFlag.flagsFrom(packet());
+  public Rotation rotation() {
+    mod = true;
+    return internalPosMoveRotation().rotation();
   }
 
-  public void setFlags(Set<TeleportFlag> flags) {
-    TeleportFlag.writeFlags(packet(), flags);
+  public double motionX() {
+    if (VECTOR_ENCAPSULATION) {
+      return internalPosMoveRotation().motion().motionX();
+    }
+    return 0;
+  }
+
+  public void setMotionX(double x) {
+    if (VECTOR_ENCAPSULATION) {
+      internalPosMoveRotation().motion().setMotionX(x);
+      mod = true;
+    }
+  }
+
+  public double motionY() {
+    if (VECTOR_ENCAPSULATION) {
+      return internalPosMoveRotation().motion().motionY();
+    }
+    return 0;
+  }
+
+  public void setMotionY(double y) {
+    if (VECTOR_ENCAPSULATION) {
+      internalPosMoveRotation().motion().setMotionY(y);
+      mod = true;
+    }
+  }
+
+  public double motionZ() {
+    if (VECTOR_ENCAPSULATION) {
+      return internalPosMoveRotation().motion().motionZ();
+    }
+    return 0;
+  }
+
+  public void setMotionZ(double z) {
+    if (VECTOR_ENCAPSULATION) {
+      internalPosMoveRotation().motion().setMotionZ(z);
+      mod = true;
+    }
+  }
+
+  private final static Motion UNUSED_MOTION = new Motion(0, 0, 0);
+
+  public Motion motion() {
+    if (VECTOR_ENCAPSULATION) {
+      mod = true;
+      return internalPosMoveRotation().motion();
+    }
+    return UNUSED_MOTION;
+  }
+
+  public PositionMoveRotation positionMoveRotation() {
+    mod = true;
+    return internalPosMoveRotation();
+  }
+
+  private PositionMoveRotation internalPosMoveRotation() {
+    if (positionMoveRotation == null) {
+      if (VECTOR_ENCAPSULATION) {
+        positionMoveRotation = packet().getModifier().withType(
+          PosMoveRotConverter.nativePositionMoveRotClass,
+          PosMoveRotConverter.INSTANCE
+        ).read(0);
+      } else {
+        positionMoveRotation = new PositionMoveRotation(
+          new Position(
+            packet().getDoubles().read(0),
+            packet().getDoubles().read(1),
+            packet().getDoubles().read(2)
+          ),
+          new Motion(0, 0, 0),
+          new Rotation(
+            packet().getFloat().read(0),
+            packet().getFloat().read(1)
+          )
+        );
+      }
+    }
+    return positionMoveRotation;
+  }
+
+  private void writePositionMoveRotation(PositionMoveRotation posMoveRot) {
+    if (VECTOR_ENCAPSULATION) {
+      packet().getModifier().withType(
+        PosMoveRotConverter.nativePositionMoveRotClass,
+        PosMoveRotConverter.INSTANCE
+      ).write(0, posMoveRot);
+    } else {
+      packet().getDoubles().write(0, posMoveRot.position().getX());
+      packet().getDoubles().write(1, posMoveRot.position().getY());
+      packet().getDoubles().write(2, posMoveRot.position().getZ());
+      packet().getFloat().write(0, posMoveRot.rotation().yaw());
+      packet().getFloat().write(1, posMoveRot.rotation().pitch());
+    }
+  }
+
+  @Override
+  public void release() {
+    if (mod) {
+      writePositionMoveRotation(positionMoveRotation);
+    }
+    mod = false;
+    positionMoveRotation = null;
+    super.release();
+  }
+
+  public Set<Relative> flags() {
+    return Relative.flagsFrom(packet());
+  }
+
+  public void setFlags(Set<Relative> flags) {
+    Relative.writeFlags(packet(), flags);
   }
 }

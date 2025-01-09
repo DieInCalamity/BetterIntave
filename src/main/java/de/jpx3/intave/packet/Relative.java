@@ -1,6 +1,7 @@
 package de.jpx3.intave.packet;
 
 import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.reflect.EquivalentConverter;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.google.common.collect.Maps;
 import de.jpx3.intave.annotate.KeepEnumInternalNames;
@@ -8,11 +9,13 @@ import de.jpx3.intave.klass.Lookup;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 @KeepEnumInternalNames
-public enum TeleportFlag {
+public enum Relative {
   X(0),
   Y(1),
   Z(2),
@@ -23,9 +26,14 @@ public enum TeleportFlag {
   DELTA_Z(7),
   ROTATE_DELTA(8);
 
+  public static final Set<Relative> ALL_RELATIVE = new HashSet<>(Arrays.asList(values()));
+  public static final Set<Relative> RELATIVE_POSITION = new HashSet<>(Arrays.asList(X, Y, Z));
+  public static final Set<Relative> RELATIVE_ROTATION = new HashSet<>(Arrays.asList(Y_ROT, X_ROT));
+  public static final Set<Relative> RELATIVE_MOTION = new HashSet<>(Arrays.asList(DELTA_X, DELTA_Y, DELTA_Z, ROTATE_DELTA));
+
   private final int slot;
 
-  TeleportFlag(int slot) {
+  Relative(int slot) {
     this.slot = slot;
   }
 
@@ -37,10 +45,10 @@ public enum TeleportFlag {
     return (var1 & this.index()) == this.index();
   }
 
-  private static int indexFor(Set<TeleportFlag> var0) {
-    TeleportFlag var3;
+  private static int indexFor(Set<Relative> var0) {
+    Relative var3;
     int var1 = 0;
-    for (TeleportFlag flag : var0) {
+    for (Relative flag : var0) {
       var3 = flag;
       var1 |= var3.index();
     }
@@ -61,16 +69,24 @@ public enum TeleportFlag {
     return fromIndex(0b11000);
   }
 
-  public static Set<?> fromSet(Set<TeleportFlag> flags) {
+  public static Set<?> fromSet(Set<Relative> flags) {
     return fromIndex(indexFor(flags));
   }
 
-  public static Set<TeleportFlag> flagsFrom(PacketContainer packet) {
-    return packet.getSets(EnumWrappers.getGenericConverter(nativeClass, TeleportFlag.class)).read(0);
+  private static EquivalentConverter<Relative> genericConverter;
+
+  public static Set<Relative> flagsFrom(PacketContainer packet) {
+    if (genericConverter == null) {
+      genericConverter = EnumWrappers.getGenericConverter(nativeClass, Relative.class);
+    }
+    return packet.getSets(genericConverter).read(0);
   }
 
-  public static void writeFlags(PacketContainer packet, Set<TeleportFlag> flags) {
-    packet.getSets(EnumWrappers.getGenericConverter(nativeClass, TeleportFlag.class)).write(0, flags);
+  public static void writeFlags(PacketContainer packet, Set<Relative> flags) {
+    if (genericConverter == null) {
+      genericConverter = EnumWrappers.getGenericConverter(nativeClass, Relative.class);
+    }
+    packet.getSets(genericConverter).write(0, flags);
   }
 
   private static final Map<Integer, Set<?>> flagCache = Maps.newConcurrentMap();

@@ -16,10 +16,11 @@ import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketEventSubscriber;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.tracker.player.PacketLogging;
-import de.jpx3.intave.packet.TeleportFlag;
+import de.jpx3.intave.packet.Relative;
 import de.jpx3.intave.packet.reader.PacketReaders;
 import de.jpx3.intave.packet.reader.PlayerTeleportReader;
 import de.jpx3.intave.share.BoundingBox;
+import de.jpx3.intave.share.Motion;
 import de.jpx3.intave.user.MessageChannel;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
@@ -32,8 +33,8 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType.DROP_ITEM;
@@ -82,46 +83,40 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     double positionZ = reader.positionZ();
     float yaw = reader.yaw();
     float pitch = reader.pitch();
-    Set<TeleportFlag> flags = reader.flags();
+    Set<Relative> flags = reader.flags();
 
-    boolean relativeX = flags.contains(TeleportFlag.X);
-    boolean relativeY = flags.contains(TeleportFlag.Y);
-    boolean relativeZ = flags.contains(TeleportFlag.Z);
+    boolean relativeX = flags.contains(Relative.X);
+    boolean relativeY = flags.contains(Relative.Y);
+    boolean relativeZ = flags.contains(Relative.Z);
+    boolean relativeXMotion = flags.contains(Relative.DELTA_X);
+    boolean relativeYMotion = flags.contains(Relative.DELTA_Y);
+    boolean relativeZMotion = flags.contains(Relative.DELTA_Z);
+    boolean rotateDelta = flags.contains(Relative.ROTATE_DELTA);
 
     Boolean funkyBoolean = packet.getBooleans().readSafely(0);
     if (funkyBoolean == null) {
       funkyBoolean = false;
     }
 
-    if (relativeX || relativeY || relativeZ) {
-      Vector teleportOffset = new Vector(positionX, positionY, positionZ);
-      if (teleportOffset.length() == 0) {
-        movementData.awaitTeleport = true;
-        movementData.awaitOutgoingTeleport = false;
-        return;
-      }
-    }
-
     boolean flagModification = false;
-
     if (relativeX) {
       positionX += user.meta().movement().verifiedPositionX();
       reader.setPositionX(positionX);
-      flags.remove(TeleportFlag.X);
+      flags.remove(Relative.X);
       flagModification = true;
     }
 
     if (relativeY) {
       positionY += user.meta().movement().verifiedPositionY();
       reader.setPositionY(positionY);
-      flags.remove(TeleportFlag.Y);
+      flags.remove(Relative.Y);
       flagModification = true;
     }
 
     if (relativeZ) {
       positionZ += user.meta().movement().verifiedPositionZ();
       reader.setPositionZ(positionZ);
-      flags.remove(TeleportFlag.Z);
+      flags.remove(Relative.Z);
       flagModification = true;
     }
 
@@ -139,6 +134,11 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
 
     Location teleportLocation = new Location(player.getWorld(), positionX, positionY, positionZ, yaw, pitch);
     movementData.teleportLocation = teleportLocation;
+    if (relativeXMotion || relativeYMotion || relativeZMotion) {
+      movementData.teleportMotion.setTo(reader.motion());
+    }
+    movementData.teleportRelatives = new HashSet<>(flags);
+
     movementData.setVerifiedLocation(teleportLocation.clone(), "Teleportation to " + teleportLocation);
     if (NEW_TELEPORTATION) {
       movementData.teleportId = packet.getIntegers().read(0);
@@ -159,9 +159,9 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
      */
     if (!user.meta().protocol().outdatedClient() && teleportFeedbackSyncEnforcement) {
       user.doubleTickFeedback(
-          event,
-          () -> movementData.transactionTeleportAllow = true,
-          () -> movementData.transactionTeleportAllow = false
+        event,
+        () -> movementData.transactionTeleportAllow = true,
+        () -> movementData.transactionTeleportAllow = false
       );
     } else {
       movementData.transactionTeleportAllow = true;
@@ -173,6 +173,8 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     movementData.teleportResendCountdown = 20;
 //    movementData.outgoingTeleportCountdown = 5;
     movementData.isTeleportConfirmationPacket = false;
+
+    reader.release();
   }
 
   @PacketSubscription(
@@ -404,8 +406,8 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
   }
 
   private void applyPositionConfirmationUpdate(
-      Player player,
-      double positionX, double positionY, double positionZ
+    Player player,
+    double positionX, double positionY, double positionZ
   ) {
     User user = UserRepository.userOf(player);
     MovementMetadata movementData = user.meta().movement();
@@ -417,9 +419,19 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     movementData.verifiedPositionZ = positionZ;
     movementData.verifiedPositionOrigin = "Teleport";
 
-    movementData.baseMotionX = 0.0;
-    movementData.baseMotionY = 0.0;
-    movementData.baseMotionZ = 0.0;
+    Motion teleportMotionModify = movementData.teleportMotion;
+    Set<Relative> teleportRelatives = movementData.teleportRelatives;
+    if (teleportMotionModify == null || teleportRelatives == null || teleportRelatives.isEmpty()) {
+      movementData.baseMotionX = 0.0;
+      movementData.baseMotionY = 0.0;
+      movementData.baseMotionZ = 0.0;
+    } else {
+      Motion keepMotion = movementData.baseMotion().filtered(teleportRelatives);
+      Motion newMotion = keepMotion.add(teleportMotionModify);
+      movementData.setBaseMotion(newMotion);
+      movementData.teleportMotion.setNull();
+      movementData.teleportRelatives.clear();
+    }
 
     PacketLogging logging = Modules.tracker().packetLogging();
     logging.logSystemMessage(user, () -> "MOTION LOGIC: Reset base motion to 0.0");

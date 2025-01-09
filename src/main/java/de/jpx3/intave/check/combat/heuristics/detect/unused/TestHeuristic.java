@@ -14,7 +14,7 @@ import de.jpx3.intave.check.combat.heuristics.Confidence;
 import de.jpx3.intave.executor.TaskTracker;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
-import de.jpx3.intave.packet.TeleportFlag;
+import de.jpx3.intave.packet.Relative;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.MovementMetadata;
@@ -46,7 +46,7 @@ public final class TestHeuristic extends MetaCheckPart<Heuristics, TestHeuristic
     if (MinecraftVersions.VER1_9_0.atOrAbove()) {
       packet.getIntegers().write(0, 0xAAAA4444);
     }
-    Set<?> allTeleportFlags = TeleportFlag.setOfAllFlags();
+    Set<?> allTeleportFlags = Relative.setOfAllFlags();
     packet.getSpecificModifier(Set.class).write(0, allTeleportFlags);
     // add teleport flags
     userOf(player).ignoreNextOutboundPacket();

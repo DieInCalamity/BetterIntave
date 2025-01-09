@@ -1,19 +1,40 @@
 package de.jpx3.intave.share;
 
+import de.jpx3.intave.codec.StreamCodec;
+import de.jpx3.intave.packet.Relative;
+import io.netty.buffer.ByteBuf;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
 import java.io.Serializable;
+import java.util.Set;
 
 import static de.jpx3.intave.math.MathHelper.formatDouble;
 import static de.jpx3.intave.share.ClientMath.floor;
 
 public final class Position extends Vector implements Serializable {
+  public static final StreamCodec<ByteBuf, ByteBuf, Position> STREAM_CODEC = StreamCodec.of(
+    (byteBuf, position) -> {
+      byteBuf.writeDouble(position.x);
+      byteBuf.writeDouble(position.y);
+      byteBuf.writeDouble(position.z);
+    },
+    byteBuf -> new Position(byteBuf.readDouble(), byteBuf.readDouble(), byteBuf.readDouble())
+  );
+
   public Position() {
   }
 
   public Position(double xCoordinate, double yCoordinate, double zCoordinate) {
     super(xCoordinate, yCoordinate, zCoordinate);
+  }
+
+  public Position filtered(Set<Relative> flags) {
+    return new Position(
+      flags.contains(Relative.X) ? x : 0,
+      flags.contains(Relative.Y) ? y : 0,
+      flags.contains(Relative.Z) ? z : 0
+    );
   }
 
   public static Position of(int blockX, int blockY, int blockZ) {
@@ -65,7 +86,7 @@ public final class Position extends Vector implements Serializable {
 
   @Override
   public String toString() {
-    return  formatDouble(x, 1) + ", " + formatDouble(y,1) + ", " + formatDouble(z,1);
+    return  formatDouble(x, 2) + ", " + formatDouble(y,2) + ", " + formatDouble(z,2);
   }
 
   @Override

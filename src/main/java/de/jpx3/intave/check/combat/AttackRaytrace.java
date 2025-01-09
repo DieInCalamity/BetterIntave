@@ -105,6 +105,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
         reader.release();
         return;
       }
+      player.sendMessage(String.valueOf(entity.position.toPosition()));
       boolean inTeleport = movement.lastTeleport == 0 || violationMeta.isInActiveTeleportBundle;
       boolean firstRaytraceSuccessful = false;
       if (!inTeleport && !entityInTimeout(user, entity, entity.pendingFeedbackPackets())) {

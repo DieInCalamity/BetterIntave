@@ -34,6 +34,7 @@ import de.jpx3.intave.module.dispatch.MovementDispatcher;
 import de.jpx3.intave.module.feedback.Superposition;
 import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.module.tracker.player.PacketLogging;
+import de.jpx3.intave.packet.Relative;
 import de.jpx3.intave.player.Effects;
 import de.jpx3.intave.player.ItemProperties;
 import de.jpx3.intave.share.Rotation;
@@ -196,6 +197,8 @@ public final class MovementMetadata implements SimulationEnvironment {
   public volatile boolean transactionTeleportAllow = false;
   public boolean awaitClickMovementSkip;
   public Location teleportLocation;
+  public Motion teleportMotion = new Motion();
+  public Set<Relative> teleportRelatives = EnumSet.noneOf(Relative.class);
   public int teleportResendCountdown = 20;
   public int outgoingTeleportCountdown = 5;
   public long lastRescueAttempt;

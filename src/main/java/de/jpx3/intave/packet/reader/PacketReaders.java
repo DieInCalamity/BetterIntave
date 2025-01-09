@@ -118,7 +118,6 @@ public final class PacketReaders {
     PacketType type = container.getType();
     ThreadLocal<? extends PacketReader> readerThreadLocal = readerLocals.get(type);
     if (readerThreadLocal == null) {
-
       // perform a name-based lookup, enter if found
       for (Map.Entry<PacketType, ThreadLocal<? extends PacketReader>> entry : readerLocals.entrySet()) {
         if (matches(entry.getKey(), type.name())) {

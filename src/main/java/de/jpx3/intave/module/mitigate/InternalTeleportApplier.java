@@ -3,10 +3,9 @@ package de.jpx3.intave.module.mitigate;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.block.fluid.FluidResolver;
 import de.jpx3.intave.klass.Lookup;
 import de.jpx3.intave.klass.rewrite.PatchyLoadingInjector;
-import de.jpx3.intave.packet.TeleportFlag;
+import de.jpx3.intave.packet.Relative;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import org.bukkit.Location;
@@ -59,7 +58,7 @@ final class InternalTeleportApplier {
       }
       float fallDistance = player.getFallDistance();
       Object playerConnection = user.playerConnection();
-      Set<?> rFlags = rotationFlags ? TeleportFlag.noRotationChange() : Collections.emptySet();
+      Set<?> rFlags = rotationFlags ? Relative.noRotationChange() : Collections.emptySet();
       double posX = dest.getX();
       double posY = dest.getY();
       double posZ = dest.getZ();

@@ -1,12 +1,25 @@
 package de.jpx3.intave.share;
 
 import de.jpx3.intave.check.movement.physics.SimulationEnvironment;
+import de.jpx3.intave.codec.StreamCodec;
 import de.jpx3.intave.math.Hypot;
+import de.jpx3.intave.packet.Relative;
+import io.netty.buffer.ByteBuf;
 import org.bukkit.util.Vector;
+
+import java.util.Set;
 
 import static de.jpx3.intave.math.MathHelper.hypot3d;
 
 public final class Motion {
+  public static final StreamCodec<ByteBuf, ByteBuf, Motion> STREAM_CODEC = StreamCodec.of(
+    (buf, motion) -> {
+      buf.writeDouble(motion.motionX);
+      buf.writeDouble(motion.motionY);
+      buf.writeDouble(motion.motionZ);
+    },
+    buf -> new Motion(buf.readDouble(), buf.readDouble(), buf.readDouble())
+  );
   public double motionX;
   public double motionY;
   public double motionZ;
@@ -78,6 +91,18 @@ public final class Motion {
     return this;
   }
 
+  public void setMotionX(double x) {
+    this.motionX = x;
+  }
+
+  public void setMotionY(double y) {
+    this.motionY = y;
+  }
+
+  public void setMotionZ(double z) {
+    this.motionZ = z;
+  }
+
   public Motion normalize() {
     double length = length();
     if (length != 0.0) {
@@ -106,6 +131,14 @@ public final class Motion {
 
   public double horizontalLengthSqr() {
     return motionX * motionX + motionZ * motionZ;
+  }
+
+  public Motion filtered(Set<Relative> relativeSet) {
+    return new Motion(
+      relativeSet.contains(Relative.DELTA_X) ? motionX : 0,
+      relativeSet.contains(Relative.DELTA_Y) ? motionY : 0,
+      relativeSet.contains(Relative.DELTA_Z) ? motionZ : 0
+    );
   }
 
   public Motion add(double x, double y, double z) {
