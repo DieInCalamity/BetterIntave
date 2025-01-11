@@ -31,7 +31,7 @@ jobs:
     runs-on: docker
     needs: build
     container:
-      image: registry.lennoxlotl.dev/intave/obfuscation-lite:1.0.1
+      image: registry.lennoxlotl.dev/intave/obfuscation-lite:1.0.2
       options: "--entrypoint sh --workdir /app"
       credentials:
         username: ${{ secrets.INTAVE_REGISTRY_USERNAME }}
