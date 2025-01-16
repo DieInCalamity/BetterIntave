@@ -203,8 +203,13 @@ public final class EntityTracker extends Module {
     }
     Entity vehicle = passengerIsObserver ? observer.meta().movement().vehicle() : passenger.vehicle();
     observer.tickFeedback(() -> {
+      if (passenger == null) {
+        return;
+      }
       if (!passengerIsObserver) {
-        vehicle.removePassenger(passenger);
+        if (vehicle != null) {
+          vehicle.removePassenger(passenger);
+        }
         passenger.unmountFromEntity();
       }
       connection.noteDismount(passengerId);
