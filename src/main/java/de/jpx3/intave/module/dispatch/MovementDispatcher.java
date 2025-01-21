@@ -250,19 +250,22 @@ public final class MovementDispatcher extends Module {
 //      .synchronize(player, UserRepository.userOf(player), (p, user) -> {
     User user = UserRepository.userOf(player);
     user.tickFeedback(() -> {
-      MovementMetadata movement = user.meta().movement();
-      ProtocolMetadata protocol = user.meta().protocol();
+      MetadataBundle meta = user.meta();
+      MovementMetadata movement = meta.movement();
+      ProtocolMetadata protocol = meta.protocol();
+      InventoryMetadata inventory = meta.inventory();
       movement.sneaking = false;
       movement.setSprinting(false);
       if (protocol.protocolVersion() >= VER_1_16) {
         movement.sprintReset();
         user.refreshSprintState();
       }
+      Synchronizer.synchronize(inventory::releaseItemNextTick);
       movement.baseMotionX = 0;
       movement.baseMotionY = 0;
       movement.baseMotionZ = 0;
       user.blockCache().invalidateAll();
-      user.meta().potions().clearPotionEffects();
+      meta.potions().clearPotionEffects();
     });
   }
 

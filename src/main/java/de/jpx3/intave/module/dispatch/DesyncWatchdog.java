@@ -58,17 +58,18 @@ public final class DesyncWatchdog extends Module {
     AtomicInteger violationCounter = this.violationCounter.get(user);
     if (positionBundle.anyDesynced()) {
       int currentVL = violationCounter.incrementAndGet();
-      if (currentVL > 2) {
-        IntaveLogger.logger().error("Possible desync detected for " + user.player().getName() + " (" + currentVL + "/6)");
+      if (currentVL > 1) {
+        IntaveLogger.logger().warn("Server and Intave don't seem agree on position for " + user.player().getName() + " (" + currentVL + "/4)");
       }
-      if (currentVL > 5) {
+      if (currentVL > 3) {
         Violation violation = Violation.builderFor(Physics.class)
           .forPlayer(user.player())
-          .withMessage("seems to be desynced, trying to reset position [REPORT THIS TO US IMMEDIATELY]")
+          .withMessage("apparently desynced, resetting")
           .withDetails(
-            "i/a: " + positionBundle.intaveAcceptedPosition() +
-            ", s: " + positionBundle.serverPosition() +
-            ", p: " + positionBundle.prefilteredPendingPosition())
+            "intave/verified: " + positionBundle.intaveAcceptedPosition() +
+            ", intave/nocheck: " + positionBundle.prefilteredPendingPosition() +
+            ", server: " + positionBundle.serverPosition()
+          )
           .withVL(0.5)
           .build();
         violationCounter.set(currentVL - 3);
