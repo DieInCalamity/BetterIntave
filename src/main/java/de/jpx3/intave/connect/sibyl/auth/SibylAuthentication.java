@@ -30,6 +30,7 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import net.minecraft.server.packs.repository.Pack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -264,10 +265,17 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
         key = new MinecraftKey(channel.toLowerCase(Locale.ROOT));
       }
       byte[] bytesToSend = LabyModChannelHelper.getBytesToSend(messageKey, jsonElement == null ? null : jsonElement.toString());
-      packetContainer.getCustomPacketPayloads().write(0, new CustomPacketPayloadWrapper(
-        bytesToSend, key
-      ));
-      Synchronizer.synchronize(() -> PacketSender.sendServerPacket(player, packetContainer));
+      if (MinecraftVersions.VER1_20_5.atOrAbove()) {
+        PacketContainer cookie = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.STORE_COOKIE);
+        cookie.getMinecraftKeys().write(0, key);
+        cookie.getByteArrays().write(0, bytesToSend);
+        Synchronizer.synchronize(() -> PacketSender.sendServerPacket(player, cookie));
+      } else {
+        packetContainer.getCustomPacketPayloads().write(0, new CustomPacketPayloadWrapper(
+          bytesToSend, key
+        ));
+        Synchronizer.synchronize(() -> PacketSender.sendServerPacket(player, packetContainer));
+      }
       return;
     } else if (MinecraftVersions.VER1_13_0.atOrAbove()) {
       if (channel.startsWith("MC|")) {

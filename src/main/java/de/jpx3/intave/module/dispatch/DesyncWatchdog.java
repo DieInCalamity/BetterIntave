@@ -17,6 +17,7 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserLocal;
 import de.jpx3.intave.user.UserRepository;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -54,6 +55,11 @@ public final class DesyncWatchdog extends Module {
   }
 
   private void performDesyncCheck(User user) {
+    // Spectators don't send any position packets when observing an entity
+    if (user.player().getGameMode() == GameMode.SPECTATOR) {
+      return;
+    }
+
     PositionBundle positionBundle = positionBundleOf(user);
     AtomicInteger violationCounter = this.violationCounter.get(user);
     if (positionBundle.anyDesynced()) {
