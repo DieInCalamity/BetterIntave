@@ -86,7 +86,11 @@ public final class Position extends Vector implements Serializable {
 
   @Override
   public String toString() {
-    return  formatDouble(x, 2) + ", " + formatDouble(y,2) + ", " + formatDouble(z,2);
+    return formatDouble(x, 2) + ", " + formatDouble(y,2) + ", " + formatDouble(z,2);
+  }
+
+  public String format(int decimalPlaces) {
+    return formatDouble(x, decimalPlaces) + ", " + formatDouble(y, decimalPlaces) + ", " + formatDouble(z, decimalPlaces);
   }
 
   @Override

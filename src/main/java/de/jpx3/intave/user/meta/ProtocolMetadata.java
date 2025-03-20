@@ -4,18 +4,19 @@ import com.comphenix.protocol.utility.MinecraftVersion;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ViaVersionAdapter;
 import de.jpx3.intave.annotate.Relocate;
+import de.jpx3.intave.share.Position;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.version.ProtocolVersionConverter;
 import org.bukkit.entity.Player;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Relocate
 public final class ProtocolMetadata {
+  public static int VER_1_21_3 = 768; // 1.21.3
   public static int VER_1_21 = 767; // 1.21
   // final has been removed to disguise modified integer VERSION_DETAILS
+  public static int VER_1_20_2 = 764; // 1.21.2
   public static int VER_1_20 = 763; // 1.17
   public static int VER_1_19_4 = 756; // 1.19.4
   public static int VER_1_19_2 = 754; // 1.19.2
@@ -45,6 +46,9 @@ public final class ProtocolMetadata {
   private int refreshes;
 
   public Set<UUID> shownPlayers = new HashSet<>();
+  public final Map<String, String> debugStates = new HashMap<>();
+  public Position lastEntityPosition;
+  public int lastEntityId;
 
   public ProtocolMetadata(Player player, User user) {
     this.user = user;
@@ -221,6 +225,10 @@ public final class ProtocolMetadata {
 
   public boolean noPingMask() {
     return protocolVersion <= VER_1_17 && MinecraftVersions.VER1_17_0.atOrAbove();
+  }
+
+  public boolean sendsClientTickEnd() {
+    return protocolVersion >= VER_1_20_2;
   }
 
   public void setLocale(String locale) {

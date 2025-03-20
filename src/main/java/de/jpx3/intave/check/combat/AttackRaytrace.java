@@ -29,6 +29,7 @@ import de.jpx3.intave.module.violation.ViolationContext;
 import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.packet.reader.EntityUseReader;
 import de.jpx3.intave.packet.reader.PacketReaders;
+import de.jpx3.intave.share.FriendlyByteBuf;
 import de.jpx3.intave.share.HistoryWindow;
 import de.jpx3.intave.share.Position;
 import de.jpx3.intave.user.MessageChannel;
@@ -36,14 +37,16 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.*;
 import de.jpx3.intave.world.raytrace.Raytrace;
 import de.jpx3.intave.world.raytrace.Raytracing;
+import io.netty.buffer.ByteBuf;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.*;
 import java.util.function.Function;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
 
 import static com.comphenix.protocol.wrappers.EnumWrappers.EntityUseAction.ATTACK;
 import static de.jpx3.intave.math.MathHelper.formatDouble;
@@ -105,6 +108,40 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
         reader.release();
         return;
       }
+
+      if (user.meta().protocol().debugStates.containsKey("entity_pos_on_attack")) {
+        String clientEntityPos = user.meta().protocol().debugStates.remove("entity_pos_on_attack");
+        ByteBuf medium = FriendlyByteBuf.from256Unpooled();
+        byte[] decodedInformation = Base64.getDecoder().decode(clientEntityPos);
+        medium.writeBytes(decompress(decodedInformation));
+        Position clientEntityPosition = Position.STREAM_CODEC.decode(medium);
+        int strings = medium.readInt();
+        List<String> stringsList = new ArrayList<>();
+
+        for (int i = 0; i < strings; i++) {
+          stringsList.add(FriendlyByteBuf.readUtf(medium, Short.MAX_VALUE));
+        }
+        Position serverEntityPosition = entity.position.toPosition();
+        double distance = clientEntityPosition.distance(serverEntityPosition);
+//        player.sendMessage(ChatColor.GOLD + "Server " + serverEntityPosition.format(12));
+//        player.sendMessage(ChatColor.GREEN + "Client " + clientEntityPosition.format(12));
+        player.sendMessage(ChatColor.YELLOW + " Server");
+        int i = 0;
+        for (String positionChange : entity.positionChanges()) {
+          if (i++ >= 5) {
+            player.sendMessage(ChatColor.YELLOW + positionChange);
+          }
+        }
+        i = 0;
+        player.sendMessage(ChatColor.DARK_PURPLE + " Client");
+        for (String positionChange : stringsList) {
+          if (i++ >= 5) {
+            player.sendMessage(ChatColor.DARK_PURPLE + positionChange);
+          }
+        }
+        player.sendMessage(ChatColor.RED + "Distance " + formatDouble(distance, 12));
+      }
+
 //      player.sendMessage(String.valueOf(entity.position.toPosition()));
       boolean inTeleport = movement.lastTeleport == 0 || violationMeta.isInActiveTeleportBundle;
       boolean firstRaytraceSuccessful = false;
@@ -152,6 +189,26 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
       }
     }
     reader.release();
+  }
+
+
+  private static byte[] decompress(byte[] input) {
+    Inflater inflater = new Inflater();
+    inflater.setInput(input);
+    ByteArrayOutputStream bos = new ByteArrayOutputStream(input.length);
+    byte[] buf = new byte[1024];
+    while (!inflater.finished()) {
+      try {
+        int count = inflater.inflate(buf);
+        bos.write(buf, 0, count);
+      } catch (DataFormatException e) {
+        return new byte[0];
+      }
+    }
+    try {
+      bos.close();
+    } catch (IOException ignored) {}
+    return bos.toByteArray();
   }
 
   @PacketSubscription(

@@ -15,4 +15,5 @@ public @interface PacketSubscription {
   PacketId.Client[] packetsIn() default {};
   PacketId.Server[] packetsOut() default {};
   boolean ignoreCancelled() default true;
+  boolean debug() default false;
 }

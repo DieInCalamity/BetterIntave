@@ -489,6 +489,52 @@ public final class EntityTracker extends Module {
   public void receiveMovement(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
+    if (user.meta().protocol().sendsClientTickEnd()) {
+      return;
+    }
+    ConnectionMetadata synchronizeData = user.meta().connection();
+    MovementMetadata movement = user.meta().movement();
+    if (movement.lastTeleport == 0) {
+      return;
+    }
+    for (Entity entity : synchronizeData.entities()) {
+      int ticksAfterPositionChange = entity.position.newPosRotationIncrements;
+      entity.onUpdate();
+      if (entity.tracingEnabled() && ticksAfterPositionChange > 0) {
+        nayoroEntityPositionUpdate(player, entity);
+      }
+      if (movement.isRiding(entity.entityId()) && !MinecraftVersions.VER1_9_0.atOrAbove()) {
+        double originalX = entity.position.newPosX;
+        double originalY = entity.position.newPosY;
+        double originalZ = entity.position.newPosZ;
+        if (Math.abs(originalX) < 0.1 && Math.abs(originalY) < 0.1 && Math.abs(originalZ) < 0.1) {
+          originalX = entity.position.posX;
+          originalY = entity.position.posY;
+          originalZ = entity.position.posZ;
+        }
+        movement.positionX = movement.verifiedPositionX = movement.lastPositionX = originalX;
+        movement.positionY = movement.verifiedPositionY = movement.lastPositionY = originalY;
+        movement.positionZ = movement.verifiedPositionZ = movement.lastPositionZ = originalZ;
+        movement.verifiedPositionOrigin = "Riding pos sync (1.8)";
+        movement.setBaseMotionX(0);
+        movement.setBaseMotionY(0);
+        movement.setBaseMotionZ(0);
+      }
+    }
+  }
+
+  @PacketSubscription(
+    packetsIn = {
+      CLIENT_TICK_END
+    },
+    debug = true
+  )
+  public void on(PacketEvent event) {
+    Player player = event.getPlayer();
+    User user = UserRepository.userOf(player);
+    if (!user.meta().protocol().sendsClientTickEnd()) {
+      return;
+    }
     ConnectionMetadata synchronizeData = user.meta().connection();
     MovementMetadata movement = user.meta().movement();
     if (movement.lastTeleport == 0) {
@@ -549,7 +595,7 @@ public final class EntityTracker extends Module {
     if (entity.typeData().isLivingEntity() && entity.tracingEnabled()) {
       EmptyFeedbackCallback task = () -> {
         entity.verifiedPosition = false;
-        entity.handleEntityPositionSync(packet);
+        entity.handleEntityPositionSync(user, packet);
         entity.clientSynchronized = true;
         nayoroEntityPositionUpdate(player, entity);
       };
@@ -560,7 +606,7 @@ public final class EntityTracker extends Module {
       }
       user.tracedPacketTickFeedback(event, task, observer, options);
     } else {
-      entity.handleEntityPositionSync(packet);
+      entity.handleEntityPositionSync(user, packet);
       entity.clientSynchronized = false;
     }
   }
@@ -676,7 +722,7 @@ public final class EntityTracker extends Module {
     if (entity.typeData().isLivingEntity() && entity.tracingEnabled()) {
       EmptyFeedbackCallback task = () -> {
         entity.verifiedPosition = false;
-        entity.handleEntityMovement(packet);
+        entity.handleEntityMovement(user, packet, true);
         nayoroEntityPositionUpdate(player, entity);
       };
       FeedbackObserver tracker = entity.feedbackTracker();
@@ -686,7 +732,7 @@ public final class EntityTracker extends Module {
       }
       user.tracedPacketTickFeedback(event, task, tracker, options);
     } else {
-      entity.handleEntityMovement(packet);
+      entity.handleEntityMovement(user, packet, false);
       entity.clientSynchronized = false;
     }
   }

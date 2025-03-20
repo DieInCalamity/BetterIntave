@@ -12,12 +12,13 @@ import de.jpx3.intave.module.feedback.PendingCountingFeedbackObserver;
 import de.jpx3.intave.packet.Relative;
 import de.jpx3.intave.share.*;
 import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
+import static de.jpx3.intave.math.MathHelper.formatDouble;
 
 public class Entity {
   /*
@@ -55,6 +56,11 @@ public class Entity {
   public EntityPositionContext position;
   public EntityPositionContext lastPosition;
   public EntityPositionContext alternativePosition;
+  public final Deque<String> positionChanges = new ArrayDeque<>();
+
+  public PositionDeltaCodec immediateCodec = new PositionDeltaCodec();
+  public PositionDeltaCodec codec = new PositionDeltaCodec();
+
   public HistoryWindow<EntityPositionContext> positionHistory = new HistoryWindow<>(25);
   public boolean dead, fakeDead;
   public boolean verifiedPosition;
@@ -163,7 +169,15 @@ public class Entity {
       --position.newPosRotationIncrements;
       setPosition(newPosX, newPosY, newPosZ);
       setShiftedPositionY(shiftedNewY);
+      pushDebug("LERP(" + position.newPosRotationIncrements + ") to " + formatDouble(newPosX, 3) + " " + formatDouble(newPosY, 3) + " " + formatDouble(newPosZ, 3));
     }
+  }
+
+  public void pushDebug(String message) {
+    if (positionChanges.size() > 10) {
+      positionChanges.removeFirst();
+    }
+    positionChanges.add(message);
   }
 
   private void onEntityUpdate() {
@@ -191,9 +205,6 @@ public class Entity {
       newPosX = old.getX() + change.getX();
       newPosY = old.getY() + change.getY();
       newPosZ = old.getZ() + change.getZ();
-      immServerPosX = ClientMath.positionLong(newPosX);
-      immServerPosY = ClientMath.positionLong(newPosY);
-      immServerPosZ = ClientMath.positionLong(newPosZ);
     } else if (POSITION_PROCESSING_1_9) {
       newPosX = packet.getDoubles().read(0);
       newPosY = packet.getDoubles().read(1);
@@ -260,8 +271,16 @@ public class Entity {
       newPosY = serverPosY / 32.0;
       newPosZ = serverPosZ / 32.0;
     }
+
+    ProtocolMetadata protocol = user.meta().protocol();
+    protocol.lastEntityId = entityId;
+    protocol.lastEntityPosition = new Position(
+      newPosX, newPosY, newPosZ
+    );
+
     if (immediateTeleport) {
       setPosition(newPosX, newPosY, newPosZ);
+      pushDebug("TP(Set position) to " + formatDouble(newPosX, 3) + " " + formatDouble(newPosY, 3) + " " + formatDouble(newPosZ, 3));
     } else {
       // Always set on 1.16+ as they removed the threshold
       boolean samePosition =
@@ -273,6 +292,7 @@ public class Entity {
       } else {
         setPositionAndRotationEntityLiving(newPosX, newPosY, newPosZ, 3);
       }
+      pushDebug("TP(Set lerp target) to " + formatDouble(newPosX, 3) + " " + formatDouble(newPosY, 3) + " " + formatDouble(newPosZ, 3));
     }
     double alternativeNewPosY = (double) this.serverPosY / 32d + 0.015625d;
     if (Math.abs(position.posX - newPosX) < 0.03125d &&
@@ -284,7 +304,7 @@ public class Entity {
     }
   }
 
-  public void handleEntityPositionSync(PacketContainer packet) {
+  public void handleEntityPositionSync(User user, PacketContainer packet) {
     double newPosX;
     double newPosY;
     double newPosZ;
@@ -293,15 +313,23 @@ public class Entity {
     newPosX = position.getX();
     newPosY = position.getY();
     newPosZ = position.getZ();
+    codec.setBase(position);
     serverPosX = ClientMath.positionLong(newPosX);
     serverPosY = ClientMath.positionLong(newPosY);
     serverPosZ = ClientMath.positionLong(newPosZ);
-
     boolean instantTeleport = squaredDistanceTo(newPosX, newPosY, newPosZ) > 4096;
     if (instantTeleport) {
       setPosition(newPosX, newPosY, newPosZ);
+      pushDebug("TP(Set position) to " + formatDouble(newPosX, 3) + " " + formatDouble(newPosY, 3) + " " + formatDouble(newPosZ, 3));
     } else {
       setPositionAndRotationEntityLiving(newPosX, newPosY, newPosZ, 3);
+      pushDebug("TP(Set lerp target) to " + formatDouble(newPosX, 3) + " " + formatDouble(newPosY, 3) + " " + formatDouble(newPosZ, 3));
+    }
+    if (entityName().toLowerCase().contains("chicken")) {
+      ProtocolMetadata protocol = user.meta().protocol();
+      protocol.lastEntityId = entityId;
+      protocol.lastEntityPosition = position;
+//      System.out.println("A-sync " + (System.currentTimeMillis() % 1000) + " " + entityName() + "/" + entityId + " " + position);
     }
   }
 
@@ -314,10 +342,7 @@ public class Entity {
     newPosX = position.getX();
     newPosY = position.getY();
     newPosZ = position.getZ();
-    immServerPosX = ClientMath.positionLong(newPosX);
-    immServerPosY = ClientMath.positionLong(newPosY);
-    immServerPosZ = ClientMath.positionLong(newPosZ);
-
+    immediateCodec.setBase(position);
     immediateServerPosition.setX(newPosX);
     immediateServerPosition.setY(newPosY);
     immediateServerPosition.setZ(newPosZ);
@@ -369,7 +394,7 @@ public class Entity {
    *
    * @param packet contains information about the entity movement
    */
-  public void handleEntityMovement(PacketContainer packet) {
+  public void handleEntityMovement(User user, PacketContainer packet, boolean sync) {
     double newPosX;
     double newPosY;
     double alternativeNewPosY;
@@ -380,7 +405,6 @@ public class Entity {
       this.serverPosX += shorts.readSafely(0);
       this.serverPosY += shorts.readSafely(1);
       this.serverPosZ += shorts.readSafely(2);
-
       newPosX = (double) serverPosX / 4096d;
       newPosY = (double) serverPosY / 4096d;
       alternativeNewPosY = newPosY;
@@ -390,7 +414,6 @@ public class Entity {
       this.serverPosX += integers.readSafely(1);
       this.serverPosY += integers.readSafely(2);
       this.serverPosZ += integers.readSafely(3);
-
       newPosX = (double) serverPosX / 4096d;
       newPosY = (double) serverPosY / 4096d;
       alternativeNewPosY = newPosY;
@@ -400,7 +423,6 @@ public class Entity {
       this.serverPosX += bytes.readSafely(0);
       this.serverPosY += bytes.readSafely(1);
       this.serverPosZ += bytes.readSafely(2);
-
       newPosX = (double) serverPosX / 32d;
       newPosY = (double) serverPosY / 32d;
       alternativeNewPosY = (double) serverPosY / 32d;
@@ -410,6 +432,7 @@ public class Entity {
     // 3 is used to interpolate the entity position in new client ticks
     setPositionAndRotationEntityLiving(newPosX, newPosY, newPosZ, 3);
     setAlternativeYPosition(alternativeNewPosY);
+    pushDebug("REL(Set lerp target) to " + formatDouble(newPosX, 3) + " " + formatDouble(newPosY, 3) + " " + formatDouble(newPosZ, 3));
   }
 
   /**
@@ -571,6 +594,10 @@ public class Entity {
 
   public long pendingFeedbackPackets() {
     return feedbackTracker.pending();
+  }
+
+  public List<String> positionChanges() {
+    return new ArrayList<>(positionChanges);
   }
 
   /**

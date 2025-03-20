@@ -155,7 +155,7 @@ public final class PacketSubscriptionLinker extends Module {
     PacketSubscriptionMethodExecutor executor = assembleSubscriptionMethodCaller(instanceProvider.type(), method, metadata.identifier());
     String methodName = method.getName();
     ListenerPriority priority = metadata.priority();
-    PacketType[] packetTypes = translatePacketTypes(metadata.packetsIn(), metadata.packetsOut());
+    PacketType[] packetTypes = translatePacketTypes(metadata.packetsIn(), metadata.packetsOut(), metadata.debug());
     boolean ignoreCancelled = metadata.ignoreCancelled();
     if (metadata.engine() == Engine.ASYNC_INTERNAL) {
       performCustomLinkage(instanceProvider, priority, packetTypes, ignoreCancelled, methodName, executor);
@@ -177,28 +177,45 @@ public final class PacketSubscriptionLinker extends Module {
     }
   }
 
-  private PacketType[] translatePacketTypes(PacketId.Client[] clientPackets, PacketId.Server[] serverPackets) {
-    return distinct(excludeProblematic(translate(clientPackets, serverPackets)), PacketType[]::new);
+  private PacketType[] translatePacketTypes(
+    PacketId.Client[] clientPackets,
+    PacketId.Server[] serverPackets,
+    boolean debug
+  ) {
+    return distinct(
+      excludeProblematic(translate(clientPackets, serverPackets, debug), debug),
+      PacketType[]::new
+    );
   }
 
-  private PacketType[] translate(PacketId.Client[] clientPackets, PacketId.Server[] serverPackets) {
-    PacketType[] serverPacketTypes = clientTranslate(clientPackets);
-    PacketType[] clientPacketTypes = serverTranslate(serverPackets);
+  private PacketType[] translate(PacketId.Client[] clientPackets, PacketId.Server[] serverPackets, boolean debug) {
+    PacketType[] serverPacketTypes = clientTranslate(clientPackets, debug);
+    PacketType[] clientPacketTypes = serverTranslate(serverPackets, debug);
     return merge(serverPacketTypes, clientPacketTypes);
   }
 
-  private PacketType[] clientTranslate(PacketId.Client[] clientPackets) {
+  private PacketType[] clientTranslate(PacketId.Client[] clientPackets, boolean debug) {
     if (clientPackets.length == 1 && clientPackets[0].lookupName().equals("*")) {
       return PacketRegistry.getClientPacketTypes().toArray(new PacketType[0]);
     }
-    return Arrays.stream(clientPackets).map(this::translateClientPacketType).flatMap(Arrays::stream).toArray(PacketType[]::new);
+    List<PacketType> list = new ArrayList<>();
+    for (PacketId.Client clientPacket : clientPackets) {
+      PacketType[] packetTypes = translateClientPacketType(clientPacket, debug);
+      list.addAll(Arrays.asList(packetTypes));
+    }
+    return list.toArray(new PacketType[0]);
   }
 
-  private PacketType[] serverTranslate(PacketId.Server[] serverPackets) {
+  private PacketType[] serverTranslate(PacketId.Server[] serverPackets, boolean debug) {
     if (serverPackets.length == 1 && "*".equals(serverPackets[0].lookupName())) {
       return PacketRegistry.getClientPacketTypes().toArray(new PacketType[0]);
     }
-    return Arrays.stream(serverPackets).map(this::translateServerPacketType).flatMap(Arrays::stream).toArray(PacketType[]::new);
+    List<PacketType> list = new ArrayList<>();
+    for (PacketId.Server serverPacket : serverPackets) {
+      PacketType[] packetTypes = translateServerPacketType(serverPacket, debug);
+      list.addAll(Arrays.asList(packetTypes));
+    }
+    return list.toArray(new PacketType[0]);
   }
 
   private <T> T[] distinct(T[] input, IntFunction<T[]> generator) {
@@ -207,7 +224,7 @@ public final class PacketSubscriptionLinker extends Module {
 
   private final Set<String> exclusionNoted = new HashSet<>();
 
-  private PacketType[] excludeProblematic(PacketType[] input) {
+  private PacketType[] excludeProblematic(PacketType[] input, boolean debug) {
     for (int i = 0; i < input.length; i++) {
       PacketType packetType = input[i];
       if (excluded(packetType)) {
@@ -256,12 +273,20 @@ public final class PacketSubscriptionLinker extends Module {
     return false;
   }
 
-  private PacketType[] translateClientPacketType(PacketId.Client clientPacket) {
-    return searchByName(selectPacketTypesFor(ConnectionSide.CLIENT_SIDE), clientPacket.lookupName());
+  private PacketType[] translateClientPacketType(PacketId.Client clientPacket, boolean debug) {
+    PacketType[] results = searchByName(selectPacketTypesFor(ConnectionSide.CLIENT_SIDE), clientPacket.lookupName());
+    if (debug) {
+      IntaveLogger.logger().info("Translated " + clientPacket.lookupName() + " to " + Arrays.toString(results));
+    }
+    return results;
   }
 
-  private PacketType[] translateServerPacketType(PacketId.Server serverPacket) {
-    return searchByName(selectPacketTypesFor(ConnectionSide.SERVER_SIDE), serverPacket.lookupName());
+  private PacketType[] translateServerPacketType(PacketId.Server serverPacket, boolean debug) {
+    PacketType[] results = searchByName(selectPacketTypesFor(ConnectionSide.SERVER_SIDE), serverPacket.lookupName());
+    if (debug) {
+      IntaveLogger.logger().info("Translated " + serverPacket.lookupName() + " to " + Arrays.toString(results));
+    }
+    return results;
   }
 
   private Collection<PacketType> selectPacketTypesFor(ConnectionSide connectionSide) {
