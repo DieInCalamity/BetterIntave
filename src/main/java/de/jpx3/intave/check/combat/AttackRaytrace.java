@@ -2,6 +2,7 @@ package de.jpx3.intave.check.combat;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.utility.MinecraftVersion;
 import com.comphenix.protocol.wrappers.EnumWrappers.EntityUseAction;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
@@ -628,17 +629,32 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     String message, details, thresholdKey, sibyl;
     double reach = 0;
     boolean resendAllowed = attack.shouldResend() && !violationMeta.isInActiveTeleportBundle;
+
+    Map<String, String> granular = new LinkedHashMap<>();
+    granular.put("name", attacked.entityName());
+    granular.put("size", String.valueOf(attacked.typeData().size()));
+
+    List<String> positionChanges = attacked.positionChanges();
+    if (positionChanges != null && !positionChanges.isEmpty()) {
+      int size = positionChanges.size();
+      for (int i = 5; i < size; i++) {
+        granular.put(String.valueOf((i - size)), positionChanges.get(i));
+      }
+    }
     switch (result) {
       case MISS: {
         message = String.format(
           "attacked %s %s out of sight %s",
           resolveArticle(entityName), entityName.toLowerCase(), estimationSuffix
         );
-        if (IntaveControl.GOMME_MODE) {
-          details = "missed hit";
-        } else {
-          details = raytrace.from() + " ray to " + (raytrace.to() == null ? "/" + attacked.position.toPosition() + "/" : raytrace.to());
-        }
+        details = "missed hit";
+//        if (IntaveControl.GOMME_MODE) {
+//        } else {
+//          details = raytrace.from() + " ray to " + (raytrace.to() == null ? "/" + attacked.position.toPosition() + "/" : raytrace.to());
+//        }
+        granular.put("TYPE", "MISS");
+        granular.put("RAY_FROM", raytrace.from().toString());
+        granular.put("RAY_TO", raytrace.to() == null ? "null" : raytrace.to().toString());
         thresholdKey = "applicable-thresholds.hitbox";
         sibyl = String.format(
           "%s/%d missed hit on %s",
@@ -659,6 +675,10 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
 //        } else {
 //          details = raytrace.from() + " ray to " + (raytrace.to() == null ? "/" + attacked.position.toPosition() + "/" : raytrace.to()) + " :: " + displayReach + " blocks";
 //        }
+        granular.put("TYPE", "REACH");
+        granular.put("RAY_FROM", raytrace.from().toString());
+        granular.put("RAY_TO", raytrace.to() == null ? "null" : raytrace.to().toString());
+        granular.put("REACH", displayReach);
         thresholdKey = "applicable-thresholds.reach";
         sibyl = String.format(
           "%s/%d attacked %s from %s",
@@ -681,10 +701,13 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
         return;
       }
     }
+
+    granular.put("s/c v", MinecraftVersion.getCurrentVersion().getVersion() + " / " + user.protocolVersion());
     DebugBroadcast.broadcast(player, MessageCategory.ATRAFLT, MessageSeverity.HIGH, sibyl, sibyl);
     Violation violation = Violation.builderFor(AttackRaytrace.class)
       .forPlayer(player).withMessage(message).withDetails(details)
       .withCustomThreshold(thresholdKey).withVL(vl)
+      .withGranulars(granular)
       .withPlaceholder("reach", formatDouble(reach, 4))
       .appendFlags(estimated ? DONT_PROCESS_VIOSTAT : 0)
       .build();

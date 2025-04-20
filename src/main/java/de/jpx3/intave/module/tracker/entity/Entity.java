@@ -17,6 +17,7 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static de.jpx3.intave.math.MathHelper.formatDouble;
 
@@ -56,7 +57,8 @@ public class Entity {
   public EntityPositionContext position;
   public EntityPositionContext lastPosition;
   public EntityPositionContext alternativePosition;
-  public final Deque<String> positionChanges = new ArrayDeque<>();
+  public final Deque<String> positionChanges = new ArrayDeque<>(11);
+  public final ReentrantLock debugPushLock = new ReentrantLock();
 
   public PositionDeltaCodec immediateCodec = new PositionDeltaCodec();
   public PositionDeltaCodec codec = new PositionDeltaCodec();
@@ -174,10 +176,15 @@ public class Entity {
   }
 
   public void pushDebug(String message) {
-    if (positionChanges.size() > 10) {
-      positionChanges.removeFirst();
+    try {
+      debugPushLock.lock();
+      if (positionChanges.size() > 10) {
+        positionChanges.removeFirst();
+      }
+      positionChanges.add(message);
+    } finally {
+      debugPushLock.unlock();
     }
-    positionChanges.add(message);
   }
 
   private void onEntityUpdate() {
