@@ -330,22 +330,6 @@ public final class RootStage extends CommandStage {
   }
 
   @SubCommand(
-    selectors = "lbdr",
-    usage = "[<target>]",
-    description = "",
-    permission = "sibyl"
-  )
-  public void labymodDataReceive(User user, @Optional Player target) {
-    if (IntaveControl.GOMME_MODE) {
-      Player player = user.player();
-      Player targetPlayer = target == null ? player : target;
-      User targetUser = UserRepository.userOf(targetPlayer);
-      JsonObject data = targetUser.meta().connection().labyModData;
-      player.sendMessage(targetPlayer.getName() + " sent: " + data.toString());
-    }
-  }
-
-  @SubCommand(
     selectors = "iter",
     usage = "",
     description = "",

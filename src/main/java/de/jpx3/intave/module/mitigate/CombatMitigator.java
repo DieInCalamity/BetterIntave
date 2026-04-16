@@ -239,6 +239,9 @@ public final class CombatMitigator extends Module {
 
   @BukkitEventSubscription
   public void on(AsyncPlayerChatEvent chat) {
+    /*
+    i keep this as a meme ~vento 2026
+
     if (IntaveControl.GOMME_MODE) {
       Player player = chat.getPlayer();
       User user = UserRepository.userOf(player);
@@ -253,6 +256,7 @@ public final class CombatMitigator extends Module {
         }
       }
     }
+     */
   }
 
   @Deprecated
@@ -355,12 +359,6 @@ public final class CombatMitigator extends Module {
           }, 4);
         }
       }
-    }
-
-    if (IntaveControl.GOMME_MODE /*&& !hide*/) {
-      IntaveLogger.logger().printLine("[Intave] " + ChatColor.stripColor(message));
-      IntavePlugin.singletonInstance().logTransmittor()
-        .addPlayerLog(player, message);
     }
 
     for (Player authenticatedPlayer : MessageChannelSubscriptions.sibylReceivers()/*Bukkit.getOnlinePlayers()*/) {

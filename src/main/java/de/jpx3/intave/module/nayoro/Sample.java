@@ -5,7 +5,6 @@ import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.connect.IntaveDomains;
 import de.jpx3.intave.resource.Resource;
 import de.jpx3.intave.resource.Resources;
-import de.jpx3.intave.security.ContextSecrets;
 import de.jpx3.intave.security.HWIDVerification;
 import de.jpx3.intave.security.LicenseAccess;
 
@@ -20,8 +19,6 @@ import java.util.Scanner;
 import java.util.UUID;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterInputStream;
-
-import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 
 public final class Sample {
   private String id;
@@ -114,11 +111,7 @@ public final class Sample {
     if (operatingSystem.contains("win")) {
       filePath = System.getenv("APPDATA") + "/Intave/Samples/";
     } else {
-      if (GOMME_MODE) {
-        filePath = ContextSecrets.secret("cache-directory") + "samples/";
-      } else {
-        filePath = System.getProperty("user.home") + "/.intave/samples/";
-      }
+      filePath = System.getProperty("user.home") + "/.intave/samples/";
     }
     workDirectory = new File(filePath);
     if (!workDirectory.exists()) {

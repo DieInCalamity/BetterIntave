@@ -1,6 +1,5 @@
 package de.jpx3.intave.module.violation;
 
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.check.event.IntaveCommandExecutionEvent;
@@ -226,9 +225,7 @@ public final class ViolationProcessor extends Module {
     );
     LogTransmittor logTransmittor = IntavePlugin.singletonInstance().logTransmittor();
     logTransmittor.addPlayerLog(player, "(DET) " + consoleMessage);
-    if (IntaveControl.GOMME_MODE) {
-      consoleMessage += " | TPS: " + ServerHealth.stringFormattedTick() + " Ping: " + user.latency() + "ms";
-    }
+    consoleMessage += " | TPS: " + ServerHealth.stringFormattedTick() + " Ping: " + user.latency() + "ms";
     plugin.logger().violation(consoleMessage);
   }
 

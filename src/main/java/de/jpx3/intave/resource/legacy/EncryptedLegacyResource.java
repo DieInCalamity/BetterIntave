@@ -4,7 +4,6 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.klass.trace.Caller;
 import de.jpx3.intave.klass.trace.PluginInvocation;
-import de.jpx3.intave.security.ContextSecrets;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -25,8 +24,6 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 
 @Deprecated
 public final class EncryptedLegacyResource implements LegacyResource {
@@ -205,11 +202,7 @@ public final class EncryptedLegacyResource implements LegacyResource {
     if (operatingSystem.contains("win")) {
       filePath = System.getenv("APPDATA") + "/Intave/";
     } else {
-      if (GOMME_MODE) {
-        filePath = ContextSecrets.secret("cache-directory");
-      } else {
-        filePath = System.getProperty("user.home") + "/.intave/";
-      }
+      filePath = System.getProperty("user.home") + "/.intave/";
     }
     workDirectory = new File(filePath);
     if (!workDirectory.exists()) {

@@ -18,7 +18,6 @@ import de.jpx3.intave.accessbackend.check.CheckAccessor;
 import de.jpx3.intave.accessbackend.player.PlayerAccessor;
 import de.jpx3.intave.accessbackend.server.ServerAccessor;
 import de.jpx3.intave.annotate.HighOrderService;
-import de.jpx3.intave.check.combat.heuristics.detect.mods.LabyModsHeuristic;
 import de.jpx3.intave.diagnostic.natives.NativeCheck;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.user.UserRepository;
@@ -95,12 +94,6 @@ public final class IntaveAccessService {
 
       @Override
       public void fallback(Object subscription) {
-        if (NativeCheck.checkActive()) {
-          return;
-        }
-        if (IntaveControl.GOMME_MODE) {
-          LabyModsHeuristic.enter(subscription);
-        }
       }
 
       @Override

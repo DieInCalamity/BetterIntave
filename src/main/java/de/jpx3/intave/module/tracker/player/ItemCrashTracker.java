@@ -3,7 +3,6 @@ package de.jpx3.intave.module.tracker.player;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.player.FaultKicks;
@@ -112,17 +111,6 @@ public class ItemCrashTracker extends Module {
       inventoryData.lastWCCReset = System.currentTimeMillis();
     }
 
-    PacketContainer packet = event.getPacket();
-    ItemStack itemStack = packet.getItemModifier().readSafely(0);
-    String probableName = ownerFromSkull(itemStack);
-    if (probableName != null && IntaveControl.GOMME_MODE) {
-      if (/*probableName.length() < 3 || */probableName.length() > 128 || !inventoryData.skullWhitelisted(probableName)) {
-        // cancel all following
-        inventoryData.windowClickCounter = 1000;
-        user.kick("Forbidden skull request");
-        event.setCancelled(true);
-      }
-    }
     if (inventoryData.windowClickCounter++ > 500 && FaultKicks.INVENTORY_FAULTS) {
       user.kick("Too many inventory interactions");
       event.setCancelled(true);

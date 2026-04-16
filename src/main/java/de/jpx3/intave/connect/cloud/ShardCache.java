@@ -26,11 +26,6 @@ public final class ShardCache {
         Base64.getUrlDecoder().decode("AAABABKT-HudAj2RnjKdCCcBTs3wWn5fVlOMSaexNfQjlDYjq8TK016swow9U36oYyz53ufgYv6PQPZo_2r5oQep04EedDyqUR3SrSyRXGBTEGcZRO79AOF7_7yF_iZtSliZhbWnJK7PDoIS3QzY6LW35A9G-IPlNM5GkHqR2ysJ8cP2635r9fVc0xU0iLKDXs6MPZdAPVpAVzdCnbezAyY3dQxSzufwWhANkrGsel-qxfZQSh7QVYsCt50-B7u8w2mwO9LbNvDK1zMyaJOlwrD6ztxEYwjmWv8y4LQbxEEfPaiTVB8X6tepDhLrmSO3Ql7QVsWyJS_Iwt7VSNYPaN56ptCF3FoKJw-d7ZGsaEbSUXk8AAAAUBeKwtkFQOkOJulQ7hn4ZtfwgFitc5nckFwfnXFGsYMgYdQyI7Yr1QyZbh8ZtzxAd-w0hX65ch9RnghmXixN6AzhHjrCzOqkD1N1swuIUvDhAAAAIL1zcMGcxnBgDvC-7hcFkDIm8WxwaWSnu2LfU4msGtES"),
         System.currentTimeMillis()
       )));
-    } else if (IntaveControl.GOMME_MODE) {
-      addShard("master", new Shard("master", "main.shard.intave.cloud", 2024, new Token(
-        Base64.getUrlDecoder().decode("AAABADmfLaGQdws3JhRThJqTHHj9sZhXBQhrCDwbh5DCBJlhf9K9XBy1-5mmY6kLjO2_u9rWe3vGP0qCKa3WiouRVfhC8F5jfELd10PGX-UlNK2Ovz-mkO0LtXnCh6b3oUX7c3SVKicHMHIxMqYDL871WI5kUSBi1ssLbLS91lELCZpKsiNCBDM-igOfQq5thvKFavq1LEd4GZbU17cwtHAuBWDdX2zK-63wKqS3ccpb2ZVbdaEwpielcePxLslfdLLJp0X0bA0Fx2sHgsiirw39dxL9pX18vBNE_mUwuCwZLeb1bskrsZqNWkXUQdjBRU8-7qIITrt9basa5NaujYLw9uMBlsOmJLQO0BmYuFlkHoIAAAAAUPFQVcUKbR5XdZLoT9dJHTupzsm1ThSlBGT6m-ABTVhk8Y1ytHCCUEFCthurnNv5puFq8AxmaITfsriAQdwE0CSee4-lJvpG70GMy8pYhpq2AAAAIFB4GHuvTTQLZWntcrv4p-hvaEoW--dBXX32IdDmPuAZ"),
-        System.currentTimeMillis()
-      )));
     }
   }
 

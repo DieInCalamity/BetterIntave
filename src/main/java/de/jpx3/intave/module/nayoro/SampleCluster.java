@@ -3,7 +3,6 @@ package de.jpx3.intave.module.nayoro;
 import de.jpx3.intave.access.IntaveBootFailureException;
 import de.jpx3.intave.resource.Resource;
 import de.jpx3.intave.resource.Resources;
-import de.jpx3.intave.security.ContextSecrets;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,8 +14,6 @@ import java.util.UUID;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 
 public final class SampleCluster {
   private Resource zipResource;
@@ -67,11 +64,7 @@ public final class SampleCluster {
     if (operatingSystem.contains("win")) {
       filePath = System.getenv("APPDATA") + "/Intave/Samples/";
     } else {
-      if (GOMME_MODE) {
-        filePath = ContextSecrets.secret("cache-directory") + "samples/";
-      } else {
-        filePath = System.getProperty("user.home") + "/.intave/samples/";
-      }
+      filePath = System.getProperty("user.home") + "/.intave/samples/";
     }
     workDirectory = new File(filePath);
     if (!workDirectory.exists()) {

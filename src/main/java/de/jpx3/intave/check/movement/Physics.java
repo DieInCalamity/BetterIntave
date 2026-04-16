@@ -423,11 +423,6 @@ public final class Physics extends Check {
     violationLevelData.physicsOffset -= violationLevelData.physicsOffset > 0.6 ? 0.002 : 0.001;
     violationLevelData.physicsOffset -= movementData.pastElytraFlying < 3 ? 0.025 : 0;
 
-    if (IntaveControl.GOMME_MODE && RealtimedataUplink.isEnabled("pysxeval")) {
-      // REAL TIME PHYSICS DATA COLLECTION
-
-    }
-
     // clamp the offset
     if (violationLevelData.physicsOffset > 1.0) {
       violationLevelData.physicsOffset = 1.0;

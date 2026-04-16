@@ -3,7 +3,6 @@ package de.jpx3.intave.module.tracker.player;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.*;
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.cleanup.GarbageCollector;
 import de.jpx3.intave.cleanup.ShutdownTasks;
@@ -48,7 +47,7 @@ public class PacketLogging extends Module {
   }
 
   public void togglePacketLogging(CommandSender sender, Player target) {
-    File logsFolder = IntaveControl.GOMME_MODE ? new File("logs") : new File(plugin.dataFolder(), "packetlogs");
+    File logsFolder = new File(plugin.dataFolder(), "packetlogs");
     File packetLogFile = new File(logsFolder, packetLogFileName(target.getName()));
 
     UUID userId = target.getUniqueId();

@@ -3,7 +3,6 @@ package de.jpx3.intave.check.world.placementanalysis;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.world.PlacementAnalysis;
@@ -95,7 +94,6 @@ public final class Speed extends MetaCheckPart<PlacementAnalysis, Speed.Placemen
         double average = placementSpeedHistory.stream().mapToDouble(value -> value).average().orElse(500);
         boolean inOneLine = isOneLine(meta.placementHistory);
 
-        boolean noHardFault = IntaveControl.GOMME_MODE && System.currentTimeMillis() - meta.lastHardFaultClick > 6000;
         boolean noSneaking = System.currentTimeMillis() - movementData.lastSneakingTimestamps > 8000;
         boolean recentJump = System.currentTimeMillis() - movementData.lastJump < 750;
         float yawToNextNinetyDeg = Math.abs(user.meta().movement().rotationYaw()) % 90;
@@ -109,11 +107,7 @@ public final class Speed extends MetaCheckPart<PlacementAnalysis, Speed.Placemen
           } else if (ninetyDegreeAngle) {
             minAverage = noSneaking ? 500 : 350;
           } else {
-            if (noHardFault) {
-              minAverage = noSneaking ? 500 : 300;
-            } else {
-              minAverage = noSneaking ? 350 : 200;
-            }
+            minAverage = noSneaking ? 350 : 200;
           }
         } else {
           minAverage = ninetyDegreeAngle || noSneaking ? 300 : 150;

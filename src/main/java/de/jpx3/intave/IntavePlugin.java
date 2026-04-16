@@ -61,7 +61,6 @@ import de.jpx3.intave.player.fake.event.FakePlayerEventService;
 import de.jpx3.intave.reflect.access.ReflectiveAccess;
 import de.jpx3.intave.resource.Resources;
 import de.jpx3.intave.resource.legacy.EncryptedLegacyResource;
-import de.jpx3.intave.security.ContextSecrets;
 import de.jpx3.intave.security.PlayerListService;
 import de.jpx3.intave.security.letis.Letis;
 import de.jpx3.intave.share.FriendlyByteBuf;
@@ -92,11 +91,13 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 import static de.jpx3.intave.library.asm.ClassVisitor.LICENSE_NAME;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VERSION_DETAILS;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -144,9 +145,7 @@ public final class IntavePlugin extends JavaPlugin {
     singletonInstance = this;
     version = getDescription().getVersion();
     createDataFolder();
-    if (IntaveControl.GOMME_MODE) {
-      ContextSecrets.setup();
-    }
+
     this.logger = new IntaveLogger(this);
     this.logger.checkColorAvailability();
     Modules.prepareModules();
@@ -587,11 +586,7 @@ public final class IntavePlugin extends JavaPlugin {
     if (operatingSystem.contains("win")) {
       filePath = System.getenv("APPDATA") + "/Intave/";
     } else {
-      if (GOMME_MODE) {
-        filePath = ContextSecrets.secret("cache-directory");
-      } else {
-        filePath = System.getProperty("user.home") + "/.intave/";
-      }
+      filePath = System.getProperty("user.home") + "/.intave/";
     }
     workDirectory = new File(filePath);
     if (!workDirectory.exists()) {

@@ -121,9 +121,6 @@ public final class VanishFilter extends Filter {
             }
             return toBeRemoved;
           });
-          if (IntaveControl.GOMME_MODE && playerInfos.size() > 5 && yukiJoined) {
-            playerInfos.add(FAKE_DATA);
-          }
           break;
         case REMOVE_PLAYER:
           playerInfos.removeIf(playerInfoData -> {
@@ -173,9 +170,6 @@ public final class VanishFilter extends Filter {
       for (String name : playerNames) {
         Player target = Bukkit.getPlayerExact(name);
         if (target == null) {
-          if (IntaveControl.GOMME_MODE) {
-            hiddenPlayers.add(name);
-          }
           continue;
         }
         if (!shownPlayers.contains(target.getUniqueId())) {
@@ -230,6 +224,6 @@ public final class VanishFilter extends Filter {
 
   @Override
   protected boolean enabled() {
-    return (!disabled && super.enabled()) || IntaveControl.GOMME_MODE;
+    return !disabled && super.enabled();
   }
 }

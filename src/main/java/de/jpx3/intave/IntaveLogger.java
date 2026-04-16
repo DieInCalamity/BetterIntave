@@ -28,8 +28,7 @@ import static de.jpx3.intave.IntaveLogger.FileLoggingState.UNRESOLVED;
 
 public final class IntaveLogger extends PluginLogger {
   public static FileLoggingState FILE_OUTPUT = UNRESOLVED;
-  public static final boolean VIOLATION_CONSOLE_OUTPUT = IntaveControl.GOMME_MODE;
-  public static boolean DISABLE_COLOR_OUTPUT = IntaveControl.GOMME_MODE || JavaVersion.current() > 8;
+  public static boolean DISABLE_COLOR_OUTPUT = JavaVersion.current() > 8;
 
   private static final String LOG_PATH = "plugins" + File.separator + "Intave" + File.separator + "logs";
   private final IntavePlugin plugin;
@@ -58,7 +57,7 @@ public final class IntaveLogger extends PluginLogger {
     if (!ProtocolLibraryAdapter.protocolLibAvailable()) {
       return;
     }
-    if (JavaVersion.current() > 8 && MinecraftVersions.VER1_16_2.atOrAbove() && !IntaveControl.GOMME_MODE) {
+    if (JavaVersion.current() > 8 && MinecraftVersions.VER1_16_2.atOrAbove()) {
       DISABLE_COLOR_OUTPUT = false;
     }
   }
@@ -118,10 +117,8 @@ public final class IntaveLogger extends PluginLogger {
     }
     logToFile("(WARN) " + message);
   }
+
   public void violation(String violation) {
-    if (VIOLATION_CONSOLE_OUTPUT) {
-      printLine("[Intave] Violation: " + violation);
-    }
     logToFile("(DET) " + violation);
   }
 

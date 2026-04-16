@@ -4,7 +4,6 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.cleanup.ShutdownTasks;
 import de.jpx3.intave.connect.IntaveDomains;
 import de.jpx3.intave.executor.BackgroundExecutors;
-import de.jpx3.intave.security.ContextSecrets;
 import de.jpx3.intave.security.HWIDVerification;
 import de.jpx3.intave.security.LicenseAccess;
 import org.bukkit.Bukkit;
@@ -24,8 +23,6 @@ import java.util.zip.DeflaterInputStream;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 
 public final class ScheduledUploadService {
   private static UUID temporaryId = null;
@@ -210,7 +207,7 @@ public final class ScheduledUploadService {
       }
     }
     try {
-      URL url = new URL("https://"+ IntaveDomains.primaryServiceDomain() +"/analytics/upload");
+      URL url = new URL("https://" + IntaveDomains.primaryServiceDomain() + "/analytics/upload");
       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
       connection.setDoOutput(true);
       connection.setRequestMethod("POST");
@@ -372,11 +369,7 @@ public final class ScheduledUploadService {
     if (operatingSystem.contains("win")) {
       filePath = System.getenv("APPDATA") + "/Intave/Queue/";
     } else {
-      if (GOMME_MODE) {
-        filePath = ContextSecrets.secret("cache-directory") + "queue/";
-      } else {
-        filePath = System.getProperty("user.home") + "/.intave/queue/";
-      }
+      filePath = System.getProperty("user.home") + "/.intave/queue/";
     }
     workDirectory = new File(filePath);
     if (!workDirectory.exists()) {

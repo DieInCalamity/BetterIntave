@@ -3,6 +3,7 @@ package de.jpx3.intave;
 import de.jpx3.intave.module.nayoro.OperationalMode;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static de.jpx3.intave.IntaveBuildConfig.*;
@@ -20,7 +21,7 @@ public final class IntaveControl {
   public static final boolean DEBUG_INTERACTION_PACKET_ROUTING = false;
   public static final boolean DEBUG_INTERACTION_DISCREET = true;
   public static final boolean REMOVE_PLACED_BLOCKS_WITH_DELAY = false;
-  public static final List<String> INTERACTION_DEBUG_NAMES = Arrays.asList("Jpx3", "aesthatic", "Richy", "egirlAllergiker");
+  public static final List<String> INTERACTION_DEBUG_NAMES = Collections.emptyList();
   public static final boolean DEBUG_STUCK_REVIVAL = false;
   public static final boolean LATENCY_PING_AS_XP_LEVEL = false;
   public static boolean DEBUG_MOVEMENT_IGNORE = false; // if SG
@@ -81,7 +82,5 @@ public final class IntaveControl {
   public static final OperationalMode SAMPLE_OPERATIONAL_MODE = GOMME ? /*GOMME_UPLOAD*/CLOUD_STORAGE : (PRODUCTION ? CLOUD_STORAGE : LOCAL_STORAGE);
 
   public static final boolean USE_EXTERNAL_CONFIGURATION_FILE = !PRODUCTION;
-  public static final boolean GOMME_MODE = GOMME;
   public static final boolean DISABLE_LICENSE_CHECK = !PRODUCTION;
-  public static final boolean AUTHENTICATION_INSPECTION_MODE = AUTHTEST;
 }

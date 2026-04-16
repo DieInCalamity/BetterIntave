@@ -74,10 +74,6 @@ public final class HealthFilter extends Filter {
 
   @Override
   protected boolean enabled() {
-    if (MinecraftVersions.VER1_19.atOrAbove()) {
-      return false;
-    }
-//    return false;
-    return !IntaveControl.GOMME_MODE && super.enabled();
+    return !MinecraftVersions.VER1_19.atOrAbove() && super.enabled();
   }
 }

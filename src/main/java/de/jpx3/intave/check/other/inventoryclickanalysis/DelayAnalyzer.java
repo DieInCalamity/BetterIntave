@@ -115,21 +115,6 @@ public final class DelayAnalyzer extends MetaCheckPart<InventoryClickAnalysis, D
         .withMessage("is switching too quickly between item slots")
         .withDetails("moved from slot " + meta.lastClickedSlot + " to slot " + slot + " in " + MathHelper.formatDouble(time, 3) + " seconds")
         .withVL(5).build();
-
-      if (IntaveControl.GOMME_MODE) {
-        User user = userOf(player);
-        ViolationContext violationContext = Modules.violationProcessor().processViolation(violation);
-        if (violationContext.violationLevelAfter() >= 50) {
-          user.nerf(CRITICALS, "29");
-          user.nerf(BURN_LONGER, "29");
-          user.nerf(DMG_ARMOR_INEFFECTIVE, "29");
-          user.nerf(BLOCKING, "29");
-        }
-        if (violationContext.violationLevelAfter() >= 100) {
-//          userOf(player).applyAttackNerfer(CANCEL_FIRST_HIT, "29");
-          user.nerf(DMG_LIGHT, "29");
-        }
-      }
     }
 
     if (flag) {
@@ -150,18 +135,6 @@ public final class DelayAnalyzer extends MetaCheckPart<InventoryClickAnalysis, D
         .withVL(5).build();
 //
       Modules.violationProcessor().processViolation(violation);
-
-      if (IntaveControl.GOMME_MODE) {
-        ViolationContext violationContext = Modules.violationProcessor().processViolation(violation);
-        if (violationContext.violationLevelAfter() >= 50) {
-          user.nerf(CRITICALS, "29");
-          user.nerf(BURN_LONGER, "29");
-          user.nerf(BLOCKING, "29");
-        }
-        if (violationContext.violationLevelAfter() >= 100) {
-          user.nerf(DMG_LIGHT, "29");
-        }
-      }
     }
   }
 

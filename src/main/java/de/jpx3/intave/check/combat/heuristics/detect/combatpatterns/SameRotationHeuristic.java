@@ -190,35 +190,18 @@ public final class SameRotationHeuristic extends MetaCheckPart<Heuristics, SameR
   }
 
   private int transformViolation(int violation) {
-    if (!IntaveControl.GOMME_MODE) {
-      violation /= 2;
-    }
-
-    return violation;
+    return violation / 2;
   }
 
   private Anomaly anomalyOf(String key, String description, SameRotationHeuristicMeta meta) {
     Confidence confidence = confidence(meta);
-    return Anomaly.anomalyOf(key, confidence, Anomaly.Type.KILLAURA, description + " conf:" + confidence.level(), options());
+    return Anomaly.anomalyOf(key, confidence, Anomaly.Type.KILLAURA, description + " conf:" + confidence.level(), LIMIT_4);
   }
 
   private Confidence confidence(SameRotationHeuristicMeta meta) {
     Confidence confidence = Confidence.confidenceFrom(meta.violationLevel);
     meta.violationLevel -= confidence.level();
     return confidence;
-  }
-
-  private int options() {
-    int options;
-    if (IntaveControl.GOMME_MODE) {
-      options = DELAY_32s;
-    } else if (isPartner()) {
-      options = DELAY_64s;
-    } else {
-      options = DELAY_128s;
-    }
-    options |= LIMIT_4;
-    return options;
   }
 
   private void prepareNextTick(User user, Tick currentTick, PacketType packetType) {

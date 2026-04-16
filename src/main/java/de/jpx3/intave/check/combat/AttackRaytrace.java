@@ -384,9 +384,6 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
           entityHasTimedOut = true;
           user.nerf(AttackNerfStrategy.CANCEL, "67");
         }
-        if (IntaveControl.GOMME_MODE) {
-//        System.out.println("TIMEOUT_X: " + player.getName() + " attacked " + attackedEntity.entityName() + " with " + pendingFeedbacks + " pending feedbacks (" + distanceOverLimit + " | " + maximumPendingFeedbackPackets + ")");
-        }
       }
 
     }
@@ -466,14 +463,6 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     if (System.currentTimeMillis() - violationLevel.lastBacktrackVLChange > 7_500) {
       violationLevel.backtrackVL = Math.max(0, violationLevel.backtrackVL - 1);
       violationLevel.lastBacktrackVLChange = System.currentTimeMillis();
-    }
-
-    if (entityHasTimedOut) {
-//      if (IntaveControl.DEBUG_INTERACTION_DISCREET && IntaveControl.INTERACTION_DEBUG_NAMES.contains(player.getName())) {
-      if (IntaveControl.GOMME_MODE) {
-//        System.out.println("TIMEOUT: " + player.getName() + " attacked " + attackedEntity.entityName() + " with " + pendingFeedbacks + " pending feedbacks (" + distanceOverLimit + " | " + maximumPendingFeedbackPackets + ")");
-      }
-//      }
     }
 
     return entityHasTimedOut;

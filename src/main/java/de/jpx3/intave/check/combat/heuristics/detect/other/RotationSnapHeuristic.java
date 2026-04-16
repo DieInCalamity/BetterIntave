@@ -277,9 +277,6 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
     if (liteFlag) {
       String description = "rotation snap scaffold [" + MathHelper.formatDouble(meta.yawMotions[0], 2) + "]";
       int addedViolationLevel = 30;
-      if (IntaveControl.GOMME_MODE) {
-        addedViolationLevel = 30;
-      }
       handleConfidence(user, "103", addedViolationLevel, description);
     }
 
@@ -315,16 +312,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
   }
 
   private int anomalyOptions(boolean isPartner) {
-    int options;
-    if (IntaveControl.GOMME_MODE) {
-      options = DELAY_32s;
-    } else if (isPartner) {
-      options = DELAY_64s;
-    } else {
-      options = DELAY_128s;
-    }
-    options |= LIMIT_4 | LIMIT_2 | LIMIT_1;
-    return options;
+    return LIMIT_4 | LIMIT_2 | LIMIT_1;
   }
 
   private double calculateViolation(double valueOfSnap, boolean changedLookToEntity, User user, boolean liteFlag) {
@@ -352,9 +340,6 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
     }
     if (liteFlag) {
       vl += 10;
-    }
-    if (!IntaveControl.GOMME_MODE) {
-      vl /= 2;
     }
     // added the division because there are false flaggs when a player has less than 20 fps
     vl /= 3;

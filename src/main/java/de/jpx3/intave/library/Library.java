@@ -1,6 +1,5 @@
 package de.jpx3.intave.library;
 
-import de.jpx3.intave.security.ContextSecrets;
 import sun.misc.Unsafe;
 
 import java.io.File;
@@ -14,8 +13,6 @@ import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 
 public final class Library {
   private final String path;
@@ -52,7 +49,7 @@ public final class Library {
         "%s/%s/%s/%s-%s.jar", repository,
         (path + "/" + name).replace(".", "/"),
         version, name,
-        version + (suffix.isEmpty() ? "" :(suffix.startsWith("-") ? suffix : "-" + suffix))
+        version + (suffix.isEmpty() ? "" : (suffix.startsWith("-") ? suffix : "-" + suffix))
       );
       URL url = new URL(inputURL);
       InputStream inputStream = url.openStream();
@@ -184,7 +181,7 @@ public final class Library {
       String inputURL = String.format(
         "%s/%s/%s/%s-%s.jar.%s", repository,
         (path + "/" + name).replace(".", "/"),
-        version, name, version + (suffix.isEmpty() ? "" :(suffix.startsWith("-") ? suffix : "-" + suffix)), extension
+        version, name, version + (suffix.isEmpty() ? "" : (suffix.startsWith("-") ? suffix : "-" + suffix)), extension
       );
       URL url = new URL(inputURL);
       InputStream inputStream = url.openStream();
@@ -231,11 +228,7 @@ public final class Library {
     if (operatingSystem.contains("win")) {
       filePath = System.getenv("APPDATA") + "/Intave/Libraries";
     } else {
-      if (GOMME_MODE) {
-        filePath = ContextSecrets.secret("cache-directory");
-      } else {
-        filePath = System.getProperty("user.home") + "/.intave/libraries";
-      }
+      filePath = System.getProperty("user.home") + "/.intave/libraries";
     }
     workDirectory = new File(filePath);
     if (!workDirectory.exists()) {

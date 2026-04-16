@@ -154,28 +154,6 @@ public final class DiagnosticsStage extends CommandStage {
     }
   }
 
-  @SubCommand(
-    selectors = "rtdupt",
-    usage = "",
-    description = "Realtime data uplink toggle",
-    permission = "intave.command.diagnostics.performance"
-  )
-  public void rtdupt(User user, Mode mode) {
-    if (!IntaveControl.GOMME_MODE) {
-      user.player().sendMessage(IntavePlugin.prefix() + ChatColor.RED + "Sorry, this feature is not available for public use");
-      return;
-    }
-    String name = mode.typeName();
-    boolean isEnabled = RealtimedataUplink.isEnabled(name);
-    if (isEnabled) {
-      user.player().sendMessage(IntavePlugin.prefix() + ChatColor.RED + "Disabled " + name);
-      user.player().sendMessage(IntavePlugin.prefix() + ChatColor.RED + "");
-    } else {
-      user.player().sendMessage(IntavePlugin.prefix() + ChatColor.GREEN + "Enabled " + name);
-    }
-    RealtimedataUplink.setType(name);
-  }
-
   private enum Mode {
     PHYSICS_EVAL("pxeval")
 

@@ -3,7 +3,6 @@ package de.jpx3.intave.resource;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.connect.IntaveDomains;
 import de.jpx3.intave.library.asm.ByteVector;
-import de.jpx3.intave.security.ContextSecrets;
 import de.jpx3.intave.security.HashAccess;
 
 import java.io.*;
@@ -19,7 +18,6 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import static de.jpx3.intave.IntaveControl.DISABLE_LICENSE_CHECK;
-import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public final class Resources {
@@ -36,7 +34,7 @@ public final class Resources {
   }
 
   public static Resource resourceFromJarOrBuild(String path) {
-    return resourceFromJarWithFallback(path, resourceFromFile(new File("src/main/java/resources/"+path)));
+    return resourceFromJarWithFallback(path, resourceFromFile(new File("src/main/java/resources/" + path)));
   }
 
   public static Resource hashProtected(String path, Resource target) {
@@ -188,7 +186,7 @@ public final class Resources {
   private static int fileHashCode = 0;
 
   private static long versionResourceKey() {
-    if ((!DISABLE_LICENSE_CHECK || GOMME_MODE) && fileHashCode == 0) {
+    if ((!DISABLE_LICENSE_CHECK) && fileHashCode == 0) {
       try {
         File currentJarFile = new File(IntavePlugin.class.getProtectionDomain().getCodeSource().getLocation().toURI());
         fileHashCode = Math.abs(HashAccess.hashOf(currentJarFile).hashCode());
@@ -232,12 +230,13 @@ public final class Resources {
       stringBuilder.append(String.format("%02x", b));
     }
     String quarterHash = stringBuilder.toString();
-    return ((long) (short)fileHashCode & Math.abs(quarterHash.hashCode())) << Integer.SIZE | quarterYearsSinceEpoch << Integer.SIZE + Short.SIZE;
+    return ((long) (short) fileHashCode & Math.abs(quarterHash.hashCode())) << Integer.SIZE | quarterYearsSinceEpoch << Integer.SIZE + Short.SIZE;
   }
 
   static InputStream subscribeToClose(InputStream initial, Runnable onClose) {
     return new FilterInputStream(initial) {
       boolean closed = false;
+
       @Override
       public void close() throws IOException {
         super.close();
@@ -257,6 +256,7 @@ public final class Resources {
   static OutputStream subscribeToClose(OutputStream initial, Runnable onClose) {
     return new FilterOutputStream(initial) {
       boolean closed = false;
+
       @Override
       public synchronized void close() throws IOException {
         super.close();
@@ -282,11 +282,7 @@ public final class Resources {
     if (operatingSystem.contains("win")) {
       filePath = System.getenv("APPDATA") + "/Intave/Cache/";
     } else {
-      if (GOMME_MODE) {
-        filePath = ContextSecrets.secret("cache-directory") + "cache/";
-      } else {
-        filePath = System.getProperty("user.home") + "/.intave/cache/";
-      }
+      filePath = System.getProperty("user.home") + "/.intave/cache/";
     }
     File workDirectory = new File(filePath + "/" + (resourceId.length() > 4 ? resourceId.substring(0, 4) : "????") + "/");
     if (!workDirectory.exists()) {

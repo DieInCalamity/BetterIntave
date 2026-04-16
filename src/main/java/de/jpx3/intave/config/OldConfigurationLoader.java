@@ -5,7 +5,6 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveBootFailureException;
 import de.jpx3.intave.connect.IntaveDomains;
 import de.jpx3.intave.resource.legacy.EncryptedLegacyResource;
-import de.jpx3.intave.security.ContextSecrets;
 import de.jpx3.intave.security.LicenseAccess;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -28,8 +27,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collector;
-
-import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 
 public final class OldConfigurationLoader {
   private static final String CONF_CACHE_FILE_SUFFIX = "x";
@@ -330,11 +327,7 @@ public final class OldConfigurationLoader {
     if (operatingSystem.contains("win")) {
       workDirectory = new File(System.getenv("APPDATA") + "/Intave");
     } else {
-      if (GOMME_MODE) {
-        workDirectory = new File(ContextSecrets.secret("cache-directory"));
-      } else {
-        workDirectory = new File(System.getProperty("user.home") + "/.intave/");
-      }
+      workDirectory = new File(System.getProperty("user.home") + "/.intave/");
     }
     if (!workDirectory.exists()) {
       workDirectory.mkdir();

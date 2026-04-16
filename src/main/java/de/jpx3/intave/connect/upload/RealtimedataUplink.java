@@ -3,7 +3,6 @@ package de.jpx3.intave.connect.upload;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.cleanup.ShutdownTasks;
 import de.jpx3.intave.connect.IntaveDomains;
-import de.jpx3.intave.security.ContextSecrets;
 import de.jpx3.intave.security.HWIDVerification;
 import de.jpx3.intave.security.LicenseAccess;
 
@@ -14,8 +13,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
-
-import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 
 public class RealtimedataUplink {
   public static Set<String> enabledTypes = new HashSet<>();
@@ -135,11 +132,7 @@ public class RealtimedataUplink {
     if (operatingSystem.contains("win")) {
       filePath = System.getenv("APPDATA") + "/Intave/RTUP/";
     } else {
-      if (GOMME_MODE) {
-        filePath = ContextSecrets.secret("cache-directory") + "rtup/";
-      } else {
-        filePath = System.getProperty("user.home") + "/.intave/rtup/";
-      }
+      filePath = System.getProperty("user.home") + "/.intave/rtup/";
     }
     workDirectory = new File(filePath);
     if (!workDirectory.exists()) {

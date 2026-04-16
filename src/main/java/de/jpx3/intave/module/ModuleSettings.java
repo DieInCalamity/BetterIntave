@@ -66,10 +66,6 @@ final class ModuleSettings {
       return withRequirement(Requirements.protocolLib());
     }
 
-    public Builder requireProtocolLib4() {
-      return withRequirement(Requirements.protocolLib4().or(() -> IntaveControl.GOMME_MODE));
-    }
-
     public Builder withRequirement(Requirement requirement) {
       this.requirement = requirement;
       return this;
