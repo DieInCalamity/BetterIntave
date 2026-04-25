@@ -15,13 +15,26 @@ public final class NativeLibrary {
   private final String name;
   private final int version;
   private final File tempDirectory;
-  private final List<String> allowedHashes;
+	private final String windowsDownloadURL;
+	private final String linuxDownloadURL;
+	private final String macDownloadURL;
+	private final List<String> allowedHashes;
 
-  public NativeLibrary(String name, int version, File tempDirectory, List<String> allowedHashes) {
+  public NativeLibrary(
+    String name, int version,
+    File tempDirectory,
+    String windowsDownloadURL,
+    String linuxDownloadURL,
+    String macDownloadURL,
+    List<String> allowedHashes
+  ) {
     this.name = name;
     this.version = version;
     this.tempDirectory = tempDirectory;
-    this.allowedHashes = allowedHashes;
+	  this.windowsDownloadURL = windowsDownloadURL;
+	  this.linuxDownloadURL = linuxDownloadURL;
+	  this.macDownloadURL = macDownloadURL;
+	  this.allowedHashes = allowedHashes;
   }
 
   public void load() {
@@ -92,7 +105,7 @@ public final class NativeLibrary {
   }
 
   private void tryDownload() throws IOException {
-    URL url = new URL("https://" + targetURL() + "/dlls/" + name + suffix());
+    URL url = new URL(downloadUrl());
     URLConnection connection = url.openConnection();
     connection.addRequestProperty("User-Agent", "Intave/$VERSION$");
     connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -127,12 +140,25 @@ public final class NativeLibrary {
     }
   }
 
+  public String downloadUrl() {
+    String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.ROOT);
+    if (operatingSystem.contains("win")) {
+      return windowsDownloadURL;
+    } else if (operatingSystem.contains("mac")) {
+      return macDownloadURL;
+    } else {
+      return linuxDownloadURL;
+    }
+  }
+
   public String suffix() {
     String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.ROOT);
-    if (!operatingSystem.contains("win")) {
-      return ".so";
-    } else {
+    if (operatingSystem.contains("win")) {
       return ".dll";
+    } else if (operatingSystem.contains("mac")) {
+      return ".dylib";
+    } else {
+      return ".so";
     }
   }
 

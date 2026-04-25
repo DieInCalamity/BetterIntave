@@ -12,8 +12,24 @@ public final class ClassLoader {
 
   public static void setupEnvironment(File parentTempDirectory) {
     if (USE_NATIVE_ACCESS) {
-      NativeLibrary nativeLibrary = new NativeLibrary("classloader", 0, parentTempDirectory, Arrays.asList("EDA34D4D1003958D62DA21A4D86D05740A3CD2D81D7B3A23A7643C957F8144BB", "EC32DA5F0FC58DEA075C1B4F8562A369684264CA051D892BC97F70115A3607EA"));
+      NativeLibrary nativeLibrary = new NativeLibrary(
+        "classloader", 1, parentTempDirectory,
+        "https://github.com/intave/classloader/releases/download/v1.0.1/classloader.dll",
+        "https://github.com/intave/classloader/releases/download/v1.0.1/libclassloader.so",
+        "https://github.com/intave/classloader/releases/download/v1.0.1/libclassloader.dylib",
+        Arrays.asList(
+          "895786b3bcac6e270e064cca8eb9df39307e0aa576310916180f28960f890823",
+          "4d6929ac47b20dbcb04e972920bd576ec1fb4449c0026c1f866c2c72bf64f991",
+          "9bb42f8f9d9a526c2be70256d0d7d0e2efc4eb2550c919745f0b36257596f563"
+        )
+      );
       nativeLibrary.load();
+    }
+	  if (!classLoaded("java.lang.String")) {
+      throw new IllegalStateException("Something went wrong");
+	  }
+    if (classLoaded("de.jpx3.intave.i.will.never.ever.exist.Hopefully")) {
+      throw new IllegalStateException("Something went wrong");
     }
     loaded = true;
   }
@@ -28,7 +44,7 @@ public final class ClassLoader {
 
   public static boolean classLoaded(String name) {
     if (USE_NATIVE_ACCESS) {
-      return classLoaded0(name);
+	    return classLoaded0(name);
     } else {
       return classLoadedLegacy(name);
     }
