@@ -66,7 +66,11 @@ public final class RotationSpeed extends MetaCheckPart<PlacementAnalysis, Rotati
     meta.lastBlockPlacement = System.currentTimeMillis();
 
     Block blockAgainst = place.getBlockAgainst();
-    if (blockAgainst == null || System.currentTimeMillis() - meta.denyPlacementRequest < 1000) {
+    if (blockAgainst == null) {
+      return;
+    }
+
+    if (System.currentTimeMillis() - meta.denyPlacementRequest < 3000) {
       place.setCancelled(true);
       return;
     }
