@@ -30,6 +30,13 @@ public final class SimulationEvaluator {
   private static final double SLIME_PISTON_VERTICAL_TOLERANCE_BIAS = 0.08;
   private static final double SLIME_PISTON_VERTICAL_TOLERANCE_CAP = 1.7;
 
+  private static double slimePistonVerticalTolerance(MovementMetadata movement, double receivedMotionY) {
+    return Math.min(
+      SLIME_PISTON_VERTICAL_TOLERANCE_CAP,
+      Math.max(movement.pistonVerticalAllowance, abs(receivedMotionY) + SLIME_PISTON_VERTICAL_TOLERANCE_BIAS)
+    );
+  }
+
   public double calculateVerticalViolationLevelIncrease(
     User user,
     double predictedY,
@@ -111,13 +118,13 @@ public final class SimulationEvaluator {
     if (movement.pistonMotionToleranceRemaining > 0) {
       // Check if the player box is inside the piston box
       if (movement.pistonCollisionArea != null && movement.pistonCollisionArea.intersectsWith(movement.boundingBox())) {
-        verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, movement.pistonVerticalAllowance);
+        double pistonTolerance = movement.pistonSlimeLaunch
+          ? slimePistonVerticalTolerance(movement, receivedMotionY)
+          : movement.pistonVerticalAllowance;
+        verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, pistonTolerance);
         tags.add(EvaluationTag.PISTON);
       } else if (movement.pistonSlimeLaunch && !movement.inWater && !movement.inLava()) {
-        double slimeLaunchTolerance = Math.min(
-          SLIME_PISTON_VERTICAL_TOLERANCE_CAP,
-          Math.max(movement.pistonVerticalAllowance, abs(receivedMotionY) + SLIME_PISTON_VERTICAL_TOLERANCE_BIAS)
-        );
+        double slimeLaunchTolerance = slimePistonVerticalTolerance(movement, receivedMotionY);
         verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, slimeLaunchTolerance);
         tags.add(EvaluationTag.PISTON);
       }
