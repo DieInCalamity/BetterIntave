@@ -1205,6 +1205,10 @@ public final class MovementDispatcher extends Module {
   private static final Set<Material> SHULKER_BOX_MATERIALS = MaterialSearch.materialsThatContain("SHULKER_BOX");
 
   private static final Set<Material> PISTON_MATERIALS = MaterialSearch.materialsThatContain("PISTON");
+  private static final int SLIME_PISTON_LAUNCH_TOLERANCE_TICKS = 14;
+  private static final double SLIME_PISTON_LAUNCH_VERTICAL_ALLOWANCE = 1.05D;
+  private static final double SLIME_PISTON_LAUNCH_TRACK_HEIGHT = 6.5D;
+  private static final double SLIME_PISTON_LAUNCH_HORIZONTAL_GROWTH = 0.15D;
   @PacketSubscription(
     packetsOut = BLOCK_ACTION
   )
@@ -1270,7 +1274,14 @@ public final class MovementDispatcher extends Module {
           int expectedPistonX = (int) directionVec.xCoord + blockPosition.getX();
           int expectedPistonY = (int) directionVec.yCoord + blockPosition.getY();
           int expectedPistonZ = (int) directionVec.zCoord + blockPosition.getZ();
+          Material movedBlockType = VolatileBlockAccess.typeAccess(user, world, expectedPistonX, expectedPistonY, expectedPistonZ);
+          boolean upwardSlimeLaunch = facing == Direction.UP && movedBlockType == Material.SLIME_BLOCK;
           BoundingBox expandingBlockArea = pistonCollisionArea.offset(expectedPistonX, expectedPistonY, expectedPistonZ);
+          if (upwardSlimeLaunch) {
+            expandingBlockArea = expandingBlockArea
+              .grow(SLIME_PISTON_LAUNCH_HORIZONTAL_GROWTH, 0, SLIME_PISTON_LAUNCH_HORIZONTAL_GROWTH)
+              .expand(0, SLIME_PISTON_LAUNCH_TRACK_HEIGHT, 0);
+          }
           boolean playerAffected = expandingBlockArea.intersectsWith(user.meta().movement().boundingBox());
 
           // Only do something if the player is actually affected
@@ -1278,7 +1289,7 @@ public final class MovementDispatcher extends Module {
             // Might seem like a high value, doesn't it?
             // Well this is fine as we constantly check if the player is inside the critical area
             // where he would get false-mitigated
-            movement.pistonMotionToleranceRemaining = 10;
+            movement.pistonMotionToleranceRemaining = upwardSlimeLaunch ? SLIME_PISTON_LAUNCH_TOLERANCE_TICKS : 10;
             movement.pistonCollisionArea = expandingBlockArea;
 
             float xOffset = (float) Math.abs(expectedPistonX - user.meta().movement().positionX);
@@ -1302,7 +1313,9 @@ public final class MovementDispatcher extends Module {
                 // Cannot be done with directional vectors unfortunately :(
                 switch (facing) {
                   case UP:
-                    movement.pistonVerticalAllowance = yOffsetBottom + 0.05f;
+                    movement.pistonVerticalAllowance = upwardSlimeLaunch
+                      ? Math.max(yOffsetBottom + 0.05f, SLIME_PISTON_LAUNCH_VERTICAL_ALLOWANCE)
+                      : yOffsetBottom + 0.05f;
                     break;
                   case DOWN:
                     movement.pistonVerticalAllowance = yOffsetTop + 0.05f;

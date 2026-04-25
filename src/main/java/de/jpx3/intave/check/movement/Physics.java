@@ -649,6 +649,7 @@ public final class Physics extends Check {
         movementData.collidedHorizontally
         || movementData.collidedWithBoat()
         || movementData.inWeb
+        || movementData.pistonMotionToleranceRemaining > 0
         || movementData.pastElytraFlying < 20;
       if (uncommonArea) {
         violationLevelIncrease /= 2;
