@@ -29,11 +29,27 @@ public final class SimulationEvaluator {
   private static final double FIREWORK_HORIZONTAL_TRAILING_TOLERANCE = 0.2;
   private static final double SLIME_PISTON_VERTICAL_TOLERANCE_BIAS = 0.08;
   private static final double SLIME_PISTON_VERTICAL_TOLERANCE_CAP = 1.7;
+  private static final double SLIME_PISTON_HORIZONTAL_TOLERANCE_BIAS = 0.05;
+  private static final double SLIME_PISTON_HORIZONTAL_TOLERANCE_CAP = 0.35;
+
+  private static boolean slimePistonLaunchGraceActive(MovementMetadata movement) {
+    return movement.pistonSlimeLaunch
+      && movement.pistonSlimeLaunchGraceTicks > 0
+      && !movement.inWater
+      && !movement.inLava();
+  }
 
   private static double slimePistonVerticalTolerance(MovementMetadata movement, double receivedMotionY) {
     return Math.min(
       SLIME_PISTON_VERTICAL_TOLERANCE_CAP,
       Math.max(movement.pistonVerticalAllowance, abs(receivedMotionY) + SLIME_PISTON_VERTICAL_TOLERANCE_BIAS)
+    );
+  }
+
+  private static double slimePistonHorizontalTolerance(MovementMetadata movement, double receivedMotionX, double receivedMotionZ) {
+    return Math.min(
+      SLIME_PISTON_HORIZONTAL_TOLERANCE_CAP,
+      Math.max(movement.pistonHorizontalAllowance, Hypot.fast(receivedMotionX, receivedMotionZ) + SLIME_PISTON_HORIZONTAL_TOLERANCE_BIAS)
     );
   }
 
@@ -123,11 +139,15 @@ public final class SimulationEvaluator {
           : movement.pistonVerticalAllowance;
         verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, pistonTolerance);
         tags.add(EvaluationTag.PISTON);
-      } else if (movement.pistonSlimeLaunch && !movement.inWater && !movement.inLava()) {
+      } else if (slimePistonLaunchGraceActive(movement)) {
         double slimeLaunchTolerance = slimePistonVerticalTolerance(movement, receivedMotionY);
         verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, slimeLaunchTolerance);
         tags.add(EvaluationTag.PISTON);
       }
+    } else if (slimePistonLaunchGraceActive(movement)) {
+      double slimeLaunchTolerance = slimePistonVerticalTolerance(movement, receivedMotionY);
+      verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, slimeLaunchTolerance);
+      tags.add(EvaluationTag.PISTON);
     }
 
     // spamming sneak under blocks
@@ -403,7 +423,13 @@ public final class SimulationEvaluator {
       if (movement.pistonCollisionArea != null && movement.pistonCollisionArea.intersectsWith(movement.boundingBox())) {
         horizontalLegitimateDeviation = Math.max(horizontalLegitimateDeviation, movement.pistonHorizontalAllowance);
         tags.add(EvaluationTag.PISTON);
+      } else if (slimePistonLaunchGraceActive(movement)) {
+        horizontalLegitimateDeviation = Math.max(horizontalLegitimateDeviation, slimePistonHorizontalTolerance(movement, motionX, motionZ));
+        tags.add(EvaluationTag.PISTON);
       }
+    } else if (slimePistonLaunchGraceActive(movement)) {
+      horizontalLegitimateDeviation = Math.max(horizontalLegitimateDeviation, slimePistonHorizontalTolerance(movement, motionX, motionZ));
+      tags.add(EvaluationTag.PISTON);
     }
 
     if (pushedByWaterFlow) {

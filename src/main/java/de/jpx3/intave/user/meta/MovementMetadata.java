@@ -157,6 +157,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   public int shulkerZToleranceRemaining;
   public int lowestShulkerY = Integer.MAX_VALUE, highestShulkerY = Integer.MIN_VALUE;
   public int pistonMotionToleranceRemaining;
+  public int pistonSlimeLaunchGraceTicks;
   public double pistonHorizontalAllowance;
   public double pistonVerticalAllowance;
   public boolean pistonSlimeLaunch;

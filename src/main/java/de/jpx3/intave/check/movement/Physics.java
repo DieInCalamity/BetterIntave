@@ -75,6 +75,10 @@ import static org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.ENDER_PE
 public final class Physics extends Check {
   private static final double VL_DECREMENT_PER_VALID_MOVE = 0.08;
   private static final double VELOCITY_VL_THRESHOLD = 6;
+  private static final double SLIME_PISTON_MAX_UPWARD_MOTION = 1.7;
+  private static final double SLIME_PISTON_MAX_DOWNWARD_MOTION = -0.75;
+  private static final double SLIME_PISTON_MAX_HORIZONTAL_MOTION = 0.35;
+  private static final double SLIME_PISTON_MIN_SIGNIFICANT_VERTICAL_DELTA = 0.08;
 
   private static final long TOTAL_RESET = 1000 * 60 * 60;
   private static final int AVAILABLE_POINTS = 8;
@@ -95,6 +99,32 @@ public final class Physics extends Check {
   private final boolean closeInventory;
   private final boolean closeInventorySilentMode;
   private final boolean refreshNearbyBlocks;
+
+  private static boolean matchesSlimePistonLaunch(
+    MovementMetadata movementData,
+    double receivedMotionX,
+    double receivedMotionY,
+    double receivedMotionZ,
+    double predictedY
+  ) {
+    if (!movementData.pistonSlimeLaunch || movementData.pistonSlimeLaunchGraceTicks <= 0 || movementData.inWater || movementData.inLava()) {
+      return false;
+    }
+
+    BoundingBox pistonArea = movementData.pistonCollisionArea;
+    boolean nearTrackedLaunchArea = pistonArea == null || pistonArea.grow(0.6, 1.5, 0.6).intersectsWith(movementData.boundingBox());
+    if (!nearTrackedLaunchArea) {
+      return false;
+    }
+
+    double horizontalMotion = MathHelper.resolveHorizontalDistance(0, 0, receivedMotionX, receivedMotionZ);
+    boolean mostlyVerticalLaunch = horizontalMotion <= SLIME_PISTON_MAX_HORIZONTAL_MOTION;
+    boolean launchArcMotion = receivedMotionY <= SLIME_PISTON_MAX_UPWARD_MOTION
+      && receivedMotionY >= SLIME_PISTON_MAX_DOWNWARD_MOTION
+      && Math.abs(receivedMotionY - predictedY) >= SLIME_PISTON_MIN_SIGNIFICANT_VERTICAL_DELTA;
+
+    return mostlyVerticalLaunch && launchArcMotion;
+  }
 
   public Physics(IntavePlugin plugin) {
     super("Physics", "physics");
@@ -461,6 +491,14 @@ public final class Physics extends Check {
       }
     }
 
+    if (matchesSlimePistonLaunch(movementData, receivedMotionX, receivedMotionY, receivedMotionZ, predictedY)) {
+      verticalViolationIncrease = 0;
+      horizontalViolationIncrease = 0;
+      violationLevelData.physicsOffset = Math.max(0, violationLevelData.physicsOffset - 0.1);
+      movementData.endMotionYOverride = true;
+      movementData.endMotionYOverrideValue = receivedMotionY;
+    }
+
 //    if (differenceY > 0.01/* && differenceY < 0.03*/ && (movementData.lastOnGround() || movementData.onGround())) {
 //      player.sendMessage(differenceY + " " + Math.abs(predictedX) + "/" + Math.abs(predictedZ) + " @" +Math.abs(predictedY - movementData.jumpMotion()) + " " + movementData.receivedFlyingPacketIn(6) + " " + movementData.pastFlyingPacketAccurate);
 //    }
@@ -650,6 +688,7 @@ public final class Physics extends Check {
         || movementData.collidedWithBoat()
         || movementData.inWeb
         || movementData.pistonMotionToleranceRemaining > 0
+        || movementData.pistonSlimeLaunchGraceTicks > 0
         || movementData.pastElytraFlying < 20;
       if (uncommonArea) {
         violationLevelIncrease /= 2;

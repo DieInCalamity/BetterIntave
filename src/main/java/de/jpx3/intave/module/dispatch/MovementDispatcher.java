@@ -830,6 +830,9 @@ public final class MovementDispatcher extends Module {
         movement.pistonSlimeLaunch = false;
       }
     }
+    if (movement.pistonSlimeLaunchGraceTicks > 0) {
+      movement.pistonSlimeLaunchGraceTicks--;
+    }
 
     boolean flyingWithElytra = movement.elytraFlying;//movement.pose() == Pose.FALL_FLYING;
     if (flyingWithElytra) {
@@ -1209,6 +1212,7 @@ public final class MovementDispatcher extends Module {
 
   private static final Set<Material> PISTON_MATERIALS = MaterialSearch.materialsThatContain("PISTON");
   private static final int SLIME_PISTON_LAUNCH_TOLERANCE_TICKS = 14;
+  private static final int SLIME_PISTON_LAUNCH_GRACE_TICKS = 30;
   private static final double SLIME_PISTON_LAUNCH_VERTICAL_ALLOWANCE = 1.05D;
   private static final double SLIME_PISTON_LAUNCH_TRACK_HEIGHT = 6.5D;
   private static final double SLIME_PISTON_LAUNCH_HORIZONTAL_GROWTH = 0.15D;
@@ -1285,7 +1289,10 @@ public final class MovementDispatcher extends Module {
               .grow(SLIME_PISTON_LAUNCH_HORIZONTAL_GROWTH, 0, SLIME_PISTON_LAUNCH_HORIZONTAL_GROWTH)
               .expand(0, SLIME_PISTON_LAUNCH_TRACK_HEIGHT, 0);
           }
-          boolean playerAffected = expandingBlockArea.intersectsWith(user.meta().movement().boundingBox());
+          BoundingBox launchDetectionArea = upwardSlimeLaunch
+            ? expandingBlockArea.grow(0.2, 0.6, 0.2)
+            : expandingBlockArea;
+          boolean playerAffected = launchDetectionArea.intersectsWith(user.meta().movement().boundingBox());
 
           // Only do something if the player is actually affected
           if (playerAffected) {
@@ -1294,6 +1301,9 @@ public final class MovementDispatcher extends Module {
             // where he would get false-mitigated
             movement.pistonMotionToleranceRemaining = upwardSlimeLaunch ? SLIME_PISTON_LAUNCH_TOLERANCE_TICKS : 10;
             movement.pistonSlimeLaunch = upwardSlimeLaunch;
+            if (upwardSlimeLaunch) {
+              movement.pistonSlimeLaunchGraceTicks = SLIME_PISTON_LAUNCH_GRACE_TICKS;
+            }
             movement.pistonCollisionArea = expandingBlockArea;
 
             float xOffset = (float) Math.abs(expectedPistonX - user.meta().movement().positionX);
