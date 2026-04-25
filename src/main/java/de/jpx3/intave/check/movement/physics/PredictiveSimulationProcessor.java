@@ -20,6 +20,8 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
   private static final double WEB_HORIZONTAL_JUMP_DAMPING = 0.25D;
   private static final double WEB_VERTICAL_JUMP_DAMPING = 0.05D;
   private static final double WEB_JUMP_MOTION_TOLERANCE = 1e-4;
+  private static final double HAND_ACTIVE_MISMATCH_ACCEPTANCE_DISTANCE = 0.01;
+  private static final int HAND_ACTIVE_MISMATCH_RELEASE_TICKS = 2;
 
   /*
    * this class is rather messy
@@ -51,6 +53,13 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
 
   private static double sprintJumpBoostFactor(MovementMetadata movementData, boolean jumpedInWeb) {
     return jumpedInWeb ? 0.2F * WEB_HORIZONTAL_JUMP_DAMPING : 0.2F;
+  }
+
+  private boolean shouldAcceptHandStateMismatch(InventoryMetadata inventoryData, double distance) {
+    return inventoryData.handActive()
+      && inventoryData.handActiveTicks > 2
+      && inventoryData.pastItemUsageTransition > 1
+      && distance < HAND_ACTIVE_MISMATCH_ACCEPTANCE_DISTANCE;
   }
 
   @Override
@@ -170,16 +179,29 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     boolean movementSuggestsHandIsActive = simulationStack.handActive();
     boolean packetsSuggestsHandIsActive = inventoryData.handActive();
     if (packetsSuggestsHandIsActive && !movementSuggestsHandIsActive) {
+      inventoryData.handActiveMismatchTicks++;
       boolean releaseHandConditions = Hypot.fast(movementData.motionX(), movementData.motionZ()) > 0.3 || movementData.lastTeleport >= 2;
       boolean itemIsBow = ItemProperties.isBow(meta.inventory().activeItemType()) || ItemProperties.isBow(meta.inventory().offhandItemType());
       boolean viaVersionBlockReplacement = meta.protocol().viaVersionShieldBlockReplacement();
-      if (releaseHandConditions && (!itemIsBow || (inventoryData.handActiveTicks > 3 && !viaVersionBlockReplacement)) && itemUsageReset) {
+      boolean stableItemUse = inventoryData.handActiveTicks > 2 && inventoryData.pastItemUsageTransition > 1;
+      boolean predictableMovement = movementData.pastVelocity > 2 && movementData.pastExternalVelocity > 2
+        && !movementData.inWater && !movementData.inWeb && !movementData.inLava() && !movementData.isInVehicle();
+      if (
+        releaseHandConditions
+        && stableItemUse
+        && predictableMovement
+        && inventoryData.handActiveMismatchTicks >= HAND_ACTIVE_MISMATCH_RELEASE_TICKS
+        && (!itemIsBow || (inventoryData.handActiveTicks > 3 && !viaVersionBlockReplacement))
+        && itemUsageReset
+      ) {
         meta.inventory().releaseItemNextTick();
 
         if (user.receives(MessageChannel.DEBUG_ITEM_RESETS)) {
           user.player().sendMessage(IntavePlugin.prefix() + "Requesting item usage reset as " + ChatColor.RED + "movement/state discrepancy ");
         }
       }
+    } else {
+      inventoryData.handActiveMismatchTicks = 0;
     }
 
     boolean canExpectCorrectReduce = !protocol.combatUpdate() && movementData.pastVelocity > 1 && movementData.motion().horizontalLength() > 0.2;
@@ -599,7 +621,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
       user, motion, movementData, configuration
     );
     double distance = simulation.accuracy(movementData.motion());
-    if (forceApply || inventoryData.handActive() == configuration.isHandActive() || distance < 0.001) {
+    if (forceApply || inventoryData.handActive() == configuration.isHandActive() || shouldAcceptHandStateMismatch(inventoryData, distance) || distance < 0.001) {
       simulation = simulation.reusableCopy();
       result.tryAppendToState(simulation, distance);
     }
