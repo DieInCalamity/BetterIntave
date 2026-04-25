@@ -17,6 +17,9 @@ import org.bukkit.Material;
 import java.util.List;
 
 public final class PredictiveSimulationProcessor implements SimulationProcessor {
+  private static final double WEB_HORIZONTAL_JUMP_DAMPING = 0.25D;
+  private static final double WEB_VERTICAL_JUMP_DAMPING = 0.05D;
+  private static final double WEB_JUMP_MOTION_TOLERANCE = 1e-4;
 
   /*
    * this class is rather messy
@@ -30,6 +33,24 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     this.itemUsageReset = itemUsageReset;
     this.useSuperpositions = useSuperpositions;
     this.detectNoSlowdown = detectNoSlowdown;
+  }
+
+  private static boolean isGroundJump(MovementMetadata movementData) {
+    double motionY = movementData.motionY();
+    return Math.abs(motionY - 0.2) < 1e-5 || motionY == movementData.jumpMotion();
+  }
+
+  private static boolean isWebJump(MovementMetadata movementData) {
+    if (!movementData.inWeb || !movementData.lastOnGround || movementData.denyJump()) {
+      return false;
+    }
+
+    double dampedJumpMotion = movementData.jumpMotion() * WEB_VERTICAL_JUMP_DAMPING;
+    return movementData.motionY() > 0.0 && Math.abs(movementData.motionY() - dampedJumpMotion) < WEB_JUMP_MOTION_TOLERANCE;
+  }
+
+  private static double sprintJumpBoostFactor(MovementMetadata movementData, boolean jumpedInWeb) {
+    return jumpedInWeb ? 0.2F * WEB_HORIZONTAL_JUMP_DAMPING : 0.2F;
   }
 
   @Override
@@ -189,16 +210,25 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     double lastMotionZ = movementData.baseMotionZ;
     boolean jumped = false;
     boolean sprinting = movementData.sprintingAllowed() || movementData.hasSprintSpeed;
+    boolean jumpedInWeb = false;
     if (movementData.lastOnGround && !movementData.denyJump()) {
-      double motionY = movementData.motionY();
-      jumped = Math.abs(motionY - 0.2) < 1e-5 || motionY == movementData.jumpMotion();
+      jumped = isGroundJump(movementData);
       if (jumped && sprinting) {
-        lastMotionX -= movementData.yawSine() * 0.2f;
-        lastMotionZ += movementData.yawCosine() * 0.2f;
+        double sprintJumpBoost = sprintJumpBoostFactor(movementData, false);
+        lastMotionX -= movementData.yawSine() * sprintJumpBoost;
+        lastMotionZ += movementData.yawCosine() * sprintJumpBoost;
       }
     }
     if (movementData.inWater && !movementData.denyJump()) {
       jumped = movementData.motionY() > 0.0;
+    } else if (!jumped) {
+      jumpedInWeb = isWebJump(movementData);
+      jumped = jumpedInWeb;
+      if (jumpedInWeb && sprinting) {
+        double sprintJumpBoost = sprintJumpBoostFactor(movementData, true);
+        lastMotionX -= movementData.yawSine() * sprintJumpBoost;
+        lastMotionZ += movementData.yawCosine() * sprintJumpBoost;
+      }
     }
     double differenceX = movementData.motionX() - lastMotionX;
     double differenceZ = movementData.motionZ() - lastMotionZ;
@@ -324,8 +354,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     boolean sprinting = movementData.sprintingAllowed();
     // jump
     if (movementData.lastOnGround && !movementData.denyJump()) {
-      double motionY = movementData.motionY();
-      if (Math.abs(motionY - 0.2) < 1e-5 || motionY == movementData.jumpMotion()) {
+      if (isGroundJump(movementData)) {
         configuration = configuration.withJump();
       }
     }
@@ -333,6 +362,8 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
       if (movementData.motionY() > 0.0) {
         configuration = configuration.withJump();
       }
+    } else if (isWebJump(movementData)) {
+      configuration = configuration.withJump();
     }
     // hand active
     if (inventoryData.handActive() && (ItemProperties.canItemBeUsed(user.player(), inventoryData.heldItem()) || ItemProperties.canItemBeUsed(user.player(), inventoryData.offhandItem()))) {
@@ -381,8 +412,11 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     SimulationStack simulationStack = SimulationStack.of(user);
     boolean inLava = movementData.inLava();
     boolean inWater = movementData.inWater();
+    boolean inWeb = movementData.inWeb;
     boolean lastOnGround = movementData.lastOnGround();
-    boolean estimatedJump = Math.abs(movementData.motionY() - (1 - user.sizeOf(movementData.pose()).height() % 1)) < 1e-5 || Math.abs(movementData.motionY() - movementData.jumpMotion()) < 0.0001;
+    boolean estimatedJump = Math.abs(movementData.motionY() - (1 - user.sizeOf(movementData.pose()).height() % 1)) < 1e-5
+      || Math.abs(movementData.motionY() - movementData.jumpMotion()) < 0.0001
+      || isWebJump(movementData);
     boolean skipUseItem = (!protocol.sprintWhenHandActive() && movementData.sprinting && !protocol.viaVersionShieldBlockReplacement())
       || !inventoryData.usableItemInEitherHand();
     // dont require use item for bows
@@ -465,7 +499,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
                 IterativeStudy.ATTACK_REDUCE_ITERATOR.run();
                 for (boolean jumped : estimatedJump ? OPTIMISTIC : PESSIMISTIC) {
                   // Jumps are only allowed on the ground :(
-                  if (jumped && !lastOnGround && !inLava && !inWater) {
+                  if (jumped && !lastOnGround && !inLava && !inWater && !inWeb) {
                     continue;
                   }
                   if (jumped && movementData.denyJump()) {
