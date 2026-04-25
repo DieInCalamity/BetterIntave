@@ -8,23 +8,47 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.UnsupportedFallbackOperationException;
 import de.jpx3.intave.annotate.Nullable;
-import de.jpx3.intave.check.CheckPart;
 import de.jpx3.intave.check.MetaCheck;
 import de.jpx3.intave.check.combat.heuristics.Anomaly;
 import de.jpx3.intave.check.combat.heuristics.Combinator;
 import de.jpx3.intave.check.combat.heuristics.Confidence;
 import de.jpx3.intave.check.combat.heuristics.MiningStrategy;
-import de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.*;
+import de.jpx3.intave.check.combat.heuristics.detect.clickpatterns.OldAirClickLimitHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.clickpatterns.SwingDeviationHeuristics;
+import de.jpx3.intave.check.combat.heuristics.detect.clickpatterns.SwingLimitHeuristics;
+import de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.AttackRequiredHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.BaritoneRotationCheck;
+import de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.LongTermClickAccuracyHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.LongTermClickAccuracyRelayHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.PerfectAttackHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.PreAttackHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.RotationAccuracyPitchHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.RotationAccuracyYawHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.RotationModuloResetHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.RotationSensitivityHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.RotationStandardDeviationHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.RotationStandardDeviationRelayHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.SameRotationHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.experimental.RotationPrevisionDetermination;
 import de.jpx3.intave.check.combat.heuristics.detect.experimental.RotationPrevisionFluctuation;
 import de.jpx3.intave.check.combat.heuristics.detect.inventory.PacketInventoryHeuristic;
-import de.jpx3.intave.check.combat.heuristics.detect.other.*;
+import de.jpx3.intave.check.combat.heuristics.detect.other.AttackInInvalidStateHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.other.BlockingHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.other.CivbreakHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.other.DoubleEntityActionHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.other.InvalidFlyingPacketHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.other.JumpVelocityHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.other.NoSwingHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.other.PacketOrderHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.other.PacketOrderSwingHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.other.PacketPlayerActionToggleHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.other.ReshapedJumpHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.other.RotationSnapHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.other.SprintOnAttackHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.other.ToolSwitchHeuristic;
 import de.jpx3.intave.check.combat.heuristics.detect.testing.TestingHeuristic;
 import de.jpx3.intave.check.combat.heuristics.mine.MiningStrategyContainer;
 import de.jpx3.intave.check.combat.heuristics.mine.MiningStrategyExecutor;
-import de.jpx3.intave.diagnostic.message.DebugBroadcast;
-import de.jpx3.intave.diagnostic.message.MessageCategory;
-import de.jpx3.intave.diagnostic.message.MessageSeverity;
-import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.executor.TaskTracker;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
@@ -35,25 +59,37 @@ import de.jpx3.intave.user.meta.AttackMetadata;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.storage.HeuristicsStorage;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-import static de.jpx3.intave.check.combat.heuristics.Confidence.*;
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
+import static de.jpx3.intave.check.combat.heuristics.Confidence.ALMOST_CERTAIN;
+import static de.jpx3.intave.check.combat.heuristics.Confidence.CERTAIN;
+import static de.jpx3.intave.check.combat.heuristics.Confidence.MAYBE;
+import static de.jpx3.intave.check.combat.heuristics.Confidence.NONE;
+import static de.jpx3.intave.check.combat.heuristics.Confidence.confidenceFrom;
+import static de.jpx3.intave.check.combat.heuristics.Confidence.levelFrom;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.FLYING;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.LOOK;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION_LOOK;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.USE_ENTITY;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.VEHICLE_MOVE;
 
 public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
+  private static Boolean legacyConfigLayCache = null;
   private final IntavePlugin plugin;
   private final Combinator combinator;
 
@@ -66,6 +102,19 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     this.setupEvaluationScheduler(plugin);
   }
 
+  public static boolean legacyConfigurationLayout() {
+    if (legacyConfigLayCache != null) {
+      return legacyConfigLayCache;
+    }
+    YamlConfiguration settings = IntavePlugin.singletonInstance().settings();
+    ConfigurationSection section = settings.getConfigurationSection("check.heuristics.cloud-thresholds.on-premise");
+    if (section != null) {
+      return legacyConfigLayCache = false;
+    } else {
+      return legacyConfigLayCache = true;
+    }
+  }
+
   private void setupEvaluationScheduler(IntavePlugin plugin) {
     //noinspection deprecation
     int taskId = Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, this::evaluateAll, 0, 20 * 20);
@@ -73,20 +122,20 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
   }
 
   public void setupSubChecks() {
-    appendCheckPart("de.jpx3.intave.check.combat.heuristics.detect.clickpatterns.OldAirClickLimitHeuristic");
+    appendCheckPart(new OldAirClickLimitHeuristic(this));
 //        appendCheckPart("de.jpx3.intave.check.combat.heuristics.detect.other.AttackReduceIgnoreHeuristic");
-    appendCheckPart("de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.RotationStandardDeviationHeuristic");
+    appendCheckPart(new RotationStandardDeviationHeuristic(this));
     appendCheckPart(new RotationStandardDeviationRelayHeuristic(this));
-    appendCheckPart("de.jpx3.intave.check.combat.heuristics.detect.other.RotationSnapHeuristic");
-    appendCheckPart("de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.LongTermClickAccuracyHeuristic");
+    appendCheckPart(new RotationSnapHeuristic(this));
+    appendCheckPart(new LongTermClickAccuracyHeuristic(this));
     appendCheckPart(new LongTermClickAccuracyRelayHeuristic(this));
-    appendCheckPart("de.jpx3.intave.check.combat.heuristics.detect.other.ReshapedJumpHeuristic");
-    appendCheckPart("de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.RotationAccuracyYawHeuristic");
-    appendCheckPart("de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.RotationAccuracyPitchHeuristic");
-    appendCheckPart("de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.PerfectAttackHeuristic");
-    appendCheckPart("de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.RotationSensitivityHeuristic");
-    appendCheckPart("de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.RotationModuloResetHeuristic");
-    appendCheckPart("de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.PreAttackHeuristic");
+    appendCheckPart(new ReshapedJumpHeuristic(this));
+    appendCheckPart(new RotationAccuracyYawHeuristic(this));
+    appendCheckPart(new RotationAccuracyPitchHeuristic(this));
+    appendCheckPart(new PerfectAttackHeuristic(this));
+    appendCheckPart(new RotationSensitivityHeuristic(this));
+    appendCheckPart(new RotationModuloResetHeuristic(this));
+    appendCheckPart(new PreAttackHeuristic(this));
 
     appendCheckPart(new SameRotationHeuristic(this));
     appendCheckPart(new AttackRequiredHeuristic(this));
@@ -99,14 +148,13 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     appendCheckPart(new TestingHeuristic(this));
 
     // Lucky experimental heuristics
-    appendCheckPart("de.jpx3.intave.check.combat.heuristics.detect.experimental.RotationPrevisionDetermination");
-    appendCheckPart("de.jpx3.intave.check.combat.heuristics.detect.clickpatterns.SwingLimitHeuristics");
-    appendCheckPart("de.jpx3.intave.check.combat.heuristics.detect.clickpatterns.SwingDeviationHeuristics");
+    appendCheckPart(new RotationPrevisionDetermination(this));
+    appendCheckPart(new SwingLimitHeuristics(this));
+    appendCheckPart(new SwingDeviationHeuristics(this));
 //    appendCheckPart(new RotationAngleHeuristic(this));
 
     appendCheckPart(new PacketOrderSwingHeuristic(this));
     appendCheckPart(new PacketPlayerActionToggleHeuristic(this));
-    appendCheckPart(new RotationUnlikelyAccuracyHeuristic(this));
     appendCheckPart(new PacketInventoryHeuristic(this));
     appendCheckPart(new BlockingHeuristic(this));
     appendCheckPart(new AttackInInvalidStateHeuristic(this));
@@ -116,21 +164,6 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     appendCheckPart(new JumpVelocityHeuristic(this));
     appendCheckPart(new CivbreakHeuristic(this));
     appendCheckPart(new InvalidFlyingPacketHeuristic(this));
-  }
-
-  private void appendCheckPart(String name) {
-    try {
-      Class<?> clazz = Class.forName(name);
-      if (CheckPart.class.isAssignableFrom(clazz)) {
-        CheckPart<?> check = (CheckPart<?>) clazz.getConstructor(Heuristics.class).newInstance(this);
-        appendCheckPart(check);
-      }
-    } catch (ClassNotFoundException ex) {
-      System.out.println("Unable to load check part " + name);
-      ex.printStackTrace();
-    } catch (Exception | Error e) {
-      e.printStackTrace();
-    }
   }
 
   public void saveAnomaly(Player player, Anomaly anomaly) {
@@ -144,30 +177,6 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
         meta.anomalies.add(anomaly);
       }
     }
-    Synchronizer.synchronize(() -> debug(player, anomaly));
-  }
-
-  private void debug(Player player, Anomaly anomaly) {
-    User user = userOf(player);
-    List<Anomaly> anomalies = catchAnomaliesOf(user, false);
-    List<Confidence> allConfidences = resolveConfidencesOf(anomalies);
-    Confidence overallConfidence = computeOverallConfidence(allConfidences);
-
-    String pattern = anomaly.key();
-    String description = anomaly.description();
-
-    String confidenceDetails = overallConfidence.output() + " (" + levelFrom(allConfidences.toArray(new Confidence[0])) + "+" + anomaly.confidence().level() + ")";
-    String defaultPrefix = ChatColor.RED + "[IH] ";
-    if (IntavePlugin.singletonInstance().sibyl().encryptionActiveFor(player)) {
-      defaultPrefix = "";
-    }
-    String message = defaultPrefix + player.getName() + " on p[" + pattern + "]" + confidenceDetails + " " + description;
-
-    if (IntaveControl.DEBUG_HEURISTICS && !plugin.sibyl().isAuthenticated(player)) {
-      player.sendMessage(message);
-    }
-
-    DebugBroadcast.broadcast(player, MessageCategory.HERAN, MessageSeverity.HIGH, message, message);
   }
 
   private void evaluateAll() {
@@ -179,40 +188,19 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     }
   }
 
-  private static final long MAXIMUM_STORAGE_SAVE = 1000 * 60 * 30; // 30 minutes
-
   public void evaluate(Player player, boolean enforceDecision) {
     User user = userOf(player);
     AttackMetadata attackData = user.meta().attack();
     HeuristicsStorage storage = user.storageOf(HeuristicsStorage.class);
 
-    if (!storage.isRead()) {
-      storage.markRead();
-      int confidenceLevel = storage.confidence();
-      long timeOfSave = storage.timeOfSave();
-      if (confidenceLevel > 0 && System.currentTimeMillis() - timeOfSave < MAXIMUM_STORAGE_SAVE) {
-        String key = "11";
-        List<Confidence> confidences = confidencesStackingTo(confidenceLevel);
-        Anomaly.Type type = Anomaly.Type.KILLAURA;
-        String description = "storage anomaly #";
-        int i = 0;
-        for (Confidence confidence : confidences) {
-          Anomaly anomaly = Anomaly.anomalyOf(key, confidence, type, description + i, Anomaly.AnomalyOption.LIMIT_8);
-          saveAnomaly(player, anomaly);
-          i++;
-        }
-      }
-      storage.eraseConfidence();
-    }
-
     // External confidence
-    List<Anomaly> activeAnomalies = catchAnomaliesOf(user, true);
+    List<Anomaly> activeAnomalies = catchAnomaliesOf(user);
     List<Confidence> activeConfidence = resolveConfidencesOf(activeAnomalies);
     int overallActiveConfidenceLevel = levelFrom(activeConfidence.toArray(new Confidence[0]));
     Confidence overallActiveConfidence = computeOverallConfidence(activeConfidence);
 
     // Internal confidence
-    List<Anomaly> allAnomalies = catchAnomaliesOf(user, false);
+    List<Anomaly> allAnomalies = catchAnomaliesOf(user);
     List<Confidence> allConfidencesWithoutDelay = resolveConfidencesOf(allAnomalies);
     Confidence overallAllConfidence = computeOverallConfidence(allConfidencesWithoutDelay);
 
@@ -246,12 +234,8 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     }
 
     if (overallActiveConfidence.atLeast(ALMOST_CERTAIN)) {
-      String identifier;
-      if (IntaveControl.DEBUG_HEURISTICS) {
-        identifier = restructureForOutput(activeAnomalies).stream().map(anomaly -> "p[" + anomaly.key() + "]").collect(Collectors.joining(","));
-      } else {
-        identifier = resolveIdentifier(activeAnomalies);
-      }
+      List<Anomaly> anomaliesToOutput = restructureForOutput(activeAnomalies);
+      String identifier = anomaliesToOutput.stream().map(Anomaly::key).collect(Collectors.joining(","));
       String threshold;
       if (legacyConfigurationLayout()) {
         threshold = "confidence-thresholds." + overallActiveConfidence.output();
@@ -271,41 +255,19 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     }
   }
 
-  private static Boolean legacyConfigLayCache = null;
-
-  public static boolean legacyConfigurationLayout() {
-    if (legacyConfigLayCache != null) {
-      return legacyConfigLayCache;
-    }
-    YamlConfiguration settings = IntavePlugin.singletonInstance().settings();
-    ConfigurationSection section = settings.getConfigurationSection("check.heuristics.cloud-thresholds.on-premise");
-    if (section != null) {
-//      IntaveLogger.logger().info("Using new heuristics format");
-      return legacyConfigLayCache = false;
-    } else {
-//      IntaveLogger.logger().info("Still using old heuristics config format");
-      return legacyConfigLayCache = true;
-    }
-  }
-
   @NotNull
-  public List<Anomaly> catchAnomaliesOf(User user, boolean delay) {
-    if (user.hasPlayer()) {
+  public List<Anomaly> catchAnomaliesOf(User user) {
+    if (!user.hasPlayer()) {
       return Collections.emptyList();
     }
 
     List<Anomaly> anomalies = metaOf(user).anomalies;
     anomalies.removeIf(Anomaly::expired);
     anomalies = new ArrayList<>(anomalies);
-    if (delay) {
-      // filter non-active (delay)
-      anomalies.removeIf(anomaly -> !anomaly.active());
-    }
     Anomaly combined = combinator.combined(anomalies);
     if (combined != null) {
       anomalies.add(combined);
     }
-//    anomalies = new ArrayList<>(anomalies);
     return anomalies;
   }
 
@@ -322,16 +284,6 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
       types.put(key, types.getOrDefault(key, 0) + 1);
     }
     return allConfidences;
-  }
-
-  private Anomaly.Type findDominantTypeIn(List<Anomaly> anomalies) {
-    return anomalies.stream()
-      .collect(Collectors.groupingBy(Anomaly::type, Collectors.counting()))
-      .entrySet()
-      .stream()
-      .max(Comparator.comparingLong(Map.Entry::getValue))
-      .orElseThrow(IllegalStateException::new)
-      .getKey();
   }
 
   @Nullable
@@ -379,8 +331,6 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
   public Confidence computeOverallConfidence(Confidence... confidences) {
     return confidenceFrom(levelFrom(confidences));
   }
-
-  // events
 
   @PacketSubscription(
     packetsIn = {
@@ -452,18 +402,6 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     }
   }
 
-  @BukkitEventSubscription
-  public void receiveQuit(PlayerQuitEvent quit) {
-    Player player = quit.getPlayer();
-//    evaluate(player, true);
-  }
-
-  // encryption
-
-  private String resolveIdentifier(List<Anomaly> anomalies) {
-    return encryptAnomalies(restructureForOutput(anomalies));
-  }
-
   private List<Anomaly> restructureForOutput(List<Anomaly> anomalies) {
     // Remove anomalies without effect
     anomalies.removeIf(anomaly -> anomaly.confidence() == NONE);
@@ -492,67 +430,6 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
       anomalies = reducedAnomalies;
     }
     return anomalies;
-  }
-
-  private String encryptAnomalies(List<Anomaly> anomalies) {
-    List<String> usableAnomalies = new ArrayList<>();
-    int limit = 10;
-    for (Anomaly anomaly : anomalies) {
-      String key = anomaly.key();
-      if (!usableAnomalies.contains(key)) {
-        if (limit-- > 0) {
-          usableAnomalies.add(key);
-        }
-      }
-    }
-    StringBuilder nonPaddedBuilder = new StringBuilder();
-    for (String pattern : usableAnomalies) {
-      int size = usableAnomalies.size();
-      int subCheck = Integer.parseInt(pattern.substring(pattern.length() - 1));
-      int mainCheck = Integer.parseInt(pattern.substring(0, pattern.length() - 1));
-      int checkCombined = mainCheck << 3 | subCheck;
-      checkCombined ^= 452938422 ^ 987509231 ^ size;
-      for (int i = 0; i < size * 2; i++) {
-        checkCombined ^= size * 28037423 * i;
-        checkCombined ^= 928344123 * size;
-        checkCombined ^= i * 4203874;
-      }
-      byte[] encode = Base64.getEncoder().encode(new byte[]{(byte) checkCombined});
-      String result = new String(encode).replace("=", "");
-      result = result.length() > 10 ? result.substring(0, 10) : result;
-      nonPaddedBuilder.append(result);
-    }
-    String pattern = nonPaddedBuilder.toString();
-    String string;
-    boolean exceededLength = pattern.length() >= 4;
-    int endingGarbageCharacters = exceededLength ? -1 : 6 - pattern.length();
-    endingGarbageCharacters ^= pattern.charAt(0);
-    String first = new String(Base64.getEncoder().encode(new byte[]{(byte) endingGarbageCharacters}));
-    first = first.replace("=", "");
-    if (pattern.length() >= 4) {
-      string = first + pattern;
-    } else {
-      StringBuilder patternStringBuilder = new StringBuilder();
-      patternStringBuilder.append(first);
-      patternStringBuilder.append(pattern);
-      while (patternStringBuilder.length() < 6) {
-        int garbageCharacter = Math.max(1, new SecureRandom().nextInt(64));
-        String garbage = new String(Base64.getEncoder().encode(new byte[]{(byte) garbageCharacter}));
-        garbage = garbage.replace("=", "");
-        patternStringBuilder.append(garbage);
-      }
-      string = patternStringBuilder.toString();
-    }
-    char characterA = (char) Base64.getEncoder().encode(new byte[]{(byte) new SecureRandom().nextInt(0b111111)})[0];
-    char characterB = (char) Base64.getEncoder().encode(new byte[]{(byte) new SecureRandom().nextInt(0b111111)})[0];
-    byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
-    for (int i = 0; i < bytes.length; i++) {
-      int key = characterA ^ characterB % (i + 1 ^ characterB * 5);
-      bytes[i] ^= key;
-    }
-    String encode = new String(Base64.getEncoder().encode(bytes));
-    encode = encode.replace("=", "");
-    return String.valueOf(characterA) + characterB + encode;
   }
 
   public static class HeuristicMeta extends CheckCustomMetadata {
