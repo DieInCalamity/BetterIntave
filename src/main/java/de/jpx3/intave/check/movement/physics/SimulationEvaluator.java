@@ -27,6 +27,8 @@ public final class SimulationEvaluator {
   private static final double FIREWORK_HORIZONTAL_STARTUP_TOLERANCE = 0.8;
   private static final double FIREWORK_HORIZONTAL_ACTIVE_TOLERANCE = 0.45;
   private static final double FIREWORK_HORIZONTAL_TRAILING_TOLERANCE = 0.2;
+  private static final double SLIME_PISTON_VERTICAL_TOLERANCE_BIAS = 0.08;
+  private static final double SLIME_PISTON_VERTICAL_TOLERANCE_CAP = 1.7;
 
   public double calculateVerticalViolationLevelIncrease(
     User user,
@@ -111,8 +113,12 @@ public final class SimulationEvaluator {
       if (movement.pistonCollisionArea != null && movement.pistonCollisionArea.intersectsWith(movement.boundingBox())) {
         verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, movement.pistonVerticalAllowance);
         tags.add(EvaluationTag.PISTON);
-      } else if (movement.pistonSlimeLaunch && receivedMotionY > 0 && !movement.inWater && !movement.inLava()) {
-        verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, movement.pistonVerticalAllowance + 0.2);
+      } else if (movement.pistonSlimeLaunch && !movement.inWater && !movement.inLava()) {
+        double slimeLaunchTolerance = Math.min(
+          SLIME_PISTON_VERTICAL_TOLERANCE_CAP,
+          Math.max(movement.pistonVerticalAllowance, abs(receivedMotionY) + SLIME_PISTON_VERTICAL_TOLERANCE_BIAS)
+        );
+        verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, slimeLaunchTolerance);
         tags.add(EvaluationTag.PISTON);
       }
     }
