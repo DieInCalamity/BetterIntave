@@ -20,7 +20,7 @@ import java.lang.ref.WeakReference;
  * It will be made available to the user either via {@link IntaveAccessor#unsafeAccess()}
  * or via {@link WeakReference} at {@link IntaveAccessor#weakAccess()}.
  */
-public interface IntaveAccess {
+public interface IntaveAccess { // test build
 
   /**
    * Overrides the global trustfactor resolver with a new one.
