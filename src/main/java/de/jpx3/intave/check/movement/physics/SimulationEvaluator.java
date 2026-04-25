@@ -111,6 +111,9 @@ public final class SimulationEvaluator {
       if (movement.pistonCollisionArea != null && movement.pistonCollisionArea.intersectsWith(movement.boundingBox())) {
         verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, movement.pistonVerticalAllowance);
         tags.add(EvaluationTag.PISTON);
+      } else if (movement.pistonSlimeLaunch && receivedMotionY > 0 && !movement.inWater && !movement.inLava()) {
+        verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, movement.pistonVerticalAllowance + 0.2);
+        tags.add(EvaluationTag.PISTON);
       }
     }
 

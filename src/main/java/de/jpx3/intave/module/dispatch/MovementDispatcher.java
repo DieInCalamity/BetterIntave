@@ -826,6 +826,9 @@ public final class MovementDispatcher extends Module {
 
     if (movement.pistonMotionToleranceRemaining > 0) {
       movement.pistonMotionToleranceRemaining--;
+      if (movement.pistonMotionToleranceRemaining == 0) {
+        movement.pistonSlimeLaunch = false;
+      }
     }
 
     boolean flyingWithElytra = movement.elytraFlying;//movement.pose() == Pose.FALL_FLYING;
@@ -1290,6 +1293,7 @@ public final class MovementDispatcher extends Module {
             // Well this is fine as we constantly check if the player is inside the critical area
             // where he would get false-mitigated
             movement.pistonMotionToleranceRemaining = upwardSlimeLaunch ? SLIME_PISTON_LAUNCH_TOLERANCE_TICKS : 10;
+            movement.pistonSlimeLaunch = upwardSlimeLaunch;
             movement.pistonCollisionArea = expandingBlockArea;
 
             float xOffset = (float) Math.abs(expectedPistonX - user.meta().movement().positionX);

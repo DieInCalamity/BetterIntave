@@ -159,6 +159,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   public int pistonMotionToleranceRemaining;
   public double pistonHorizontalAllowance;
   public double pistonVerticalAllowance;
+  public boolean pistonSlimeLaunch;
   public BoundingBox pistonCollisionArea;
   public List<BlockPosition> shulkers = new ArrayList<>();
   public Map<BlockPosition, ShulkerBox> shulkerData = new HashMap<>();
