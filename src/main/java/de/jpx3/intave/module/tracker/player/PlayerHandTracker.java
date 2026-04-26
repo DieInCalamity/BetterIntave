@@ -21,7 +21,6 @@ import de.jpx3.intave.user.MessageChannel;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.InventoryMetadata;
-import de.jpx3.intave.user.meta.MetadataBundle;
 import de.jpx3.intave.user.meta.PunishmentMetadata;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -148,30 +147,45 @@ public class PlayerHandTracker extends Module {
   @PacketSubscription(
     priority = ListenerPriority.LOWEST,
     packetsIn = {
-      BLOCK_PLACE, USE_ITEM
+      BLOCK_PLACE, USE_ITEM, USE_ITEM_ON
     }
   )
   public void receiveBlockPlace(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    MetadataBundle meta = user.meta();
-    InventoryMetadata inventoryData = meta.inventory();
-    PunishmentMetadata punishmentData = meta.punishment();
-
     PacketContainer packet = event.getPacket();
+    boolean requestedItemUse = requestedItemUseLegacy(packet);
+
+    if (requestedItemUse) {
+      handleItemUseRequest(event, user);
+    }
+  }
+
+  private boolean requestedItemUseLegacy(PacketContainer packet) {
+    if (NEW_ITEM_REQUEST) {
+      return true;
+    } else {
+      StructureModifier<Integer> integers = packet.getIntegers();
+      return integers.read(0) == 255;
+    }
+  }
+
+  private void handleItemUseRequest(PacketEvent event, User user) {
+    InventoryMetadata inventoryData = user.meta().inventory();
+    PunishmentMetadata punishmentData = user.meta().punishment();
+
     ItemStack heldItem = inventoryData.heldItem();
     ItemStack offhandItem = inventoryData.offhandItem();
 
-    boolean requestedItemUse = requestedItemUse(packet);
     boolean sword = heldItem != null && heldItem.getType().name().endsWith("_SWORD");
 
-    if (requestedItemUse && sword && System.currentTimeMillis() - punishmentData.timeLastBlockCancel < 5000) {
+    if (sword && System.currentTimeMillis() - punishmentData.timeLastBlockCancel < 5000) {
       event.setCancelled(true);
       return;
     }
 
-    boolean offHandUsable = ItemProperties.canItemBeUsed(player, offhandItem);
-    boolean mainHandUsable = ItemProperties.canItemBeUsed(player, heldItem);
+    boolean offHandUsable = ItemProperties.canItemBeUsed(user.player(), offhandItem);
+    boolean mainHandUsable = ItemProperties.canItemBeUsed(user.player(), heldItem);
     boolean useItem = mainHandUsable || offHandUsable;
 
     // For some reason Minecraft sends BlockPlace packets on 1.9+ with diamond swords
@@ -180,17 +194,8 @@ public class PlayerHandTracker extends Module {
       return;
     }
 
-    if (requestedItemUse && useItem) {
+    if (useItem) {
       inventoryData.activateHand();
-    }
-  }
-
-  private boolean requestedItemUse(PacketContainer packet) {
-    if (NEW_ITEM_REQUEST) {
-      return true;
-    } else {
-      StructureModifier<Integer> integers = packet.getIntegers();
-      return integers.read(0) == 255;
     }
   }
 
