@@ -32,8 +32,8 @@ import static de.jpx3.intave.check.combat.heuristics.Anomaly.AnomalyOption.LIMIT
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
 public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, RotationSnapHeuristic.RotationSnapHeuristicMeta> {
-  // Defines how long after a block place or attack the VL for mitigations should be increased. Set to 50 ms (1 tick) * 3
-  private static final long VL_BOOST_MODIFIER_TIME = 50 * 3;
+  // Defines how long after a block place or attack the VL for mitigations should be increased. 
+  private static final long VL_BOOST_MODIFIER_TIME = 1000 / 50 * 3;
 
   public RotationSnapHeuristic(Heuristics parentCheck) {
     super(parentCheck, RotationSnapHeuristicMeta.class);
