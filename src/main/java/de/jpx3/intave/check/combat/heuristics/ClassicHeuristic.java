@@ -17,7 +17,7 @@ public class ClassicHeuristic<M extends CheckCustomMetadata> extends MetaCheckPa
     super(parentCheck, metaClass);
     this.parentCheck = parentCheck;
     this.type = type;
-    this.violationLevelIncrease = parentCheck.classicViolationLevelMap().get(type);
+    this.violationLevelIncrease = parentCheck.classicViolationLevelMap().getOrDefault(type, 0);
     this.nerfId = type.verboseName();
   }
 
