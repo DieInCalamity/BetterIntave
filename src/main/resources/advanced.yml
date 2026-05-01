@@ -84,7 +84,7 @@ check:
       rotation-accuracy: 4
       rotation-exact: 10
       rotation-snap: 5
-      rotation-sensitivity: 2
+      rotation-sensitivity: -1
       rotation-reset: 3
 
       # Other
