@@ -1,0 +1,43 @@
+name: Run self-tests
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { version: "1.8.8", java: "17" }
+          - { version: "1.9.4", java: "8" }
+          - { version: "1.12.2", java: "17" }
+          - { version: "1.14.4", java: "11" }
+          - { version: "1.15.2", java: "11" }
+          - { version: "1.16.5", java: "16" }
+          - { version: "1.17.1", java: "16" }
+          - { version: "1.18.2", java: "17" }
+          - { version: "1.19.4", java: "17" }
+          - { version: "1.20", java: "17" }
+          - { version: "1.20.1", java: "17" }
+          - { version: "1.20.2", java: "17" }
+          - { version: "1.20.4", java: "17" }
+          - { version: "1.21.1", java: "21" }
+          - { version: "1.21.3", java: "21" }
+          - { version: "1.21.4", java: "21" }
+          - { version: "1.21.7", java: "21" }
+          - { version: "1.21.11", java: "25" }
+          - { version: "26.1.2", java: "25" }
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: "temurin"
+
+      - uses: gradle/actions/setup-gradle@v3
+
+      - run: ./gradlew :intave:test_${{ matrix.version }}

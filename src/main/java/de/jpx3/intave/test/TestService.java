@@ -190,6 +190,10 @@ public final class TestService implements EventProcessor {
       IntaveLogger.logger().error("You are hereby advised to report this fault to us before using this version of Intave.");
       IntaveLogger.logger().error("If possible, include the following stacktrace in your report:");
       throwable.printStackTrace();
+      if (IS_TEST_RUN) {
+        IntaveLogger.logger().error("Shutting down server due to test failure");
+        System.exit(1);
+      }
       return;
     }
     dontCheckThisEnvironmentAgain();
