@@ -50,10 +50,8 @@ public final class RotationAccuracyYawHeuristic extends ClassicHeuristic<Rotatio
     Entity entity = attackData.lastAttackedEntity();
     float rotationYaw = movementData.rotationYaw;
     float perfectYaw = attackData.perfectYaw();
-    float closestPerfectYaw = attackData.perfectClosestYaw();
     float yawSpeed = MathHelper.distanceInDegrees(rotationYaw, movementData.lastRotationYaw);
     float distanceToPerfectYaw = MathHelper.distanceInDegrees(perfectYaw, rotationYaw);
-    float distanceToClosestPerfectYaw = MathHelper.distanceInDegrees(closestPerfectYaw, rotationYaw);
     if (entity == null || movementData.lastTeleport < 5 || !attackData.recentlyAttacked(1000)) {
       return;
     }
@@ -62,7 +60,6 @@ public final class RotationAccuracyYawHeuristic extends ClassicHeuristic<Rotatio
 
     if (entity.moving(0.05) && yawSpeed > 1.0) {
       checkFollow(user, yawSpeed, distanceToPerfectYaw);
-      checkPerfectYaw(user, distanceToClosestPerfectYaw, distanceToPerfectYaw);
       checkShortTermAccuracy(user, yawSpeed, distanceToPerfectYaw);
       checkLongTermAccuracy(user, distanceToPerfectYaw);
     }
@@ -111,13 +108,6 @@ public final class RotationAccuracyYawHeuristic extends ClassicHeuristic<Rotatio
     }
   }
 
-  private void checkPerfectYaw(User user, float distanceToClosestPerfectYaw, float distanceToPerfectYaw) {
-    if (distanceToPerfectYaw == 0 || distanceToClosestPerfectYaw == 0) {
-      String description = "rotated yaw too precise (0.0)";
-      flag(user.player(), description);
-      user.nerf(AttackNerfStrategy.CRITICALS, nerfId);
-    }
-  }
 
   private void checkShortTermAccuracy(User user, float yawSpeed, float distanceToPerfectYaw) {
     RotationAccuracyHeuristicMeta heuristicMeta = metaOf(user);

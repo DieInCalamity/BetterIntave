@@ -2,13 +2,13 @@ package de.jpx3.intave.check.combat.heuristics;
 
 public enum HeuristicsClassicType {
   ATTACK_ACCURACY("attack-accuracy"),
+  ATTACK_REQUIRED("attack-required"),
+  PRE_ATTACK("pre-attack"),
   ROTATION_ACCURACY("rotation-accuracy"),
   ROTATION_EXACT("rotation-exact"),
   ROTATION_SNAP("rotation-snap"),
-  ROTATION_MODULO_RESET("rotation-reset"),
   ROTATION_SENSITIVITY("rotation-sensitivity"),
-  ATTACK_REQUIRED("attack-required"),
-  PRE_ATTACK("pre-attack"),
+  ROTATION_MODULO_RESET("rotation-reset"),
   INVENTORY_ROTATIONS("inventory-rotations"),
   BLOCKING("blocking"),
   NO_SWING("no-swing"),
