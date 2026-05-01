@@ -95,7 +95,7 @@ check:
       sprint-toggles: 2 # prevents spamming sprint packets to apply more knockback on targets
       tool-switch: 3 # prevents slot switches while breaking blocks
 
-      classic-thresholds:
+      thresholds:
         20:
           - "intave internals storelog {player} {check} {vl}"
           - "intave internals sendnotify &e{player}&7 is attacking suspiciously #1"
@@ -108,25 +108,8 @@ check:
           - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been kicked for attacking suspiciously (on-premise classic heuristics)"
           - $kick$
 
-    cloud-thresholds:
-      # Executed if a player fails a combination of legacy heuristics located in the Intave jar file
-      on-premise:
-        50:
-          - "intave internals storelog {player} {check} {vl}"
-          - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been removed for attacking suspiciously (on-premise heuristics)"
-          - $ban$
-
-      # Executed if a player fails exactly one cloud check
-      # Banning this will catch almost all cheaters
-      cloud-mixed:
-        50:
-          - "intave internals storelog {player} {check} {vl}"
-          - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been removed for attacking suspiciously (cloud heuristics)"
-          - $ban$
-
-      # Executed if a player fails two or more independent cloud checks
-      # Expect Intave to make no errors here
-      cloud-certain:
+    cloud:
+      thresholds:
         50:
           - "intave internals storelog {player} {check} {vl}"
           - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been removed for attacking suspiciously (cloud heuristics)"
