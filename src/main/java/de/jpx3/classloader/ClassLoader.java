@@ -15,7 +15,7 @@ public final class ClassLoader {
   public static void setupEnvironment(File parentTempDirectory) {
     if (USE_NATIVE_ACCESS) {
       NativeLibrary nativeLibrary = new NativeLibrary(
-        "classloader", 1, parentTempDirectory,
+        "classloader", 2, parentTempDirectory,
         "https://github.com/intave/classloader/releases/download/v1.0.2/",
         Arrays.asList(
           "763118f2a0b69ec68176fba396d4e0e0bae1d2b1874f8e53be269fe9bd68b207",
