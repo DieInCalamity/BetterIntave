@@ -1,6 +1,8 @@
 package de.jpx3.classloader;
 
 
+import de.jpx3.intave.version.JavaVersion;
+
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -14,12 +16,13 @@ public final class ClassLoader {
     if (USE_NATIVE_ACCESS) {
       NativeLibrary nativeLibrary = new NativeLibrary(
         "classloader", 1, parentTempDirectory,
-        "https://github.com/intave/classloader/releases/download/v1.0.1/classloader.dll",
-        "https://github.com/intave/classloader/releases/download/v1.0.1/libclassloader.so",
-        "https://github.com/intave/classloader/releases/download/v1.0.1/libclassloader.dylib",
+        "https://github.com/intave/classloader/releases/download/v1.0.2/",
         Arrays.asList(
-          "895786b3bcac6e270e064cca8eb9df39307e0aa576310916180f28960f890823",
+          "763118f2a0b69ec68176fba396d4e0e0bae1d2b1874f8e53be269fe9bd68b207",
           "4d6929ac47b20dbcb04e972920bd576ec1fb4449c0026c1f866c2c72bf64f991",
+          "43b47f3da82c6675ea403739569e8ae5f11fbfb9b63ebf713d5ee351a4add730",
+          "45bd9c97466ed0012f4857b174ef49ac3e22b25dfd3cf9a8633ffc27012587b0",
+          "4900df5b06bfdd40de92dc93141f158ed7abb12143df89e1e5aa617fdac95bad",
           "9bb42f8f9d9a526c2be70256d0d7d0e2efc4eb2550c919745f0b36257596f563"
         )
       );
@@ -88,15 +91,6 @@ public final class ClassLoader {
   private static native void classLoad0(byte[] bytes);
 
   private static int currentJavaVersion() {
-    String version = System.getProperty("java.version");
-    if (version.startsWith("1.")) {
-      version = version.substring(2, 3);
-    } else {
-      int dot = version.indexOf(".");
-      if (dot != -1) {
-        version = version.substring(0, dot);
-      }
-    }
-    return Integer.parseInt(version);
+      return JavaVersion.current();
   }
 }
