@@ -18,9 +18,9 @@ public final class ClassLoader {
         "classloader", 2, parentTempDirectory,
         "https://github.com/intave/classloader/releases/download/v1.0.2/",
         Arrays.asList(
-          "763118f2a0b69ec68176fba396d4e0e0bae1d2b1874f8e53be269fe9bd68b207",
+          "508e43c8dc46a73c9caaa8aae79acfb7e4a93916d155215cb2142403b0f66f45",
           "4d6929ac47b20dbcb04e972920bd576ec1fb4449c0026c1f866c2c72bf64f991",
-          "43b47f3da82c6675ea403739569e8ae5f11fbfb9b63ebf713d5ee351a4add730",
+          "29411bd5e4d1f22190e9d2f592240c7a6d3a3ec2113f63d056bc726b41f443fa",
           "45bd9c97466ed0012f4857b174ef49ac3e22b25dfd3cf9a8633ffc27012587b0",
           "4900df5b06bfdd40de92dc93141f158ed7abb12143df89e1e5aa617fdac95bad",
           "9bb42f8f9d9a526c2be70256d0d7d0e2efc4eb2550c919745f0b36257596f563"
