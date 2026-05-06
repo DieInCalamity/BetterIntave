@@ -85,9 +85,9 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     float pitch = reader.pitch();
     Set<Relative> flags = reader.flags();
 
-    boolean relativeX = flags.contains(Relative.X);
-    boolean relativeY = flags.contains(Relative.Y);
-    boolean relativeZ = flags.contains(Relative.Z);
+    boolean relativeXPosition = flags.contains(Relative.X);
+    boolean relativeYPosition = flags.contains(Relative.Y);
+    boolean relativeZPosition = flags.contains(Relative.Z);
     boolean relativeXMotion = flags.contains(Relative.DELTA_X);
     boolean relativeYMotion = flags.contains(Relative.DELTA_Y);
     boolean relativeZMotion = flags.contains(Relative.DELTA_Z);
@@ -99,21 +99,21 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     }
 
     boolean flagModification = false;
-    if (relativeX) {
+    if (relativeXPosition) {
       positionX += user.meta().movement().verifiedPositionX();
       reader.setPositionX(positionX);
       flags.remove(Relative.X);
       flagModification = true;
     }
 
-    if (relativeY) {
+    if (relativeYPosition) {
       positionY += user.meta().movement().verifiedPositionY();
       reader.setPositionY(positionY);
       flags.remove(Relative.Y);
       flagModification = true;
     }
 
-    if (relativeZ) {
+    if (relativeZPosition) {
       positionZ += user.meta().movement().verifiedPositionZ();
       reader.setPositionZ(positionZ);
       flags.remove(Relative.Z);
@@ -124,7 +124,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
       reader.setFlags(flags);
     }
 
-    boolean expectRotation = false;//!flags.contains(TeleportFlag.X_ROT) && !flags.contains(TeleportFlag.Y_ROT);
+    boolean expectRotation = false;
 
     if (IntaveControl.DEBUG_TELEPORT_PACKET_STACKTRACE) {
       System.out.println("Teleporting " + player.getName() + " to " + positionX + ", " + positionY + ", " + positionZ + " with flags " + flags + " and funkyBoolean " + funkyBoolean);
@@ -151,8 +151,17 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     }
 
     if (user.receives(MessageChannel.DEBUG_TELEPORT)) {
-      player.sendMessage(IntavePlugin.prefix() + "You were instructed to teleport to " + MathHelper.formatPosition(movementData.teleportLocation));
+      player.sendMessage(IntavePlugin.prefix() + "You were instructed to teleport to " + MathHelper.formatPosition(movementData.teleportLocation) + " " + relativeXPosition + " " + relativeYPosition + " " + relativeZPosition);
     }
+
+    /*
+      We release the reader here, because releasing the teleport reader actually performs
+      the write operation to the packet.
+      However, since the doubleTickFeedback code below performs a
+      copy of our packet to sandwich it between two feedback packets,
+      we need this write operation before.
+     */
+    reader.release();
 
     /*
      * ViaBackwards messes up the order of teleportation packets, so we need to account for that
@@ -160,12 +169,8 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     if (/*!user.meta().protocol().outdatedClient() &&*/ teleportFeedbackSyncEnforcement) {
       user.doubleTickFeedback(
         event,
-        () -> {
-          movementData.transactionTeleportAllow = true;
-        },
-        () -> {
-          movementData.transactionTeleportAllow = false;
-        }
+        () -> movementData.transactionTeleportAllow = true,
+        () -> movementData.transactionTeleportAllow = false
       );
     } else {
       movementData.transactionTeleportAllow = true;
@@ -177,8 +182,6 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     movementData.teleportResendCountdown = 20;
 //    movementData.outgoingTeleportCountdown = 5;
     movementData.isTeleportConfirmationPacket = false;
-
-    reader.release();
   }
 
   @PacketSubscription(
