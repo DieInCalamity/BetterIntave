@@ -1,4 +1,4 @@
-name: Run self-tests
+name: Self-tests
 
 on:
   push:
