@@ -396,12 +396,12 @@ public final class SimulationEvaluator {
     }
 
     // Flying packet
-    double flyingLimit = movement.inWeb ? 0.008 : 0.05;
+    double flyingLimit = 0.05;
     if (movement.receivedFlyingPacketIn(2)) {
       if (movement.onGround) {
         boolean specialWeb = movement.inWeb;
         boolean lessThanExpected = distanceMoved < 0.15;
-        horizontalLegitimateDeviation = Math.max(horizontalLegitimateDeviation, specialWeb ? 0.04 : (lessThanExpected ? 0.115 : flyingLimit));
+        horizontalLegitimateDeviation = Math.max(horizontalLegitimateDeviation, specialWeb ? 0.1 : (lessThanExpected ? 0.115 : flyingLimit));
         tags.add(EvaluationTag.FLYING_ON_GROUND);
       } else {
         horizontalLegitimateDeviation = Math.max(horizontalLegitimateDeviation, flyingLimit);
