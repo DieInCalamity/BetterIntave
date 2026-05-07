@@ -420,7 +420,7 @@ public final class MovementDispatcher extends Module {
     movementData.updateMovement(packet, hasMovement, hasRotation);
     teleportApplyEnforcer.receiveMovement(event);
 
-    if (IntaveControl.DEBUG_COLLISION_BOXES) {
+    if (IntaveControl.DEBUG_COLLISION_BOXES || user.receives(MessageChannel.DEBUG_COLLISIONS)) {
       BoundingBox box = movementData.boundingBox().grow(0.1);
       BlockShape shape = Collision.shape(player, box);
       List<BoundingBox> boundingBoxes = shape.boundingBoxes();
@@ -610,20 +610,17 @@ public final class MovementDispatcher extends Module {
   }
 
   private void drawDebugBoxes(User user, List<BoundingBox> boxes) {
-    if (IntaveControl.DEBUG_COLLISION_BOXES && MinecraftVersions.VER1_13_0.atOrAbove()) {
-      boxes
-        .stream()
-        .flatMap(box -> box.vertices().stream())
-        .distinct()
-        .forEach(position -> spawnParticleAt(user, position));
-    }
+    boxes
+      .stream()
+      .flatMap(box -> box.vertices().stream())
+      .distinct()
+      .forEach(position -> spawnParticleAt(user, position));
   }
 
   private void spawnParticleAt(User user, Position position) {
     user.player().getWorld().spawnParticle(
       (Particle) particle(),
-      position.toLocation(user.player().getWorld()),
-      1
+      position.toLocation(user.player().getWorld()), 1
     );
   }
 

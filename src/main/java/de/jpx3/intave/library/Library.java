@@ -231,11 +231,13 @@ public final class Library {
       filePath = System.getProperty("user.home") + "/.intave/libraries";
     }
     workDirectory = new File(filePath);
-    if (!workDirectory.exists()) {
-      workDirectory.mkdir();
-    }
+	  if (!workDirectory.exists() && !workDirectory.mkdirs()) {
+		  throw new IllegalStateException("Intave was unable to create its system-wide folders: " + workDirectory);
+	  }
     File file = new File(workDirectory, String.format("/%s/%s/%s/%s.jar", path, name, version, name + (suffix.isEmpty() ? "" : (suffix.startsWith("-") ? suffix : "-" + suffix))));
-    file.getParentFile().mkdirs();
+	  if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
+		  throw new IllegalStateException("Intave was unable to create its library folders: " + file.getParentFile());
+	  }
     return file;
   }
 
