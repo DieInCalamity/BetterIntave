@@ -1079,15 +1079,7 @@ public final class Physics extends Check {
       String displayViolationIncrease = formatDouble(violationLevelIncrease, 1);
 
       if (violationLevelIncrease > 0) {
-        double hvRatio = horizontalViolationIncrease / violationLevelIncrease;
-        String extraSymbols = "";
-        if (hvRatio > 0.8) {
-          extraSymbols = "H" + displayHorizontalVL;
-        } else if (hvRatio < 0.2) {
-          extraSymbols = "V" + displayVerticalVL;
-        }
-        extraSymbols += "B" + displayViolationIncrease;
-        debug += " g:" + displayPhysicsVL + "+" + extraSymbols;
+        debug += " g:" + displayPhysicsVL + "+" + displayViolationIncrease + "(H" + displayHorizontalVL + "V" + displayVerticalVL + ")";
       } else if (violationLevelData.physicsVL > 25) {
         debug += " g:" + ChatColor.YELLOW + displayPhysicsVL + chatColor;
       } else if (violationLevelData.physicsVL > 5) {
