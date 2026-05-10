@@ -227,7 +227,7 @@ public final class ProtocolMetadata {
   }
 
   public boolean sneakAsVehicleSteer() {
-    return protocolVersion >= VER_26_1_1 && MinecraftVersions.VER26_1_1.atOrAbove();
+    return MinecraftVersions.VER1_21.atOrAbove();
   }
 
   public boolean sendsClientTickEnd() {
