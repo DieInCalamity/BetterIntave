@@ -280,7 +280,6 @@ fun registerPaperTestTask(serverVersion: String, javaVersion: Int) {
     jvmArgs("-Dintave.test.success=shutdown")
     javaLauncher.set(
       project.javaToolchains.launcherFor {
-        vendor.set(JvmVendorSpec.JETBRAINS)
         languageVersion.set(JavaLanguageVersion.of(javaVersion))
       }
     )
@@ -320,7 +319,6 @@ fun registerPaperRunTask(serverVersion: String, javaVersion: Int) {
     args("-o", "false")
     javaLauncher.set(
       project.javaToolchains.launcherFor {
-        vendor.set(JvmVendorSpec.JETBRAINS)
         languageVersion.set(JavaLanguageVersion.of(javaVersion))
       }
     )
@@ -339,7 +337,6 @@ fun registerFoliaRunTask(serverVersion: String, javaVersion: Int) {
     args("-o", "false")
     javaLauncher.set(
       project.javaToolchains.launcherFor {
-//        vendor.set(JvmVendorSpec.JETBRAINS)
         languageVersion.set(JavaLanguageVersion.of(javaVersion))
       }
     )
