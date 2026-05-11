@@ -1,8 +1,6 @@
 package de.jpx3.intave.check.combat.heuristics.combatpatterns.rotation;
 
-import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.check.combat.heuristics.ClassicHeuristic;
 import de.jpx3.intave.check.combat.heuristics.HeuristicsClassicType;
@@ -11,6 +9,7 @@ import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.tracker.entity.Entity;
+import de.jpx3.intave.packet.reader.EntityUseReader;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.ClientMath;
 import de.jpx3.intave.user.User;
@@ -60,22 +59,14 @@ public final class RotationSnapHeuristic extends ClassicHeuristic<RotationSnapHe
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
     packetsIn = {
-      USE_ENTITY
+      ATTACK_ENTITY, USE_ENTITY
     }
   )
-  public void receiveAttackPacket(PacketEvent event) {
-    Player player = event.getPlayer();
-    User user = userOf(player);
-    RotationSnapHeuristicMeta meta = metaOf(user);
-
-    PacketContainer packet = event.getPacket();
-    EnumWrappers.EntityUseAction action = packet.getEntityUseActions().readSafely(0);
-    if (action == null) {
-      action = packet.getEnumEntityUseActions().read(0).getAction();
-    }
-
-    if (action == EnumWrappers.EntityUseAction.ATTACK) {
-      meta.lastAttack = System.currentTimeMillis();
+  public void receiveAttackPacket(
+    User user, EntityUseReader reader
+  ) {
+    if (reader.isAttackPacket()) {
+      metaOf(user).lastAttack = System.currentTimeMillis();
     }
   }
 

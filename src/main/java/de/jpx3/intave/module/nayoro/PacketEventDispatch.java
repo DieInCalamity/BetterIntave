@@ -50,22 +50,22 @@ public final class PacketEventDispatch implements PacketEventSubscriber {
   @PacketSubscription(
     priority = LOWEST,
     packetsIn = {
-      USE_ENTITY
+      ATTACK_ENTITY, USE_ENTITY
     }
   )
   public void onUse(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
     PacketContainer packet = event.getPacket();
-    EntityUseReader packetReader = PacketReaders.readerOf(packet);
-    EnumWrappers.EntityUseAction useAction = packetReader.useAction();
+    EntityUseReader reader = PacketReaders.readerOf(packet);
+    EnumWrappers.EntityUseAction useAction = reader.useAction();
     if (useAction == EnumWrappers.EntityUseAction.ATTACK) {
       int attackerId = player.getEntityId();
-      int targetId = packetReader.entityId();
+      int targetId = reader.entityId();
       AttackEvent attackEvent = AttackEvent.create(attackerId, targetId);
       reverseSink.accept(user, attackEvent::accept);
     }
-    packetReader.release();
+    reader.release();
   }
 
   @PacketSubscription(

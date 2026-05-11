@@ -79,7 +79,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
 
   @PacketSubscription(
     priority = LOW,
-    packetsIn = USE_ENTITY
+    packetsIn = {ATTACK_ENTITY, USE_ENTITY}
   )
   public void receiveUseEntityPacket(PacketEvent event) {
     Player player = event.getPlayer();

@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static com.comphenix.protocol.wrappers.EnumWrappers.EntityUseAction.ATTACK;
 import static de.jpx3.intave.math.MathHelper.formatDouble;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.ATTACK_ENTITY;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.USE_ENTITY;
 import static de.jpx3.intave.module.mitigate.AttackNerfStrategy.*;
 
@@ -34,7 +35,7 @@ public class MicroBlink extends MetaCheckPart<Timer, MicroBlink.MicroBlinkMeta> 
   }
 
   @PacketSubscription(
-    packetsIn = USE_ENTITY
+    packetsIn = {ATTACK_ENTITY, USE_ENTITY}
   )
   public void receiveUseEntity(
     User user, EntityUseReader reader, Cancellable cancellable

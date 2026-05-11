@@ -4,10 +4,8 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedAttribute;
 import com.google.common.collect.Lists;
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.executor.Synchronizer;
@@ -17,6 +15,7 @@ import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.packet.PacketSender;
+import de.jpx3.intave.packet.reader.EntityUseReader;
 import de.jpx3.intave.player.DamageModify;
 import de.jpx3.intave.player.fake.FakePlayer;
 import de.jpx3.intave.user.User;
@@ -26,6 +25,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.ATTACK_ENTITY;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.USE_ENTITY;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.RESPAWN;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.SET_SLOT;
@@ -61,27 +62,27 @@ public final class AttackDispatcher extends Module {
   @PacketSubscription(
     priority = ListenerPriority.LOW,
     packetsIn = {
-      USE_ENTITY
+      ATTACK_ENTITY, USE_ENTITY
     }
   )
-  public void receiveUseEntity(PacketEvent event) {
-    Player player = event.getPlayer();
+  public void receiveUseEntity(
+    User user, EntityUseReader reader, Cancellable cancellable
+  ) {
+    Player player = user.player();
     if (player.isDead()) {
-      event.setCancelled(true);
+      cancellable.setCancelled(true);
       return;
     }
-    User user = UserRepository.userOf(player);
+
     MetadataBundle meta = user.meta();
     AttackMetadata attackData = meta.attack();
     ConnectionMetadata connectionData = meta.connection();
     MovementMetadata movementData = meta.movement();
-    PacketContainer packet = event.getPacket();
-    Integer entityId = packet.getIntegers().read(0);
-    EnumWrappers.EntityUseAction action = packet.getEntityUseActions().readSafely(0);
-    if (action == null) {
-      action = packet.getEnumEntityUseActions().read(0).getAction();
-    }
-    InventoryMetadata inventoryData = user.meta().inventory();
+
+	  int entityId = reader.entityId();
+    boolean isAttacking = reader.isAttackPacket();
+
+	  InventoryMetadata inventoryData = user.meta().inventory();
     ItemStack itemStack = inventoryData.heldItem();
 
     double f = user.meta().abilities().attributeValue("generic.attackDamage");
@@ -98,7 +99,7 @@ public final class AttackDispatcher extends Module {
     connectionData.attackDelays.occurred(ticks);
 
     movementData.pastEntityUse = 0;
-    if (action == EnumWrappers.EntityUseAction.ATTACK) {
+    if (isAttacking) {
       if (attackData.attackPastTicks > 10) {
         attackData.attackPastTicks = 0;
       }

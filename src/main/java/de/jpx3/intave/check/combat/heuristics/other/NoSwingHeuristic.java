@@ -1,14 +1,13 @@
 package de.jpx3.intave.check.combat.heuristics.other;
 
-import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.check.combat.heuristics.ClassicHeuristic;
 import de.jpx3.intave.check.combat.heuristics.HeuristicsClassicType;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
+import de.jpx3.intave.packet.reader.EntityUseReader;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.MovementMetadata;
@@ -25,25 +24,15 @@ public final class NoSwingHeuristic extends ClassicHeuristic<NoSwingHeuristic.No
   @PacketSubscription(
     priority = ListenerPriority.NORMAL,
     packetsIn = {
-      USE_ENTITY
+      ATTACK_ENTITY, USE_ENTITY
     }
   )
-  public void entityHit(PacketEvent event) {
-    Player player = event.getPlayer();
+  public void entityHit(
+    Player player, EntityUseReader reader
+  ) {
     User user = userOf(player);
     NoSwingMeta meta = metaOf(user);
-
-    PacketContainer packet = event.getPacket();
-    EnumWrappers.EntityUseAction action = packet.getEntityUseActions().readSafely(0);
-    if (action == null) {
-      action = packet.getEnumEntityUseActions().read(0).getAction();
-    }
-    if (action == EnumWrappers.EntityUseAction.ATTACK) {
-//      if (meta.swingsThisTick == 0 && meta.attacksThisTick == 0
-//        && user.meta().clientData().protocolVersion() == 47
-//      ) {
-//        event.setCancelled(true);
-//      }
+    if (reader.isAttackPacket()) {
       meta.attacksThisTick++;
     }
   }

@@ -16,6 +16,7 @@ import de.jpx3.intave.check.movement.physics.MovementConfigurationTests;
 import de.jpx3.intave.check.movement.physics.SimulatorBasicTests;
 import de.jpx3.intave.cleanup.ShutdownTasks;
 import de.jpx3.intave.entity.size.EntitySizeTests;
+import de.jpx3.intave.executor.BackgroundExecutors;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.klass.locate.ReferenceExistenceTests;
 import de.jpx3.intave.math.MathHelper;
@@ -206,7 +207,7 @@ public final class TestService implements EventProcessor {
       throwable.printStackTrace();
       if (IS_TEST_RUN) {
         IntaveLogger.logger().error("Shutting down server due to test failure");
-        System.exit(1);
+        BackgroundExecutors.execute(() -> System.exit(1));
       }
       return;
     } finally {

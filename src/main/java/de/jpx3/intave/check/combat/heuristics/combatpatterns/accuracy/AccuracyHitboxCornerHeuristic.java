@@ -13,6 +13,8 @@ import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.module.tracker.entity.Entity;
+import de.jpx3.intave.packet.reader.EntityUseReader;
+import de.jpx3.intave.packet.reader.PacketReaders;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.AttackMetadata;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
@@ -30,7 +32,7 @@ public final class AccuracyHitboxCornerHeuristic extends ClassicHeuristic<Accura
 
   @PacketSubscription(
     packetsIn = {
-      USE_ENTITY, ARM_ANIMATION
+      ATTACK_ENTITY, USE_ENTITY, ARM_ANIMATION
     }
   )
   public void evaluateFightAccuracy(PacketEvent event) {
@@ -52,11 +54,13 @@ public final class AccuracyHitboxCornerHeuristic extends ClassicHeuristic<Accura
     if (packetType == PacketType.Play.Client.ARM_ANIMATION) {
       heuristicMeta.swings++;
     } else {
-      EnumWrappers.EntityUseAction action = packet.getEntityUseActions().readSafely(0);
-      if (action == null) {
-        action = packet.getEnumEntityUseActions().read(0).getAction();
+      boolean isAttack;
+      try (EntityUseReader reader = PacketReaders.readerOf(packet)) {
+        isAttack = reader.isAttackPacket();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
       }
-      if (action == EnumWrappers.EntityUseAction.ATTACK) {
+      if (isAttack) {
         heuristicMeta.attacks++;
         heuristicMeta.swings--;
       }

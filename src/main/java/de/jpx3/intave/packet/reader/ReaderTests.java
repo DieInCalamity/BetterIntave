@@ -27,8 +27,14 @@ public final class ReaderTests extends Tests {
   public void testAllPlayerInfoReaders() {
     for (PacketType value : PacketType.values()) {
       if (PacketReaders.hasReader(value) && !EXCLUDED_TYPES.contains(value)) {
-        PacketContainer packet = new PacketContainer(value);
-        PacketReader reader = PacketReaders.readerOf(packet);
+        PacketContainer packet;
+	      try {
+          packet = new PacketContainer(value);
+        } catch (Throwable exception) {
+          exception.printStackTrace();
+          throw new IllegalStateException("Failed to create packet container for " + value);
+        }
+	      PacketReader reader = PacketReaders.readerOf(packet);
         Method[] declaredMethods;
         try {
           declaredMethods = reader.getClass().getDeclaredMethods();

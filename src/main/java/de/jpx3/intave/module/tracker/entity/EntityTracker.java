@@ -923,7 +923,7 @@ public final class EntityTracker extends Module {
 
   @PacketSubscription(
     packetsIn = {
-      USE_ENTITY
+      ATTACK_ENTITY, USE_ENTITY
     },
     priority = ListenerPriority.LOWEST
   )

@@ -67,6 +67,7 @@ public final class PacketReaders {
     setup(UPDATE_ENTITY_NBT, EntityReader::new);
     setup(USE_BED, EntityReader::new);
 
+    setup(ATTACK_ENTITY, EntityUseReader::new);
     setup(ABILITIES_IN, AbilityInReader::new);
     setup(BLOCK_DIG, BlockPositionReader::new);
     setup(BLOCK_PLACE, BlockInteractionReader::new);

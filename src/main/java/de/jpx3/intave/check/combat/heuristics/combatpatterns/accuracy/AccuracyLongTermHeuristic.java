@@ -10,13 +10,14 @@ import de.jpx3.intave.check.combat.heuristics.HeuristicsClassicType;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.tracker.entity.Entity;
+import de.jpx3.intave.packet.reader.EntityUseReader;
+import de.jpx3.intave.packet.reader.PacketReaders;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.AttackMetadata;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import org.bukkit.entity.Player;
 
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.ARM_ANIMATION;
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.USE_ENTITY;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
 public final class AccuracyLongTermHeuristic extends ClassicHeuristic<AccuracyLongTermHeuristic.ClickAccuracyMeta> {
   public AccuracyLongTermHeuristic(Heuristics parentCheck) {
@@ -25,7 +26,7 @@ public final class AccuracyLongTermHeuristic extends ClassicHeuristic<AccuracyLo
 
   @PacketSubscription(
     packetsIn = {
-      USE_ENTITY, ARM_ANIMATION
+      ATTACK_ENTITY, USE_ENTITY, ARM_ANIMATION
     }
   )
   public void evaluateFightAccuracy(PacketEvent event) {
@@ -45,11 +46,13 @@ public final class AccuracyLongTermHeuristic extends ClassicHeuristic<AccuracyLo
     if (packetType == PacketType.Play.Client.ARM_ANIMATION) {
       heuristicMeta.swings++;
     } else {
-      EnumWrappers.EntityUseAction action = packet.getEntityUseActions().readSafely(0);
-      if (action == null) {
-        action = packet.getEnumEntityUseActions().read(0).getAction();
+      boolean isAttack;
+      try (EntityUseReader reader = PacketReaders.readerOf(packet)) {
+        isAttack = reader.isAttackPacket();
+      } catch (Exception e) {
+	      throw new RuntimeException(e);
       }
-      if (action == EnumWrappers.EntityUseAction.ATTACK) {
+	    if (isAttack) {
         heuristicMeta.attacks++;
         heuristicMeta.swings--;
         double failRate = (heuristicMeta.swings / heuristicMeta.attacks) * 100.0;

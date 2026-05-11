@@ -26,8 +26,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.ENTITY_NBT_QUERY;
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.USE_ENTITY;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
 
 public final class EntityIdFilter extends Filter {
@@ -67,6 +66,7 @@ public final class EntityIdFilter extends Filter {
 
   @PacketSubscription(
     packetsIn = {
+      ATTACK_ENTITY,
       USE_ENTITY,
       ENTITY_NBT_QUERY
     },

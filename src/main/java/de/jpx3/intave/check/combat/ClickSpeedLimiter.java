@@ -1,9 +1,7 @@
 package de.jpx3.intave.check.combat;
 
 import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.check.MetaCheck;
 import de.jpx3.intave.module.Modules;
@@ -11,11 +9,13 @@ import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.violation.Violation;
 import de.jpx3.intave.module.violation.ViolationContext;
+import de.jpx3.intave.packet.reader.EntityUseReader;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,30 +35,23 @@ public final class ClickSpeedLimiter extends MetaCheck<ClickSpeedLimiter.ClickSp
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
     packetsIn = {
-      USE_ENTITY
+      ATTACK_ENTITY, USE_ENTITY
     }
   )
-  public void attackEntity(PacketEvent event) {
-    Player player = event.getPlayer();
-    User user = userOf(player);
+  public void attackEntity(
+    User user, EntityUseReader reader, Cancellable cancellable
+  ) {
     ClickSpeedLimiterMeta meta = metaOf(user);
-    PacketContainer packet = event.getPacket();
-    EnumWrappers.EntityUseAction action = packet.getEntityUseActions().readSafely(0);
-    if (action == null) {
-      action = packet.getEnumEntityUseActions().read(0).getAction();
-    }
-
-    if (action == EnumWrappers.EntityUseAction.ATTACK) {
+    if (reader.isAttackPacket()) {
       if (user.protocolVersion() <= ProtocolMetadata.VER_1_8) {
         meta.attackCountArray[meta.attackArrayIndex]++;
       } else {
         meta.attacksDuringFlyingPackets.add(System.currentTimeMillis());
       }
     }
-
     double timeDiff = (System.currentTimeMillis() - meta.lastFlag) / 1000d;
     if (timeDiff < 1d) {
-      event.setCancelled(true);
+      cancellable.setCancelled(true);
     }
   }
 

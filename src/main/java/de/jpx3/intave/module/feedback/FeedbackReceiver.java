@@ -321,7 +321,7 @@ public final class FeedbackReceiver extends Module {
   @PacketSubscription(
     priority = ListenerPriority.LOWEST,
     packetsIn = {
-      USE_ENTITY
+      ATTACK_ENTITY, USE_ENTITY
     }
   )
   public void cancelAttacksIfTransactionMissing(PacketEvent event) {
