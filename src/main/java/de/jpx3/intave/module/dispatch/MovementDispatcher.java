@@ -748,6 +748,10 @@ public final class MovementDispatcher extends Module {
     if (!vehicleMove && !movement.awaitTeleport && !movement.awaitOutgoingTeleport && !movement.invalidMovement && !movement.dropPostTickMotionProcessing) {
       if (claimsToBeOnGround != movement.onGround) {
         double requiredFallDistance = Collision.present(player, user.meta().movement().boundingBox().grow(0.1, 0.1, 0.1)) ? 0.5 : 0.1;
+        boolean shulkerInteraction = movement.shulkerXToleranceRemaining > 0 || movement.shulkerYToleranceRemaining > 0 || movement.shulkerZToleranceRemaining > 0;
+        if (shulkerInteraction) {
+          requiredFallDistance = Math.max(requiredFallDistance, 3);
+        }
         if (movement.artificialFallDistance > requiredFallDistance && !movement.onGround && claimsToBeOnGround) {
           Violation violation = Violation.builderFor(Physics.class)
             .forPlayer(player)
