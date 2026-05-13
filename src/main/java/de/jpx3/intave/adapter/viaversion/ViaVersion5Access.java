@@ -89,13 +89,12 @@ public final class ViaVersion5Access implements ViaVersionAccess {
 
   @Override
   public boolean available(String version) {
-    List<String> supportedVersions = Arrays.asList("4.1", "4.9", "5.0", "5.1", "5.2", "5.3");
+    List<String> supportedVersions = Arrays.asList("4.1", "4.9", "5.");
     return supportedVersions.stream().anyMatch(version::startsWith);
   }
 
   @Override
   public String version() {
     return Bukkit.getPluginManager().getPlugin("ViaVersion").getDescription().getVersion();
-
   }
 }
