@@ -1,8 +1,8 @@
 package de.jpx3.intave.module.dispatch;
 
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.block.type.BlockTypeAccess;
 import de.jpx3.intave.check.movement.Physics;
 import de.jpx3.intave.executor.Synchronizer;
@@ -34,21 +34,8 @@ public final class DesyncWatchdog extends Module {
 
   @Override
   public void enable() {
-    Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, () -> {
-      UserRepository.applyOnAll(this::performDesyncCheck);
-      testAction();
-    }, 20, 20);
-  }
-
-  private void testAction() {
-//    VoxelShape shape = VoxelShape.fromBox(0, 0, 0, 1, 1, 1);
-//    VoxelShape topCutoff = VoxelShape.fromBox(0, 0.5, 0, 1, 1, 1);
-//    BlockShape finalShape = shape.subtract(topCutoff);
-//    BlockShape contextualized = finalShape.contextualized(5, 5, 5);
-//    BoundingBox boundingBox = BoundingBox.fromBounds(0, 0, 0, 1, 2, 1).offset(5, 5.6, 5);
-//    System.out.println(contextualized);
-//    System.out.println(contextualized.boundingBoxes());
-//    System.out.println(contextualized.allowedOffset(Direction.Axis.Y_AXIS, boundingBox, -0.5));
+    Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, () ->
+      UserRepository.applyOnAll(this::performDesyncCheck), 20, 20);
   }
 
   private void performDesyncCheck(User user) {
@@ -57,12 +44,16 @@ public final class DesyncWatchdog extends Module {
       return;
     }
 
+    if (user.trustFactor().atLeast(TrustFactor.BYPASS)) {
+      return;
+    }
+
     PositionBundle positionBundle = positionBundleOf(user);
     AtomicInteger violationCounter = this.violationCounter.get(user);
     if (positionBundle.anyDesynced()) {
       int currentVL = violationCounter.incrementAndGet();
       if (currentVL > 1) {
-        IntaveLogger.logger().warn("Server and Intave don't seem agree on position for " + user.player().getName() + " (" + currentVL + "/4)");
+        IntaveLogger.logger().warn("Server and Intave don't seem to agree on position for " + user.player().getName() + " (" + (currentVL-1) + "/3)");
       }
       if (currentVL > 3) {
         Violation violation = Violation.builderFor(Physics.class)
