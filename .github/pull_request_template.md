@@ -1,3 +1,8 @@
+## Contact us!
+Before you request this PR, please get in touch on discord (@therichy).
+This will increase your PR merge success chance drastically.
+You can delete this section, it does not need to be in your PR description.
+
 ## Describe your changes
 
 ## What was your testing methodology?
