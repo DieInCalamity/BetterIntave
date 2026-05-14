@@ -202,12 +202,24 @@ public final class PlayerTeleportReader extends AbstractPacketReader {
     }
   }
 
+  /*
+    Flushing is usually not required, but some very niece packet readers do
+    require flushing before the packet is accessed.
+    If you want to access a packet modified with a packet-reader, make sure
+    to add a call to this method before.
+   */
   @Override
-  public void release() {
+  public void flush() {
     if (mod) {
       writePositionMoveRotation(positionMoveRotation);
     }
     mod = false;
+    super.flush();
+  }
+
+  @Override
+  public void release() {
+    flush();
     positionMoveRotation = null;
     super.release();
   }

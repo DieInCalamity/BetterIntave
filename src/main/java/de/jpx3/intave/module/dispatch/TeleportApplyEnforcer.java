@@ -155,13 +155,11 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     }
 
     /*
-      We release the reader here, because releasing the teleport reader actually performs
-      the write operation to the packet.
-      However, since the doubleTickFeedback code below performs a
+      We flush the reader here, since the doubleTickFeedback code below performs a
       copy of our packet to sandwich it between two feedback packets,
       we need this write operation before.
      */
-    reader.release();
+    reader.flush();
 
     /*
      * ViaBackwards messes up the order of teleportation packets, so we need to account for that
@@ -182,6 +180,8 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     movementData.teleportResendCountdown = 20;
 //    movementData.outgoingTeleportCountdown = 5;
     movementData.isTeleportConfirmationPacket = false;
+
+    reader.release();
   }
 
   @PacketSubscription(
