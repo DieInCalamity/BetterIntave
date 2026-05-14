@@ -290,7 +290,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
 
         boolean hasNotTimedOut = !entityInTimeout(user, attackedEntity, pendingAttack.pendingFeedbackPackets());
         boolean unsafeSynchronization = movement.dropPostTickMotionProcessing && protocol.protocolVersion() >= 755;
-        boolean entityOutOfSync = (!protocol.flyingPacketsAreSent() && movement.receivedFlyingPacketIn(2))
+        boolean entityOutOfSync = (!protocol.flyingPacketsAreSent() && !protocol.sendsClientTickEnd() && movement.receivedFlyingPacketIn(2))
           || !attackedEntity.clientSynchronized || unsafeSynchronization;
 
         // As entity attack redirections are processed inside this, we don't need to do anything extra to block hits besides
