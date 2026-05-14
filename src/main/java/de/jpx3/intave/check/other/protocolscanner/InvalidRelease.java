@@ -25,6 +25,7 @@ public class InvalidRelease extends CheckPart<ProtocolScanner> {
         User user = userOf(player);
         EnumWrappers.PlayerDigType digType = packet.getPlayerDigTypes().readSafely(0);
         if (digType == null) return;
+        if (user.protocolVersion() < 47) return;
         if (digType == EnumWrappers.PlayerDigType.RELEASE_USE_ITEM) {
             EnumWrappers.Direction face = packet.getDirections().readSafely(0);
             // Vanilla always sends DOWN
