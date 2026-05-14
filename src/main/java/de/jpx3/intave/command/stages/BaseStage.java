@@ -1,6 +1,5 @@
 package de.jpx3.intave.command.stages;
 
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.command.CommandStage;
@@ -12,7 +11,6 @@ import de.jpx3.intave.module.actionbar.ActionBarDisplayer;
 import de.jpx3.intave.module.actionbar.DisplayType;
 import de.jpx3.intave.module.violation.ViolationVerboseMode;
 import de.jpx3.intave.player.ProfileLookup;
-import de.jpx3.intave.security.LicenseAccess;
 import de.jpx3.intave.user.MessageChannel;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
@@ -201,6 +199,7 @@ public final class BaseStage extends CommandStage {
     POSITION(MessageChannel.DEBUG_POSITION),
     PACKET_HOLD(MessageChannel.DEBUG_PACKET_HOLD),
     COLLISIONS(MessageChannel.DEBUG_COLLISIONS),
+    HITBOXES(MessageChannel.DEBUG_HITBOXES)
 
     ;
 

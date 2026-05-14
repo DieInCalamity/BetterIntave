@@ -52,8 +52,12 @@ import de.jpx3.intave.user.MessageChannel;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.*;
+import de.jpx3.intave.world.Particles;
 import de.jpx3.intave.world.WorldHeight;
-import org.bukkit.*;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventPriority;
@@ -614,31 +618,7 @@ public final class MovementDispatcher extends Module {
       .stream()
       .flatMap(box -> box.vertices().stream())
       .distinct()
-      .forEach(position -> spawnParticleAt(user, position));
-  }
-
-  private void spawnParticleAt(User user, Position position) {
-    user.player().getWorld().spawnParticle(
-      (Particle) particle(),
-      position.toLocation(user.player().getWorld()), 1
-    );
-  }
-
-  private Object particleCache;
-
-  private Object particle() {
-    if (particleCache == null) {
-      try {
-        try {
-          particleCache = Particle.VILLAGER_HAPPY;
-        } catch (NoSuchFieldError e) {
-          particleCache = Particle.class.getField("HAPPY_VILLAGER").get(null);
-        }
-      } catch (IllegalAccessException | NoSuchFieldException e) {
-        throw new RuntimeException(e);
-      }
-    }
-    return particleCache;
+      .forEach(position -> Particles.spawnVillagerHappyParticleAt(user, position));
   }
 
   private void updatePotionEffects(User user) {

@@ -67,7 +67,8 @@ public final class Raytracing {
     double lastPositionX, double lastPositionY, double lastPositionZ,
     float lastRotationYaw,
     float rotationYaw, float rotationPitch,
-    double expandHitbox, boolean withoutMouseDelayFix) {
+    double expandHitbox, boolean withoutMouseDelayFix
+  ) {
     double blockReachDistance = Raytracing.reachDistanceOf(player);
 //    float rotationYaw = movementData.rotationYaw % 360;
 

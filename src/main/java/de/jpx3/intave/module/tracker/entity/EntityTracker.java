@@ -34,9 +34,12 @@ import de.jpx3.intave.packet.reader.PacketReaders;
 import de.jpx3.intave.player.fake.FakePlayer;
 import de.jpx3.intave.player.fake.IdentifierReserve;
 import de.jpx3.intave.share.ClientMath;
+import de.jpx3.intave.share.Position;
+import de.jpx3.intave.user.MessageChannel;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.*;
+import de.jpx3.intave.world.Particles;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -54,8 +57,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static de.jpx3.intave.module.feedback.FeedbackOptions.*;
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
 import static de.jpx3.intave.user.meta.ConnectionMetadata.DecoySide.FIRST_IS_DECOY;
 import static de.jpx3.intave.user.meta.ConnectionMetadata.DecoySide.SECOND_IS_DECOY;
@@ -483,56 +486,16 @@ public final class EntityTracker extends Module {
   @PacketSubscription(
     priority = ListenerPriority.HIGHEST,
     packetsIn = {
-      POSITION, POSITION_LOOK, LOOK, FLYING, STEER_VEHICLE
+      POSITION, POSITION_LOOK, LOOK, FLYING, STEER_VEHICLE, CLIENT_TICK_END
     }
   )
   public void receiveMovement(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    if (user.meta().protocol().sendsClientTickEnd()) {
-      return;
-    }
-    ConnectionMetadata synchronizeData = user.meta().connection();
-    MovementMetadata movement = user.meta().movement();
-    if (movement.lastTeleport == 0) {
-      return;
-    }
-    for (Entity entity : synchronizeData.entities()) {
-      int ticksAfterPositionChange = entity.position.newPosRotationIncrements;
-      entity.onUpdate();
-      if (entity.tracingEnabled() && ticksAfterPositionChange > 0) {
-        nayoroEntityPositionUpdate(player, entity);
-      }
-      if (movement.isRiding(entity.entityId()) && !MinecraftVersions.VER1_9_0.atOrAbove()) {
-        double originalX = entity.position.newPosX;
-        double originalY = entity.position.newPosY;
-        double originalZ = entity.position.newPosZ;
-        if (Math.abs(originalX) < 0.1 && Math.abs(originalY) < 0.1 && Math.abs(originalZ) < 0.1) {
-          originalX = entity.position.posX;
-          originalY = entity.position.posY;
-          originalZ = entity.position.posZ;
-        }
-        movement.positionX = movement.verifiedPositionX = movement.lastPositionX = originalX;
-        movement.positionY = movement.verifiedPositionY = movement.lastPositionY = originalY;
-        movement.positionZ = movement.verifiedPositionZ = movement.lastPositionZ = originalZ;
-        movement.verifiedPositionOrigin = "Riding pos sync (1.8)";
-        movement.setBaseMotionX(0);
-        movement.setBaseMotionY(0);
-        movement.setBaseMotionZ(0);
-      }
-    }
-  }
+    PacketType packetType = event.getPacketType();
 
-  @PacketSubscription(
-    packetsIn = {
-      CLIENT_TICK_END
-    },
-    debug = true
-  )
-  public void on(PacketEvent event) {
-    Player player = event.getPlayer();
-    User user = UserRepository.userOf(player);
-    if (!user.meta().protocol().sendsClientTickEnd()) {
+    boolean isClientTickEnd = packetType == PacketType.Play.Client.CLIENT_TICK_END;
+    if (user.meta().protocol().sendsClientTickEnd() && !isClientTickEnd) {
       return;
     }
     ConnectionMetadata synchronizeData = user.meta().connection();
@@ -546,6 +509,13 @@ public final class EntityTracker extends Module {
       if (entity.tracingEnabled() && ticksAfterPositionChange > 0) {
         nayoroEntityPositionUpdate(player, entity);
       }
+
+      if (user.receives(MessageChannel.DEBUG_HITBOXES)) {
+        for (Position vertex : entity.boundingBox().vertices()) {
+          Particles.spawnVillagerHappyParticleAt(user, vertex);
+        }
+      }
+
       if (movement.isRiding(entity.entityId()) && !MinecraftVersions.VER1_9_0.atOrAbove()) {
         double originalX = entity.position.newPosX;
         double originalY = entity.position.newPosY;

@@ -17,6 +17,7 @@ public enum MessageChannel {
   DEBUG_POSITION("intave.command.verbose", false),
   DEBUG_PACKET_HOLD("intave.command.verbose", false),
   DEBUG_COLLISIONS("intave.command.verbose", false),
+  DEBUG_HITBOXES("intave.command.verbose", false)
 
   ;
 

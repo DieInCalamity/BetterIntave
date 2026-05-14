@@ -1,10 +1,10 @@
 package de.jpx3.intave.check.combat;
 
+import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.utility.MinecraftVersion;
 import com.comphenix.protocol.wrappers.EnumWrappers.EntityUseAction;
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.trust.TrustFactor;
@@ -235,11 +235,18 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
 
   @PacketSubscription(
     priority = NORMAL,
-    packetsIn = {FLYING, LOOK, POSITION, POSITION_LOOK}
+    packetsIn = {FLYING, LOOK, POSITION, POSITION_LOOK, CLIENT_TICK_END}
   )
   public void receiveMovementPacket(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
+    PacketType packetType = event.getPacketType();
+
+    boolean isClientTickEnd = packetType == PacketType.Play.Client.CLIENT_TICK_END;
+    if (user.meta().protocol().sendsClientTickEnd() && !isClientTickEnd) {
+      return;
+    }
+
     AttackRaytraceMeta meta = metaOf(user);
     AbilityMetadata abilities = user.meta().abilities();
     MovementMetadata movement = user.meta().movement();
@@ -251,7 +258,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
       pendingAttacks.clear();
     }
     // Apply flying packets (first boolean)
-    if (!packet.getBooleans().read(1)) {
+    if (!isClientTickEnd && !packet.getBooleans().read(1)) {
       meta.flyingPacketCounter++;
     } else {
       meta.flyingPacketCounter = 0;
@@ -812,18 +819,18 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
   private float computeExpansionFor(User user, boolean isPre) {
     MetadataBundle meta = user.meta();
     ProtocolMetadata clientData = meta.protocol();
-    MovementMetadata movement = meta.movement();
-    AttackRaytraceMeta attackRaytraceMeta = metaOf(user);
+	  AttackRaytraceMeta attackRaytraceMeta = metaOf(user);
 
-    float baseline = 0;
+    boolean sendsClientTickEnd = user.meta().protocol().sendsClientTickEnd();
+
+    float baseline;
     // Process 1.8 and lower
     if (clientData.flyingPacketsAreSent()) {
       baseline = attackRaytraceMeta.flyingPacketCounter > 0 ? 0.13f : 0.1f;
     } else {
-      baseline = 0.13f;
+      baseline = sendsClientTickEnd ? 0.04f : 0.13f;
     }
-    // Process 1.9 and higher
-    if (isPre && System.currentTimeMillis() - attackRaytraceMeta.lastReachDetection > 20_000) {
+    if (isPre && !sendsClientTickEnd && System.currentTimeMillis() - attackRaytraceMeta.lastReachDetection > 20_000) {
       baseline += 0.75f;
     }
     return baseline;
