@@ -13,9 +13,11 @@ import de.jpx3.intave.user.User;
 import org.bukkit.entity.Player;
 
 public class InvalidRelease extends CheckPart<ProtocolScanner> {
+
     public InvalidRelease(ProtocolScanner parentCheck) {
         super(parentCheck);
     }
+
     @PacketSubscription(packetsIn = {
             PacketId.Client.BLOCK_DIG
     })
