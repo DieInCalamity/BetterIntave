@@ -1,7 +1,6 @@
 package de.jpx3.intave.check.world.placementanalysis;
 
 import com.comphenix.protocol.events.PacketEvent;
-import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.world.PlacementAnalysis;
 import de.jpx3.intave.math.MathHelper;
@@ -26,14 +25,11 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Client.LOOK;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION_LOOK;
 import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DISPLAY_IN_ALL_VERBOSE_MODES;
 
-//@Reserved
 public final class SharpRotation extends MetaCheckPart<PlacementAnalysis, SharpRotation.SharpRotationMeta> {
-  private final IntavePlugin plugin;
 
-  public SharpRotation(PlacementAnalysis parentCheck) {
+	public SharpRotation(PlacementAnalysis parentCheck) {
     super(parentCheck, SharpRotationMeta.class);
-    plugin = IntavePlugin.singletonInstance();
-  }
+	}
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
@@ -61,7 +57,8 @@ public final class SharpRotation extends MetaCheckPart<PlacementAnalysis, SharpR
     User user = userOf(player);
     SharpRotationMeta meta = metaOf(user);
 
-    if (place.getBlock().getY() < player.getLocation().getBlockY()) {
+    if (place.getBlock().getY() < player.getLocation().getBlockY() &&
+      place.getBlock().getY() == place.getBlockAgainst().getY()) {
       if (System.currentTimeMillis() - meta.sharpRotationReset > 10000) {
         meta.sharpRotations -= 1;
         meta.sharpRotations /= 2;
