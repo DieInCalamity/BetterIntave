@@ -5,6 +5,7 @@ import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.block.fluid.Fluid;
 import de.jpx3.intave.block.fluid.Fluids;
 import de.jpx3.intave.block.physics.BlockProperties;
+import de.jpx3.intave.diagnostic.timings.Timings;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.math.SinusCache;
 import de.jpx3.intave.player.collider.Colliders;
@@ -31,6 +32,7 @@ public final class BoatSimulator extends Simulator {
     SimulationEnvironment environment,
     MovementConfiguration configuration
   ) {
+    Timings.CHECK_PHYSICS_SIMULATOR_BOAT.start();
     MovementMetadata movement = user.meta().movement();
 
     movement.previousBoatStatus = movement.boatStatus;
@@ -41,6 +43,8 @@ public final class BoatSimulator extends Simulator {
     ColliderResult collision = Colliders.collision(
       user, environment, motion, movement.inWeb, movement.verifiedPositionX, movement.verifiedPositionY, movement.verifiedPositionZ
     );
+
+    Timings.CHECK_PHYSICS_SIMULATOR_BOAT.stop();
     return Simulation.of(user, configuration, collision);
   }
 

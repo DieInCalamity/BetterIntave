@@ -1,5 +1,6 @@
 package de.jpx3.intave.check.movement.physics;
 
+import de.jpx3.intave.diagnostic.timings.Timings;
 import de.jpx3.intave.player.collider.Colliders;
 import de.jpx3.intave.player.collider.complex.ColliderResult;
 import de.jpx3.intave.player.collider.simple.SimpleColliderResult;
@@ -19,6 +20,7 @@ final class ElytraSimulator extends BaseSimulator {
     SimulationEnvironment environment,
     MovementConfiguration configuration
   ) {
+    Timings.CHECK_PHYSICS_SIMULATOR_ELYTRA.start();
     float rotationPitch = environment.rotationPitch();
     Vector lookVector = environment.lookVector();
 
@@ -66,6 +68,7 @@ final class ElytraSimulator extends BaseSimulator {
       positionX, positionY, positionZ
     );
     notePossibleFlyingPacket(user, collisionResult);
+    Timings.CHECK_PHYSICS_SIMULATOR_ELYTRA.stop();
     return Simulation.of(user, configuration, collisionResult);
   }
 

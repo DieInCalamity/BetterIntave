@@ -8,6 +8,7 @@ import de.jpx3.intave.block.fluid.Fluids;
 import de.jpx3.intave.block.physics.BlockPhysics;
 import de.jpx3.intave.block.physics.BlockProperties;
 import de.jpx3.intave.block.type.MaterialSearch;
+import de.jpx3.intave.diagnostic.timings.Timings;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.tracker.entity.Entity;
@@ -46,6 +47,7 @@ class BaseSimulator extends Simulator {
     SimulationEnvironment environment,
     MovementConfiguration configuration
   ) {
+    Timings.CHECK_PHYSICS_SIMULATOR_BASE.start();
     // guessed movement configuration
     float forward = configuration.forward() * 0.98f;
     float strafe = configuration.strafe() * 0.98f;
@@ -152,8 +154,11 @@ class BaseSimulator extends Simulator {
     if (!inWater && !elytraFlying && !inLava) {
       tryRelinkFlyingPosition(user, motion, environment);
     }
+    Timings.CHECK_PHYSICS_SIMULATOR_BASE_COLLIDER.start();
     ColliderResult collisionResult = Colliders.collision(user, environment, motion, environment.inWeb(), positionX, positionY, positionZ);
+    Timings.CHECK_PHYSICS_SIMULATOR_BASE_COLLIDER.stop();
     notePossibleFlyingPacket(user, collisionResult);
+    Timings.CHECK_PHYSICS_SIMULATOR_BASE.stop();
     return Simulation.of(user, configuration, collisionResult);
   }
 
